@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Brug</string>
+    <string name="mainGoButtonText">GO</string>
+    <string name="mainNameHintText">Name</string>
+    <string name="greetingMessageText">Hello, %s!</string>
 </resources>
