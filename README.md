@@ -12,7 +12,7 @@ Brug is currently developed by:
 
 - Jean-Etienne Charbonnet
 - Omar El Malki
-- Hassan Habib
 - Hamza Hassoune
+- Hassan Habib
 - Paul McIntyre
 - Mounir Raki
