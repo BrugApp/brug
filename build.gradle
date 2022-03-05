@@ -5,6 +5,13 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.6.10' apply false
 }
 
+allprojects {
+    repositories {
+        google()
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
