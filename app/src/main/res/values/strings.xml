@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Brug</string>
+    <string name="welcome_to_unlost">Welcome to Unlost!</string>
+    <string name="password">Password</string>
+    <string name="email_address">Email Address</string>
+    <string name="log_on">Log On</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="camera">Camera</string>
+    <string name="todo">TODO</string>
 </resources>

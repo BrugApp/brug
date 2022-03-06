@@ -22,6 +22,6 @@ class MainActivityTest {
     fun textViewDisplaysCorrectText() {
         // Context of the app under test.
         Espresso.onView(ViewMatchers.withId(R.id.mainHelloWorld))
-            .check(ViewAssertions.matches(ViewMatchers.withText("Hello World!")))
+            .check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
     }
 }
