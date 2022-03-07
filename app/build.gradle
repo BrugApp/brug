@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test:rules:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
-
+    implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'//QRCode Scanner
 }
 
 tasks.withType(Test) {

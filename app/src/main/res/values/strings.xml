@@ -7,4 +7,6 @@
     <string name="sign_up">Sign Up</string>
     <string name="camera">Camera</string>
     <string name="todo">TODO</string>
+    <string name="add_item">Report item…</string>
+    <string name="report_item">Report</string>
 </resources>
