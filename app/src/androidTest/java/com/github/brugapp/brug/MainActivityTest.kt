@@ -1,6 +1,7 @@
 package com.github.brugapp.brug
 
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -32,12 +33,13 @@ class QrCodeScannerActivityTest {
     var qrCodeScannerActivityRule = ActivityScenarioRule(QrCodeScannerActivity::class.java)
 
     //https://stackoverflow.com/questions/33929937/android-marshmallow-test-permissions-with-espresso
-    @get:Rule var permissionRule: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+    @get:Rule var permissionRule: GrantPermissionRule = GrantPermissionRule
+        .grant(android.Manifest.permission.CAMERA)
 
     @Test
     fun hintTextIsCorrect(){
-        onView(withHint("Report item…"))
-            .check(ViewAssertions.matches(isDisplayed()))
+        onView(withId(R.id.editTextReportItem))
+            .check(ViewAssertions.matches((withHint("Report item…"))))
     }
 
 }
