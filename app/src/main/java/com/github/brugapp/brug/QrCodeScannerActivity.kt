@@ -1,8 +1,10 @@
 package com.github.brugapp.brug
 
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +25,22 @@ class QrCodeScannerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_qr_code_scanner)
         setupPermissions()
         codeScanner()
+    }
+
+    //Junk function until we have the database
+    private fun isValidItem(itemId:String): Boolean {
+        return itemId == "sudo1234"
+    }
+
+    @SuppressLint("SetTextI18n")
+    fun sendRequest(view: View){
+        val editText = findViewById<EditText>(R.id.editTextReportItem)
+        val itemId = editText.text.toString()
+        if( isValidItem(itemId)){
+            editText.setText("Valid ID")
+        }else{
+            editText.setText("Invalid ID")
+        }
     }
 
     private fun codeScanner() {
@@ -87,5 +105,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
             }
         }
     }
+
+
 
 }

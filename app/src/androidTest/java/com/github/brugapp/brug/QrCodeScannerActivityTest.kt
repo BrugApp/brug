@@ -1,8 +1,14 @@
 package com.github.brugapp.brug
 
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
+import android.content.Intent
+import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.closeSoftKeyboard
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
@@ -23,12 +29,41 @@ class QrCodeScannerActivityTest {
 
     @Test
     fun hintTextIsCorrect(){
-        Espresso.onView(ViewMatchers.withId(R.id.editTextReportItem))
-            .check(ViewAssertions.matches((ViewMatchers.withHint("Report item…"))))
+        onView(withId(R.id.editTextReportItem))
+            .check(matches((withHint("Report item…"))))
     }
 
     @Test
-    fun cameraPermissionsNotGranted(){
+    fun sendInvalidId(){
+        onView(withId(R.id.editTextReportItem)).perform(typeText("Déjanter"))
+        closeSoftKeyboard()
+        onView(withId(R.id.buttonReportItem)).perform(click())
+        onView(withText("Invalid ID")).check(matches(isDisplayed()))
+    }
 
+    @Test
+    fun sendValidId(){
+        //Dumb valid ID until we have the database
+        onView(withId(R.id.editTextReportItem)).perform(typeText("sudo1234"))
+        closeSoftKeyboard()
+        onView(withId(R.id.buttonReportItem)).perform(click())
+        onView(withText("Valid ID")).check(matches(isDisplayed()))
+    }
+
+}
+
+@RunWith(AndroidJUnit4::class)
+class  QrCodeScannerActivityIntent{
+    private val intent = Intent(ApplicationProvider.getApplicationContext(),QrCodeScannerActivity::class.java)
+
+    @Test
+    fun activityNoCrashOnResumeAndOnPause(){
+        //https://stackoverflow.com/questions/61814729/is-there-a-way-to-pause-and-resume-activity-during-a-espresso-test
+        val activityScenario = ActivityScenario.launch<QrCodeScannerActivity>(intent)
+        // the activity's onCreate, onStart and onResume methods have been called at this point
+        activityScenario.moveToState(Lifecycle.State.STARTED)
+        // the activity's onPause method has been called at this point
+        activityScenario.moveToState(Lifecycle.State.RESUMED)
+        // the activity's onResume method has been called at this point
     }
 }
