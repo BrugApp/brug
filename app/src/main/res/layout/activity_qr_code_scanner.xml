@@ -7,6 +7,38 @@
     android:layout_height="match_parent"
     tools:context=".QrCodeScannerActivity">
 
+    <EditText
+        android:id="@+id/editTextReportItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="538dp"
+        android:layout_marginBottom="148dp"
+        android:autofillHints=""
+        android:ems="10"
+        android:hint="@string/add_item"
+        android:inputType="text"
+        android:minHeight="48dp"
+        android:textColorHint="#78909C"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonReportItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="627dp"
+        android:layout_marginBottom="56dp"
+        android:onClick="sendRequest"
+        android:text="@string/report_item"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.budiyev.android.codescanner.CodeScannerView
         android:id="@+id/scanner_view"
         android:layout_width="wrap_content"
@@ -25,38 +57,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:maskColor="#77000000" />
-
-    <EditText
-        android:id="@+id/editTextReportItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="538dp"
-        android:layout_marginBottom="148dp"
-        android:minHeight="48dp"
-        android:height="48dp"
-        android:width="250dp"
-        android:textSize="24sp"
-        android:ems="10"
-        android:hint="@string/add_item"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:inputType="text"
-        android:autofillHints="" />
-
-    <Button
-        android:id="@+id/buttonReportItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="627dp"
-        android:layout_marginBottom="56dp"
-        android:onClick="sendRequest"
-        android:text="@string/report_item"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
