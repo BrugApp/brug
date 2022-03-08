@@ -35,10 +35,11 @@ class QrCodeScannerActivityTest {
 
     @Test
     fun sendInvalidId(){
-        onView(withId(R.id.editTextReportItem)).perform(typeText("Déjanter"))
+        onView(withId(R.id.editTextReportItem)).perform(typeText("voiture"))
         closeSoftKeyboard()
         onView(withId(R.id.buttonReportItem)).perform(click())
-        onView(withText("Invalid ID")).check(matches(isDisplayed()))
+        onView(withId(R.id.editTextReportItem))
+            .check(matches(withText("Invalid ID")))
     }
 
     @Test
@@ -47,7 +48,8 @@ class QrCodeScannerActivityTest {
         onView(withId(R.id.editTextReportItem)).perform(typeText("sudo1234"))
         closeSoftKeyboard()
         onView(withId(R.id.buttonReportItem)).perform(click())
-        onView(withText("Valid ID")).check(matches(isDisplayed()))
+        onView(withId(R.id.editTextReportItem))
+            .check(matches(withText("Valid ID")))
     }
 
 }
