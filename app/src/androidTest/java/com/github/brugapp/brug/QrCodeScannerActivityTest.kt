@@ -35,6 +35,7 @@ class QrCodeScannerActivityTest {
 
     @Test
     fun sendInvalidId(){
+        //Dumb valid ID until we have the database
         onView(withId(R.id.editTextReportItem)).perform(typeText("voiture"))
         closeSoftKeyboard()
         onView(withId(R.id.buttonReportItem)).perform(click())
