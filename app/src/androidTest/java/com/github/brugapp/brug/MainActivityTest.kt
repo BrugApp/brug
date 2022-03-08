@@ -1,7 +1,6 @@
 package com.github.brugapp.brug
 
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -21,6 +20,9 @@ class MainActivityTest {
     @get:Rule
     var mainActivityRule = ActivityScenarioRule(MainActivity::class.java)
 
+    @get:Rule var permissionRule: GrantPermissionRule = GrantPermissionRule
+        .grant(android.Manifest.permission.CAMERA)
+
     @Test
     fun textViewDisplaysCorrectText() {
         // Context of the app under test.
@@ -28,30 +30,11 @@ class MainActivityTest {
             .check(ViewAssertions.matches(withText("Welcome to Unlost!")))
     }
 
-    @get:Rule var permissionRule: GrantPermissionRule = GrantPermissionRule
-        .grant(android.Manifest.permission.CAMERA)
 
     @Test
-    fun CanSeeHintWhenCameraIsClicked(){
+    fun canSeeHintWhenCameraIsClicked(){
         onView(withId(R.id.mainCamera)).perform(click())
         onView(withId(R.id.editTextReportItem))
             .check(ViewAssertions.matches((withHint("Report item…"))))
-
     }
-}
-@RunWith(AndroidJUnit4::class)
-class QrCodeScannerActivityTest {
-    @get:Rule
-    var qrCodeScannerActivityRule = ActivityScenarioRule(QrCodeScannerActivity::class.java)
-
-    //https://stackoverflow.com/questions/33929937/android-marshmallow-test-permissions-with-espresso
-    @get:Rule var permissionRule: GrantPermissionRule = GrantPermissionRule
-        .grant(android.Manifest.permission.CAMERA)
-
-    @Test
-    fun hintTextIsCorrect(){
-        onView(withId(R.id.editTextReportItem))
-            .check(ViewAssertions.matches((withHint("Report item…"))))
-    }
-
 }
