@@ -2,7 +2,6 @@ package com.github.brugapp.brug
 
 import android.app.Activity
 import android.app.Instrumentation
-import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -25,7 +24,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ActivityScoped
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -38,14 +36,14 @@ import org.junit.Test
 @HiltAndroidTest
 class SignInActivityTestFake {
 
-    // Inject Fake depencencies
+    // Inject Fake dependencies
     @Module
     @InstallIn(ActivityComponent::class)
     object FakeSignInClientModule {
         @ActivityScoped
         @Provides
-        fun provideFakeSignInClient(@ApplicationContext context: Context): SignInClient {
-            return FakeSignInClient(context)
+        fun provideFakeSignInClient(): SignInClient {
+            return FakeSignInClient()
         }
     }
 
@@ -54,7 +52,7 @@ class SignInActivityTestFake {
     object FakeSignInAccountModule {
         @ActivityScoped
         @Provides
-        fun provideFakeSignInAccount(@ApplicationContext context: Context): SignInAccount {
+        fun provideFakeSignInAccount(): SignInAccount {
             return FakeSignInAccount()
         }
     }
@@ -108,7 +106,7 @@ class SignInActivityTestGoogle {
 
         @ActivityScoped
         @Provides
-        fun provideFakeSignInResultHandler(@ApplicationContext context: Context): SignInResultHandler {
+        fun provideFakeSignInResultHandler(): SignInResultHandler {
             return FakeSignInResultHandler()
         }
     }
@@ -214,7 +212,7 @@ class SignInActivityTestFakeGoogle {
     object FakeSignInAccountModule {
         @ActivityScoped
         @Provides
-        fun provideFakeSignInAccount(@ApplicationContext context: Context): SignInAccount {
+        fun provideFakeSignInAccount(): SignInAccount {
             return FakeGoogleSignInAccount(GoogleSignInAccount.createDefault())
         }
     }

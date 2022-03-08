@@ -1,23 +1,17 @@
 package com.github.brugapp.brug
 
 import android.app.Activity
-import android.content.ContentValues
-import android.content.ContentValues.TAG
 import android.content.Intent
-import android.media.session.MediaSession
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.github.brugapp.brug.sign_in.*
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.github.brugapp.brug.sign_in.SignInAccount
+import com.github.brugapp.brug.sign_in.SignInClient
+import com.github.brugapp.brug.sign_in.SignInResultHandler
 import com.google.android.gms.common.SignInButton
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -42,11 +36,11 @@ class SignInActivity : AppCompatActivity() {
 
         // Set Listener for google sign in button
         findViewById<SignInButton>(R.id.sign_in_google_button).setOnClickListener {
-            signIn(it)
+            signIn()
         }
 
         findViewById<Button>(R.id.sign_in_sign_out_button).setOnClickListener {
-            signOut(it)
+            signOut()
         }
 
     }
@@ -64,7 +58,7 @@ class SignInActivity : AppCompatActivity() {
         if (account != null) {
             findViewById<TextView>(R.id.sign_in_main_text).apply {
                 textSize = 16f
-                val id = account.idToken
+                account.idToken
                 text = "${getString(R.string.welcome, account.displayName)} \nEmail: ${account.email}"
             }
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
@@ -84,32 +78,21 @@ class SignInActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
-//                val sintent: Intent = it.data as Intent
-//                println(sintent.extras)
                 userAccount = signInResultHandler.handleSignInResult(it)
                 updateUI(userAccount)
             }
         }
 
-    private fun signIn(view: View) {
+    private fun signIn() {
         val signInIntent: Intent = signInClient.signInIntent
         getSignInResult.launch(signInIntent)
     }
 
-    private fun signOut(view: View) {
+    private fun signOut() {
         signInClient.signOut()
         userAccount = null
         updateUI(userAccount)
     }
-
-//    private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
-//        try {
-//            userAccount = SignInAccountGoogle(task.getResult(ApiException::class.java))
-//        } catch (e: ApiException) {
-//            // Display detailed failure reason.
-//            Log.w(ContentValues.TAG, "signInResult:failed code=" + e.statusCode)
-//        }
-//    }
 
 
 }

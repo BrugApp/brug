@@ -1,10 +1,8 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.sign_in
 
 import android.content.ContentValues
 import android.util.Log
 import androidx.activity.result.ActivityResult
-import com.github.brugapp.brug.sign_in.SignInAccount
-import com.github.brugapp.brug.sign_in.SignInAccountGoogle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
@@ -15,8 +13,8 @@ abstract class SignInResultHandler {
 }
 
 class SignInResultHandlerGoogle : SignInResultHandler() {
-    var account: GoogleSignInAccount? = null
-    override fun handleSignInResult(result: ActivityResult): SignInAccount? {
+    private var account: GoogleSignInAccount? = null
+    override fun handleSignInResult(result: ActivityResult): SignInAccount {
         val task: Task<GoogleSignInAccount> =
             GoogleSignIn.getSignedInAccountFromIntent(result.data)
         getSignInResultFromTask(task)
