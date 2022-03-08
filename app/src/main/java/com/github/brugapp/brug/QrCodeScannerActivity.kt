@@ -27,21 +27,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
         codeScanner()
     }
 
-    //Junk function until we have the database
-    private fun isValidItem(itemId:String): Boolean {
-        return itemId == "sudo1234"
-    }
 
-    @SuppressLint("SetTextI18n")
-    fun sendRequest(view: View){
-        val editText = findViewById<EditText>(R.id.editTextReportItem)
-        val itemId = editText.text.toString()
-        if( isValidItem(itemId)){
-            editText.setText("Valid ID")
-        }else{
-            editText.setText("Invalid ID")
-        }
-    }
 
     private fun codeScanner() {
         val scannerView = findViewById<CodeScannerView>(R.id.scanner_view)

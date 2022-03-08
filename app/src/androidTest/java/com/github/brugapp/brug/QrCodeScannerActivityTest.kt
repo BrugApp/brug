@@ -33,26 +33,6 @@ class QrCodeScannerActivityTest {
             .check(matches((withHint("Report item…"))))
     }
 
-    @Test
-    fun sendInvalidId(){
-        //Dumb valid ID until we have the database
-        onView(withId(R.id.editTextReportItem)).perform(typeText("voiture"))
-        closeSoftKeyboard()
-        onView(withId(R.id.buttonReportItem)).perform(click())
-        onView(withId(R.id.editTextReportItem))
-            .check(matches(withText("Invalid ID")))
-    }
-
-    @Test
-    fun sendValidId(){
-        //Dumb valid ID until we have the database
-        onView(withId(R.id.editTextReportItem)).perform(typeText("sudo1234"))
-        closeSoftKeyboard()
-        onView(withId(R.id.buttonReportItem)).perform(click())
-        onView(withId(R.id.editTextReportItem))
-            .check(matches(withText("Valid ID")))
-    }
-
 }
 
 @RunWith(AndroidJUnit4::class)
