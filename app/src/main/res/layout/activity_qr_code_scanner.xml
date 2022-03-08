@@ -33,6 +33,8 @@
         android:layout_marginTop="538dp"
         android:layout_marginBottom="148dp"
         android:minHeight="48dp"
+        android:height="48dp"
+        android:width="250dp"
         android:textSize="24sp"
         android:ems="10"
         android:hint="@string/add_item"
