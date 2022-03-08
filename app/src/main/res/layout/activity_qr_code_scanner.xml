@@ -32,14 +32,16 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="538dp"
         android:layout_marginBottom="148dp"
+        android:minHeight="48dp"
+        android:textSize="24sp"
         android:ems="10"
         android:hint="@string/add_item"
-        android:inputType="text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:inputType="text"
         android:autofillHints="" />
 
     <Button
