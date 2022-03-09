@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.brugapp.brug">
+    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:allowBackup="true"
@@ -14,6 +15,15 @@
         <activity
             android:name=".SignInActivity"
             android:exported="false" />
+        <activity
+            android:name=".QrCodeScannerActivity"
+            android:parentActivityName=".MainActivity"
+            android:exported="false">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MainActivity" />
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

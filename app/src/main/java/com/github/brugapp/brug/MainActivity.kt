@@ -2,6 +2,7 @@ package com.github.brugapp.brug
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 
@@ -22,4 +23,11 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    fun sendReportLostItem(view: View){
+        val intent = Intent(this,QrCodeScannerActivity::class.java).apply{}
+        startActivity(intent)
+    }
 }
+
+
+
