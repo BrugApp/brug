@@ -1,9 +1,13 @@
 package com.github.brugapp.brug
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.budiyev.android.codescanner.*
 
 private const val CAMERA_REQUEST_CODE = 101
@@ -17,7 +21,15 @@ class QrCodeScannerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_code_scanner)
+        checkPermission()
         codeScanner()
+    }
+    private fun checkPermission(){
+        val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+        if ( permission == PackageManager.PERMISSION_DENIED)
+            ActivityCompat
+                .requestPermissions(this, arrayOf(Manifest.permission.CAMERA),
+                    CAMERA_REQUEST_CODE);
     }
 
     private fun codeScanner() {
