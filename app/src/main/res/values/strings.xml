@@ -11,4 +11,5 @@
     <string name="scanme">Scan QR</string>
     <string name="chat">Chat</string>
     <string name="add_new_item">Add new item...</string>
+    <string name="item_activity_title">My items</string>
 </resources>
