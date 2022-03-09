@@ -24,4 +24,6 @@ class MainActivityTest {
         Espresso.onView(ViewMatchers.withId(R.id.mainHelloWorld))
             .check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
     }
+
+
 }
