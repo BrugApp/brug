@@ -7,10 +7,12 @@
 
     <TextView
         android:id="@+id/conditions"
-        android:layout_width="119dp"
-        android:layout_height="48dp"
-        android:gravity = "center_vertical"
+        android:layout_width="215dp"
+        android:layout_height="57dp"
+        android:gravity="center_vertical"
         android:text="@string/terms_amp_conditions"
+        android:textColor="#000000"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -19,10 +21,11 @@
 
     <Switch
         android:id="@+id/cacheSwitch"
-        android:layout_width="119dp"
-        android:layout_height="48dp"
+        android:layout_width="215dp"
+        android:layout_height="57dp"
         android:minHeight="48dp"
         android:text="@string/use_cache"
+        android:textSize="28sp"
         app:layout_constraintBottom_toTopOf="@+id/nightModeSwitch"
         app:layout_constraintStart_toStartOf="@+id/nightModeSwitch"
         app:layout_constraintTop_toTopOf="parent"
@@ -31,19 +34,22 @@
 
     <TextView
         android:id="@+id/permissions"
-        android:layout_width="119dp"
-        android:layout_height="48dp"
-        android:gravity = "center_vertical"
+        android:layout_width="215dp"
+        android:layout_height="57dp"
+        android:gravity="center_vertical"
         android:text="@string/permissions"
+        android:textColor="#000000"
+        android:textSize="28sp"
         app:layout_constraintBottom_toTopOf="@+id/conditions"
         app:layout_constraintStart_toStartOf="@+id/conditions"
         app:layout_constraintTop_toBottomOf="@+id/nightModeSwitch" />
 
     <Switch
         android:id="@+id/nightModeSwitch"
-        android:layout_width="119dp"
-        android:layout_height="48dp"
+        android:layout_width="215dp"
+        android:layout_height="57dp"
         android:minHeight="48dp"
+        android:textSize="28sp"
         android:text="@string/night_mode"
         app:layout_constraintBottom_toTopOf="@+id/permissions"
         app:layout_constraintStart_toStartOf="@+id/permissions"
@@ -57,7 +63,7 @@
         android:text="@string/settings"
         android:textAlignment="center"
         android:textAllCaps="false"
-        android:textSize="34sp"
+        android:textSize="40sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toTopOf="@+id/cacheSwitch"
         app:layout_constraintEnd_toEndOf="parent"
