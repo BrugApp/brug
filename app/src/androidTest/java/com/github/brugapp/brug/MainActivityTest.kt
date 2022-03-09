@@ -9,16 +9,8 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import org.hamcrest.Matchers
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.matcher.IntentMatchers
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.Matchers.allOf
@@ -57,7 +49,7 @@ class MainActivityTest {
         onView(withId(R.id.mainCamera)).perform(click())
 
         Intents.intended(
-            Matchers.allOf(
+            allOf(
                 IntentMatchers.toPackage("com.github.brugapp.brug"),
                 hasComponent(QrCodeScannerActivity::class.java.name)
             )
@@ -72,22 +64,18 @@ class MainActivityTest {
         onView(withId(R.id.editTextReportItem))
             .check(matches((withHint("Report item…"))))
     }
-}
 
-        Espresso.onView(withId(R.id.mainHelloWorld))
-            .check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
-    }
 
     @Test
     fun clickingOnLogOnButtonGoesToCorrectActivity() {
         Intents.init()
 
-        Espresso.onView(withId(R.id.log_on_button)).perform(ViewActions.click())
+        onView(withId(R.id.log_on_button)).perform(click())
 
         Intents.intended(
             allOf(
                 IntentMatchers.toPackage("com.github.brugapp.brug"),
-                IntentMatchers.hasComponent(SignInActivity::class.java.name)
+                hasComponent(SignInActivity::class.java.name)
             )
         )
 
