@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/logOnButton"
+        android:id="@+id/log_on_button"
         android:layout_width="179dp"
         android:layout_height="57dp"
         android:text="@string/log_on"
@@ -58,6 +58,7 @@
         android:id="@+id/mainCamera"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="sendReportLostItem"
         android:text="@string/camera"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
