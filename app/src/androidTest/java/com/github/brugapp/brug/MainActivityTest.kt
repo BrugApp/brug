@@ -5,6 +5,8 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.hamcrest.CoreMatchers
+import org.hamcrest.MatcherAssert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,6 +26,5 @@ class MainActivityTest {
         Espresso.onView(ViewMatchers.withId(R.id.mainHelloWorld))
             .check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
     }
-
 
 }

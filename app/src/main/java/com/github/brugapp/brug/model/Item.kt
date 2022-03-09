@@ -1,4 +1,4 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.model
 
 import java.lang.IllegalArgumentException
 

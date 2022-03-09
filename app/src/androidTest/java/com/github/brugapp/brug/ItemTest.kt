@@ -1,25 +1,22 @@
 package com.github.brugapp.brug
 
-import org.junit.Assert.*
-import java.lang.IllegalArgumentException
+import com.github.brugapp.brug.model.Item
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
+import org.hamcrest.CoreMatchers.`is` as Is
 
 class ItemTest {
 
-    @Test
-    fun invalidNameItem(){
+    @Test(expected = IllegalArgumentException::class)
+    fun invalidNameItem() {
         val blankName = "    "
-        assertThrows(IllegalArgumentException::class.java){
-            val invalidUser = Item(blankName, 1)
-        }
+        val invalidUser = Item(blankName, 1)
     }
 
-    @Test
-    fun emptyNameItem(){
+    @Test(expected = IllegalArgumentException::class)
+    fun emptyNameItem() {
         val emptyName = ""
-        assertThrows(IllegalArgumentException::class.java){
-            val invalidUser = Item(emptyName, 1)
-        }
+        val invalidUser = Item(emptyName, 1)
     }
 
     @Test
@@ -28,7 +25,7 @@ class ItemTest {
         val itemId = 1
         val validUser = Item(itemName, itemId)
 
-        assert(validUser.getName().equals(itemName))
+        assertThat(validUser.getName(), Is(itemName))
 
 
     }
@@ -39,21 +36,20 @@ class ItemTest {
         val itemId = 1
         val validUser = Item(itemName, itemId)
 
-        assert(validUser.getId() == itemId)
+        assertThat(validUser.getId(), Is(itemId))
 
     }
 
-    @Test
-    fun setInvalidName(){
+    @Test(expected = IllegalArgumentException::class)
+    fun setInvalidName() {
         val itemName = "Wallet"
         val itemId = 1
         val validUser = Item(itemName, itemId)
 
         val invalidName = "    "
 
-        assertThrows(IllegalArgumentException::class.java){
-            validUser.setName(invalidName)
-        }
+        validUser.setName(invalidName)
+
     }
 
     @Test
@@ -67,7 +63,7 @@ class ItemTest {
 
         validUser.setName(validName)
 
-        assert(validUser.getName().equals(validName))
+        assertThat(validUser.getName(), Is(validName))
     }
 
 
