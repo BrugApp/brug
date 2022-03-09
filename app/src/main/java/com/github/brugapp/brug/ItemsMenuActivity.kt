@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
@@ -49,6 +47,7 @@ class ItemsMenuActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id: Int = item.itemId
 
@@ -61,7 +60,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     private fun initItemsList(){
         deleteIcon = ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24) !! // To trigger NullPointerException if icon not found
-        listView = findViewById<RecyclerView>(R.id.items_listview)
+        listView = findViewById(R.id.items_listview)
         listView.layoutManager = LinearLayoutManager(this)
 
         data.add(ItemsViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
@@ -121,10 +120,10 @@ class ItemsMenuActivity : AppCompatActivity() {
             listViewAdapter.notifyItemRemoved(position)
 
             Snackbar.make(listView, "Item \"${deletedElt.title}\" is deleted", Snackbar.LENGTH_LONG)
-                .setAction("Undo", View.OnClickListener {
+                .setAction("Undo") {
                     data.add(position, deletedElt)
                     listViewAdapter.notifyItemInserted(position)
-                }).show()
+                }.show()
         }
 
         // Drawing the red "delete" background when swiping to delete

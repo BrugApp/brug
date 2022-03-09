@@ -11,7 +11,7 @@ class ItemsCustomAdapter(private val list: List<ItemsViewModel>) :
     RecyclerView.Adapter<ItemsCustomAdapter.ViewHolder>() {
 
     // Creates new views
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemsCustomAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.list_item_layout, parent, false)
         return ViewHolder(view)
