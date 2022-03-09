@@ -59,7 +59,7 @@ class SignInActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.sign_in_main_text).apply {
                 textSize = 16f
                 account.idToken
-                text = "${getString(R.string.welcome, account.displayName)} \nEmail: ${account.email}"
+                text = getString(R.string.welcome_and_email, account.displayName, account.email)
             }
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
             findViewById<Button>(R.id.sign_in_sign_out_button).visibility = View.VISIBLE

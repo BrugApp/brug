@@ -34,7 +34,7 @@ class MainActivityTest {
     @Test
     fun textViewDisplaysCorrectText() {
         // Context of the app under test.
-        Espresso.onView(ViewMatchers.withId(R.id.mainHelloWorld))
+        Espresso.onView(withId(R.id.mainHelloWorld))
             .check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
     }
 
@@ -52,5 +52,6 @@ class MainActivityTest {
         )
 
         Intents.release()
+
     }
 }
