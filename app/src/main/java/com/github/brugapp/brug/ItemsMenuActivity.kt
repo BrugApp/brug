@@ -114,6 +114,7 @@ class ItemsMenuActivity : AppCompatActivity() {
             return true
         }
 
+        /* HERE IS WHERE TO CALL THE ACTUAL DELETE FUNCTION */
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
             val deletedElt = data.removeAt(position)
