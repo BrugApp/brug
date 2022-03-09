@@ -98,7 +98,7 @@ class SignInActivityTestFake {
 
 @UninstallModules(SignInResultHandlerModule::class)
 @HiltAndroidTest
-class SignInActivityTestGoogle {
+class SignInActivityTestFakeHandler {
 
     @Module
     @InstallIn(ActivityComponent::class)
@@ -233,6 +233,46 @@ class SignInActivityTestFakeGoogle {
             Espresso.onView(withId(R.id.sign_in_sign_out_button))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
+
+    }
+
+
+}
+
+@HiltAndroidTest
+class SignInActivityTestRealGoogle {
+
+    @get:Rule
+    var rule = HiltAndroidRule(this)
+
+    @Test
+    fun signInActivityGetsNullAccountOnFakeResult() {
+
+        Intents.init()
+
+        intending(hasComponent(hasClassName(SignInActivity::class.java.name)))
+            .respondWith(
+                Instrumentation.ActivityResult(
+                    Activity.RESULT_OK,
+                    Intent()
+                )
+            )
+
+        val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
+        val activityScenario: ActivityScenario<SignInActivity> = ActivityScenario.launch(intent)
+
+        activityScenario.onActivity { activity ->
+            activity.getSignInResult.launch(Intent(activity.intent))
+        }
+
+        // check if displays correct display name
+        Espresso.onView(withId(R.id.sign_in_main_text))
+            .check(ViewAssertions.matches(ViewMatchers.withText("Welcome null\nEmail: null")))
+        // check if contains sign out button
+        Espresso.onView(withId(R.id.sign_in_sign_out_button))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+
+        Intents.release()
 
     }
 

@@ -5,14 +5,13 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.hamcrest.Matchers
+import org.hamcrest.Matchers.allOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -39,19 +38,18 @@ class MainActivityTest {
     }
 
     @Test
-    fun clickingOnLogOnButtonGoesToTheCorrectActivity() {
+    fun clickingOnLogOnButtonGoesToCorrectActivity() {
         Intents.init()
 
-        Espresso.onView(withId(R.id.logOnButton)).perform(ViewActions.click())
+        Espresso.onView(withId(R.id.log_on_button)).perform(ViewActions.click())
 
         Intents.intended(
-            Matchers.allOf(
+            allOf(
                 IntentMatchers.toPackage("com.github.brugapp.brug"),
-                hasComponent(SignInActivity::class.java.name)
+                IntentMatchers.hasComponent(SignInActivity::class.java.name)
             )
         )
 
         Intents.release()
-
     }
 }

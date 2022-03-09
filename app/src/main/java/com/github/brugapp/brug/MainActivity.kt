@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.logOnButton).setOnClickListener {
+        findViewById<Button>(R.id.log_on_button).setOnClickListener {
             goToLogin()
         }
     }

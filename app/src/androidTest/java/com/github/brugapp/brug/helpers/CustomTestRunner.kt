@@ -1,4 +1,4 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.helpers
 
 import android.app.Application
 import android.content.Context
