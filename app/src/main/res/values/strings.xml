@@ -12,4 +12,7 @@
     <string name="chat">Chat</string>
     <string name="add_new_item">Add new item...</string>
     <string name="item_activity_title">My items</string>
+    <string name="settings_icon_name">Settings</string>
+    <string name="search_item">Search</string>
+    <string name="search_item_hint">Search item name...</string>
 </resources>

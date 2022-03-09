@@ -6,7 +6,8 @@ import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
+import android.view.Menu
+import android.view.MenuItem
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
@@ -24,7 +25,7 @@ class ItemsMenuActivity : AppCompatActivity() {
     private lateinit var listView: RecyclerView
     private lateinit var deleteIcon: Drawable
 
-    private var swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#d65819"))
+    private var swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#d65819")) // To move in a color database
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,11 +36,31 @@ class ItemsMenuActivity : AppCompatActivity() {
         initNavigationBar()
     }
 
+    // For the searchbar when pressing on the top bar's search icon
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.custom_top_bar, menu)
 
+        val item = menu?.findItem(R.id.search_items)
+        val searchView = item?.actionView as androidx.appcompat.widget.SearchView
+
+        searchView.queryHint = "Search items here..."
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    // For the settings icon on top bar
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id: Int = item.itemId
+
+        if(id == R.id.my_settings){
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
 
     private fun initItemsList(){
         deleteIcon = ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24) !! // To trigger NullPointerException if icon not found
-        listView = findViewById<RecyclerView>(R.id.items_listview)
+        listView = findViewById(R.id.items_listview)
         listView.layoutManager = LinearLayoutManager(this)
 
         data.add(ItemsViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
@@ -99,10 +120,10 @@ class ItemsMenuActivity : AppCompatActivity() {
             listViewAdapter.notifyItemRemoved(position)
 
             Snackbar.make(listView, "Item \"${deletedElt.title}\" is deleted", Snackbar.LENGTH_LONG)
-                .setAction("Undo", View.OnClickListener {
+                .setAction("Undo") {
                     data.add(position, deletedElt)
                     listViewAdapter.notifyItemInserted(position)
-                }).show()
+                }.show()
         }
 
         // Drawing the red "delete" background when swiping to delete
@@ -119,8 +140,8 @@ class ItemsMenuActivity : AppCompatActivity() {
             val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
 
             deleteIcon.setTint(Color.WHITE)
-            var bgOffsets: Array<Int>;
-            var delIconOffsets: Array<Int>
+            val bgOffsets: Array<Int>
+            val delIconOffsets: Array<Int>
 
             if(dX > 0){
                 bgOffsets = arrayOf(itemView.left, itemView.top, dX.toInt(), itemView.bottom)
