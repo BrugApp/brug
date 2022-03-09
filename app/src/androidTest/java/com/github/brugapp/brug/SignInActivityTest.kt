@@ -69,7 +69,7 @@ class SignInActivityTestFake {
         ActivityScenario.launch<SignInActivity>(intent).use {
             // check if displays correct display name
             Espresso.onView(withId(R.id.sign_in_main_text))
-                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome Son Goku \nEmail: goku@capsulecorp.com")))
+                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")))
             // check if contains sign out button
             Espresso.onView(withId(R.id.sign_in_sign_out_button))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -151,7 +151,7 @@ class SignInActivityTestGoogle {
 
         // check if displays correct display name
         Espresso.onView(withId(R.id.sign_in_main_text))
-            .check(ViewAssertions.matches(ViewMatchers.withText("Welcome Son Goku \nEmail: goku@capsulecorp.com")))
+            .check(ViewAssertions.matches(ViewMatchers.withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")))
         // check if contains sign out button
         Espresso.onView(withId(R.id.sign_in_sign_out_button))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -228,7 +228,7 @@ class SignInActivityTestFakeGoogle {
         ActivityScenario.launch<SignInActivity>(intent).use {
             // check if displays correct display name
             Espresso.onView(withId(R.id.sign_in_main_text))
-                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome null \nEmail: <<default account>>")))
+                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome null\nEmail: <<default account>>")))
             // check if contains sign out button
             Espresso.onView(withId(R.id.sign_in_sign_out_button))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
