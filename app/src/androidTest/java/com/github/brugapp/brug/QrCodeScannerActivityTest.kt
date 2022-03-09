@@ -6,7 +6,8 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -31,6 +32,26 @@ class QrCodeScannerActivityTest {
     fun hintTextIsCorrect(){
         onView(withId(R.id.editTextReportItem))
             .check(matches((withHint("Report item…"))))
+    }
+
+    @Test
+    fun sendInvalidId(){
+        //Dumb valid ID until we have the database
+        onView(withId(R.id.editTextReportItem)).perform(replaceText("please"))
+        closeSoftKeyboard()
+        onView(withId(R.id.buttonReportItem)).perform(click())
+        onView(withId(R.id.editTextReportItem))
+            .check(matches(withText("Invalid ID")))
+    }
+
+    @Test
+    fun sendValidId(){
+        //Dumb valid ID until we have the database
+        onView(withId(R.id.editTextReportItem)).perform(replaceText("sudo1234"))
+        closeSoftKeyboard()
+        onView(withId(R.id.buttonReportItem)).perform(click())
+        onView(withId(R.id.editTextReportItem))
+            .check(matches(withText("Valid ID")))
     }
 
 }
