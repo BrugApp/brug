@@ -7,4 +7,8 @@
     <string name="sign_up">Sign Up</string>
     <string name="camera">Camera</string>
     <string name="todo">TODO</string>
+    <string name="myitems">My items</string>
+    <string name="scanme">Scan QR</string>
+    <string name="chat">Chat</string>
+    <string name="add_new_item">Add new item...</string>
 </resources>
