@@ -1,9 +1,12 @@
 package com.github.brugapp.brug
 
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Test
 import org.junit.Assert.*
+import org.junit.runner.RunWith
 import java.lang.IllegalArgumentException
 
+@RunWith(AndroidJUnit4::class)
 class ItemTest {
 
     @Test
@@ -12,7 +15,6 @@ class ItemTest {
         assertThrows(IllegalArgumentException::class.java){
             var invalidUser = Item(blankName, 1)
         }
-
     }
 
     @Test
