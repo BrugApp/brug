@@ -1,8 +1,5 @@
 package com.github.brugapp.brug
 
-import android.content.Intent
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
@@ -25,8 +22,8 @@ class SettingsTest {
 
     @Test
     fun endToEndSettingsTest() {
-        onView(ViewMatchers.withId(R.id.mainHelloWorld)).check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
+        onView(withId(R.id.mainHelloWorld)).check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
         onView(withId(R.id.action_settings)).perform(click())
-        onView(ViewMatchers.withId(R.id.titleSettings)).check(ViewAssertions.matches(ViewMatchers.withText("Settings")))
+        onView(withId(R.id.titleSettings)).check(ViewAssertions.matches(ViewMatchers.withText("Settings")))
     }
 }

@@ -34,6 +34,16 @@
         </activity>
 
         <activity
+            android:name=".ItemsMenuActivity"
+            android:exported="false"
+            android:label="@string/item_activity_title">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                       android:resource="@xml/searchable"/>
+        </activity>
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
