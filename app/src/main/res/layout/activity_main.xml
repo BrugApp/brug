@@ -79,6 +79,6 @@
         app:layout_constraintBottom_toTopOf="@+id/mainCamera"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/logOnButton" />
+        app:layout_constraintTop_toBottomOf="@+id/log_on_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
