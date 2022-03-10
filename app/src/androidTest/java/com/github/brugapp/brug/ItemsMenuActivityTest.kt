@@ -1,9 +1,16 @@
 package com.github.brugapp.brug
 
+import android.view.View
+import android.view.ViewConfiguration
+import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
+import androidx.test.espresso.action.*
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-//import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.contrib.ViewPagerActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -14,6 +21,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.util.regex.Matcher
+
 
 private const val DUMMY_TEXT = "Actual behavior coming soon..."
 
@@ -41,7 +50,7 @@ class ItemsMenuActivityTest {
     }
 
     @Test
-    fun clickingOnSettingsButtonTriggersSnackBar(){
+    fun clickingOnSettingsButtonTriggersSnackBar() {
         val settingsButton = onView(withId(R.id.my_settings))
         val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
         settingsButton.perform(click())
@@ -50,33 +59,56 @@ class ItemsMenuActivityTest {
 
     /* THESE NEED A CONFLICTING ESPRESSO DEPENDENCY */
     @Test
-    fun swipeLeftOnItemDeletesItem(){
+    fun swipeLeftOnItemTriggersSnackBar(){
         val itemsList = onView(withId(R.id.items_listview))
-//        itemsList.perform(
-//            RecyclerViewActions.scrollTo<ItemsCustomAdapter.ViewHolder>(
-//                hasDescendant(withText("not in the list"))
-//            )
-//        )
-
+        val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
+        itemsList.perform(
+            RecyclerViewActions.actionOnItemAtPosition<ItemsCustomAdapter.ViewHolder>(
+                0, GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.BOTTOM_RIGHT, GeneralLocation.BOTTOM_LEFT,
+                    Press.FINGER)
+            )
+        )
+        snackBar.check(matches(withText("Item \"Phone\" is deleted")))
     }
 
     @Test
     fun swipeRightOnItemDeletesItem(){
         val itemsList = onView(withId(R.id.items_listview))
-
+        val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
+        itemsList.perform(
+            RecyclerViewActions.actionOnItemAtPosition<ItemsCustomAdapter.ViewHolder>(
+                1, GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.BOTTOM_LEFT, GeneralLocation.BOTTOM_RIGHT,
+                    Press.FINGER)
+            )
+        )
+        snackBar.check(matches(withText("Item \"Wallet\" is deleted")))
     }
 
-    @Test
-    fun dragUpOnItemReordersList(){
-        val itemsList = onView(withId(R.id.items_listview))
-
-    }
-
-    @Test
-    fun dragDownOnItemReordersList(){
-        val itemsList = onView(withId(R.id.items_listview))
-
-    }
+//    @Test
+//    fun dragUpOnItemReordersList(){
+//        val itemsList = onView(withId(R.id.items_listview))
+//        val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
+//        itemsList.perform(
+//            RecyclerViewActions.actionOnItemAtPosition<ItemsCustomAdapter.ViewHolder>(
+//
+//                3, longClick().apply {
+//                    RecyclerViewActions.actionOnItemAtPosition<ItemsCustomAdapter.ViewHolder>(
+//                        3, ViewPagerActions.scrollToFirst()
+//                    )
+//                }
+//            )
+//        )
+//
+//        snackBar.check(matches(withText("Item \"BMW Key\" has been moved from 3 to 2")))
+//    }
+//
+//    @Test
+//    fun dragDownOnItemReordersList(){
+//        val itemsList = onView(withId(R.id.items_listview))
+//
+//    }
 
 
     @Test
