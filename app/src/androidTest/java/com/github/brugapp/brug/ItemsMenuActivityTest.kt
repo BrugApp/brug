@@ -3,6 +3,7 @@ package com.github.brugapp.brug
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+//import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -48,34 +49,34 @@ class ItemsMenuActivityTest {
     }
 
     /* THESE NEED A CONFLICTING ESPRESSO DEPENDENCY */
-//    @Test
-//    fun swipeLeftOnItemDeletesItem(){
-//        val itemsList = onView(withId(R.id.items_listview))
-////        itemsList.perform(
-////            RecyclerViewActions.scrollTo<ItemsCustomAdapter.ViewHolder>(
-////                hasDescendant(withText("not in the list"))
-////            )
-////        )
-//
-//    }
-//
-//    @Test
-//    fun swipeRightOnItemDeletesItem(){
-//        val itemsList = onView(withId(R.id.items_listview))
-//
-//    }
-//
-//    @Test
-//    fun dragUpOnItemReordersList(){
-//        val itemsList = onView(withId(R.id.items_listview))
-//
-//    }
-//
-//    @Test
-//    fun dragDownOnItemReordersList(){
-//        val itemsList = onView(withId(R.id.items_listview))
-//
-//    }
+    @Test
+    fun swipeLeftOnItemDeletesItem(){
+        val itemsList = onView(withId(R.id.items_listview))
+//        itemsList.perform(
+//            RecyclerViewActions.scrollTo<ItemsCustomAdapter.ViewHolder>(
+//                hasDescendant(withText("not in the list"))
+//            )
+//        )
+
+    }
+
+    @Test
+    fun swipeRightOnItemDeletesItem(){
+        val itemsList = onView(withId(R.id.items_listview))
+
+    }
+
+    @Test
+    fun dragUpOnItemReordersList(){
+        val itemsList = onView(withId(R.id.items_listview))
+
+    }
+
+    @Test
+    fun dragDownOnItemReordersList(){
+        val itemsList = onView(withId(R.id.items_listview))
+
+    }
 
 
     @Test
