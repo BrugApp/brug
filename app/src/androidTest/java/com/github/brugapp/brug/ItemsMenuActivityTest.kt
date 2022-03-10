@@ -1,16 +1,13 @@
 package com.github.brugapp.brug
 
-import android.view.View
-import android.view.ViewConfiguration
-import android.view.ViewGroup
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.UiController
-import androidx.test.espresso.ViewAction
-import androidx.test.espresso.action.*
-import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.action.GeneralLocation
+import androidx.test.espresso.action.GeneralSwipeAction
+import androidx.test.espresso.action.Press
+import androidx.test.espresso.action.Swipe
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.contrib.ViewPagerActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -21,7 +18,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import java.util.regex.Matcher
 
 
 private const val DUMMY_TEXT = "Actual behavior coming soon..."
@@ -32,19 +28,19 @@ class ItemsMenuActivityTest {
     val testRule = ActivityScenarioRule(ItemsMenuActivity::class.java)
 
     @Test
-    fun changingBottomNavBarMenuToItemsListChangesFocus(){
+    fun changingBottomNavBarMenuToItemsListChangesFocus() {
         val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
         itemsListMenuButton.perform(click()).check(matches(isEnabled()))
     }
 
     @Test
-    fun changingBottomNavBarMenuToQRScanChangesFocus(){
+    fun changingBottomNavBarMenuToQRScanChangesFocus() {
         val scanQRMenuButton = onView(withId(R.id.qr_scan_menu_button))
         scanQRMenuButton.perform(click()).check(matches(isEnabled()))
     }
 
     @Test
-    fun changingBottomNavBarMenuToChatChangesFocus(){
+    fun changingBottomNavBarMenuToChatChangesFocus() {
         val chatMenuButton = onView(withId(R.id.chat_menu_button))
         chatMenuButton.perform(click()).check(matches(isEnabled()))
     }
@@ -59,28 +55,30 @@ class ItemsMenuActivityTest {
 
     /* THESE NEED A CONFLICTING ESPRESSO DEPENDENCY */
     @Test
-    fun swipeLeftOnItemTriggersSnackBar(){
+    fun swipeLeftOnItemTriggersSnackBar() {
         val itemsList = onView(withId(R.id.items_listview))
         val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
         itemsList.perform(
             RecyclerViewActions.actionOnItemAtPosition<ItemsCustomAdapter.ViewHolder>(
                 0, GeneralSwipeAction(
                     Swipe.SLOW, GeneralLocation.BOTTOM_RIGHT, GeneralLocation.BOTTOM_LEFT,
-                    Press.FINGER)
+                    Press.FINGER
+                )
             )
         )
         snackBar.check(matches(withText("Item \"Phone\" is deleted")))
     }
 
     @Test
-    fun swipeRightOnItemDeletesItem(){
+    fun swipeRightOnItemDeletesItem() {
         val itemsList = onView(withId(R.id.items_listview))
         val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
         itemsList.perform(
             RecyclerViewActions.actionOnItemAtPosition<ItemsCustomAdapter.ViewHolder>(
                 1, GeneralSwipeAction(
                     Swipe.SLOW, GeneralLocation.BOTTOM_LEFT, GeneralLocation.BOTTOM_RIGHT,
-                    Press.FINGER)
+                    Press.FINGER
+                )
             )
         )
         snackBar.check(matches(withText("Item \"Wallet\" is deleted")))
@@ -117,8 +115,6 @@ class ItemsMenuActivityTest {
         searchButton.perform(click())
         assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
     }
-
-
 
 
     // Companion functions

@@ -29,7 +29,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
         if ( permission == PackageManager.PERMISSION_DENIED)
             ActivityCompat
                 .requestPermissions(this, arrayOf(Manifest.permission.CAMERA),
-                    CAMERA_REQUEST_CODE);
+                    CAMERA_REQUEST_CODE)
     }
 
     private fun codeScanner() {
