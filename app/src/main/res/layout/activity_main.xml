@@ -75,7 +75,7 @@
         android:layout_marginTop="1dp"
         android:layout_marginEnd="159dp"
         android:onClick="goToItems"
-        android:text="Button"
+        android:text="My Items (demo)"
         app:layout_constraintBottom_toTopOf="@+id/mainCamera"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
