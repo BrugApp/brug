@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/main_menu"
+        android:id="@+id/items_list_menu_button"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_list_24"
         android:title="@string/myitems" />
 
     <item
-        android:id="@+id/scan_page"
+        android:id="@+id/qr_scan_menu_button"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_camera_24"
         android:title="@string/scanme" />
 
     <item
-        android:id="@+id/chat_page"
+        android:id="@+id/chat_menu_button"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_chat_24"
         android:title="@string/chat" />

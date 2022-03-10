@@ -14,10 +14,12 @@ import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
 import kotlin.collections.ArrayList
+
+private const val DUMMY_TEXT: String = "Actual behavior coming soon..."
+private const val SEARCH_HINT: String = "Search items here..."
 
 class ItemsMenuActivity : AppCompatActivity() {
     private val data = ArrayList<ItemsViewModel>()
@@ -33,7 +35,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
         initItemsList()
         initFloatingAddButton()
-        initNavigationBar()
+//        initNavigationBar()
     }
 
     // For the searchbar when pressing on the top bar's search icon
@@ -43,7 +45,7 @@ class ItemsMenuActivity : AppCompatActivity() {
         val item = menu?.findItem(R.id.search_items)
         val searchView = item?.actionView as androidx.appcompat.widget.SearchView
 
-        searchView.queryHint = "Search items here..."
+        searchView.queryHint = SEARCH_HINT
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -52,6 +54,9 @@ class ItemsMenuActivity : AppCompatActivity() {
         val id: Int = item.itemId
 
         if(id == R.id.my_settings){
+            Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
+                .setAction("Action", null)
+                .show()
             return true
         }
 
@@ -75,28 +80,34 @@ class ItemsMenuActivity : AppCompatActivity() {
     private fun initFloatingAddButton(){
         val addButton = findViewById<FloatingActionButton>(R.id.add_new_item_button)
         addButton.setOnClickListener{ view ->
-            Snackbar.make(view, "Actual behavior coming soon...", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
                 .setAction("Action", null)
                 .show()
         }
     }
 
-    private fun initNavigationBar(){
-        NavigationBarView.OnItemSelectedListener { item ->
-            when(item.itemId) {
-                R.id.main_menu -> {
-                    true
-                }
-                R.id.scan_page -> {
-                    false
-                }
-                R.id.chat_page -> {
-                    false
-                }
-                else -> false
-            }
-        }
-    }
+//    private fun initNavigationBar(){
+//        val itemsMenuButton = findViewById<NavigationBarItemView>(R.id.items_list_menu_button)
+//        itemsMenuButton.setOnClickListener{view ->
+//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
+//                .setAction("Action", null)
+//                .show()
+//        }
+//
+//        val scanQRMenuButton = findViewById<NavigationBarItemView>(R.id.qr_scan_menu_button)
+//        scanQRMenuButton.setOnClickListener{view ->
+//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
+//                .setAction("Action", null)
+//                .show()
+//        }
+//
+//        val chatMenuButton = findViewById<NavigationBarItemView>(R.id.chat_menu_button)
+//        chatMenuButton.setOnClickListener{view ->
+//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
+//                .setAction("Action", null)
+//                .show()
+//        }
+//    }
 
 
     // To implement swipe to delete animation + move to reorder
@@ -114,6 +125,7 @@ class ItemsMenuActivity : AppCompatActivity() {
             return true
         }
 
+        /* HERE IS WHERE TO CALL THE ACTUAL DELETE FUNCTION */
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
             val deletedElt = data.removeAt(position)
