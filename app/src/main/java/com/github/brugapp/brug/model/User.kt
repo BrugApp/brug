@@ -8,13 +8,13 @@ class User {
     private var firstName : String
     private var lastName : String
     private var email : String
-    private var id : Int
+    private var id : String
     private var items : ArrayList<Item>
 
     // later generate id
-    constructor(firstName : String, lastName : String, email : String, id : Int){
+    constructor(firstName : String, lastName : String, email : String, id : String){
 
-        if(firstName.isNullOrBlank() || lastName.isNullOrBlank()){
+        if(firstName.isBlank() || lastName.isBlank() || id.isBlank()){
             throw IllegalArgumentException("Invalid name !")
         }
 
@@ -48,11 +48,11 @@ class User {
         return firstName
     }
 
-    fun getLasttName() : String {
+    fun getLastName() : String {
         return lastName
     }
 
-    fun getId() : Int {
+    fun getId() : String {
         return id
     }
 

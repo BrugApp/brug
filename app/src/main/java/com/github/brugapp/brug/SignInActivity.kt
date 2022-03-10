@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.sign_in.SignInAccount
 import com.github.brugapp.brug.sign_in.SignInClient
 import com.github.brugapp.brug.sign_in.SignInResultHandler
@@ -29,6 +30,7 @@ class SignInActivity : AppCompatActivity() {
     var lastSignedInAccount: SignInAccount? = null
     private var userAccount: SignInAccount? = null
 
+    private var currentUser: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +53,7 @@ class SignInActivity : AppCompatActivity() {
         // the GoogleSignInAccount will be non-null.
         userAccount = lastSignedInAccount
         updateUI(userAccount)
+        currentUser = createNewBrugUser(userAccount)
     }
 
     private fun updateUI(account: SignInAccount?) {
@@ -74,12 +77,19 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
+    // return new Brug User from SignInAccount
+    private fun createNewBrugUser(account: SignInAccount?): User? {
+        if (account?.displayName == null || account.email == null || account.idToken == null) return null
+        return User(account.displayName!!, account.displayName!!, account.email!!, account.idToken!!)
+    }
+
     val getSignInResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
                 userAccount = signInResultHandler.handleSignInResult(it)
                 updateUI(userAccount)
+                currentUser = createNewBrugUser(userAccount)
             }
         }
 
@@ -92,6 +102,7 @@ class SignInActivity : AppCompatActivity() {
         signInClient.signOut()
         userAccount = null
         updateUI(userAccount)
+        currentUser = createNewBrugUser(userAccount)
     }
 
 
