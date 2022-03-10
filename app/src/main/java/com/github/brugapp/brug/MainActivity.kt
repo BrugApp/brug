@@ -2,7 +2,6 @@ package com.github.brugapp.brug
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 
@@ -12,25 +11,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        findViewById<Button>(R.id.log_on_button).setOnClickListener {
-            goToLogin()
+        triggerGoToActivity(R.id.log_on_button, SignInActivity::class.java)
+        triggerGoToActivity(R.id.tempButton, ItemsMenuActivity::class.java)
+        triggerGoToActivity(R.id.mainCamera, QrCodeScannerActivity::class.java)
+    }
+
+    fun <T> triggerGoToActivity(buttonId: Int, activity: Class<T>?) {
+        findViewById<Button>(buttonId).setOnClickListener {
+            val myIntent = Intent(this, activity).apply {  }
+            startActivity(myIntent)
         }
-    }
-
-    fun goToItems(view: View){
-        val myIntent = Intent(this, ItemsMenuActivity::class.java).apply{}
-        startActivity(myIntent)
-    }
-
-    private fun goToLogin() {
-        val intent = Intent(this, SignInActivity::class.java)
-        startActivity(intent)
-    }
-
-
-    fun sendReportLostItem(view: View){
-        val intent = Intent(this,QrCodeScannerActivity::class.java).apply{}
-        startActivity(intent)
     }
 }
 
