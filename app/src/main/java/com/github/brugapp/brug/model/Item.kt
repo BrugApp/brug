@@ -2,23 +2,16 @@ package com.github.brugapp.brug.model
 
 import java.lang.IllegalArgumentException
 
-class Item {
+class Item// Generate the id later
+    (private var name: String, private var id: Int) {
 
-    private var name : String
-    private var id : Int
     // add QR code attribute
     // add last localization attribute
 
-    // Generate the id later
-    constructor(name : String, id : Int){
-
-        if(name.isNullOrBlank()){
+    init {
+        if(name.isBlank()){
             throw IllegalArgumentException("Invalid name")
         }
-
-        this.name = name
-        this.id = id
-
     }
 
     fun getName() : String{

@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 
@@ -17,7 +16,6 @@ class MainActivity : AppCompatActivity() {
         triggerGoToActivity(R.id.log_on_button, SignInActivity::class.java)
         triggerGoToActivity(R.id.tempButton, ItemsMenuActivity::class.java)
         triggerGoToActivity(R.id.mainCamera, QrCodeScannerActivity::class.java)
-        triggerGoToActivity(R.id.action_settings, SettingsActivity::class.java)
     }
 
 
@@ -26,6 +24,14 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    // For Settings button
+    override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+        R.id.action_settings -> {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
+    }
 
     private fun <T> triggerGoToActivity(buttonId: Int, activity: Class<T>?) {
         findViewById<Button>(buttonId).setOnClickListener {
