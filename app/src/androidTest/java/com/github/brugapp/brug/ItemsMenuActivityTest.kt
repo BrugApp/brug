@@ -1,30 +1,18 @@
 package com.github.brugapp.brug
 
-import android.app.Activity
-import android.content.Context
-import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.DataInteraction
-import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
-import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.matcher.BundleMatchers.hasEntry
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.core.IsEqual
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import java.lang.RuntimeException
 
 private const val DUMMY_TEXT = "Actual behavior coming soon..."
 
@@ -60,34 +48,34 @@ class ItemsMenuActivityTest {
     }
 
     /* THESE NEED A CONFLICTING ESPRESSO DEPENDENCY */
-    @Test
-    fun swipeLeftOnItemDeletesItem(){
-        val itemsList = onView(withId(R.id.items_listview))
-        itemsList.perform(
-            RecyclerViewActions.scrollTo<ItemsCustomAdapter.ViewHolder>(
-                hasDescendant(withText("not in the list"))
-            )
-        )
-
-    }
-
-    @Test
-    fun swipeRightOnItemDeletesItem(){
-        val itemsList = onView(withId(R.id.items_listview))
-
-    }
-
-    @Test
-    fun dragUpOnItemReordersList(){
-        val itemsList = onView(withId(R.id.items_listview))
-
-    }
-
-    @Test
-    fun dragDownOnItemReordersList(){
-        val itemsList = onView(withId(R.id.items_listview))
-
-    }
+//    @Test
+//    fun swipeLeftOnItemDeletesItem(){
+//        val itemsList = onView(withId(R.id.items_listview))
+////        itemsList.perform(
+////            RecyclerViewActions.scrollTo<ItemsCustomAdapter.ViewHolder>(
+////                hasDescendant(withText("not in the list"))
+////            )
+////        )
+//
+//    }
+//
+//    @Test
+//    fun swipeRightOnItemDeletesItem(){
+//        val itemsList = onView(withId(R.id.items_listview))
+//
+//    }
+//
+//    @Test
+//    fun dragUpOnItemReordersList(){
+//        val itemsList = onView(withId(R.id.items_listview))
+//
+//    }
+//
+//    @Test
+//    fun dragDownOnItemReordersList(){
+//        val itemsList = onView(withId(R.id.items_listview))
+//
+//    }
 
 
     @Test
