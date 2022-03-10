@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity() {
         triggerGoToActivity(R.id.mainCamera, QrCodeScannerActivity::class.java)
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.launchbar, menu)
         return true
@@ -39,5 +38,4 @@ class MainActivity : AppCompatActivity() {
             startActivity(myIntent)
         }
     }
-
 }
