@@ -73,6 +73,12 @@ dependencies {
     // For instrumented tests.
     androidTestImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
     kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.38.1'
+
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:29.2.0')
+
+    //add dependency for Firebase SDK
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 }
 
 tasks.withType(Test) {
@@ -112,3 +118,5 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
 connectedCheck {
     finalizedBy jacocoTestReport
 }
+
+apply plugin: 'com.google.gms.google-services'
