@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
     id 'org.jetbrains.kotlin.android'
     id 'jacoco'
     id 'kotlin-kapt'
@@ -118,5 +119,3 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
 connectedCheck {
     finalizedBy jacocoTestReport
 }
-
-apply plugin: 'com.google.gms.google-services'
