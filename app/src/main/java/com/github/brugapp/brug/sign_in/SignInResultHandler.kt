@@ -15,6 +15,7 @@ abstract class SignInResultHandler {
 class SignInResultHandlerGoogle : SignInResultHandler() {
     private var account: GoogleSignInAccount? = null
     override fun handleSignInResult(result: ActivityResult): SignInAccount {
+        println("I am in correct handler")
         val task: Task<GoogleSignInAccount> =
             GoogleSignIn.getSignedInAccountFromIntent(result.data)
         getSignInResultFromTask(task)
@@ -24,9 +25,11 @@ class SignInResultHandlerGoogle : SignInResultHandler() {
     private fun getSignInResultFromTask(task: Task<GoogleSignInAccount>) {
         try {
             account = task.getResult(ApiException::class.java)
+            println("there was no exception")
         } catch (e: ApiException) {
             // Display detailed failure reason.
             Log.w(ContentValues.TAG, "signInResult:failed code=" + e.statusCode)
+            println("there was an exception")
         }
     }
 }
