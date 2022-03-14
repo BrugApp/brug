@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/rowFG"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:background="@android:color/white"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="horizontal"
+        android:layout_margin="0dp"
+        android:visibility="visible">
+
+            <RelativeLayout
+                android:id="@+id/chat_entry_appearance"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:foreground="?attr/selectableItemBackground">
+
+                <ImageView
+                    android:id="@+id/chat_entry_profilepic"
+                    android:contentDescription="@string/chat_entry_profilepic"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:padding="10dp"
+                    android:layout_marginStart="0dp"/>
+
+                <TextView
+                    android:id="@+id/chat_entry_title"
+                    android:textStyle="bold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/chat_entry_profilepic"
+                    android:paddingTop="16dp"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="16dp"
+                    android:maxLines="1"
+                    android:textAppearance="?attr/textAppearanceSubtitle1"
+                    android:textColor="@color/list_entry_tint"/>
+
+                <TextView
+                    android:id="@+id/chat_entry_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/chat_entry_title"
+                    android:layout_gravity="center_vertical"
+                    android:layout_toEndOf="@id/chat_entry_profilepic"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="16dp"
+                    android:maxLines="2"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    android:textColor="@color/list_entry_tint"
+                    android:ellipsize="end"
+                    android:singleLine="true"/>
+            </RelativeLayout>
+
+
+    </LinearLayout>
+</RelativeLayout>

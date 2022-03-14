@@ -30,4 +30,5 @@
     <string name="Icon_for_item">desc_item_icon</string>
     <string name="my_items_temp_button">My Items (demo)</string>
     <string name="chat_menu_label">My Conversations</string>
+    <string name="chat_entry_profilepic">Profile picture</string>
 </resources>
