@@ -1,62 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    android:orientation="vertical">
+    android:layout_height="70dp"
+    android:background="@android:color/white"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="horizontal"
+    android:layout_margin="0dp"
+    android:visibility="visible"
+    android:foreground="?attr/selectableItemBackground">
 
-    <LinearLayout
-        android:id="@+id/rowFG"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:background="@android:color/white"
-        android:clickable="true"
-        android:focusable="true"
-        android:orientation="horizontal"
-        android:layout_margin="0dp"
-        android:visibility="visible">
+        <ImageView
+            android:id="@+id/list_item_icon"
+            android:contentDescription="@string/Icon_for_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:padding="16dp"
+            android:layout_marginStart="16dp"/>
 
-            <RelativeLayout
-                android:id="@+id/item_appearance"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:foreground="?attr/selectableItemBackground">
+        <TextView
+            android:id="@+id/list_item_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/list_item_icon"
+            android:paddingTop="16dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="16dp"
+            android:maxLines="1"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="@color/list_entry_tint"/>
 
-                <ImageView
-                    android:id="@+id/list_item_icon"
-                    android:contentDescription="@string/Icon_for_item"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:padding="16dp"
-                    android:layout_marginStart="16dp"/>
+        <TextView
+            android:id="@+id/list_item_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_item_title"
+            android:layout_gravity="center_vertical"
+            android:layout_toEndOf="@id/list_item_icon"
+            android:paddingStart="0dp"
+            android:paddingEnd="16dp"
+            android:maxLines="2"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textColor="@color/list_entry_tint"/>
 
-                <TextView
-                    android:id="@+id/list_item_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toEndOf="@id/list_item_icon"
-                    android:paddingTop="16dp"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="16dp"
-                    android:maxLines="1"
-                    android:textAppearance="?attr/textAppearanceSubtitle1"
-                    android:textColor="@color/list_entry_tint"/>
-
-                <TextView
-                    android:id="@+id/list_item_desc"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/list_item_title"
-                    android:layout_gravity="center_vertical"
-                    android:layout_toEndOf="@id/list_item_icon"
-                    android:paddingStart="0dp"
-                    android:paddingEnd="16dp"
-                    android:maxLines="2"
-                    android:textAppearance="?attr/textAppearanceBody2"
-                    android:textColor="@color/list_entry_tint"/>
-            </RelativeLayout>
-
-
-    </LinearLayout>
 </RelativeLayout>
