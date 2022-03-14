@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Brug">
 
         <activity
-            android:name=".SignInActivity"
+            android:name=".ui.SignInActivity"
             android:exported="false" />
         <activity
             android:name=".SettingsActivity"

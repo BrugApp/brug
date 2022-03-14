@@ -24,25 +24,25 @@ class UserTest {
     @Test(expected = IllegalArgumentException::class)
     fun invalidLastName() {
         val lastName = "   "
-        val invalidUser = User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
+        User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun emptyLastName() {
         val lastName = ""
-        val invalidUser = User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
+        User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun invalidEmail() {
         val email = "test.com"
-        val invalidUser = User("Rayan", "Kikou", email, "0")
+        User("Rayan", "Kikou", email, "0")
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun invalidID() {
         val id = ""
-        val invalidUser = User("Rayan", "Kikou", "rayan.kikou@gmail.com", id)
+        User("Rayan", "Kikou", "rayan.kikou@gmail.com", id)
     }
 
     @Test

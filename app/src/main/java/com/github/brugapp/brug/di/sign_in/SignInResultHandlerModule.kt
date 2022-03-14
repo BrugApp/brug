@@ -1,16 +1,16 @@
-package com.github.brugapp.brug.sign_in
+package com.github.brugapp.brug.di.sign_in
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(ActivityComponent::class)
+@InstallIn(ViewModelComponent::class)
 object SignInResultHandlerModule {
 
-    @ActivityScoped
+    @ViewModelScoped
     @Provides
     fun provideGoogleSignInResultHandler(): SignInResultHandler {
         return SignInResultHandlerGoogle()

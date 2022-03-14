@@ -1,4 +1,4 @@
-package com.github.brugapp.brug.sign_in
+package com.github.brugapp.brug.di.sign_in
 
 import android.content.Intent
 import com.google.android.gms.auth.api.signin.GoogleSignInClient

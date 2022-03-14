@@ -1,4 +1,4 @@
-package com.github.brugapp.brug.sign_in
+package com.github.brugapp.brug.di.sign_in
 
 import android.content.Context
 import com.github.brugapp.brug.R
@@ -7,16 +7,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.scopes.ViewModelScoped
 
 
 @Module
-@InstallIn(ActivityComponent::class)
+@InstallIn(ViewModelComponent::class)
 object SignInClientModule {
 
-    @ActivityScoped
+    @ViewModelScoped
     @Provides
     fun provideSignInClient(@ApplicationContext context: Context): SignInClient {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -26,5 +26,4 @@ object SignInClientModule {
 
         return SignInClientGoogle(GoogleSignIn.getClient(context, gso))
     }
-
 }

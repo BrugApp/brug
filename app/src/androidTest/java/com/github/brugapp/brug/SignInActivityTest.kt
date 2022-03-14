@@ -18,13 +18,14 @@ import com.github.brugapp.brug.fake.FakeGoogleSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.fake.FakeSignInResultHandler
-import com.github.brugapp.brug.sign_in.*
+import com.github.brugapp.brug.di.sign_in.*
+import com.github.brugapp.brug.ui.SignInActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityComponent
-import dagger.hilt.android.scopes.ActivityScoped
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
@@ -38,9 +39,9 @@ class SignInActivityTestFake {
 
     // Inject Fake dependencies
     @Module
-    @InstallIn(ActivityComponent::class)
+    @InstallIn(ViewModelComponent::class)
     object FakeSignInClientModule {
-        @ActivityScoped
+        @ViewModelScoped
         @Provides
         fun provideFakeSignInClient(): SignInClient {
             return FakeSignInClient()
@@ -48,9 +49,9 @@ class SignInActivityTestFake {
     }
 
     @Module
-    @InstallIn(ActivityComponent::class)
+    @InstallIn(ViewModelComponent::class)
     object FakeSignInAccountModule {
-        @ActivityScoped
+        @ViewModelScoped
         @Provides
         fun provideFakeSignInAccount(): SignInAccount {
             return FakeSignInAccount()
@@ -101,10 +102,10 @@ class SignInActivityTestFake {
 class SignInActivityTestFakeHandler {
 
     @Module
-    @InstallIn(ActivityComponent::class)
+    @InstallIn(ViewModelComponent::class)
     object FakeSignInResultHandler {
 
-        @ActivityScoped
+        @ViewModelScoped
         @Provides
         fun provideFakeSignInResultHandler(): SignInResultHandler {
             return FakeSignInResultHandler()
@@ -207,9 +208,9 @@ class SignInActivityTestFakeHandler {
 class SignInActivityTestFakeGoogle {
 
     @Module
-    @InstallIn(ActivityComponent::class)
+    @InstallIn(ViewModelComponent::class)
     object FakeSignInAccountModule {
-        @ActivityScoped
+        @ViewModelScoped
         @Provides
         fun provideFakeSignInAccount(): SignInAccount {
             return FakeGoogleSignInAccount(GoogleSignInAccount.createDefault())
@@ -220,16 +221,16 @@ class SignInActivityTestFakeGoogle {
     var rule = HiltAndroidRule(this)
 
     @Test
-    fun signInActivityWelcomesWithCorrectDisplayNameAndSignOutButtonForSignedInUser() {
+    fun signInActivityDisplaysSignInPromptForNullSignedInUser() {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
 
         ActivityScenario.launch<SignInActivity>(intent).use {
             // check if displays correct display name
             Espresso.onView(withId(R.id.sign_in_main_text))
-                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome null\nEmail: <<default account>>")))
+                .check(ViewAssertions.matches(ViewMatchers.withText("Sign in to Unlost")))
             // check if contains sign out button
-            Espresso.onView(withId(R.id.sign_in_sign_out_button))
+            Espresso.onView(withId(R.id.sign_in_google_button))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
 
@@ -265,9 +266,9 @@ class SignInActivityTestRealGoogle {
 
             // check if displays correct display name
             Espresso.onView(withId(R.id.sign_in_main_text))
-                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome null\nEmail: null")))
+                .check(ViewAssertions.matches(ViewMatchers.withText("Sign in to Unlost")))
             // check if contains sign out button
-            Espresso.onView(withId(R.id.sign_in_sign_out_button))
+            Espresso.onView(withId(R.id.sign_in_google_button))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
 
