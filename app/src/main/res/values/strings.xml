@@ -29,4 +29,10 @@
     <string name="report_item">Report</string>
     <string name="Icon_for_item">desc_item_icon</string>
     <string name="my_items_temp_button">My Items (demo)</string>
+    <string name="spinnerTypeDescriptor">Type</string>
+    <string name="choose_a_type_text">Choose a type</string>
+    <string name="item_name">Name</string>
+    <string name="new_item_text">New Item</string>
+    <string name="item_description">Description</string>
+
 </resources>
