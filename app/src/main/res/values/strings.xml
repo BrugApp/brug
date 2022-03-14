@@ -6,6 +6,7 @@
     <string name="welcome_and_email">Welcome %s\nEmail: %s</string>
     <string name="welcome_to_unlost">Welcome to Unlost!</string>
     <string name="password">Password</string>
+    <string name="email_address">Email Address</string>
     <string name="log_on">Log On</string>
     <string name="sign_up">Sign Up</string>
     <string name="camera">Camera</string>
@@ -30,6 +31,7 @@
     <string name="my_items_temp_button">My Items (demo)</string>
     <string name="create_a_new_account">Create A New Account</string>
     <string name="email">Email</string>
+    <string name="name">Name</string>
     <string name="last_name">Last Name</string>
     <string name="first_name">First Name</string>
     <string name="register_now">Register Now</string>
