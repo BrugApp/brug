@@ -6,15 +6,20 @@ import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.errorprone.annotations.DoNotMock
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,10 +29,23 @@ class RegisterUserTest {
     @get:Rule
     var registerUserActivityRule = ActivityScenarioRule(RegisterUser::class.java)
     //test ideas:
-    //check if ProgressBar is visible after button click
+    //type in all fields and click button
+    @Test
+    fun registerUserTypeAndSubmitTest(){
+        onView(withId(R.id.firstname)).perform(typeText("Tess"))
+        onView(withId(R.id.lastName)).perform(typeText("Terr"))
+        //typing email/password and clicking button causes androidx.test.espresso.PerformException
+        //onView(withId(R.id.emailAddressReg)).perform(typeText("unlost.app@gmail.com"))
+        //onView(withId(R.id.PasswordReg)).perform(typeText("yoghurt"))
+        //onView(withId(R.id.registerbutton)).perform(click())
+        //Espresso.onView(ViewMatchers.withId(R.id.emailAddressReg)).check(ViewAssertions.matches(ViewMatchers.withText("unlost.app@gmail.com")))
+        // check if contains register button
+        Espresso.onView(ViewMatchers.withId(R.id.registerbutton))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+    }
 
     @Test
-    fun registerUserActivityResultOKTest() {
+    fun registerUserActivityTest() {
 
         Intents.init()
 
@@ -61,5 +79,11 @@ class RegisterUserTest {
         Espresso.onView(ViewMatchers.withId(R.id.PasswordReg))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Intents.release()
+    }
+
+
+    @Test
+    fun newTest(){
+
     }
 }

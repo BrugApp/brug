@@ -38,7 +38,6 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
         lastName = findViewById<EditText>(R.id.lastName)
         email = findViewById<EditText>(R.id.emailAddressReg)
         password = findViewById<EditText>(R.id.PasswordReg)
-
     }
 
     override fun onClick(v: View?) {
@@ -74,33 +73,17 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
             email?.requestFocus()
             return
         }
-        /*
-        if(Patterns.EMAIL_ADDRESS.matcher(emailtxt).matches()){
-            email?.setError("Please enter valid email")
-            email?.requestFocus()
-            return
-        }*/
         if(emailtxt.filter { it == '@' }.count()!=1){
             email?.setError("Please enter valid email")
             email?.requestFocus()
             return
         }
-        /*
-        mAuth?.createUserWithEmailAndPassword(emailtxt, passwordtxt)?.addOnCompleteListener{
-            task: Task<AuthResult> ->
-            if (task.isSuccessful){
-                val user = User(firstnametxt,lastNametxt,emailtxt,passwordtxt);
-
-            }
-        }
-        */
         progressBar?.setVisibility(View.VISIBLE)
         mAuth?.createUserWithEmailAndPassword(emailtxt, passwordtxt)
             ?.addOnCompleteListener(
                 this
             ) { task ->
                 if (task.isSuccessful) {
-
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = mAuth?.currentUser
