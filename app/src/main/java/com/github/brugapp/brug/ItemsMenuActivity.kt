@@ -22,8 +22,8 @@ import com.google.android.material.navigation.NavigationBarItemView
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 
-private const val DUMMY_TEXT: String = "Actual behavior coming soon..."
-private const val SEARCH_HINT: String = "Search items here..."
+private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
+private const val SEARCH_HINT: String = "Search items here…"
 
 class ItemsMenuActivity : AppCompatActivity() {
     private val data = ArrayList<ItemsViewModel>()
