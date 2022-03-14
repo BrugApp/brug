@@ -87,6 +87,15 @@ dependencies {
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'
 }
+configurations.all{
+    resolutionStrategy {
+        eachDependency { details ->
+            if ('org.jacoco' == details.requested.group) {
+                details.useVersion "0.8.7"
+            }
+        }
+    }
+}
 
 tasks.withType(Test) {
     jacoco.includeNoLocationClasses = true
