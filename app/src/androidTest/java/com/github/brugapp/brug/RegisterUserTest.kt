@@ -30,16 +30,23 @@ class RegisterUserTest {
     @get:Rule
     var registerUserActivityRule = ActivityScenarioRule(RegisterUser::class.java)
     //test ideas:
-    //type in all fields and click button
+    //write valid/invalid emails & passwords
     @Test
     fun registerUserTypeAndSubmitTest(){
+        onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.firstname)).perform(typeText("Tess"))
         closeSoftKeyboard()
+        onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.lastName)).perform(typeText("Terr"))
         //typing email/password and clicking button causes androidx.test.espresso.PerformException
         closeSoftKeyboard()
+        onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.emailAddressReg)).perform(typeText("unlost.app@gmail.com"))
         closeSoftKeyboard()
+        onView(withId(R.id.registerbutton)).perform(click())
+        onView(withId(R.id.PasswordReg)).perform(typeText("short"))
+        closeSoftKeyboard()
+        onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.PasswordReg)).perform(typeText("yoghurt"))
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())

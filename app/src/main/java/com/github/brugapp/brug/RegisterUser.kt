@@ -40,44 +40,37 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
         password = findViewById<EditText>(R.id.PasswordReg)
     }
 
-    override fun onClick(v: View?) {
-        //we clicked the register button
+    override fun onClick(v: View?) { //we clicked the register button
         var firstnametxt = firstName?.getText().toString().trim()
         var lastNametxt = lastName?.getText().toString().trim()
         var emailtxt = email?.getText().toString().trim()
         var passwordtxt = password?.getText().toString().trim()
+        onClickHelper(firstnametxt, lastNametxt, emailtxt, passwordtxt)
+    }
 
+    fun onClickHelper(firstnametxt: String, lastnametxt: String,emailtxt: String, passwordtxt: String){
 
         if(firstnametxt.isEmpty()){
             firstName?.setError("Please enter first name")
-            firstName?.requestFocus()
-            return
-        }
-        if(lastNametxt.isEmpty()){
+            firstName?.requestFocus() //return
+            return}
+        if(lastnametxt.isEmpty()){
             lastName?.setError("Please enter last name")
-            lastName?.requestFocus()
-            return
-        }
+            lastName?.requestFocus() //return
+            return}
         if(passwordtxt.isEmpty()){
             password?.setError("Please enter password")
-            password?.requestFocus()
-            return
-        }
+            password?.requestFocus() //return
+            return}
         if(passwordtxt.length < 6){
             password?.setError("Password needs at least 6 characters")
-            password?.requestFocus()
-            return
-        }
+            password?.requestFocus()} //return
         if(emailtxt.isEmpty()){
             email?.setError("Please enter email")
-            email?.requestFocus()
-            return
-        }
+            email?.requestFocus()} //return
         if(emailtxt.filter { it == '@' }.count()!=1){
             email?.setError("Please enter valid email")
-            email?.requestFocus()
-            return
-        }
+            email?.requestFocus()} //return
         progressBar?.setVisibility(View.VISIBLE)
         mAuth?.createUserWithEmailAndPassword(emailtxt, passwordtxt)
             ?.addOnCompleteListener(
@@ -93,31 +86,23 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
                         "UserID" to (user?.uid ?: String),
                         "email" to emailtxt,
                         "firstName" to firstnametxt,
-                        "lastName" to lastNametxt
-                    )
+                        "lastName" to lastnametxt)
                     db.collection("Users").add(userToAdd)
                         .addOnSuccessListener { documentReference ->
-                            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-                        }
+                            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}") }
                         .addOnFailureListener { e ->
-                            Log.w(TAG, "Error adding document", e)
-                        }
+                            Log.w(TAG, "Error adding document", e) }
                     progressBar?.setVisibility(View.GONE)
-                    //db.collection("Users").document("")
                     //updateUI(user)
                 } else {
                     // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
                     Toast.makeText(
                         this@RegisterUser, "Authentication failed.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                        Toast.LENGTH_SHORT).show()
                     progressBar?.setVisibility(View.GONE)
                     //updateUI(null)
                 }
-
-                // ...
             }
-
     }
 }
