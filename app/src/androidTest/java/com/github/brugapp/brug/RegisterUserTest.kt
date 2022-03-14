@@ -51,6 +51,15 @@ class RegisterUserTest {
             // check if contains register button
             Espresso.onView(ViewMatchers.withId(R.id.registerbutton))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+            // check if contains other textboxes
+        Espresso.onView(ViewMatchers.withId(R.id.firstname))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(ViewMatchers.withId(R.id.lastName))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(ViewMatchers.withId(R.id.emailAddressReg))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        Espresso.onView(ViewMatchers.withId(R.id.PasswordReg))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Intents.release()
     }
 }
