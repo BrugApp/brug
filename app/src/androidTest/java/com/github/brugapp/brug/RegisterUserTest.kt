@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
@@ -33,11 +34,15 @@ class RegisterUserTest {
     @Test
     fun registerUserTypeAndSubmitTest(){
         onView(withId(R.id.firstname)).perform(typeText("Tess"))
+        closeSoftKeyboard()
         onView(withId(R.id.lastName)).perform(typeText("Terr"))
         //typing email/password and clicking button causes androidx.test.espresso.PerformException
-        //onView(withId(R.id.emailAddressReg)).perform(typeText("unlost.app@gmail.com"))
-        //onView(withId(R.id.PasswordReg)).perform(typeText("yoghurt"))
-        //onView(withId(R.id.registerbutton)).perform(click())
+        closeSoftKeyboard()
+        onView(withId(R.id.emailAddressReg)).perform(typeText("unlost.app@gmail.com"))
+        closeSoftKeyboard()
+        onView(withId(R.id.PasswordReg)).perform(typeText("yoghurt"))
+        closeSoftKeyboard()
+        onView(withId(R.id.registerbutton)).perform(click())
         //Espresso.onView(ViewMatchers.withId(R.id.emailAddressReg)).check(ViewAssertions.matches(ViewMatchers.withText("unlost.app@gmail.com")))
         // check if contains register button
         Espresso.onView(ViewMatchers.withId(R.id.registerbutton))
