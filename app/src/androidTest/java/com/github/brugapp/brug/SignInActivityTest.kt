@@ -143,21 +143,21 @@ class SignInActivityTestFakeHandler {
             )
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
-        val activityScenario: ActivityScenario<SignInActivity> = ActivityScenario.launch(intent)
+        ActivityScenario.launch<SignInActivity?>(intent).use {
+            it.onActivity { activity ->
+                activity.getSignInResult.launch(Intent(activity.intent))
+            }
 
-        activityScenario.onActivity { activity ->
-            activity.getSignInResult.launch(Intent(activity.intent))
+            // check if displays correct display name
+            Espresso.onView(withId(R.id.sign_in_main_text))
+                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")))
+            // check if contains sign out button
+            Espresso.onView(withId(R.id.sign_in_sign_out_button))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+
+            // sign out
+            Espresso.onView(withId(R.id.sign_in_sign_out_button)).perform(ViewActions.click())
         }
-
-        // check if displays correct display name
-        Espresso.onView(withId(R.id.sign_in_main_text))
-            .check(ViewAssertions.matches(ViewMatchers.withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")))
-        // check if contains sign out button
-        Espresso.onView(withId(R.id.sign_in_sign_out_button))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-
-        // sign out
-        Espresso.onView(withId(R.id.sign_in_sign_out_button)).perform(ViewActions.click())
 
         Intents.release()
     }
@@ -176,18 +176,18 @@ class SignInActivityTestFakeHandler {
             )
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
-        val activityScenario: ActivityScenario<SignInActivity> = ActivityScenario.launch(intent)
+        ActivityScenario.launch<SignInActivity?>(intent).use {
+            it.onActivity { activity ->
+                activity.getSignInResult.launch(Intent(activity.intent))
+            }
 
-        activityScenario.onActivity { activity ->
-            activity.getSignInResult.launch(Intent(activity.intent))
+            // check if displays correct message
+            Espresso.onView(withId(R.id.sign_in_main_text))
+                .check(ViewAssertions.matches(ViewMatchers.withText("Sign in to Unlost")))
+            // check if contains sign in button
+            Espresso.onView(withId(R.id.sign_in_google_button))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
-
-        // check if displays correct message
-        Espresso.onView(withId(R.id.sign_in_main_text))
-            .check(ViewAssertions.matches(ViewMatchers.withText("Sign in to Unlost")))
-        // check if contains sign in button
-        Espresso.onView(withId(R.id.sign_in_google_button))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
         Intents.release()
     }
@@ -197,7 +197,6 @@ class SignInActivityTestFakeHandler {
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
 
         ActivityScenario.launch<SignInActivity>(intent).use {
-
             Espresso.onView(withId(R.id.sign_in_google_button)).perform(ViewActions.click())
         }
     }
@@ -259,18 +258,18 @@ class SignInActivityTestRealGoogle {
             )
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
-        val activityScenario: ActivityScenario<SignInActivity> = ActivityScenario.launch(intent)
+        ActivityScenario.launch<SignInActivity?>(intent).use {
+            it.onActivity { activity ->
+                activity.getSignInResult.launch(Intent(activity.intent))
+            }
 
-        activityScenario.onActivity { activity ->
-            activity.getSignInResult.launch(Intent(activity.intent))
+            // check if displays correct display name
+            Espresso.onView(withId(R.id.sign_in_main_text))
+                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome null\nEmail: null")))
+            // check if contains sign out button
+            Espresso.onView(withId(R.id.sign_in_sign_out_button))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
-
-        // check if displays correct display name
-        Espresso.onView(withId(R.id.sign_in_main_text))
-            .check(ViewAssertions.matches(ViewMatchers.withText("Welcome null\nEmail: null")))
-        // check if contains sign out button
-        Espresso.onView(withId(R.id.sign_in_sign_out_button))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
         Intents.release()
 
