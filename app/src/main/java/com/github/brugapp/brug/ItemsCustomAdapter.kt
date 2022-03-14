@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class ItemsCustomAdapter(private val list: List<ItemsViewModel>) :
-    RecyclerView.Adapter<ItemsCustomAdapter.ViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // Creates new views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -18,7 +18,8 @@ class ItemsCustomAdapter(private val list: List<ItemsViewModel>) :
     }
 
     // Binds the list items to a view
-    override fun onBindViewHolder(holder: ViewHolder, position: Int){
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        holder as ViewHolder
         val itemsViewModel = list[position]
 
         holder.icon.setImageResource(itemsViewModel.image)
@@ -36,5 +37,6 @@ class ItemsCustomAdapter(private val list: List<ItemsViewModel>) :
         val title: TextView = itemView.findViewById(R.id.list_item_title)
         val desc: TextView = itemView.findViewById(R.id.list_item_desc)
     }
+
 
 }

@@ -28,10 +28,6 @@ private const val SEARCH_HINT: String = "Search items here…"
 class ItemsMenuActivity : AppCompatActivity() {
     private val data = ArrayList<ItemsViewModel>()
     private val listViewAdapter = ItemsCustomAdapter(data)
-    private lateinit var listView: RecyclerView
-    private lateinit var deleteIcon: Drawable
-
-    private var swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#d65819")) // To move in a color database
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +63,8 @@ class ItemsMenuActivity : AppCompatActivity() {
     }
 
     private fun initItemsList(){
-        deleteIcon = ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24) !! // To trigger NullPointerException if icon not found
-        listView = findViewById(R.id.items_listview)
+        val listView = findViewById<RecyclerView>(R.id.items_listview)
+        val listUtils = ListUtilities(this, listView, listViewAdapter, data)
         listView.layoutManager = LinearLayoutManager(this)
 
         data.add(ItemsViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
@@ -76,7 +72,7 @@ class ItemsMenuActivity : AppCompatActivity() {
         data.add(ItemsViewModel(R.drawable.ic_baseline_car_rental_24, "BMW Key", "BMW M3 F80 Competition"))
         data.add(ItemsViewModel(R.drawable.ic_baseline_vpn_key_24, "Keys", "House and everything else"))
 
-        ItemTouchHelper(listCallback).attachToRecyclerView(listView)
+        ItemTouchHelper(listUtils.listCallback).attachToRecyclerView(listView)
         listView.adapter = listViewAdapter
     }
 
@@ -107,101 +103,4 @@ class ItemsMenuActivity : AppCompatActivity() {
         }
         bottomNavBar.selectedItemId = R.id.items_list_menu_button
     }
-
-
-    // To implement swipe to delete animation + move to reorder
-    private val listCallback = object : SimpleCallback(ItemTouchHelper.UP.or(ItemTouchHelper.DOWN), ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)) {
-        /* DRAG TO REORDER (UP AND DOWN THE LIST) */
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean {
-            /* MISSING TEST CASE, HENCE COMMENTED FOR NOW */
-//            val startPosition = viewHolder.adapterPosition
-//            val endPosition = target.adapterPosition
-//
-//            val movedElt = data[startPosition]
-//
-//            Collections.swap(data, startPosition, endPosition)
-//            recyclerView.adapter?.notifyItemMoved(startPosition, endPosition)
-//
-//            Snackbar.make(listView,
-//                "Item \"${movedElt.title}\" has been moved from ${startPosition} to ${endPosition}",
-//                Snackbar.LENGTH_LONG)
-//                .show()
-            return true
-        }
-
-        /* HERE IS WHERE TO CALL THE ACTUAL DELETE FUNCTION */
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.adapterPosition
-            val deletedElt = data.removeAt(position)
-            listViewAdapter.notifyItemRemoved(position)
-
-            Snackbar.make(listView, "Item \"${deletedElt.title}\" is deleted", Snackbar.LENGTH_LONG)
-                .setAction("Undo") {
-                    data.add(position, deletedElt)
-                    listViewAdapter.notifyItemInserted(position)
-                }.show()
-        }
-
-        // Drawing the red "delete" background when swiping to delete
-        override fun onChildDraw(
-            c: Canvas,
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            dX: Float,
-            dY: Float,
-            actionState: Int,
-            isCurrentlyActive: Boolean
-        ) {
-            val itemView = viewHolder.itemView
-            val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
-
-            deleteIcon.setTint(Color.WHITE)
-
-            swipeBG.bounds = computeBGBounds(dX, itemView)
-            deleteIcon.bounds = computeIconBounds(dX, iconMargin, itemView)
-
-            swipeBG.draw(c)
-            c.save()
-            c.clipRect(swipeBG.bounds)
-            deleteIcon.draw(c)
-            c.restore()
-
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-        }
-
-
-        private fun computeBGBounds(dX: Float, itemView: View): Rect {
-            val leftOffset: Int
-            val rightOffset: Int
-            if(dX > 0){
-                leftOffset = itemView.left
-                rightOffset = dX.toInt()
-            } else {
-                leftOffset = itemView.right + dX.toInt()
-                rightOffset = itemView.right
-            }
-
-            return Rect(leftOffset, itemView.top, rightOffset, itemView.bottom)
-        }
-
-
-        private fun computeIconBounds(dX: Float, iconMargin: Int, itemView: View): Rect {
-            val leftOffset: Int
-            val rightOffset: Int
-            if(dX > 0){
-                leftOffset = itemView.left + iconMargin
-                rightOffset = itemView.left + iconMargin + deleteIcon.intrinsicWidth
-            } else {
-                leftOffset = itemView.right - iconMargin - deleteIcon.intrinsicWidth
-                rightOffset = itemView.right - iconMargin
-            }
-
-            return Rect(leftOffset, itemView.top + iconMargin, rightOffset, itemView.bottom - iconMargin)
-        }
-    }
-
 }

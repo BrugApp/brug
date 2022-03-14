@@ -7,10 +7,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-private const val MAX_DESC_LENGTH = 50
-
 class ChatCustomAdapter(private val list: List<ChatViewModel>) :
-    RecyclerView.Adapter<ChatCustomAdapter.ViewHolder>() {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // Creates new views
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -20,9 +18,9 @@ class ChatCustomAdapter(private val list: List<ChatViewModel>) :
     }
 
     // Binds the list items to a view
-    override fun onBindViewHolder(holder: ViewHolder, position: Int){
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        holder as ViewHolder
         val chatViewModel = list[position]
-
         holder.icon.setImageResource(chatViewModel.profilePicId)
         holder.title.text = chatViewModel.name
         holder.desc.text = chatViewModel.lastMessage
@@ -38,5 +36,6 @@ class ChatCustomAdapter(private val list: List<ChatViewModel>) :
         val title: TextView = chatView.findViewById(R.id.chat_entry_title)
         val desc: TextView = chatView.findViewById(R.id.chat_entry_desc)
     }
+
 
 }
