@@ -1,5 +1,6 @@
 package com.github.brugapp.brug
 
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
@@ -15,7 +16,10 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationBarItemView
+import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon..."
@@ -35,14 +39,14 @@ class ItemsMenuActivity : AppCompatActivity() {
 
         initItemsList()
         initFloatingAddButton()
-//        initNavigationBar()
+        initNavigationBar()
     }
 
     // For the searchbar when pressing on the top bar's search icon
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.custom_top_bar, menu)
 
-        val item = menu?.findItem(R.id.search_items)
+        val item = menu?.findItem(R.id.search_box)
         val searchView = item?.actionView as androidx.appcompat.widget.SearchView
 
         searchView.queryHint = SEARCH_HINT
@@ -85,28 +89,24 @@ class ItemsMenuActivity : AppCompatActivity() {
         }
     }
 
-//    private fun initNavigationBar(){
-//        val itemsMenuButton = findViewById<NavigationBarItemView>(R.id.items_list_menu_button)
-//        itemsMenuButton.setOnClickListener{view ->
-//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-//                .setAction("Action", null)
-//                .show()
-//        }
-//
-//        val scanQRMenuButton = findViewById<NavigationBarItemView>(R.id.qr_scan_menu_button)
-//        scanQRMenuButton.setOnClickListener{view ->
-//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-//                .setAction("Action", null)
-//                .show()
-//        }
-//
-//        val chatMenuButton = findViewById<NavigationBarItemView>(R.id.chat_menu_button)
-//        chatMenuButton.setOnClickListener{view ->
-//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-//                .setAction("Action", null)
-//                .show()
-//        }
-//    }
+    private fun initNavigationBar(){
+        val bottomNavBar = findViewById<NavigationBarView>(R.id.bottom_navigation)
+        bottomNavBar.setOnItemSelectedListener {menuItem ->
+            when(menuItem.itemId){
+                R.id.items_list_menu_button -> {true}
+                R.id.qr_scan_menu_button -> {
+                    startActivity(Intent(this, QrCodeScannerActivity::class.java))
+                    true
+                }
+                R.id.chat_menu_button -> {
+                    startActivity(Intent(this, ChatMenuActivity::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
+        bottomNavBar.selectedItemId = R.id.items_list_menu_button
+    }
 
 
     // To implement swipe to delete animation + move to reorder
@@ -117,6 +117,7 @@ class ItemsMenuActivity : AppCompatActivity() {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
+            /* MISSING TEST CASE, HENCE COMMENTED FOR NOW */
 //            val startPosition = viewHolder.adapterPosition
 //            val endPosition = target.adapterPosition
 //
