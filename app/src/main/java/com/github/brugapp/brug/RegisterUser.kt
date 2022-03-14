@@ -48,6 +48,7 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
         var emailtxt = email?.getText().toString().trim()
         var passwordtxt = password?.getText().toString().trim()
 
+
         if(firstnametxt.isEmpty()){
             firstName?.setError("Please enter first name")
             firstName?.requestFocus()
