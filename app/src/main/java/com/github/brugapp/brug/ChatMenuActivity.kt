@@ -4,18 +4,21 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationBarView
+import com.google.android.material.snackbar.Snackbar
 
+private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
 private const val SEARCH_HINT = "Search for a conversation…"
+private const val DELETE_TEXT = "Chat feed has been deleted."
 
 class ChatMenuActivity : AppCompatActivity() {
-    private val conversations = ArrayList<ListViewModel>()
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_menu)
@@ -35,25 +38,42 @@ class ChatMenuActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    // For the settings icon on top bar
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.my_settings -> {
+                Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
+                    .show()
+                true
+            }
+            else -> false
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
 
     private fun initChatList() {
         val listView = findViewById<RecyclerView>(R.id.chat_listview)
         val listViewAdapter = ListCustomAdapter(
-            conversations,
             R.layout.chat_entry_layout,
             R.id.chat_entry_profilepic,
             R.id.chat_entry_title,
             R.id.chat_entry_desc
-        )
-        val listUtils = ListUtilities(this, listView, listViewAdapter, conversations)
+        ) { // HERE TO IMPLEMENT ONCLICK ACTIONS
+                clickedItem ->
+                Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
+                    .setAction("Action", null)
+                    .show()
+        }
+        val listCallback = ListCallbackImpl(this, listViewAdapter, DELETE_TEXT)
         listView.layoutManager = LinearLayoutManager(this)
 
-        conversations.add(ListViewModel(R.mipmap.ic_launcher, "Anna", "Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne"))
-        conversations.add(ListViewModel(R.mipmap.ic_launcher, "Henry", "Hey ! I might have found your wallet yesterday near the EPFL campus"))
-        conversations.add(ListViewModel(R.mipmap.ic_launcher, "Jenna", "Me: Fine, lets meet on Saturday then !"))
-        conversations.add(ListViewModel(R.mipmap.ic_launcher, "John", "Give me my money back you thief !!!"))
+        listViewAdapter.addEntry(ListViewModel(R.mipmap.ic_launcher, "Anna", "Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne"))
+        listViewAdapter.addEntry(ListViewModel(R.mipmap.ic_launcher, "Henry", "Hey ! I might have found your wallet yesterday near the EPFL campus"))
+        listViewAdapter.addEntry(ListViewModel(R.mipmap.ic_launcher, "Jenna", "Me: Fine, lets meet on Saturday then !"))
+        listViewAdapter.addEntry(ListViewModel(R.mipmap.ic_launcher, "John", "Give me my money back you thief !!!"))
 
-        ItemTouchHelper(listUtils.listCallback).attachToRecyclerView(listView)
+        ItemTouchHelper(listCallback).attachToRecyclerView(listView)
         listView.adapter = listViewAdapter
 
         listView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
@@ -79,4 +99,5 @@ class ChatMenuActivity : AppCompatActivity() {
         }
         bottomNavBar.selectedItemId = R.id.chat_menu_button
     }
+
 }

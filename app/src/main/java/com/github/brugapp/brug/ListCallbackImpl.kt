@@ -11,52 +11,46 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
-import kotlin.collections.ArrayList
 
-class ListUtilities<T>(
-    context: Context,
-    listView: RecyclerView,
-    listViewAdapter: RecyclerView.Adapter<RecyclerView.ViewHolder>,
-    itemsList: ArrayList<T>) {
-
+/**
+ * Implements the different swipe callbacks.
+ */
+class ListCallbackImpl(val context: Context, private val listViewAdapter: ListCustomAdapter, private val onDeleteStr: String)
+    : ItemTouchHelper.SimpleCallback(
+    ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
+    ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
+) {
     private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_baseline_delete_24) !! // To trigger NullPointerException if icon not found
-    private val swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#d65819")) // To move in a color database
+    private val swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#d65819")) // To move in a color database (maybe ?)
 
-    // To implement swipe to delete animation + move to reorder
-    val listCallback = object : ItemTouchHelper.SimpleCallback(
-        ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-        ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)) {
         /* DRAG TO REORDER (UP AND DOWN THE LIST) */
         override fun onMove(
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            /* MISSING TEST CASE, HENCE COMMENTED FOR NOW */
             val startPosition = viewHolder.adapterPosition
             val endPosition = target.adapterPosition
 
-//            val movedElt = itemsList[startPosition]
-
-            Collections.swap(itemsList, startPosition, endPosition)
+            Collections.swap(listViewAdapter.getList(), startPosition, endPosition)
             recyclerView.adapter?.notifyItemMoved(startPosition, endPosition)
 
-            Snackbar.make(listView,
+            Snackbar.make(recyclerView,
                 "Item has been moved from $startPosition to $endPosition",
                 Snackbar.LENGTH_LONG)
                 .show()
             return true
         }
 
-        /* HERE IS WHERE TO CALL THE ACTUAL DELETE FUNCTION */
+        /* SWIPE TO DELETE (LEFT AND RIGHT) */
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
-            val deletedElt = itemsList.removeAt(position)
+            val deletedElt = listViewAdapter.removeEntry(position)
             listViewAdapter.notifyItemRemoved(position)
 
-            Snackbar.make(listView, "TEST OF REMOVAL", Snackbar.LENGTH_LONG)
+            Snackbar.make(viewHolder.itemView, onDeleteStr, Snackbar.LENGTH_LONG)
                 .setAction("Undo") {
-                    itemsList.add(position, deletedElt)
+                    listViewAdapter.addEntryAtPos(position, deletedElt)
                     listViewAdapter.notifyItemInserted(position)
                 }.show()
         }
@@ -118,5 +112,3 @@ class ListUtilities<T>(
             return Rect(leftOffset, chatView.top + iconMargin, rightOffset, chatView.bottom - iconMargin)
         }
     }
-
-}

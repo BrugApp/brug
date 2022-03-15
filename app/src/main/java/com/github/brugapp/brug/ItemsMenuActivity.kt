@@ -14,9 +14,9 @@ import com.google.android.material.snackbar.Snackbar
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
 private const val SEARCH_HINT: String = "Search items here…"
+private const val DELETE_TEXT: String = "Item has been deleted."
 
 class ItemsMenuActivity : AppCompatActivity() {
-    private val data = ArrayList<ListViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,12 +40,13 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id: Int = item.itemId
-
-        if(id == R.id.my_settings){
-            Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-                .show()
-            return true
+        when(item.itemId){
+            R.id.my_settings -> {
+                Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
+                    .show()
+                true
+            }
+            else -> false
         }
 
         return super.onOptionsItemSelected(item)
@@ -54,21 +55,25 @@ class ItemsMenuActivity : AppCompatActivity() {
     private fun initItemsList(){
         val listView = findViewById<RecyclerView>(R.id.items_listview)
         val listViewAdapter = ListCustomAdapter(
-            data,
             R.layout.list_item_layout,
             R.id.list_item_icon,
             R.id.list_item_title,
             R.id.list_item_desc
-        )
-        val listUtils = ListUtilities(this, listView, listViewAdapter, data)
+        ) { // HERE TO IMPLEMENT ONCLICK ACTIONS
+                clickedItem ->
+                Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
+                    .setAction("Action", null)
+                    .show()
+        }
+        val listCallback = ListCallbackImpl(this, listViewAdapter, DELETE_TEXT)
         listView.layoutManager = LinearLayoutManager(this)
 
-        data.add(ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
-        data.add(ListViewModel(R.drawable.ic_baseline_account_balance_wallet_24, "Wallet", "With all my belongings"))
-        data.add(ListViewModel(R.drawable.ic_baseline_car_rental_24, "BMW Key", "BMW M3 F80 Competition"))
-        data.add(ListViewModel(R.drawable.ic_baseline_vpn_key_24, "Keys", "House and everything else"))
+        listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
+        listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_account_balance_wallet_24, "Wallet", "With all my belongings"))
+        listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_car_rental_24, "BMW Key", "BMW M3 F80 Competition"))
+        listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_vpn_key_24, "Keys", "House and everything else"))
 
-        ItemTouchHelper(listUtils.listCallback).attachToRecyclerView(listView)
+        ItemTouchHelper(listCallback).attachToRecyclerView(listView)
         listView.adapter = listViewAdapter
     }
 
