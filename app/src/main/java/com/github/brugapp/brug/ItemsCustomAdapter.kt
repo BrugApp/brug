@@ -1,5 +1,6 @@
 package com.github.brugapp.brug
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,7 @@ class ItemsCustomAdapter(private val list: List<ItemsViewModel>) :
     }
 
     // Binds the list items to a view
-    override fun onBindViewHolder(holder: ViewHolder, position: Int){
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val itemsViewModel = list[position]
 
         holder.icon.setImageResource(itemsViewModel.image)
@@ -31,10 +32,10 @@ class ItemsCustomAdapter(private val list: List<ItemsViewModel>) :
         return list.size
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val icon: ImageView = itemView.findViewById(R.id.list_item_icon)
         val title: TextView = itemView.findViewById(R.id.list_item_title)
         val desc: TextView = itemView.findViewById(R.id.list_item_desc)
-    }
 
+    }
 }

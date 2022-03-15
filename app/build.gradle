@@ -67,11 +67,13 @@ dependencies {
     androidTestImplementation 'androidx.test:rules:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
 
+    //QRCode Scanner
+    implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'
 
-    implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'//QRCode Scanner
     // For Robolectric tests.
     testImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
     kaptTest 'com.google.dagger:hilt-android-compiler:2.38.1'
+
     // For instrumented tests.
     androidTestImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
     kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.38.1'

@@ -8,11 +8,14 @@ import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import org.hamcrest.Matchers
 import org.hamcrest.core.IsEqual
 import org.junit.Rule
 import org.junit.Test
@@ -56,8 +59,8 @@ class ItemsMenuActivityTest {
     /* THESE NEED A CONFLICTING ESPRESSO DEPENDENCY */
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
+        Intents.init()
         val itemsList = onView(withId(R.id.items_listview))
-        val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
         itemsList.perform(
             RecyclerViewActions.actionOnItemAtPosition<ItemsCustomAdapter.ViewHolder>(
                 0, GeneralSwipeAction(
@@ -66,7 +69,14 @@ class ItemsMenuActivityTest {
                 )
             )
         )
-        snackBar.check(matches(withText("Item \"Phone\" is deleted")))
+        Intents.intended(
+            Matchers.allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                IntentMatchers.hasComponent(ItemInformationActivity::class.java.name)
+            )
+        )
+        Intents.release()
+
     }
 
     @Test
