@@ -40,15 +40,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.my_settings -> {
-                Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-                    .show()
-                true
-            }
-            else -> false
-        }
-
+        CustomTopBar().defineTopBarActions(window.decorView, DUMMY_TEXT, item)
         return super.onOptionsItemSelected(item)
     }
 
