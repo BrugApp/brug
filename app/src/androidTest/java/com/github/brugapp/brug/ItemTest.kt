@@ -8,43 +8,58 @@ import org.hamcrest.CoreMatchers.`is` as Is
 class ItemTest {
 
     @Test(expected = IllegalArgumentException::class)
-    fun invalidNameItem() {
+    fun invalidNameItemTest() {
         val blankName = "    "
-        val invalidUser = Item(blankName, 1)
+        val description = "Grey wallet"
+        val invalidUser = Item(blankName, 1, description)
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun emptyNameItem() {
+    fun emptyNameItemTest() {
         val emptyName = ""
-        val invalidUser = Item(emptyName, 1)
+        val description = "Grey wallet"
+        val invalidUser = Item(emptyName, 1, description)
     }
 
     @Test
-    fun validNameItem(){
+    fun validNameItemTest(){
         val itemName = "Wallet"
         val itemId = 1
-        val validUser = Item(itemName, itemId)
+        val description = "Grey wallet"
+        val validUser = Item(itemName, itemId, description)
 
         assertThat(validUser.getName(), Is(itemName))
 
-
     }
 
     @Test
-    fun validIdItem(){
+    fun validIdItemTest(){
         val itemName = "Wallet"
         val itemId = 1
-        val validUser = Item(itemName, itemId)
+        val description = "Grey wallet"
+        val validUser = Item(itemName, itemId, description)
 
         assertThat(validUser.getId(), Is(itemId))
 
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun setInvalidName() {
+    @Test
+    fun descriptionTest(){
         val itemName = "Wallet"
         val itemId = 1
-        val validUser = Item(itemName, itemId)
+        val description = "Grey wallet"
+        val validUser = Item(itemName, itemId, description)
+
+        assertThat(validUser.getDescription(), Is(description))
+
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun setInvalidNameTest() {
+        val itemName = "Wallet"
+        val itemId = 1
+        val description = "Grey wallet"
+        val validUser = Item(itemName, itemId, description)
 
         val invalidName = "    "
 
@@ -53,21 +68,32 @@ class ItemTest {
     }
 
     @Test
-    fun setValidName(){
+    fun setValidNameTest(){
         val itemName = "Wallet"
         val itemId = 1
-        val validUser = Item(itemName, itemId)
+        val description = "Grey wallet"
+        val validUser = Item(itemName, itemId, description)
 
         val validName = "Bag"
-
 
         validUser.setName(validName)
 
         assertThat(validUser.getName(), Is(validName))
     }
 
+    @Test
+    fun setDescriptionTest(){
+        val itemName = "Wallet"
+        val itemId = 1
+        val description = "Grey wallet"
+        val validUser = Item(itemName, itemId, description)
 
+        val newDescription = "Black wallet"
 
+        validUser.setDescription(newDescription)
+
+        assertThat(validUser.getDescription(), Is(newDescription))
+    }
 
 }
 

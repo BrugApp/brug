@@ -2,16 +2,17 @@ package com.github.brugapp.brug
 
 import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withSpinnerText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
-import org.hamcrest.Matchers.anything
-import org.hamcrest.Matchers.containsString
+
+import org.hamcrest.Matchers.*
 
 import org.junit.Rule
 import org.junit.Test
@@ -60,6 +61,50 @@ class AddItemTest {
         val itemDescription = onView(withId(R.id.itemDescription))
         itemDescription.perform(typeText(longDescription))
         itemDescription.check(matches(ViewMatchers.withText(expectedDescription)))
+    }
+
+    @Test
+    fun nameHelperTextTest(){
+
+        val emptyName = ""
+        val itemName = onView(withId(R.id.itemName))
+        val nameHelperText = onView(withId(R.id.itemNameHelper))
+        itemName.perform(typeText(emptyName))
+
+        val expectedHelperText = "Name must contain at least 1 character"
+
+        val addButton = onView(withId(R.id.add_item_button))
+        addButton.perform(click())
+
+        // Verify that the Helper text changed after invalid name, and hence we are still in the AddItem activity
+        nameHelperText.check(matches(ViewMatchers.withText(expectedHelperText)))
+    }
+
+    @Test
+    fun validNameTextTest(){
+
+        val validName = "Wallet"
+        val itemName = onView(withId(R.id.itemName))
+        itemName.perform(typeText(validName))
+
+        /* Added the following two lines to make sure the keyboard is closed when we switch to ItemMenu activity,
+           in order not to get a SecurityException
+        */
+        itemName.perform(closeSoftKeyboard())
+        Thread.sleep(250)
+
+        Intents.init()
+        onView(withId(R.id.add_item_button)).perform(click())
+
+        // Verify that the app goes to the Item List activity if the User enters valid info for his/her new item.
+        Intents.intended(
+            allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                IntentMatchers.hasComponent(ItemsMenuActivity::class.java.name)
+            )
+        )
+        Intents.release()
+
     }
 
 

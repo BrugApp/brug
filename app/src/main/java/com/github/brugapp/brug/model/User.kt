@@ -48,5 +48,15 @@ class User// later generate id
         return email
     }
 
+    fun addItem(item : Item) : Boolean{
+
+        if(item != null){
+            items.add(item)
+            return true
+        }
+        return false
+
+    }
+
 
 }
