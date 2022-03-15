@@ -1,36 +1,22 @@
 package com.github.brugapp.brug
 
-import android.content.ContentValues.TAG
 import android.content.Intent
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 
-private const val DUMMY_TEXT: String = "Actual behavior coming soon..."
-private const val SEARCH_HINT: String = "Search items here..."
+private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
+private const val SEARCH_HINT: String = "Search items here…"
+private const val DELETE_TEXT: String = "Item has been deleted."
 
-class ItemsMenuActivity : AppCompatActivity(){
-    private val data = ArrayList<ItemsViewModel>()
-    private lateinit var listViewAdapter:ItemsCustomAdapter
-    private lateinit var listView: RecyclerView
-    private lateinit var deleteIcon: Drawable
-
-    private var swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#d65819")) // To move in a color database
+class ItemsMenuActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,48 +24,49 @@ class ItemsMenuActivity : AppCompatActivity(){
 
         initItemsList()
         initFloatingAddButton()
-//        initNavigationBar()
+        initNavigationBar()
     }
 
     // For the searchbar when pressing on the top bar's search icon
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.custom_top_bar, menu)
-
-        val item = menu?.findItem(R.id.search_items)
-        val searchView = item?.actionView as androidx.appcompat.widget.SearchView
-
-        searchView.queryHint = SEARCH_HINT
+        customTopBar.inflateTopBar(menuInflater, menu, SEARCH_HINT)
         return super.onCreateOptionsMenu(menu)
     }
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id: Int = item.itemId
-
-        if(id == R.id.my_settings){
-            Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-                .show()
-            return true
-        }
-
+        customTopBar.defineTopBarActions(window.decorView, DUMMY_TEXT, item)
         return super.onOptionsItemSelected(item)
     }
 
-
     private fun initItemsList(){
-        deleteIcon = ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24) !! // To trigger NullPointerException if icon not found
-        listView = findViewById(R.id.items_listview)
+        val listView = findViewById<RecyclerView>(R.id.items_listview)
+        val listViewAdapter = ListCustomAdapter(
+            R.layout.list_item_layout,
+            R.id.list_item_icon,
+            R.id.list_item_title,
+            R.id.list_item_desc
+        ) { // HERE TO IMPLEMENT ONCLICK ACTIONS
+                item ->
+            val intent = Intent(this,ItemInformationActivity::class.java)
+            intent.putExtra("title",item.title)
+            intent.putExtra("description",item.desc)
+            intent.putExtra("image",item.iconId)
+            intent.putExtra("lastLocation",item.lastLocation)
+            intent.putExtra("addedOn",item.addedOn)
+            startActivity(intent)
+
+        }
+        val listCallback = ListCustomCallback(this, listViewAdapter, DELETE_TEXT)
         listView.layoutManager = LinearLayoutManager(this)
 
-        data.add(ItemsViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
-        data.add(ItemsViewModel(R.drawable.ic_baseline_account_balance_wallet_24, "Wallet", "With all my belongings"))
-        data.add(ItemsViewModel(R.drawable.ic_baseline_car_rental_24, "BMW Key", "BMW M3 F80 Competition"))
-        data.add(ItemsViewModel(R.drawable.ic_baseline_vpn_key_24, "Keys", "House and everything else"))
-
-        listViewAdapter = ItemsCustomAdapter(data)
-        listView.adapter= listViewAdapter
+        listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
+        listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_account_balance_wallet_24, "Wallet", "With all my belongings"))
+        listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_car_rental_24, "BMW Key", "BMW M3 F80 Competition"))
+        listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_vpn_key_24, "Keys", "House and everything else"))
 
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
+        listView.adapter = listViewAdapter
     }
 
     private fun initFloatingAddButton(){
@@ -91,121 +78,26 @@ class ItemsMenuActivity : AppCompatActivity(){
         }
     }
 
-
-
-    // To implement swipe to delete animation + move to reorder
-    private val listCallback = object : SimpleCallback(ItemTouchHelper.UP.or(ItemTouchHelper.DOWN), ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)) {
-        /* DRAG TO REORDER (UP AND DOWN THE LIST) */
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder
-        ): Boolean {
-//            val startPosition = viewHolder.adapterPosition
-//            val endPosition = target.adapterPosition
-//
-//            val movedElt = data[startPosition]
-//
-//            Collections.swap(data, startPosition, endPosition)
-//            recyclerView.adapter?.notifyItemMoved(startPosition, endPosition)
-//
-//            Snackbar.make(listView,
-//                "Item \"${movedElt.title}\" has been moved from ${startPosition} to ${endPosition}",
-//                Snackbar.LENGTH_LONG)
-//                .show()
-            return true
-        }
-
-
-
-        /* HERE IS WHERE TO CALL THE ACTUAL DELETE FUNCTION */
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            val position = viewHolder.adapterPosition
-
-            if(direction ==  ItemTouchHelper.RIGHT) {
-                val deletedElt = data.removeAt(position)
-                listViewAdapter.notifyItemRemoved(position)
-                Snackbar.make(
-                    listView,
-                    "Item \"${deletedElt.title}\" is deleted",
-                    Snackbar.LENGTH_LONG
-                )
-                    .setAction("Undo") {
-                        data.add(position, deletedElt)
-                        listViewAdapter.notifyItemInserted(position)
-                    }.show()
-            }else {
-                val itemsViewModel = data[position]
-                val intent = Intent(viewHolder.itemView.context,ItemInformationActivity::class.java)
-                intent.putExtra("title",itemsViewModel.title)
-                intent.putExtra("description",itemsViewModel.description)
-                intent.putExtra("image",itemsViewModel.image)
-                intent.putExtra("lastLocation",itemsViewModel.lastLocation)
-                intent.putExtra("addedOn",itemsViewModel.addedOn)
-                intent.putExtra("image",itemsViewModel.image)
-                startActivity(intent)
+    private fun initNavigationBar(){
+        val bottomNavBar = findViewById<NavigationBarView>(R.id.bottom_navigation)
+        bottomNavBar.setOnItemSelectedListener {menuItem ->
+            when(menuItem.itemId){
+                R.id.items_list_menu_button -> {true}
+                R.id.qr_scan_menu_button -> {
+                    startActivity(Intent(this, QrCodeScannerActivity::class.java))
+                    true
+                }
+                R.id.chat_menu_button -> {
+                    startActivity(Intent(this, ChatMenuActivity::class.java))
+                    true
+                }
+                else -> false
             }
         }
-
-        // Drawing the red "delete" background when swiping to delete
-        override fun onChildDraw(
-            c: Canvas,
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            dX: Float,
-            dY: Float,
-            actionState: Int,
-            isCurrentlyActive: Boolean
-        ) {
-            val itemView = viewHolder.itemView
-            val background = ColorDrawable()
-
-            if(dX>0) {
-                val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
-
-                deleteIcon.setTint(Color.WHITE)
-
-                swipeBG.bounds = computeBGBounds(dX, itemView)
-                deleteIcon.bounds = computeIconBounds(dX, iconMargin, itemView)
-
-                swipeBG.draw(c)
-                c.save()
-                c.clipRect(swipeBG.bounds)
-                deleteIcon.draw(c)
-                c.restore()
-            }else{
-                val backgroundColor = Color.parseColor("#32a852")
-                background.color = backgroundColor
-                background.bounds =computeBGBounds(dX, itemView)
-                background.draw(c)
-
-            }
-
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-        }
-
-
-        private fun computeBGBounds(dX: Float, itemView: View): Rect {
-            val leftOffset: Int
-            val rightOffset: Int
-            if(dX > 0){
-                leftOffset = itemView.left
-                rightOffset = dX.toInt()
-            } else {
-                leftOffset = itemView.right + dX.toInt()
-                rightOffset = itemView.right
-            }
-
-            return Rect(leftOffset, itemView.top, rightOffset, itemView.bottom)
-        }
-
-
-        private fun computeIconBounds(dX: Float, iconMargin: Int, itemView: View): Rect {
-            val leftOffset: Int = itemView.left + iconMargin
-            val rightOffset: Int = itemView.left + iconMargin + deleteIcon.intrinsicWidth
-
-            return Rect(leftOffset, itemView.top + iconMargin, rightOffset, itemView.bottom - iconMargin)
-        }
+        bottomNavBar.selectedItemId = R.id.items_list_menu_button
     }
 
+    companion object {
+        private val customTopBar = CustomTopBar()
+    }
 }

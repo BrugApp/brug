@@ -33,4 +33,6 @@
     <string name="owner">Owner</string>
     <string name="name">Name</string>
     <string name="last_location">Last Location</string>
+    <string name="chat_menu_label">My Conversations</string>
+    <string name="chat_entry_profilepic">Profile picture</string>
 </resources>

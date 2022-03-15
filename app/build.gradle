@@ -69,6 +69,8 @@ dependencies {
 
     //QRCode Scanner
     implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'
+    // UI Automator
+    androidTestImplementation('androidx.test.uiautomator:uiautomator:2.2.0')
 
     // For Robolectric tests.
     testImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
