@@ -14,8 +14,8 @@ import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
-private const val SEARCH_HINT = "Search for a conversation…"
-private const val DELETE_TEXT = "Chat feed has been deleted."
+private const val SEARCH_HINT: String = "Search for a conversation…"
+private const val DELETE_TEXT: String = "Chat feed has been deleted."
 
 class ChatMenuActivity : AppCompatActivity() {
 
@@ -29,18 +29,13 @@ class ChatMenuActivity : AppCompatActivity() {
 
     // Initializing the top-bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.custom_top_bar, menu)
-
-        val searchChat = menu?.findItem(R.id.search_box)
-        val searchView = searchChat?.actionView as androidx.appcompat.widget.SearchView
-
-        searchView.queryHint = SEARCH_HINT
+        customTopBar.inflateTopBar(menuInflater, menu, SEARCH_HINT)
         return super.onCreateOptionsMenu(menu)
     }
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        CustomTopBar().defineTopBarActions(window.decorView, DUMMY_TEXT, item)
+        customTopBar.defineTopBarActions(window.decorView, DUMMY_TEXT, item)
         return super.onOptionsItemSelected(item)
     }
 
@@ -90,6 +85,10 @@ class ChatMenuActivity : AppCompatActivity() {
             }
         }
         bottomNavBar.selectedItemId = R.id.chat_menu_button
+    }
+
+    companion object {
+        private val customTopBar = CustomTopBar()
     }
 
 }

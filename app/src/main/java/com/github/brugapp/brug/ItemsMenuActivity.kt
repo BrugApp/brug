@@ -29,18 +29,13 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // For the searchbar when pressing on the top bar's search icon
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.custom_top_bar, menu)
-
-        val item = menu?.findItem(R.id.search_box)
-        val searchView = item?.actionView as androidx.appcompat.widget.SearchView
-
-        searchView.queryHint = SEARCH_HINT
+        customTopBar.inflateTopBar(menuInflater, menu, SEARCH_HINT)
         return super.onCreateOptionsMenu(menu)
     }
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        CustomTopBar().defineTopBarActions(window.decorView, DUMMY_TEXT, item)
+        customTopBar.defineTopBarActions(window.decorView, DUMMY_TEXT, item)
         return super.onOptionsItemSelected(item)
     }
 
@@ -95,5 +90,9 @@ class ItemsMenuActivity : AppCompatActivity() {
             }
         }
         bottomNavBar.selectedItemId = R.id.items_list_menu_button
+    }
+
+    companion object {
+        private val customTopBar = CustomTopBar()
     }
 }
