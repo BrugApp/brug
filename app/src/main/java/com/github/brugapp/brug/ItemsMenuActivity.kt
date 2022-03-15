@@ -1,24 +1,14 @@
 package com.github.brugapp.brug
 
 import android.content.Intent
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationBarItemView
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 
@@ -26,8 +16,7 @@ private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
 private const val SEARCH_HINT: String = "Search items here…"
 
 class ItemsMenuActivity : AppCompatActivity() {
-    private val data = ArrayList<ItemsViewModel>()
-    private val listViewAdapter = ItemsCustomAdapter(data)
+    private val data = ArrayList<ListViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,13 +53,20 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     private fun initItemsList(){
         val listView = findViewById<RecyclerView>(R.id.items_listview)
+        val listViewAdapter = ListCustomAdapter(
+            data,
+            R.layout.list_item_layout,
+            R.id.list_item_icon,
+            R.id.list_item_title,
+            R.id.list_item_desc
+        )
         val listUtils = ListUtilities(this, listView, listViewAdapter, data)
         listView.layoutManager = LinearLayoutManager(this)
 
-        data.add(ItemsViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
-        data.add(ItemsViewModel(R.drawable.ic_baseline_account_balance_wallet_24, "Wallet", "With all my belongings"))
-        data.add(ItemsViewModel(R.drawable.ic_baseline_car_rental_24, "BMW Key", "BMW M3 F80 Competition"))
-        data.add(ItemsViewModel(R.drawable.ic_baseline_vpn_key_24, "Keys", "House and everything else"))
+        data.add(ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
+        data.add(ListViewModel(R.drawable.ic_baseline_account_balance_wallet_24, "Wallet", "With all my belongings"))
+        data.add(ListViewModel(R.drawable.ic_baseline_car_rental_24, "BMW Key", "BMW M3 F80 Competition"))
+        data.add(ListViewModel(R.drawable.ic_baseline_vpn_key_24, "Keys", "House and everything else"))
 
         ItemTouchHelper(listUtils.listCallback).attachToRecyclerView(listView)
         listView.adapter = listViewAdapter

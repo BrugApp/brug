@@ -10,6 +10,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ListUtilities<T>(
     context: Context,
@@ -22,8 +24,8 @@ class ListUtilities<T>(
 
     // To implement swipe to delete animation + move to reorder
     val listCallback = object : ItemTouchHelper.SimpleCallback(
-        ItemTouchHelper.UP.or(
-            ItemTouchHelper.DOWN), ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)) {
+        ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
+        ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)) {
         /* DRAG TO REORDER (UP AND DOWN THE LIST) */
         override fun onMove(
             recyclerView: RecyclerView,
@@ -31,18 +33,18 @@ class ListUtilities<T>(
             target: RecyclerView.ViewHolder
         ): Boolean {
             /* MISSING TEST CASE, HENCE COMMENTED FOR NOW */
-//            val startPosition = viewHolder.adapterPosition
-//            val endPosition = target.adapterPosition
-//
-//            val movedElt = data[startPosition]
-//
-//            Collections.swap(data, startPosition, endPosition)
-//            recyclerView.adapter?.notifyItemMoved(startPosition, endPosition)
-//
-//            Snackbar.make(listView,
-//                "Item \"${movedElt.title}\" has been moved from ${startPosition} to ${endPosition}",
-//                Snackbar.LENGTH_LONG)
-//                .show()
+            val startPosition = viewHolder.adapterPosition
+            val endPosition = target.adapterPosition
+
+//            val movedElt = itemsList[startPosition]
+
+            Collections.swap(itemsList, startPosition, endPosition)
+            recyclerView.adapter?.notifyItemMoved(startPosition, endPosition)
+
+            Snackbar.make(listView,
+                "Item has been moved from $startPosition to $endPosition",
+                Snackbar.LENGTH_LONG)
+                .show()
             return true
         }
 

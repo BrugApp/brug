@@ -1,8 +1,6 @@
 package com.github.brugapp.brug
 
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
@@ -16,8 +14,7 @@ import com.google.android.material.navigation.NavigationBarView
 private const val SEARCH_HINT = "Search for a conversation…"
 
 class ChatMenuActivity : AppCompatActivity() {
-    private val conversations = ArrayList<ChatViewModel>()
-    private val listViewAdapter = ChatCustomAdapter(conversations)
+    private val conversations = ArrayList<ListViewModel>()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,13 +38,20 @@ class ChatMenuActivity : AppCompatActivity() {
 
     private fun initChatList() {
         val listView = findViewById<RecyclerView>(R.id.chat_listview)
+        val listViewAdapter = ListCustomAdapter(
+            conversations,
+            R.layout.chat_entry_layout,
+            R.id.chat_entry_profilepic,
+            R.id.chat_entry_title,
+            R.id.chat_entry_desc
+        )
         val listUtils = ListUtilities(this, listView, listViewAdapter, conversations)
         listView.layoutManager = LinearLayoutManager(this)
 
-        conversations.add(ChatViewModel(R.mipmap.ic_launcher, "Anna", "Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne"))
-        conversations.add(ChatViewModel(R.mipmap.ic_launcher, "Henry", "Hey ! I might have found your wallet yesterday near the EPFL campus"))
-        conversations.add(ChatViewModel(R.mipmap.ic_launcher, "Jenna", "Me: Fine, lets meet on Saturday then !"))
-        conversations.add(ChatViewModel(R.mipmap.ic_launcher, "John", "Give me my money back you thief !!!"))
+        conversations.add(ListViewModel(R.mipmap.ic_launcher, "Anna", "Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne"))
+        conversations.add(ListViewModel(R.mipmap.ic_launcher, "Henry", "Hey ! I might have found your wallet yesterday near the EPFL campus"))
+        conversations.add(ListViewModel(R.mipmap.ic_launcher, "Jenna", "Me: Fine, lets meet on Saturday then !"))
+        conversations.add(ListViewModel(R.mipmap.ic_launcher, "John", "Give me my money back you thief !!!"))
 
         ItemTouchHelper(listUtils.listCallback).attachToRecyclerView(listView)
         listView.adapter = listViewAdapter
