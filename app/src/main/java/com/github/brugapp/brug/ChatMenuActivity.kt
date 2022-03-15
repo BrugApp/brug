@@ -65,7 +65,7 @@ class ChatMenuActivity : AppCompatActivity() {
                     .setAction("Action", null)
                     .show()
         }
-        val listCallback = ListCallbackImpl(this, listViewAdapter, DELETE_TEXT)
+        val listCallback = ListCustomCallback(this, listViewAdapter, DELETE_TEXT)
         listView.layoutManager = LinearLayoutManager(this)
 
         listViewAdapter.addEntry(ListViewModel(R.mipmap.ic_launcher, "Anna", "Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne"))

@@ -65,7 +65,7 @@ class ItemsMenuActivity : AppCompatActivity() {
                     .setAction("Action", null)
                     .show()
         }
-        val listCallback = ListCallbackImpl(this, listViewAdapter, DELETE_TEXT)
+        val listCallback = ListCustomCallback(this, listViewAdapter, DELETE_TEXT)
         listView.layoutManager = LinearLayoutManager(this)
 
         listViewAdapter.addEntry(ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))

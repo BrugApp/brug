@@ -15,7 +15,7 @@ import java.util.*
 /**
  * Implements the different swipe callbacks.
  */
-class ListCallbackImpl(val context: Context, private val listViewAdapter: ListCustomAdapter, private val onDeleteStr: String)
+class ListCustomCallback(val context: Context, private val listViewAdapter: ListCustomAdapter, private val onDeleteStr: String)
     : ItemTouchHelper.SimpleCallback(
     ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
     ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
