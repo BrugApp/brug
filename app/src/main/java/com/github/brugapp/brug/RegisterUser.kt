@@ -65,8 +65,8 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = mAuth?.currentUser
                     val list = listOf<String>()
-                    val userToAdd = hashMapOf(
-                        "ItemIDArray" to list, "UserID" to (user?.uid ?: String), "email" to emailtxt, "firstName" to firstnametxt, "lastName" to lastnametxt)
+                    val userToAdd = hashMapOf("ItemIDArray" to list, "UserID" to (user?.uid ?: String), "email" to emailtxt, "firstName" to firstnametxt, "lastName" to lastnametxt)
+
                     db.collection("Users").add(userToAdd)
                         .addOnSuccessListener { documentReference -> Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}") }
                         .addOnFailureListener { e -> Log.w(TAG, "Error adding document", e) }

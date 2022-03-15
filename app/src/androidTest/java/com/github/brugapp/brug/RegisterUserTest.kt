@@ -9,8 +9,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
@@ -47,6 +46,10 @@ class RegisterUserTest {
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.PasswordReg)).perform(typeText("yoghurtman"))
+        closeSoftKeyboard()
+        onView(withId(R.id.registerbutton)).perform(click())
+        onView(withId(R.id.emailAddressReg)).perform(clearText())
+        onView(withId(R.id.emailAddressReg)).perform(typeText("freshemail@gmail.com"))
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         // check if contains register button
