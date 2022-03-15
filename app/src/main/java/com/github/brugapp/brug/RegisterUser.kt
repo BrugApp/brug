@@ -25,10 +25,10 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
     private var lastName: EditText? = null
     private var email: EditText? = null
     private var password: EditText? = null
-    private var firstnametxt = firstName?.text.toString().trim()
-    private var lastnametxt = lastName?.text.toString().trim()
-    private var emailtxt = email?.text.toString().trim()
-    private var passwordtxt = password?.text.toString().trim()
+    private var firstnametxt = ""
+    private var lastnametxt = ""
+    private var emailtxt = ""
+    private var passwordtxt = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,14 +46,18 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
     }
 
     override fun onClick(v: View?) { //we clicked the register button
+        firstnametxt = firstName?.text.toString().trim()
+        lastnametxt = lastName?.text.toString().trim()
+        emailtxt = email?.text.toString().trim()
+        passwordtxt = password?.text.toString().trim()
         if (anyEmpty()) {
             return
         }else{
-            onClickHelper(firstnametxt, lastnametxt, emailtxt, passwordtxt)
+            onClickHelper()
         }
     }
 
-    fun onClickHelper(firstnametxt: String, lastnametxt: String,emailtxt: String, passwordtxt: String) {
+    fun onClickHelper() {
         progressBar?.visibility = View.VISIBLE
         mAuth?.createUserWithEmailAndPassword(emailtxt, passwordtxt)
             ?.addOnCompleteListener(this) { task ->
@@ -93,7 +97,7 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
         } //return
         else if (emailtxt.filter { it == '@' }.count() != 1) { email?.error = "Please enter valid email"
             email?.requestFocus()
-        } else { return true }
-        return false
+        } else { return false }
+        return true
     }
 }

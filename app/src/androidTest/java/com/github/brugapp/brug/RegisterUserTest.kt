@@ -46,7 +46,7 @@ class RegisterUserTest {
         onView(withId(R.id.PasswordReg)).perform(typeText("short"))
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
-        onView(withId(R.id.PasswordReg)).perform(typeText("yoghurt"))
+        onView(withId(R.id.PasswordReg)).perform(typeText("yoghurtman"))
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         // check if contains register button
