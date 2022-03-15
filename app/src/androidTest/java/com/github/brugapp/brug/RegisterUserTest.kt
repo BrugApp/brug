@@ -38,7 +38,6 @@ class RegisterUserTest {
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.lastName)).perform(typeText("Terr"))
-        //typing email/password and clicking button causes androidx.test.espresso.PerformException
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.emailAddressReg)).perform(typeText("unlost.app@gmail.com"))
@@ -50,7 +49,6 @@ class RegisterUserTest {
         onView(withId(R.id.PasswordReg)).perform(typeText("yoghurt"))
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
-        //Espresso.onView(ViewMatchers.withId(R.id.emailAddressReg)).check(ViewAssertions.matches(ViewMatchers.withText("unlost.app@gmail.com")))
         // check if contains register button
         Espresso.onView(ViewMatchers.withId(R.id.registerbutton))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))

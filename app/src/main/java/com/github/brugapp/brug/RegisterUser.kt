@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.security.KeyStore
 
 
 class RegisterUser : AppCompatActivity(), View.OnClickListener{
@@ -24,6 +25,10 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
     private var lastName: EditText? = null
     private var email: EditText? = null
     private var password: EditText? = null
+    private var firstnametxt = firstName?.text.toString().trim()
+    private var lastnametxt = lastName?.text.toString().trim()
+    private var emailtxt = email?.text.toString().trim()
+    private var passwordtxt = password?.text.toString().trim()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,68 +46,54 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
     }
 
     override fun onClick(v: View?) { //we clicked the register button
-        var firstnametxt = firstName?.getText().toString().trim()
-        var lastNametxt = lastName?.getText().toString().trim()
-        var emailtxt = email?.getText().toString().trim()
-        var passwordtxt = password?.getText().toString().trim()
-        onClickHelper(firstnametxt, lastNametxt, emailtxt, passwordtxt)
+        if (anyEmpty()) {
+            return
+        }else{
+            onClickHelper(firstnametxt, lastnametxt, emailtxt, passwordtxt)
+        }
     }
 
-    fun onClickHelper(firstnametxt: String, lastnametxt: String,emailtxt: String, passwordtxt: String){
-
-        if(firstnametxt.isEmpty()){
-            firstName?.setError("Please enter first name")
-            firstName?.requestFocus() //return
-            return}
-        if(lastnametxt.isEmpty()){
-            lastName?.setError("Please enter last name")
-            lastName?.requestFocus() //return
-            return}
-        if(passwordtxt.isEmpty()){
-            password?.setError("Please enter password")
-            password?.requestFocus() //return
-            return}
-        if(passwordtxt.length < 6){
-            password?.setError("Password needs at least 6 characters")
-            password?.requestFocus()} //return
-        if(emailtxt.isEmpty()){
-            email?.setError("Please enter email")
-            email?.requestFocus()} //return
-        if(emailtxt.filter { it == '@' }.count()!=1){
-            email?.setError("Please enter valid email")
-            email?.requestFocus()} //return
-        progressBar?.setVisibility(View.VISIBLE)
+    fun onClickHelper(firstnametxt: String, lastnametxt: String,emailtxt: String, passwordtxt: String) {
+        progressBar?.visibility = View.VISIBLE
         mAuth?.createUserWithEmailAndPassword(emailtxt, passwordtxt)
-            ?.addOnCompleteListener(
-                this
-            ) { task ->
-                if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
+            ?.addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
                     val user = mAuth?.currentUser
                     val list = listOf<String>()
                     val userToAdd = hashMapOf(
-                        "ItemIDArray" to list,
-                        "UserID" to (user?.uid ?: String),
-                        "email" to emailtxt,
-                        "firstName" to firstnametxt,
-                        "lastName" to lastnametxt)
+                        "ItemIDArray" to list, "UserID" to (user?.uid ?: String), "email" to emailtxt, "firstName" to firstnametxt, "lastName" to lastnametxt)
                     db.collection("Users").add(userToAdd)
-                        .addOnSuccessListener { documentReference ->
-                            Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}") }
-                        .addOnFailureListener { e ->
-                            Log.w(TAG, "Error adding document", e) }
-                    progressBar?.setVisibility(View.GONE)
-                    //updateUI(user)
-                } else {
-                    // If sign in fails, display a message to the user.
+                        .addOnSuccessListener { documentReference -> Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}") }
+                        .addOnFailureListener { e -> Log.w(TAG, "Error adding document", e) }
+                    progressBar?.visibility = View.GONE //updateUI(user)
+                } else { // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        this@RegisterUser, "Authentication failed.",
-                        Toast.LENGTH_SHORT).show()
-                    progressBar?.setVisibility(View.GONE)
-                    //updateUI(null)
+                    Toast.makeText(this@RegisterUser, "Authentication failed.", Toast.LENGTH_SHORT).show()
+                    progressBar?.visibility = View.GONE //updateUI(null)
                 }
             }
+    }
+
+    fun anyEmpty(): Boolean {
+        if (firstnametxt.isEmpty()) { firstName?.error = "Please enter first name"
+            firstName?.requestFocus() //return
+        }
+        else if (lastnametxt.isEmpty()) { lastName?.error = "Please enter last name"
+            lastName?.requestFocus() //return
+        }
+        else if (passwordtxt.isEmpty()) { password?.error = "Please enter password"
+            password?.requestFocus() //return
+        }
+        else if (passwordtxt.length < 6) { password?.error = "Password needs at least 6 characters"
+            password?.requestFocus()
+        } //return
+        else if (emailtxt.isEmpty()) { email?.error = "Please enter email"
+            email?.requestFocus()
+        } //return
+        else if (emailtxt.filter { it == '@' }.count() != 1) { email?.error = "Please enter valid email"
+            email?.requestFocus()
+        } else { return true }
+        return false
     }
 }
