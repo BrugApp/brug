@@ -1,5 +1,6 @@
 package com.github.brugapp.brug
 
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
@@ -85,28 +86,6 @@ class ItemsMenuActivity : AppCompatActivity() {
         }
     }
 
-//    private fun initNavigationBar(){
-//        val itemsMenuButton = findViewById<NavigationBarItemView>(R.id.items_list_menu_button)
-//        itemsMenuButton.setOnClickListener{view ->
-//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-//                .setAction("Action", null)
-//                .show()
-//        }
-//
-//        val scanQRMenuButton = findViewById<NavigationBarItemView>(R.id.qr_scan_menu_button)
-//        scanQRMenuButton.setOnClickListener{view ->
-//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-//                .setAction("Action", null)
-//                .show()
-//        }
-//
-//        val chatMenuButton = findViewById<NavigationBarItemView>(R.id.chat_menu_button)
-//        chatMenuButton.setOnClickListener{view ->
-//            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-//                .setAction("Action", null)
-//                .show()
-//        }
-//    }
 
 
     // To implement swipe to delete animation + move to reorder
@@ -117,32 +96,32 @@ class ItemsMenuActivity : AppCompatActivity() {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-//            val startPosition = viewHolder.adapterPosition
-//            val endPosition = target.adapterPosition
-//
-//            val movedElt = data[startPosition]
-//
-//            Collections.swap(data, startPosition, endPosition)
-//            recyclerView.adapter?.notifyItemMoved(startPosition, endPosition)
-//
-//            Snackbar.make(listView,
-//                "Item \"${movedElt.title}\" has been moved from ${startPosition} to ${endPosition}",
-//                Snackbar.LENGTH_LONG)
-//                .show()
             return true
         }
 
         /* HERE IS WHERE TO CALL THE ACTUAL DELETE FUNCTION */
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
-            val deletedElt = data.removeAt(position)
-            listViewAdapter.notifyItemRemoved(position)
-
-            Snackbar.make(listView, "Item \"${deletedElt.title}\" is deleted", Snackbar.LENGTH_LONG)
-                .setAction("Undo") {
-                    data.add(position, deletedElt)
-                    listViewAdapter.notifyItemInserted(position)
-                }.show()
+            if(direction == ItemTouchHelper.RIGHT) {
+                val deletedElt = data.removeAt(position)
+                listViewAdapter.notifyItemRemoved(position)
+                Snackbar.make(
+                    listView,
+                    "Item \"${deletedElt.title}\" is deleted",
+                    Snackbar.LENGTH_LONG
+                )
+                    .setAction("Undo") {
+                        data.add(position, deletedElt)
+                        listViewAdapter.notifyItemInserted(position)
+                    }.show()
+            }else{
+                val item = data[position]
+                val intent = Intent(viewHolder.itemView.context,ItemInformationActivity::class.java)
+                intent.putExtra("title",item.title)
+                intent.putExtra("description",item.description)
+                intent.putExtra("image",item.image)
+                startActivity(intent)
+            }
         }
 
         // Drawing the red "delete" background when swiping to delete
@@ -156,48 +135,36 @@ class ItemsMenuActivity : AppCompatActivity() {
             isCurrentlyActive: Boolean
         ) {
             val itemView = viewHolder.itemView
-            val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
+            if(dX>0) {
+                val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
 
-            deleteIcon.setTint(Color.WHITE)
+                deleteIcon.setTint(Color.WHITE)
 
-            swipeBG.bounds = computeBGBounds(dX, itemView)
-            deleteIcon.bounds = computeIconBounds(dX, iconMargin, itemView)
+                swipeBG.bounds = computeBGBounds(dX, itemView)
+                deleteIcon.bounds = computeIconBounds(dX, iconMargin, itemView)
+                swipeBG.draw(c)
+                c.save()
+                c.clipRect(swipeBG.bounds)
+                deleteIcon.draw(c)
+                c.restore()
+            }
 
-            swipeBG.draw(c)
-            c.save()
-            c.clipRect(swipeBG.bounds)
-            deleteIcon.draw(c)
-            c.restore()
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
 
 
         private fun computeBGBounds(dX: Float, itemView: View): Rect {
-            val leftOffset: Int
-            val rightOffset: Int
-            if(dX > 0){
-                leftOffset = itemView.left
-                rightOffset = dX.toInt()
-            } else {
-                leftOffset = itemView.right + dX.toInt()
-                rightOffset = itemView.right
-            }
+            val leftOffset: Int = itemView.left
+            val rightOffset: Int = dX.toInt()
 
             return Rect(leftOffset, itemView.top, rightOffset, itemView.bottom)
         }
 
 
         private fun computeIconBounds(dX: Float, iconMargin: Int, itemView: View): Rect {
-            val leftOffset: Int
-            val rightOffset: Int
-            if(dX > 0){
-                leftOffset = itemView.left + iconMargin
-                rightOffset = itemView.left + iconMargin + deleteIcon.intrinsicWidth
-            } else {
-                leftOffset = itemView.right - iconMargin - deleteIcon.intrinsicWidth
-                rightOffset = itemView.right - iconMargin
-            }
+            val leftOffset: Int = itemView.left + iconMargin
+            val rightOffset: Int = itemView.left + iconMargin + deleteIcon.intrinsicWidth
 
             return Rect(leftOffset, itemView.top + iconMargin, rightOffset, itemView.bottom - iconMargin)
         }

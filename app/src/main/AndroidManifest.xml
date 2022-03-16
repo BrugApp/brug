@@ -25,6 +25,11 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
+            android:name=".ItemInformationActivity"
+            android:parentActivityName=".ItemsMenuActivity"
+            android:exported="false">
+        </activity>
+        <activity
             android:name=".QrCodeScannerActivity"
             android:parentActivityName=".MainActivity"
             android:exported="false">
