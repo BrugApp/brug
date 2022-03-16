@@ -11,14 +11,15 @@ class ItemTest {
     fun invalidNameItemTest() {
         val blankName = "    "
         val description = "Grey wallet"
-        val invalidUser = Item(blankName, 1, description)
+        Item(blankName, 1, description)
+
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun emptyNameItemTest() {
         val emptyName = ""
         val description = "Grey wallet"
-        val invalidUser = Item(emptyName, 1, description)
+        Item(emptyName, 1, description)
     }
 
     @Test
