@@ -14,7 +14,7 @@ class AddItemActivity : AppCompatActivity() {
     private lateinit var itemType : Spinner
     private lateinit var description : EditText
     private lateinit var addButton : Button
-    private lateinit var itemName : EditText
+    private lateinit var itemNameView : EditText
     private lateinit var nameHelperText : TextView
 
     companion object {
@@ -35,7 +35,7 @@ class AddItemActivity : AppCompatActivity() {
         filterArray[0] = LengthFilter(DESCRIPTION_LIMIT)
         description.filters = filterArray
 
-        itemName = findViewById(R.id.itemName)
+        itemNameView = findViewById(R.id.itemName)
 
         nameHelperText = findViewById(R.id.itemNameHelper)
 
@@ -47,7 +47,7 @@ class AddItemActivity : AppCompatActivity() {
 
             if(verifyForm()){
                 val itemId = 1
-                val newItem = Item(itemName.text.toString(), itemId, description.text.toString())
+                val newItem = Item(itemNameView.text.toString(), itemId, description.text.toString())
                 MockDatabase.currentUser.addItem(newItem)
 
                 val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {  }
@@ -79,7 +79,7 @@ class AddItemActivity : AppCompatActivity() {
     }
 
     private fun validName(): String {
-        val nameText = itemName.text.toString()
+        val nameText = itemNameView.text.toString()
         if(nameText.isEmpty()){
             return "Name must contain at least 1 character"
         }

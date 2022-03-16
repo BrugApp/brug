@@ -43,28 +43,19 @@ class AddItemTest {
     fun nameTest(){
         val itemName = "Bag"
         val itemNameText = onView(withId(R.id.itemName))
-        itemNameText.perform(typeText(itemName))
+        itemNameText.perform(typeText(itemName)).check(matches(ViewMatchers.withText(itemName)))
 
-        /* Added the following two lines to make sure the keyboard is closed when we switch to ItemMenu activity,
-           in order not to get a SecurityException
-        */
-        itemNameText.perform(closeSoftKeyboard())
 
-        itemNameText.check(matches(ViewMatchers.withText(itemName)))
+        //itemNameText.check(matches(ViewMatchers.withText(itemName)))
     }
 
     @Test
     fun validDescriptionTest(){
         val description = "Grey Easpak backpack, with a laptop and an Ipad in it"
         val itemDescription = onView(withId(R.id.itemDescription))
-        itemDescription.perform(typeText(description))
+        itemDescription.perform(typeText(description)).check(matches(ViewMatchers.withText(description)))
 
-        /* Added the following two lines to make sure the keyboard is closed when we switch to ItemMenu activity,
-           in order not to get a SecurityException
-        */
-        itemDescription.perform(closeSoftKeyboard())
-
-        itemDescription.check(matches(ViewMatchers.withText(description)))
+        //itemDescription.check(matches(ViewMatchers.withText(description)))
     }
 
     @Test
@@ -72,14 +63,9 @@ class AddItemTest {
         val longDescription = "Grey Easpak backpack, with a laptop and an Ipad in it, test test test test test"
         val expectedDescription = longDescription.take(DESCRIPTION_LIMIT)
         val itemDescription = onView(withId(R.id.itemDescription))
-        itemDescription.perform(typeText(longDescription))
+        itemDescription.perform(typeText(longDescription)).check(matches(ViewMatchers.withText(expectedDescription)))
 
-        /* Added the following two lines to make sure the keyboard is closed when we switch to ItemMenu activity,
-           in order not to get a SecurityException
-        */
-        itemDescription.perform(closeSoftKeyboard())
-
-        itemDescription.check(matches(ViewMatchers.withText(expectedDescription)))
+        //itemDescription.check(matches(ViewMatchers.withText(expectedDescription)))
     }
 
     @Test
@@ -89,11 +75,6 @@ class AddItemTest {
         val itemName = onView(withId(R.id.itemName))
         val nameHelperText = onView(withId(R.id.itemNameHelper))
         itemName.perform(typeText(emptyName))
-
-        /* Added the following two lines to make sure the keyboard is closed when we switch to ItemMenu activity,
-           in order not to get a SecurityException
-        */
-        itemName.perform(closeSoftKeyboard())
 
         val expectedHelperText = "Name must contain at least 1 character"
 
