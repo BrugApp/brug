@@ -12,6 +12,11 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import com.github.brugapp.brug.AddItemActivity.Companion.DESCRIPTION_LIMIT
+import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
+import com.github.brugapp.brug.model.Item
+import org.hamcrest.CoreMatchers.`is` as Is
+import org.hamcrest.MatcherAssert.*
+
 
 import org.hamcrest.Matchers.*
 
@@ -109,6 +114,32 @@ class AddItemTest {
         )
         Intents.release()
 
+    }
+
+    //JUnit test to move to JUnit tests
+    @Test
+    fun itemAddedAfterValidForm(){
+
+        val validName = "Wallet"
+        val itemName = onView(withId(R.id.itemName))
+        itemName.perform(typeText(validName))
+
+        /* Added the following two lines to make sure the keyboard is closed when we switch to ItemMenu activity,
+           in order not to get a SecurityException
+        */
+        itemName.perform(closeSoftKeyboard())
+
+        onView(withId(R.id.add_item_button)).perform(click())
+
+        val itemDescription = onView(withId(R.id.itemDescription))
+        val itemId = 1
+
+        val newItem = Item(itemName.toString(), itemId, itemDescription.toString())
+        var itemList = ArrayList<Item>()
+        itemList.add(newItem)
+
+        //verify that the added item
+        assertThat(currentUser.getItemList()[0].getId(), Is(newItem.getId()))
     }
 
 

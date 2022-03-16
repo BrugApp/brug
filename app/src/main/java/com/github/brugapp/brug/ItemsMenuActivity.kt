@@ -1,5 +1,6 @@
 package com.github.brugapp.brug
 
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
@@ -78,10 +79,15 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     private fun initFloatingAddButton(){
         val addButton = findViewById<FloatingActionButton>(R.id.add_new_item_button)
-        addButton.setOnClickListener{ view ->
+        /*addButton.setOnClickListener{ view ->
             Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
                 .setAction("Action", null)
                 .show()
+        }*/
+
+        addButton.setOnClickListener{
+            val myIntent = Intent(this, AddItemActivity::class.java).apply {  }
+            startActivity(myIntent)
         }
     }
 

@@ -14,12 +14,8 @@
         android:theme="@style/Theme.Brug">
         <activity
             android:name=".AddItemActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:exported="false"
+            android:parentActivityName=".ItemsMenuActivity">
         </activity>
         <activity
             android:name=".SignInActivity"
@@ -56,8 +52,12 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false">
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
     </application>
 

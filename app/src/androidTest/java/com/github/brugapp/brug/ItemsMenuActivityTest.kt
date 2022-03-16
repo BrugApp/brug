@@ -8,11 +8,14 @@ import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import org.hamcrest.Matchers
 import org.hamcrest.core.IsEqual
 import org.junit.Rule
 import org.junit.Test
@@ -127,5 +130,20 @@ class ItemsMenuActivityTest {
         } catch (e: IOException) {
             throw RuntimeException("Keyboard check failed", e)
         }
+    }
+
+    @Test
+    fun goToAddItemPageOnAddButton() {
+        Intents.init()
+        onView(withId(R.id.add_new_item_button)).perform(click())
+
+        // Verify that the app goes to the Item List activity if the User enters valid info for his/her new item.
+        Intents.intended(
+            Matchers.allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                IntentMatchers.hasComponent(AddItemActivity::class.java.name)
+            )
+        )
+        Intents.release()
     }
 }
