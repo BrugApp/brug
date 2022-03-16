@@ -32,7 +32,10 @@
                 android:background="@drawable/circle"
                 android:padding="100dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_baseline_camera_24" />
+                android:scaleY="-1"
+                android:scaleX="-1"
+                android:src="@drawable/circle"
+                />
 
         </RelativeLayout>
 

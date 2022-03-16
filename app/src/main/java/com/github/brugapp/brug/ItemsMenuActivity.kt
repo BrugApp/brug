@@ -48,12 +48,13 @@ class ItemsMenuActivity : AppCompatActivity() {
             R.id.list_item_desc
         ) { // HERE TO IMPLEMENT ONCLICK ACTIONS
                 item ->
+            //It would be better to get an item from a ListViewModel
             val intent = Intent(this,ItemInformationActivity::class.java)
             intent.putExtra("title",item.title)
             intent.putExtra("description",item.desc)
             intent.putExtra("image",item.iconId)
-            intent.putExtra("lastLocation",item.lastLocation)
-            intent.putExtra("addedOn",item.addedOn)
+            //intent.putExtra("lastLocation",item.lastLocation)
+            //intent.putExtra("addedOn",item.addedOn)
             startActivity(intent)
 
         }
