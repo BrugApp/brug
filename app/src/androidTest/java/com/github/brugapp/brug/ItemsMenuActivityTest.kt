@@ -1,10 +1,6 @@
 package com.github.brugapp.brug
 
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.GeneralLocation
-import androidx.test.espresso.action.GeneralSwipeAction
-import androidx.test.espresso.action.Press
-import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -73,32 +69,34 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-        val itemsList = onView(withId(R.id.items_listview))
-        val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
-        itemsList.perform(
-            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-                0, GeneralSwipeAction(
-                    Swipe.SLOW, GeneralLocation.BOTTOM_RIGHT, GeneralLocation.BOTTOM_LEFT,
-                    Press.FINGER
-                )
-            )
-        )
-        snackBar.check(matches(withText(DELETE_ITEM_TEXT)))
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToSwipe = itemsList.getChild(UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToSwipe.swipeLeft(50)
+
+        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
+        assertThat(snackBarTextView.text, IsEqual(DELETE_ITEM_TEXT))
     }
 
     @Test
     fun swipeRightOnItemDeletesItem() {
-        val itemsList = onView(withId(R.id.items_listview))
-        val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
-        itemsList.perform(
-            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-                1, GeneralSwipeAction(
-                    Swipe.SLOW, GeneralLocation.BOTTOM_LEFT, GeneralLocation.BOTTOM_RIGHT,
-                    Press.FINGER
-                )
-            )
-        )
-        snackBar.check(matches(withText(DELETE_ITEM_TEXT)))
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToSwipe = itemsList.getChild(UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToSwipe.swipeRight(50)
+
+        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
+        assertThat(snackBarTextView.text, IsEqual(DELETE_ITEM_TEXT))
     }
 
     @Test
