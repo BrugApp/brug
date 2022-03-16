@@ -3,12 +3,9 @@ package com.github.brugapp.brug
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
-import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
@@ -19,7 +16,6 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.errorprone.annotations.DoNotMock
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,13 +72,13 @@ class RegisterUserTest {
                 )
             )
 
-            // check if text appears correctly
-            Espresso.onView(ViewMatchers.withId(R.id.newAccount))
-                .check(ViewAssertions.matches(ViewMatchers.withText("Create A New Account")))
-            // check if contains register button
-            Espresso.onView(ViewMatchers.withId(R.id.registerbutton))
-                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-            // check if contains other textboxes
+        // check if text appears correctly
+        Espresso.onView(ViewMatchers.withId(R.id.newAccount))
+            .check(ViewAssertions.matches(ViewMatchers.withText("Create A New Account")))
+        // check if contains register button
+        Espresso.onView(ViewMatchers.withId(R.id.registerbutton))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        // check if contains other textboxes
         Espresso.onView(ViewMatchers.withId(R.id.firstname))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(ViewMatchers.withId(R.id.lastName))

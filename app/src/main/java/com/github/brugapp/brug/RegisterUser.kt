@@ -3,7 +3,6 @@ package com.github.brugapp.brug
 import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
-import android.util.Patterns
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -13,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import java.security.KeyStore
 
 
 class RegisterUser : AppCompatActivity(), View.OnClickListener{
@@ -35,14 +33,14 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
         setContentView(R.layout.activity_register_user)
         mAuth = FirebaseAuth.getInstance()
 
-        var regUser = findViewById<Button>(R.id.registerbutton)
+        val regUser = findViewById<Button>(R.id.registerbutton)
         regUser.setOnClickListener(this)
 
-        progressBar = findViewById<ProgressBar>(R.id.progressBar)
-        firstName = findViewById<EditText>(R.id.firstname)
-        lastName = findViewById<EditText>(R.id.lastName)
-        email = findViewById<EditText>(R.id.emailAddressReg)
-        password = findViewById<EditText>(R.id.PasswordReg)
+        progressBar = findViewById(R.id.progressBar)
+        firstName = findViewById(R.id.firstname)
+        lastName = findViewById(R.id.lastName)
+        email = findViewById(R.id.emailAddressReg)
+        password = findViewById(R.id.PasswordReg)
     }
 
     override fun onClick(v: View?) { //we clicked the register button
@@ -57,7 +55,7 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
         }
     }
 
-    fun onClickHelper() {
+    private fun onClickHelper() {
         progressBar?.visibility = View.VISIBLE
         mAuth?.createUserWithEmailAndPassword(emailtxt, passwordtxt)
             ?.addOnCompleteListener(this) { task ->
@@ -79,25 +77,28 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
             }
     }
 
-    fun anyEmpty(): Boolean {
-        if (firstnametxt.isEmpty()) { firstName?.error = "Please enter first name"
-            firstName?.requestFocus() //return
+    private fun anyEmpty(): Boolean {
+        when {
+            firstnametxt.isEmpty() -> { firstName?.error = "Please enter first name"
+                firstName?.requestFocus()
+            }
+            lastnametxt.isEmpty() -> { lastName?.error = "Please enter last name"
+                lastName?.requestFocus()
+            }
+            passwordtxt.isEmpty() -> { password?.error = "Please enter password"
+                password?.requestFocus()
+            }
+            passwordtxt.length < 6 -> { password?.error = "Password needs at least 6 characters"
+                password?.requestFocus()
+            }
+            emailtxt.isEmpty() -> { email?.error = "Please enter email"
+                email?.requestFocus()
+            }
+            emailtxt.filter { it == '@' }.count() != 1 -> { email?.error = "Please enter valid email"
+                email?.requestFocus()
+            }
+            else -> { return false }
         }
-        else if (lastnametxt.isEmpty()) { lastName?.error = "Please enter last name"
-            lastName?.requestFocus() //return
-        }
-        else if (passwordtxt.isEmpty()) { password?.error = "Please enter password"
-            password?.requestFocus() //return
-        }
-        else if (passwordtxt.length < 6) { password?.error = "Password needs at least 6 characters"
-            password?.requestFocus()
-        } //return
-        else if (emailtxt.isEmpty()) { email?.error = "Please enter email"
-            email?.requestFocus()
-        } //return
-        else if (emailtxt.filter { it == '@' }.count() != 1) { email?.error = "Please enter valid email"
-            email?.requestFocus()
-        } else { return false }
         return true
     }
 }
