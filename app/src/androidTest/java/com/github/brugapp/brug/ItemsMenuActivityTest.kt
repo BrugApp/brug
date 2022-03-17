@@ -15,6 +15,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import org.hamcrest.core.IsEqual
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,6 +35,16 @@ class ItemsMenuActivityTest {
     @get:Rule
     val testRule = ActivityScenarioRule(ItemsMenuActivity::class.java)
 
+    @Before
+    fun setUpIntents() {
+        Intents.init()
+    }
+
+    @After
+    fun releaseIntents() {
+        Intents.release()
+    }
+
     @Test
     fun changingBottomNavBarMenuToItemsListKeepsFocus() {
         val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
@@ -41,22 +53,18 @@ class ItemsMenuActivityTest {
 
     @Test
     fun changingBottomNavBarMenuToQRScanGoesToActivity() {
-        Intents.init()
         val scanQRMenuButton = onView(withId(R.id.qr_scan_menu_button))
         scanQRMenuButton.perform(click())
         intended(hasComponent(QrCodeScannerActivity::class.java.name))
 
-        Intents.release()
     }
 
     @Test
     fun changingBottomNavBarMenuToChatGoesToActivity() {
-        Intents.init()
         val chatMenuButton = onView(withId(R.id.chat_menu_button))
         chatMenuButton.perform(click()).check(matches(isEnabled()))
         intended(hasComponent(ChatMenuActivity::class.java.name))
 
-        Intents.release()
     }
 
     @Test

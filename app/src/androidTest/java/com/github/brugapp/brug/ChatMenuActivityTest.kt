@@ -19,6 +19,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import org.hamcrest.core.IsEqual
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,28 +36,33 @@ private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 
 @RunWith(AndroidJUnit4::class)
 class ChatMenuActivityTest {
-
     @get:Rule
     val testRule = ActivityScenarioRule(ChatMenuActivity::class.java)
 
-    @Test
-    fun changingBottomNavBarMenuToItemsListGoesToActivity() {
+    @Before
+    fun setUpIntents() {
         Intents.init()
-        val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
-        itemsListMenuButton.perform(click())
-        intended(hasComponent(ItemsMenuActivity::class.java.name))
+    }
 
+    @After
+    fun releaseIntents() {
         Intents.release()
     }
 
     @Test
+    fun changingBottomNavBarMenuToItemsListGoesToActivity() {
+        val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
+        itemsListMenuButton.perform(click())
+        intended(hasComponent(ItemsMenuActivity::class.java.name))
+
+    }
+
+    @Test
     fun changingBottomNavBarMenuToQRScanGoesToActivity() {
-        Intents.init()
         val scanQRMenuButton = onView(withId(R.id.qr_scan_menu_button))
         scanQRMenuButton.perform(click())
         intended(hasComponent(QrCodeScannerActivity::class.java.name))
 
-        Intents.release()
     }
 
     @Test
@@ -75,34 +82,34 @@ class ChatMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToSwipe = itemsList.getChild(UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(0))
-
-        entryToSwipe.swipeLeft(50)
-
-        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(DELETE_CHAT_TEXT))
+        val chatList = onView(withId(R.id.chat_listview))
+        val snackBar =
+            onView(withId(com.google.android.material.R.id.snackbar_text))
+        chatList.perform(
+            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
+                0, GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.BOTTOM_RIGHT, GeneralLocation.BOTTOM_LEFT,
+                    Press.FINGER
+                )
+            )
+        )
+        snackBar.check(matches(withText(DELETE_CHAT_TEXT)))
     }
 
     @Test
     fun swipeRightOnItemDeletesItem() {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToSwipe = itemsList.getChild(UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(0))
-
-        entryToSwipe.swipeRight(50)
-
-        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(DELETE_CHAT_TEXT))
+        val chatList = onView(withId(R.id.chat_listview))
+        val snackBar =
+            onView(withId(com.google.android.material.R.id.snackbar_text))
+        chatList.perform(
+            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
+                1, GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.BOTTOM_LEFT, GeneralLocation.BOTTOM_RIGHT,
+                    Press.FINGER
+                )
+            )
+        )
+        snackBar.check(matches(withText(DELETE_CHAT_TEXT)))
     }
 
     @Test
