@@ -10,13 +10,13 @@ class ItemTest {
     @Test(expected = IllegalArgumentException::class)
     fun invalidNameItem() {
         val blankName = "    "
-        val invalidUser = Item(blankName, 1)
+        Item(blankName, 1)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun emptyNameItem() {
         val emptyName = ""
-        val invalidUser = Item(emptyName, 1)
+        Item(emptyName, 1)
     }
 
     @Test

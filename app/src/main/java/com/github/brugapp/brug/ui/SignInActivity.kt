@@ -1,4 +1,4 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.ui
 
 import android.app.Activity
 import android.content.Intent
@@ -7,30 +7,19 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.sign_in.SignInAccount
-import com.github.brugapp.brug.sign_in.SignInClient
-import com.github.brugapp.brug.sign_in.SignInResultHandler
+import com.github.brugapp.brug.R
+import com.github.brugapp.brug.di.sign_in.DatabaseUser
+import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
+import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class SignInActivity : AppCompatActivity() {
 
-    // Google Sign-In client
-    @Inject
-    lateinit var signInClient: SignInClient
-
-    @Inject
-    lateinit var signInResultHandler: SignInResultHandler
-
-    @set:Inject
-    var lastSignedInAccount: SignInAccount? = null
-    private var userAccount: SignInAccount? = null
-
-    private var currentUser: User? = null
+    private val viewModel: SignInViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,20 +38,16 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        // Check for existing Google Sign In account, if the user is already signed in
-        // the GoogleSignInAccount will be non-null.
-        userAccount = lastSignedInAccount
-        updateUI(userAccount)
-        currentUser = createNewBrugUser(userAccount)
+        val currentUser = viewModel.getAuth().currentUser
+        updateUI(currentUser)
     }
 
-    private fun updateUI(account: SignInAccount?) {
+    fun updateUI(user: DatabaseUser?) {
         // If already signed-in display welcome message and sign out button
-        if (account != null) {
+        if (user != null) {
             findViewById<TextView>(R.id.sign_in_main_text).apply {
                 textSize = 16f
-                account.idToken
-                text = getString(R.string.welcome_and_email, account.displayName, account.email)
+                text = getString(R.string.welcome_and_email, user.displayName, user.email)
             }
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
             findViewById<Button>(R.id.sign_in_sign_out_button).visibility = View.VISIBLE
@@ -77,32 +62,29 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    // return new Brug User from SignInAccount
-    private fun createNewBrugUser(account: SignInAccount?): User? {
-        if (account?.displayName == null || account.email == null || account.idToken == null) return null
-        return User(account.displayName!!, account.displayName!!, account.email!!, account.idToken!!)
-    }
-
     val getSignInResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
-                userAccount = signInResultHandler.handleSignInResult(it)
-                updateUI(userAccount)
-                currentUser = createNewBrugUser(userAccount)
+                val credential: AuthCredential? = viewModel.handleSignInResult(it.data)
+                firebaseAuth(credential)
             }
         }
 
     private fun signIn() {
-        val signInIntent: Intent = signInClient.signInIntent
+        val signInIntent: Intent = viewModel.getSignInIntent()
         getSignInResult.launch(signInIntent)
     }
 
     private fun signOut() {
-        signInClient.signOut()
-        userAccount = null
-        updateUI(userAccount)
-        currentUser = createNewBrugUser(userAccount)
+        viewModel.signOut()
+        updateUI(null)
+    }
+
+    private fun firebaseAuth(credential: AuthCredential?) {
+        viewModel.getAuth().signInWithCredential(credential, this)
+        val user = viewModel.getAuth().currentUser
+        updateUI(user)
     }
 
 
