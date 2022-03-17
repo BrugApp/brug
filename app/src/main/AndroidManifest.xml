@@ -13,6 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
         <activity
+            android:name=".ChatActivity"
+            android:exported="false"
+            android:label="Chat"/>
+        <activity
             android:name=".RegisterUser"
             android:exported="false" />
         <activity
@@ -43,8 +47,9 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-            <meta-data android:name="android.app.searchable"
-                android:resource="@xml/searchable"/>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
         </activity>
         <activity
             android:name=".MainActivity"
