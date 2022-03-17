@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "290986483284",
+    "project_id": "unlost-81847",
+    "storage_bucket": "unlost-81847.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:290986483284:android:bfc3df8b319c39224d17c1",
+        "android_client_info": {
+          "package_name": "com.github.brugapp.brug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "290986483284-mal2ipkg0akleu9p1vkea3piiugo4opr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.github.brugapp.brug",
+            "certificate_hash": "12cd4601d2abfeebb343d3ef6986c669249c3fdd"
+          }
+        },
+        {
+          "client_id": "290986483284-3vbmqp3ag3ldegnnijo6r4bqctmlp51g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLlDvXWAoD5YDj6EsuBzWE58YcZVmkuPY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "290986483284-3vbmqp3ag3ldegnnijo6r4bqctmlp51g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

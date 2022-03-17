@@ -18,7 +18,14 @@
             android:parentActivityName=".ItemsMenuActivity">
         </activity>
         <activity
-            android:name=".SignInActivity"
+            android:name=".ChatActivity"
+            android:exported="false"
+            android:label="Chat"/>
+        <activity
+            android:name=".RegisterUser"
+            android:exported="false" />
+        <activity
+            android:name=".ui.SignInActivity"
             android:exported="false" />
         <activity
             android:name=".SettingsActivity"
@@ -45,7 +52,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -59,6 +65,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ChatMenuActivity"
+            android:label="@string/chat_menu_label"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name=".ItemInformationActivity"
+            android:parentActivityName=".ItemsMenuActivity"
+            android:exported="false">
+        </activity>
     </application>
-
 </manifest>

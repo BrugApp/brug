@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Unlost</string>
-    <string name="google_client_id">669006648346-dgo2g4nfka4279vg5e75djr7999ucbp1.apps.googleusercontent.com</string>
+    <string name="google_client_id">290986483284-3vbmqp3ag3ldegnnijo6r4bqctmlp51g.apps.googleusercontent.com</string>
     <string name="action_sign_in">Sign in to Unlost</string>
     <string name="sign_out">Sign Out</string>
     <string name="welcome_and_email">Welcome %s\nEmail: %s</string>
@@ -38,5 +38,19 @@
     <string name="itemName">Name</string>
     <string name="optional">optional</string>
     <string name="addButton">Add</string>
-
+    <string name="added_on">Added On:</string>
+    <string name="owner">Owner</string>
+    <string name="device_name">Name</string>
+    <string name="last_location">Last Location</string>
+    <string name="chat_menu_label">My Conversations</string>
+    <string name="chat_entry_profilepic">Profile picture</string>
+    <string name="create_a_new_account">Create A New Account</string>
+    <string name="email">Email</string>
+    <string name="name">Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="register_now">Register Now</string>
+    <string name="receiver">Receiver</string>
+    <string name="message">Message</string>
+    <string name="send">Send</string>
 </resources>

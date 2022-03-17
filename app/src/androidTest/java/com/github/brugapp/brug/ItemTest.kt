@@ -20,6 +20,7 @@ class ItemTest {
         val emptyName = ""
         val description = "Grey wallet"
         Item(emptyName, 1, description)
+
     }
 
     @Test
