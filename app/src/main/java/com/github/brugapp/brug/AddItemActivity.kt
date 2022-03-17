@@ -44,15 +44,18 @@ class AddItemActivity : AppCompatActivity() {
 
         addButton = findViewById(R.id.add_item_button)
         addButton.setOnClickListener {
+            addItemOnListener()
+        }
+    }
 
-            if(verifyForm()){
-                val itemId = 1
-                val newItem = Item(itemNameView.text.toString(), itemId, description.text.toString())
-                MockDatabase.currentUser.addItem(newItem)
+    private fun addItemOnListener(){
+        if(verifyForm()){
+            val itemId = 1
+            val newItem = Item(itemNameView.text.toString(), itemId, description.text.toString())
+            MockDatabase.currentUser.addItem(newItem)
 
-                val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {  }
-                startActivity(myIntent)
-            }
+            val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {  }
+            startActivity(myIntent)
         }
     }
 
@@ -64,6 +67,7 @@ class AddItemActivity : AppCompatActivity() {
         if(nameHelperText.text.isNotEmpty()){
 
             /* Alert window pops up to explain that name is invalid
+            Currently commented to make testing easier
             AlertDialog.Builder(this)
                 .setTitle("Invalid Name")
                 .setMessage(nameHelperText.text)

@@ -33,7 +33,6 @@ class AddItemTest {
 
     @Test
     fun spinnerItemTest(){
-
         val bagSpinnerIndex = 1
         val bagItemName = "Bag"
 
@@ -49,9 +48,6 @@ class AddItemTest {
         val itemName = "Bag"
         val itemNameText = onView(withId(R.id.itemName))
         itemNameText.perform(typeText(itemName)).check(matches(ViewMatchers.withText(itemName)))
-
-
-        //itemNameText.check(matches(ViewMatchers.withText(itemName)))
     }
 
     @Test
@@ -59,8 +55,6 @@ class AddItemTest {
         val description = "Grey Easpak backpack, with a laptop and an Ipad in it"
         val itemDescription = onView(withId(R.id.itemDescription))
         itemDescription.perform(typeText(description)).check(matches(ViewMatchers.withText(description)))
-
-        //itemDescription.check(matches(ViewMatchers.withText(description)))
     }
 
     @Test
@@ -69,8 +63,6 @@ class AddItemTest {
         val expectedDescription = longDescription.take(DESCRIPTION_LIMIT)
         val itemDescription = onView(withId(R.id.itemDescription))
         itemDescription.perform(typeText(longDescription)).check(matches(ViewMatchers.withText(expectedDescription)))
-
-        //itemDescription.check(matches(ViewMatchers.withText(expectedDescription)))
     }
 
     @Test
