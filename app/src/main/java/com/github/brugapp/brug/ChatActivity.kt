@@ -22,7 +22,7 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatArrayList: ArrayList<ChatItemModel>
-    private lateinit var adapter: ChatItemAdapter
+    private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var db: FirebaseFirestore
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -31,18 +31,7 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
 
         // ACTUAL CHAT PART
-        recyclerView = findViewById(R.id.recyclerView)
-        val linearManager: LinearLayoutManager = LinearLayoutManager(this)
-        linearManager.stackFromEnd = true
-        recyclerView.layoutManager = linearManager
-        recyclerView.setHasFixedSize(true)
-
-        chatArrayList = arrayListOf()
-        adapter = ChatItemAdapter(chatArrayList)
-
-        recyclerView.adapter = adapter
-
-        println("UNTIL HERE OK")
+        initMessageList()
         eventChangeListener()
 
         // SEND BUTTON
@@ -51,6 +40,19 @@ class ChatActivity : AppCompatActivity() {
 
         // NAVIGATION BAR
         initNavigationBar()
+    }
+
+    private fun initMessageList(){
+        recyclerView = findViewById(R.id.recyclerView)
+        val linearManager: LinearLayoutManager = LinearLayoutManager(this)
+        linearManager.stackFromEnd = true
+        recyclerView.layoutManager = linearManager
+        recyclerView.setHasFixedSize(true)
+
+        chatArrayList = arrayListOf()
+        adapter = ChatMessagesListAdapter(chatArrayList)
+
+        recyclerView.adapter = adapter
     }
 
     @SuppressLint("CutPasteId")

@@ -37,4 +37,7 @@
     <string name="last_name">Last Name</string>
     <string name="first_name">First Name</string>
     <string name="register_now">Register Now</string>
+    <string name="receiver">Receiver</string>
+    <string name="message">Message</string>
+    <string name="send">Send</string>
 </resources>
