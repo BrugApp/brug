@@ -3,7 +3,6 @@ package com.github.brugapp.brug
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
@@ -52,13 +51,12 @@ class RegisterUserTest {
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         // check if contains register button
-        onView(ViewMatchers.withId(R.id.registerbutton))
+        onView(withId(R.id.registerbutton))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
     @Test
     fun registerUserActivityTest() {
-
         Intents.init()
 
         intending(
@@ -76,19 +74,19 @@ class RegisterUserTest {
             )
 
         // check if text appears correctly
-        onView(ViewMatchers.withId(R.id.newAccount))
+        onView(withId(R.id.newAccount))
             .check(ViewAssertions.matches(ViewMatchers.withText("Create A New Account")))
         // check if contains register button
-        onView(ViewMatchers.withId(R.id.registerbutton))
+        onView(withId(R.id.registerbutton))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         // check if contains other textboxes
-        onView(ViewMatchers.withId(R.id.firstname))
+        onView(withId(R.id.firstname))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        onView(ViewMatchers.withId(R.id.lastName))
+        onView(withId(R.id.lastName))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        onView(ViewMatchers.withId(R.id.emailAddressReg))
+        onView(withId(R.id.emailAddressReg))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        onView(ViewMatchers.withId(R.id.PasswordReg))
+        onView(withId(R.id.PasswordReg))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Intents.release()
     }

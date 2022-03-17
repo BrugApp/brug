@@ -71,5 +71,10 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
+        <activity
+            android:name=".ItemInformationActivity"
+            android:parentActivityName=".ItemsMenuActivity"
+            android:exported="false">
+        </activity>
     </application>
 </manifest>

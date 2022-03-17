@@ -44,17 +44,17 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
     }
 
     override fun onClick(v: View?) { //we clicked the register button
-        firstnametxt = firstName?.text.toString().trim()
-        lastnametxt = lastName?.text.toString().trim()
-        emailtxt = email?.text.toString().trim()
-        passwordtxt = password?.text.toString().trim()
+        firstnametxt = firstName.text.toString().trim()
+        lastnametxt = lastName.text.toString().trim()
+        emailtxt = email.text.toString().trim()
+        passwordtxt = password.text.toString().trim()
         if (!anyEmpty()) {
             onClickHelper()
         }
     }
 
     private fun onClickHelper() {
-        progressBar?.visibility = View.VISIBLE
+        progressBar.visibility = View.VISIBLE
         mAuth?.createUserWithEmailAndPassword(emailtxt, passwordtxt)
             ?.addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
@@ -66,34 +66,34 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
                     db.collection("Users").add(userToAdd)
                         .addOnSuccessListener { documentReference -> Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}") }
                         .addOnFailureListener { e -> Log.w(TAG, "Error adding document", e) }
-                    progressBar?.visibility = View.GONE //updateUI(user)
+                    progressBar.visibility = View.GONE //updateUI(user)
                 } else { // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
                     Toast.makeText(this@RegisterUser, "Authentication failed.", Toast.LENGTH_SHORT).show()
-                    progressBar?.visibility = View.GONE //updateUI(null)
+                    progressBar.visibility = View.GONE //updateUI(null)
                 }
             }
     }
 
     private fun anyEmpty(): Boolean {
         when {
-            firstnametxt.isEmpty() -> { firstName?.error = "Please enter first name"
-                firstName?.requestFocus()
+            firstnametxt.isEmpty() -> { firstName.error = "Please enter first name"
+                firstName.requestFocus()
             }
-            lastnametxt.isEmpty() -> { lastName?.error = "Please enter last name"
-                lastName?.requestFocus()
+            lastnametxt.isEmpty() -> { lastName.error = "Please enter last name"
+                lastName.requestFocus()
             }
-            passwordtxt.isEmpty() -> { password?.error = "Please enter password"
-                password?.requestFocus()
+            passwordtxt.isEmpty() -> { password.error = "Please enter password"
+                password.requestFocus()
             }
-            passwordtxt.length < 6 -> { password?.error = "Password needs at least 6 characters"
-                password?.requestFocus()
+            passwordtxt.length < 6 -> { password.error = "Password needs at least 6 characters"
+                password.requestFocus()
             }
-            emailtxt.isEmpty() -> { email?.error = "Please enter email"
-                email?.requestFocus()
+            emailtxt.isEmpty() -> { email.error = "Please enter email"
+                email.requestFocus()
             }
-            emailtxt.filter { it == '@' }.count() != 1 -> { email?.error = "Please enter valid email"
-                email?.requestFocus()
+            emailtxt.filter { it == '@' }.count() != 1 -> { email.error = "Please enter valid email"
+                email.requestFocus()
             }
             else -> { return false }
         }
