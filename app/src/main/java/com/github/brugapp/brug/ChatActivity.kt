@@ -1,42 +1,41 @@
 package com.github.brugapp.brug
 
+import android.content.ContentValues.TAG
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.firestore.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class ChatActivity : AppCompatActivity() {
-    companion object {
-        const val REPLACE_COLLECTION_KEY = "Chat"
-        const val REPLACE_DOCUMENT_KEY = "Message"
-        const val REPLACE_NAME_FIELD = "Name"
-        const val REPLACE_TEXT_FIELD = "Text"
-    }
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var chatArrayList: ArrayList<ChatItemModel>
     private lateinit var adapter: ChatItemAdapter
     private lateinit var db: FirebaseFirestore
 
-    private val firestoreChatReplace by lazy {
-        FirebaseFirestore.getInstance().collection(REPLACE_COLLECTION_KEY).document(REPLACE_DOCUMENT_KEY)
-    }
-
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
         // ACTUAL CHAT PART
         recyclerView = findViewById(R.id.recyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        val linearManager: LinearLayoutManager = LinearLayoutManager(this)
+        linearManager.stackFromEnd = true
+        recyclerView.layoutManager = linearManager
         recyclerView.setHasFixedSize(true)
 
         chatArrayList = arrayListOf()
@@ -46,9 +45,7 @@ class ChatActivity : AppCompatActivity() {
 
         eventChangeListener()
 
-        // REPLACE MESSAGING PART
-        realtimeUpdateListener()
-
+        // SEND BUTTON
         val buttonSendMessage = findViewById<Button>(R.id.buttonSendMessage)
         buttonSendMessage.setOnClickListener{ sendMessage() }
 
@@ -56,18 +53,35 @@ class ChatActivity : AppCompatActivity() {
         initNavigationBar()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun sendMessage() {
-        val edit_name = findViewById<EditText>(R.id.editName)
-        val edit_message = findViewById<EditText>(R.id.editMessage)
+        // Get elements of the message
+        val sender : String = this.findViewById<TextView?>(R.id.editName).text.toString()
+        val content : String = this.findViewById<TextView?>(R.id.editMessage).text.toString()
+        this.findViewById<TextView?>(R.id.editMessage).text = ""
 
-        val newMessage = mapOf(
-            REPLACE_NAME_FIELD to edit_name.text.toString(),
-            REPLACE_TEXT_FIELD to edit_message.text.toString())
-        firestoreChatReplace.set(newMessage)
-            .addOnSuccessListener {
-                Toast.makeText(this@ChatActivity, "Message Sent", Toast.LENGTH_SHORT).show()
+        val current = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss")
+        val datetime : String = current.format(formatter)
+
+        // Create a new message
+        val message = hashMapOf(
+            "sender" to sender,
+            "content" to content,
+            "datetime" to datetime
+        )
+
+        // Add a new document with a generated ID
+        db = FirebaseFirestore.getInstance()
+        db.collection("Chat").document("User1User2")
+            .collection("Messages")
+            .add(message)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
             }
-            .addOnFailureListener { e -> e.message?.let { Log.e("ERROR", it) } }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+            }
     }
 
     private fun eventChangeListener() {
@@ -90,23 +104,11 @@ class ChatActivity : AppCompatActivity() {
                     }
 
                 adapter.notifyDataSetChanged()
+                val rv = findViewById<View>(R.id.recyclerView) as RecyclerView
+                rv.smoothScrollToPosition(adapter.itemCount - 1)
             }
 
         })
-    }
-
-    private fun realtimeUpdateListener() {
-        firestoreChatReplace.addSnapshotListener { documentSnapshot, e ->
-            when {
-                e != null -> e.message?.let { Log.e("ERROR", it) }
-                documentSnapshot != null && documentSnapshot.exists() -> {
-                    with(documentSnapshot) {
-                        val textDisplay = findViewById<TextView>(R.id.textDisplay)
-                        textDisplay.text = "${data?.get(REPLACE_NAME_FIELD)}:${data?.get(REPLACE_TEXT_FIELD)}"
-                    }
-                }
-            }
-        }
     }
 
     private fun initNavigationBar(){

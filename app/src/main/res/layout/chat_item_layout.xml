@@ -5,12 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardElevation="8dp"
     app:cardCornerRadius="8dp"
-    android:layout_margin="16dp" >
+    android:layout_margin="5dp" >
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="30dp"
         android:layout_marginVertical="6dp"
         android:orientation="vertical">
 
@@ -56,8 +56,7 @@
                 android:id="@+id/chat_item_content"
                 android:layout_marginStart="8dp"
                 android:text="Hi!"
-                android:textColor="@color/black"
-                android:textSize="20sp" />
+                android:textColor="@color/black" />
         </LinearLayout>
 
         <LinearLayout
@@ -70,7 +69,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Timestamp:"
-                android:textColor="@color/black"
+                android:textColor="#989898"
                 android:textStyle="bold" />
 
             <TextView
@@ -78,8 +77,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/chat_item_datetime"
                 android:layout_marginStart="8dp"
-                android:text="J-E"
-                android:textColor="@color/black" />
+                android:text="220317133700"
+                android:textColor="#989898" />
 
         </LinearLayout>
     </LinearLayout>
