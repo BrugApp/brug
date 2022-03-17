@@ -29,6 +29,10 @@
     <string name="report_item">Report</string>
     <string name="Icon_for_item">desc_item_icon</string>
     <string name="my_items_temp_button">My Items (demo)</string>
+    <string name="added_on">Added On:</string>
+    <string name="owner">Owner</string>
+    <string name="device_name">Name</string>
+    <string name="last_location">Last Location</string>
     <string name="chat_menu_label">My Conversations</string>
     <string name="chat_entry_profilepic">Profile picture</string>
     <string name="create_a_new_account">Create A New Account</string>

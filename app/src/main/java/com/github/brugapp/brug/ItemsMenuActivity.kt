@@ -48,9 +48,11 @@ class ItemsMenuActivity : AppCompatActivity() {
             R.id.list_item_desc
         ) { // HERE TO IMPLEMENT ONCLICK ACTIONS
                 clickedItem ->
-                Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-                    .setAction("Action", null)
-                    .show()
+            val intent = Intent(this,ItemInformationActivity::class.java)
+            intent.putExtra("title",clickedItem.title)
+            intent.putExtra("description",clickedItem.desc)
+            intent.putExtra("image",clickedItem.iconId)
+            startActivity(intent)
         }
         val listCallback = ListCustomCallback(this, listViewAdapter, DELETE_TEXT)
         listView.layoutManager = LinearLayoutManager(this)

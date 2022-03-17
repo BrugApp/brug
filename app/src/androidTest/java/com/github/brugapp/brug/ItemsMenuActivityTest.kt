@@ -5,6 +5,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -12,6 +13,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import org.hamcrest.Matchers
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import org.hamcrest.core.IsEqual
@@ -149,15 +151,19 @@ class ItemsMenuActivityTest {
     }
 
     @Test
-    fun clickOnItemTriggersSnackBar() {
+    fun clickOnItemTriggersInformationItem() {
         val itemsList = onView(withId(R.id.items_listview))
-        val snackbar = onView(withId(com.google.android.material.R.id.snackbar_text))
         itemsList.perform(
             RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
                 1, click()
             )
         )
-        snackbar.check(matches(withText(DUMMY_TEXT)))
+        intended(
+            Matchers.allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                hasComponent(ItemInformationActivity::class.java.name)
+            )
+        )
     }
 
 
