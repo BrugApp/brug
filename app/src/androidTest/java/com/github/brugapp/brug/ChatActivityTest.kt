@@ -21,19 +21,16 @@ class ChatActivityTest {
     // DISPLAY Tests
     @Test
     fun checkIfReceiverFieldIsPresent() {
-        onView(withId(R.id.editName)).check(matches(withId(R.id.editName)))
         onView(withId(R.id.editName)).check(matches(withHint("Receiver")))
     }
 
     @Test
     fun checkIfMessageFieldIsPresent() {
-        onView(withId(R.id.editMessage)).check(matches(withId(R.id.editMessage)))
         onView(withId(R.id.editMessage)).check(matches(withHint("Message")))
     }
 
     @Test
     fun checkIfSendButtonIsPresent() {
-        onView(withId(R.id.buttonSendMessage)).check(matches(withId(R.id.buttonSendMessage)))
         onView(withId(R.id.buttonSendMessage)).check(matches(withText("Send")))
     }
 
