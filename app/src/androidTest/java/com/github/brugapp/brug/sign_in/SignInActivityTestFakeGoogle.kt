@@ -8,7 +8,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.SignInAccount
-import com.github.brugapp.brug.di.sign_in.SignInAccountModule
+import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
 import com.github.brugapp.brug.fake.FakeGoogleSignInAccount
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount

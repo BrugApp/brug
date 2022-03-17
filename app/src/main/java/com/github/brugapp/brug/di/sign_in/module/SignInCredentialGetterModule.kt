@@ -1,5 +1,7 @@
-package com.github.brugapp.brug.di.sign_in
+package com.github.brugapp.brug.di.sign_in.module
 
+import com.github.brugapp.brug.di.sign_in.SignInCredentialGetter
+import com.github.brugapp.brug.di.sign_in.google.SignInCredentialGetterGoogle
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

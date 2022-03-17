@@ -9,11 +9,17 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers
-import androidx.test.espresso.intent.matcher.IntentMatchers
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.di.sign_in.*
+import com.github.brugapp.brug.di.sign_in.AuthDatabase
+import com.github.brugapp.brug.di.sign_in.SignInCredentialGetter
+import com.github.brugapp.brug.di.sign_in.SignInResultHandler
+import com.github.brugapp.brug.di.sign_in.module.DatabaseAuthModule
+import com.github.brugapp.brug.di.sign_in.module.SignInCredentialGetterModule
+import com.github.brugapp.brug.di.sign_in.module.SignInResultHandlerModule
 import com.github.brugapp.brug.fake.FakeAuthDatabase
 import com.github.brugapp.brug.fake.FakeSignInCredentialGetter
 import com.github.brugapp.brug.fake.FakeSignInResultHandler
@@ -103,19 +109,18 @@ class SignInActivityTestFakeHandler {
     @Test
     fun activityResultOKTest() {
 
-        Intents.intending(
-            IntentMatchers.hasComponent(
+        intending(
+            hasComponent(
                 ComponentNameMatchers.hasClassName(
                     SignInActivity::class.java.name
                 )
             )
-        )
-            .respondWith(
-                Instrumentation.ActivityResult(
-                    Activity.RESULT_OK,
-                    Intent()
-                )
+        ).respondWith(
+            Instrumentation.ActivityResult(
+                Activity.RESULT_OK,
+                Intent()
             )
+        )
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         ActivityScenario.launch<SignInActivity?>(intent).use {
@@ -143,19 +148,18 @@ class SignInActivityTestFakeHandler {
     @Test
     fun activityResultCanceledTest() {
 
-        Intents.intending(
-            IntentMatchers.hasComponent(
+        intending(
+            hasComponent(
                 ComponentNameMatchers.hasClassName(
                     SignInActivity::class.java.name
                 )
             )
-        )
-            .respondWith(
-                Instrumentation.ActivityResult(
-                    Activity.RESULT_CANCELED,
-                    Intent()
-                )
+        ).respondWith(
+            Instrumentation.ActivityResult(
+                Activity.RESULT_CANCELED,
+                Intent()
             )
+        )
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         ActivityScenario.launch<SignInActivity?>(intent).use {

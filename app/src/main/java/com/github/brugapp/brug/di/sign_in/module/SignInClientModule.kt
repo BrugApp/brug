@@ -1,7 +1,9 @@
-package com.github.brugapp.brug.di.sign_in
+package com.github.brugapp.brug.di.sign_in.module
 
 import android.content.Context
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.di.sign_in.SignInClient
+import com.github.brugapp.brug.di.sign_in.google.SignInClientGoogle
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import dagger.Module

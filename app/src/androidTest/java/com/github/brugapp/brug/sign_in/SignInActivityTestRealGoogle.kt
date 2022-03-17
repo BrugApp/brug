@@ -8,12 +8,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.matcher.ComponentNameMatchers
-import androidx.test.espresso.intent.matcher.IntentMatchers
+import androidx.test.espresso.intent.Intents.intending
+import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.SignInCredentialGetter
-import com.github.brugapp.brug.di.sign_in.SignInCredentialGetterModule
+import com.github.brugapp.brug.di.sign_in.module.SignInCredentialGetterModule
 import com.github.brugapp.brug.fake.FakeGoogleSignInCredentialGetter
 import com.github.brugapp.brug.ui.SignInActivity
 import dagger.Module
@@ -59,9 +60,9 @@ class SignInActivityTestRealGoogle {
     @Test
     fun signInActivityGetsNullAccountOnFakeResult() {
 
-        Intents.intending(
-            IntentMatchers.hasComponent(
-                ComponentNameMatchers.hasClassName(
+        intending(
+            hasComponent(
+                hasClassName(
                     SignInActivity::class.java.name
                 )
             )

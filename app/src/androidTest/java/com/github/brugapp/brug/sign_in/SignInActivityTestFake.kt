@@ -9,7 +9,12 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.di.sign_in.*
+import com.github.brugapp.brug.di.sign_in.AuthDatabase
+import com.github.brugapp.brug.di.sign_in.SignInAccount
+import com.github.brugapp.brug.di.sign_in.SignInClient
+import com.github.brugapp.brug.di.sign_in.module.DatabaseAuthModule
+import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
+import com.github.brugapp.brug.di.sign_in.module.SignInClientModule
 import com.github.brugapp.brug.fake.FakeAuthDatabase
 import com.github.brugapp.brug.fake.FakeDatabaseUser
 import com.github.brugapp.brug.fake.FakeSignInAccount
