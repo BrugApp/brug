@@ -10,9 +10,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.di.sign_in.DatabaseUser
 import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
+import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -37,15 +38,16 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        updateUI(viewModel.getCurrentUser())
+        val currentUser = viewModel.getAuth().currentUser
+        updateUI(currentUser)
     }
 
-    private fun updateUI(user: User?) {
+    fun updateUI(user: DatabaseUser?) {
         // If already signed-in display welcome message and sign out button
         if (user != null) {
             findViewById<TextView>(R.id.sign_in_main_text).apply {
                 textSize = 16f
-                text = getString(R.string.welcome_and_email, user.getFirstName(), user.getEmail())
+                text = getString(R.string.welcome_and_email, user.displayName, user.email)
             }
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
             findViewById<Button>(R.id.sign_in_sign_out_button).visibility = View.VISIBLE
@@ -60,14 +62,12 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-
-
     val getSignInResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
-                viewModel.handleSignInResult(it.data)
-                updateUI(viewModel.getCurrentUser())
+                val credential: AuthCredential? = viewModel.handleSignInResult(it.data)
+                firebaseAuth(credential)
             }
         }
 
@@ -78,7 +78,13 @@ class SignInActivity : AppCompatActivity() {
 
     private fun signOut() {
         viewModel.signOut()
-        updateUI(viewModel.getCurrentUser())
+        updateUI(null)
+    }
+
+    private fun firebaseAuth(credential: AuthCredential?) {
+        viewModel.getAuth().signInWithCredential(credential, this)
+        val user = viewModel.getAuth().currentUser
+        updateUI(user)
     }
 
 

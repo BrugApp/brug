@@ -14,11 +14,8 @@ import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import com.github.brugapp.brug.fake.FakeGoogleSignInAccount
-import com.github.brugapp.brug.fake.FakeSignInAccount
-import com.github.brugapp.brug.fake.FakeSignInClient
-import com.github.brugapp.brug.fake.FakeSignInResultHandler
 import com.github.brugapp.brug.di.sign_in.*
+import com.github.brugapp.brug.fake.*
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dagger.Module
@@ -29,11 +26,12 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-
-@UninstallModules(SignInAccountModule::class, SignInClientModule::class)
+@UninstallModules(SignInAccountModule::class, SignInClientModule::class, DatabaseAuthModule::class)
 @HiltAndroidTest
 class SignInActivityTestFake {
 
@@ -58,6 +56,16 @@ class SignInActivityTestFake {
         }
     }
 
+    @Module
+    @InstallIn(ViewModelComponent::class)
+    object FakeAuthDatabse {
+
+        @ViewModelScoped
+        @Provides
+        fun provideFakeAuthDatabase(): AuthDatabase {
+            return FakeAuthDatabase(FakeDatabaseUser())
+        }
+    }
 
     @get:Rule
     var rule = HiltAndroidRule(this)
@@ -70,7 +78,11 @@ class SignInActivityTestFake {
         ActivityScenario.launch<SignInActivity>(intent).use {
             // check if displays correct display name
             Espresso.onView(withId(R.id.sign_in_main_text))
-                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")))
+                .check(
+                    ViewAssertions.matches(
+                        ViewMatchers.withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")
+                    )
+                )
             // check if contains sign out button
             Espresso.onView(withId(R.id.sign_in_sign_out_button))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -96,8 +108,12 @@ class SignInActivityTestFake {
 
 }
 
+@UninstallModules(
+    SignInResultHandlerModule::class,
+    DatabaseAuthModule::class,
+    SignInCredentialGetterModule::class
+)
 
-@UninstallModules(SignInResultHandlerModule::class)
 @HiltAndroidTest
 class SignInActivityTestFakeHandler {
 
@@ -112,8 +128,40 @@ class SignInActivityTestFakeHandler {
         }
     }
 
+    @Module
+    @InstallIn(ViewModelComponent::class)
+    object FakeAuthDatabase {
+
+        @ViewModelScoped
+        @Provides
+        fun provideFakeAuthDatabase(): AuthDatabase {
+            return FakeAuthDatabase(null)
+        }
+    }
+
+    @Module
+    @InstallIn(ViewModelComponent::class)
+    object FakeCredentialGetterModule {
+        @ViewModelScoped
+        @Provides
+        fun provideFakeGoogleCredentialGetter(): SignInCredentialGetter {
+            return FakeSignInCredentialGetter()
+        }
+    }
+
     @get:Rule
     var rule = HiltAndroidRule(this)
+
+    @Before
+    fun setUp() {
+        Intents.init()
+    }
+
+    @After
+    fun finishUp() {
+        Intents.release()
+    }
+
 
     @Test
     fun signInActivityAsksUserToSignInForNotSignedInUser() {
@@ -133,8 +181,6 @@ class SignInActivityTestFakeHandler {
     @Test
     fun activityResultOKTest() {
 
-        Intents.init()
-
         intending(hasComponent(hasClassName(SignInActivity::class.java.name)))
             .respondWith(
                 Instrumentation.ActivityResult(
@@ -151,7 +197,11 @@ class SignInActivityTestFakeHandler {
 
             // check if displays correct display name
             Espresso.onView(withId(R.id.sign_in_main_text))
-                .check(ViewAssertions.matches(ViewMatchers.withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")))
+                .check(
+                    ViewAssertions.matches(
+                        ViewMatchers.withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")
+                    )
+                )
             // check if contains sign out button
             Espresso.onView(withId(R.id.sign_in_sign_out_button))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
@@ -160,13 +210,10 @@ class SignInActivityTestFakeHandler {
             Espresso.onView(withId(R.id.sign_in_sign_out_button)).perform(ViewActions.click())
         }
 
-        Intents.release()
     }
 
     @Test
     fun activityResultCanceledTest() {
-
-        Intents.init()
 
         intending(hasComponent(hasClassName(SignInActivity::class.java.name)))
             .respondWith(
@@ -190,12 +237,12 @@ class SignInActivityTestFakeHandler {
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
 
-        Intents.release()
     }
 
     @Test
     fun clickOnGoogleSignInButtonDoesNotCrash() {
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
+
 
         ActivityScenario.launch<SignInActivity>(intent).use {
             Espresso.onView(withId(R.id.sign_in_google_button)).perform(ViewActions.click())
@@ -239,16 +286,35 @@ class SignInActivityTestFakeGoogle {
 
 }
 
+@UninstallModules(SignInCredentialGetterModule::class)
 @HiltAndroidTest
 class SignInActivityTestRealGoogle {
+
+    @Module
+    @InstallIn(ViewModelComponent::class)
+    object FakeCredentialGetterModule {
+        @ViewModelScoped
+        @Provides
+        fun provideFakeGoogleCredentialGetter(): SignInCredentialGetter {
+            return FakeGoogleSignInCredentialGetter()
+        }
+    }
 
     @get:Rule
     var rule = HiltAndroidRule(this)
 
+    @Before
+    fun setUp() {
+        Intents.init()
+    }
+
+    @After
+    fun cleanUp() {
+        Intents.release()
+    }
+
     @Test
     fun signInActivityGetsNullAccountOnFakeResult() {
-
-        Intents.init()
 
         intending(hasComponent(hasClassName(SignInActivity::class.java.name)))
             .respondWith(
@@ -271,10 +337,5 @@ class SignInActivityTestRealGoogle {
             Espresso.onView(withId(R.id.sign_in_google_button))
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         }
-
-        Intents.release()
-
     }
-
-
 }

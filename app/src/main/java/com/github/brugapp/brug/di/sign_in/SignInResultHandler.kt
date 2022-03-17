@@ -14,6 +14,7 @@ abstract class SignInResultHandler {
 
 class SignInResultHandlerGoogle : SignInResultHandler() {
     private var account: GoogleSignInAccount? = null
+
     override fun handleSignInResult(result: Intent?): SignInAccount {
         val task: Task<GoogleSignInAccount> =
             GoogleSignIn.getSignedInAccountFromIntent(result)
@@ -30,6 +31,5 @@ class SignInResultHandlerGoogle : SignInResultHandler() {
         }
     }
 }
-
 
 

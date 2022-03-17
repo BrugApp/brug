@@ -2,29 +2,29 @@ package com.github.brugapp.brug.view_model
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
+import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.di.sign_in.SignInAccount
-import com.github.brugapp.brug.di.sign_in.SignInClient
-import com.github.brugapp.brug.di.sign_in.SignInResultHandler
+import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class SignInViewModel @Inject constructor(private val signInClient: SignInClient,
-                                          private val signInResultHandler: SignInResultHandler,
-                                          private val lastSignedInAccount: SignInAccount?): ViewModel() {
+class SignInViewModel @Inject constructor(
+    private val signInClient: SignInClient,
+    private val signInResultHandler: SignInResultHandler,
+    lastSignedInAccount: SignInAccount?,
+    private val auth: AuthDatabase,
+    private val credentialGetter: SignInCredentialGetter
+) : ViewModel() {
 
     // Check for existing Sign In account, if the user is already signed in
     // the SignInAccount will be non-null.
     private var currentUser: User? = createNewBrugUser(lastSignedInAccount)
 
-    fun getCurrentUser(): User? {
-        return currentUser
-    }
-
-    fun handleSignInResult(it: Intent?) {
+    fun handleSignInResult(it: Intent?): AuthCredential? {
         val currentAccount = signInResultHandler.handleSignInResult(it)
         currentUser = createNewBrugUser(currentAccount)
+        return credentialGetter.getCredential(currentAccount?.idToken)
     }
 
     fun getSignInIntent(): Intent {
@@ -33,6 +33,7 @@ class SignInViewModel @Inject constructor(private val signInClient: SignInClient
 
     fun signOut() {
         signInClient.signOut()
+        auth.signOut()
         currentUser = null
     }
 
@@ -50,6 +51,10 @@ class SignInViewModel @Inject constructor(private val signInClient: SignInClient
             email,
             idToken
         )
+    }
+
+    fun getAuth(): AuthDatabase {
+        return auth
     }
 
 }
