@@ -17,12 +17,12 @@ import com.google.firebase.ktx.Firebase
 class RegisterUser : AppCompatActivity(), View.OnClickListener{
 
     private val db = Firebase.firestore
-    private var progressBar: ProgressBar? = null
-    private var mAuth: FirebaseAuth? = null
-    private var firstName: EditText? = null
-    private var lastName: EditText? = null
-    private var email: EditText? = null
-    private var password: EditText? = null
+    private lateinit var progressBar: ProgressBar
+    private lateinit var mAuth: FirebaseAuth
+    private lateinit var firstName: EditText
+    private lateinit var lastName: EditText
+    private lateinit var email: EditText
+    private lateinit var password: EditText
     private var firstnametxt = ""
     private var lastnametxt = ""
     private var emailtxt = ""
@@ -48,9 +48,7 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
         lastnametxt = lastName?.text.toString().trim()
         emailtxt = email?.text.toString().trim()
         passwordtxt = password?.text.toString().trim()
-        if (anyEmpty()) {
-            return
-        }else{
+        if (!anyEmpty()) {
             onClickHelper()
         }
     }

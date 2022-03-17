@@ -24,8 +24,7 @@ import org.junit.runner.RunWith
 class RegisterUserTest {
     @get:Rule
     var registerUserActivityRule = ActivityScenarioRule(RegisterUser::class.java)
-    //test ideas:
-    //write valid/invalid emails & passwords
+
     @Test
     fun registerUserTypeAndSubmitTest(){
         onView(withId(R.id.registerbutton)).perform(click())
@@ -35,16 +34,17 @@ class RegisterUserTest {
         onView(withId(R.id.lastName)).perform(typeText("Terr"))
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
-        onView(withId(R.id.emailAddressReg)).perform(typeText("bademail.com"))
-        closeSoftKeyboard()
-        onView(withId(R.id.registerbutton)).perform(click())
-        onView(withId(R.id.emailAddressReg)).perform(typeText("unlost.app@gmail.com"))
-        closeSoftKeyboard()
-        onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.PasswordReg)).perform(typeText("short"))
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.PasswordReg)).perform(typeText("yoghurtman"))
+        closeSoftKeyboard()
+        onView(withId(R.id.registerbutton)).perform(click())
+        onView(withId(R.id.emailAddressReg)).perform(typeText("bademail.com"))
+        closeSoftKeyboard()
+        onView(withId(R.id.registerbutton)).perform(click())
+        onView(withId(R.id.emailAddressReg)).perform(clearText())
+        onView(withId(R.id.emailAddressReg)).perform(typeText("unlost.app@gmail.com"))
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         onView(withId(R.id.emailAddressReg)).perform(clearText())
@@ -52,7 +52,7 @@ class RegisterUserTest {
         closeSoftKeyboard()
         onView(withId(R.id.registerbutton)).perform(click())
         // check if contains register button
-        Espresso.onView(ViewMatchers.withId(R.id.registerbutton))
+        onView(ViewMatchers.withId(R.id.registerbutton))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
@@ -76,26 +76,20 @@ class RegisterUserTest {
             )
 
         // check if text appears correctly
-        Espresso.onView(ViewMatchers.withId(R.id.newAccount))
+        onView(ViewMatchers.withId(R.id.newAccount))
             .check(ViewAssertions.matches(ViewMatchers.withText("Create A New Account")))
         // check if contains register button
-        Espresso.onView(ViewMatchers.withId(R.id.registerbutton))
+        onView(ViewMatchers.withId(R.id.registerbutton))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         // check if contains other textboxes
-        Espresso.onView(ViewMatchers.withId(R.id.firstname))
+        onView(ViewMatchers.withId(R.id.firstname))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withId(R.id.lastName))
+        onView(ViewMatchers.withId(R.id.lastName))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withId(R.id.emailAddressReg))
+        onView(ViewMatchers.withId(R.id.emailAddressReg))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withId(R.id.PasswordReg))
+        onView(ViewMatchers.withId(R.id.PasswordReg))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Intents.release()
-    }
-
-
-    @Test
-    fun newTest(){
-
     }
 }
