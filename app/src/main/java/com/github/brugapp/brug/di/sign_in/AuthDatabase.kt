@@ -25,7 +25,6 @@ class AuthFirebase : AuthDatabase() {
     }
 
     override fun signInWithCredential(credential: AuthCredential?, activity: SignInActivity) {
-//        var user : FirebaseUser
         auth.signInWithCredential(credential!!)
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
