@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "290986483284-mal2ipkg0akleu9p1vkea3piiugo4opr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.github.brugapp.brug",
+            "certificate_hash": "12cd4601d2abfeebb343d3ef6986c669249c3fdd"
+          }
+        },
+        {
           "client_id": "290986483284-3vbmqp3ag3ldegnnijo6r4bqctmlp51g.apps.googleusercontent.com",
           "client_type": 3
         }
