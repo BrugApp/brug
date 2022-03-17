@@ -11,7 +11,20 @@
         android:supportsRtl="true"
         android:name=".BrugApp"
         android:theme="@style/Theme.Brug">
-
+        <activity
+            android:name=".ChatMenuActivity"
+            android:label="@string/chat_menu_label"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name=".RegisterUser"
+            android:exported="false" />
         <activity
             android:name=".SignInActivity"
             android:exported="false" />

@@ -15,14 +15,14 @@ import org.junit.runner.RunWith
 class ItemInformationActivityTest{
     @Test
     fun correctTextDisplayed(){
-        val itemsViewModel = (ItemsViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
+        val itemsViewModel = (ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
         val intent = Intent(
             ApplicationProvider.getApplicationContext(),
             ItemInformationActivity::class.java
         ).apply {
             putExtra("title",itemsViewModel.title)
-            putExtra("description",itemsViewModel.description)
-            putExtra("image",itemsViewModel.image)
+            putExtra("description",itemsViewModel.desc)
+            putExtra("image",itemsViewModel.iconId)
         }
 
         val str = "no information yet"

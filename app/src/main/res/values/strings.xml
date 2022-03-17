@@ -31,6 +31,14 @@
     <string name="my_items_temp_button">My Items (demo)</string>
     <string name="added_on">Added On:</string>
     <string name="owner">Owner</string>
-    <string name="name">Name</string>
+    <string name="device_name">Name</string>
     <string name="last_location">Last Location</string>
+    <string name="chat_menu_label">My Conversations</string>
+    <string name="chat_entry_profilepic">Profile picture</string>
+    <string name="create_a_new_account">Create A New Account</string>
+    <string name="email">Email</string>
+    <string name="name">Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="first_name">First Name</string>
+    <string name="register_now">Register Now</string>
 </resources>

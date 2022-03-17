@@ -42,6 +42,9 @@ android {
         viewBinding true
     }
 }
+jacoco {
+    toolVersion = "0.8.7"
+}
 
 dependencies {
 
@@ -56,17 +59,21 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
     implementation 'com.google.android.gms:play-services-auth:20.1.0'
     implementation "com.google.dagger:hilt-android:2.38.1"
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.0.2'
     kapt "com.google.dagger:hilt-compiler:2.38.1"
-        testImplementation 'junit:junit:4.13.2'
+    testImplementation 'junit:junit:4.13.2'
 
     // Espresso
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.4.0"
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.4.0'
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test:rules:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
 
+    // UI Automator
+    androidTestImplementation('androidx.test.uiautomator:uiautomator:2.2.0')
 
     implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'//QRCode Scanner
     // For Robolectric tests.
@@ -81,6 +88,16 @@ dependencies {
 
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'
+}
+configurations.all{
+    resolutionStrategy {
+        eachDependency { details ->
+            if ('org.jacoco' == details.requested.group) {
+                details.useVersion "0.8.7"
+            }
+        }
+    }
+    exclude(group : "com.google.protobuf", module : "protobuf-lite")
 }
 
 tasks.withType(Test) {
