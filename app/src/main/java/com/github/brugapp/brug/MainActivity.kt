@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
         triggerGoToActivity(R.id.log_on_button, SignInActivity::class.java)
         triggerGoToActivity(R.id.tempButton, ItemsMenuActivity::class.java)
         triggerGoToActivity(R.id.mainCamera, QrCodeScannerActivity::class.java)
+        triggerGoToActivity(R.id.chat, ChatActivity::class.java)
         triggerGoToActivity(R.id.signUpButton, RegisterUser::class.java)
     }
 
