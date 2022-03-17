@@ -13,23 +13,36 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ItemInformationActivityTest{
-    @Test
-    fun correctTextDisplayed(){
-        val itemsViewModel = (ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
-        val intent = Intent(
-            ApplicationProvider.getApplicationContext(),
-            ItemInformationActivity::class.java
-        ).apply {
-            putExtra("title",itemsViewModel.title)
-            putExtra("description",itemsViewModel.desc)
-            putExtra("image",itemsViewModel.iconId)
-        }
 
-        val str = "no information yet"
+    private val str = "no information yet"
+    private val itemsViewModel = (ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
+    val intent = Intent(
+        ApplicationProvider.getApplicationContext(),
+        ItemInformationActivity::class.java
+    ).apply {
+        putExtra("title",itemsViewModel.title)
+        putExtra("description",itemsViewModel.desc)
+        putExtra("image",itemsViewModel.iconId)
+    }
+
+
+    @Test
+    fun correctTypeDisplayed(){
         ActivityScenario.launch<ItemInformationActivity>(intent).use {
             onView(ViewMatchers.withId(R.id.item_name)).check(matches(withText("Phone")))
-            onView(ViewMatchers.withId(R.id.item_description)).check(matches(withText("Samsung Galaxy S22")))
             onView(ViewMatchers.withId(R.id.tv_name)).check(matches(withText("Phone")))
+        }
+    }
+    @Test
+    fun correctDescriptionDisplayed(){
+        ActivityScenario.launch<ItemInformationActivity>(intent).use {
+            onView(ViewMatchers.withId(R.id.item_description)).check(matches(withText("Samsung Galaxy S22")))
+        }
+    }
+
+    @Test
+    fun noLocationAndOwnerAndDateYet(){
+        ActivityScenario.launch<ItemInformationActivity>(intent).use {
             onView(ViewMatchers.withId(R.id.item_last_location)).check(matches(withText(str)))
             onView(ViewMatchers.withId(R.id.item_owner)).check(matches(withText(str)))
             onView(ViewMatchers.withId(R.id.item_date)).check(matches(withText(str)))
