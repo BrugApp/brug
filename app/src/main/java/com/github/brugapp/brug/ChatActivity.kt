@@ -106,7 +106,6 @@ class ChatActivity : AppCompatActivity() {
                     for (dc: DocumentChange in value?.documentChanges!!)
                         if (dc.type == DocumentChange.Type.ADDED) {
                             chatArrayList.add(dc.document.toObject(ChatItemModel::class.java))
-                            println(dc.document.toObject(ChatItemModel::class.java).datetime)
                         }
 
                     // Notify the adapter to update the list

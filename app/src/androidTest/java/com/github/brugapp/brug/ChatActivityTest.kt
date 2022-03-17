@@ -46,7 +46,7 @@ class ChatActivityTest {
         onView(withId(R.id.editMessage)).perform(typeText("TestMessage"))
         closeSoftKeyboard()
 
-        var sendButton = onView(withId(R.id.buttonSendMessage))
+        var sendButton = onView(withId(R.id.buttonSendMessage)).perform(click())
 
         // Check the message
         onData(
