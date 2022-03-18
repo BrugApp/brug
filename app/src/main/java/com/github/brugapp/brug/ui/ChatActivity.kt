@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.firestore.*
+import com.google.firebase.ktx.Firebase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -77,6 +78,7 @@ class ChatActivity : AppCompatActivity() {
 
         // Add a new document i.e. message
         db = FirebaseFirestore.getInstance()
+        // Firebase.firestore change for kotlin?
         db.collection("Chat").document("User1User2")
             .collection("Messages")
             .add(message)
