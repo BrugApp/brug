@@ -13,6 +13,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
         <activity
+            android:name=".AddItemActivity"
+            android:exported="false"
+            android:parentActivityName=".ItemsMenuActivity">
+        </activity>
+        <activity
             android:name=".ChatActivity"
             android:exported="false"
             android:label="Chat"/>

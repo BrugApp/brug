@@ -5,7 +5,7 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.matcher.IntentMatchers
+import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -13,7 +13,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import org.hamcrest.Matchers
+import org.hamcrest.Matchers.allOf
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import org.hamcrest.core.IsEqual
@@ -159,8 +159,8 @@ class ItemsMenuActivityTest {
             )
         )
         intended(
-            Matchers.allOf(
-                IntentMatchers.toPackage("com.github.brugapp.brug"),
+            allOf(
+                toPackage("com.github.brugapp.brug"),
                 hasComponent(ItemInformationActivity::class.java.name)
             )
         )
@@ -174,7 +174,6 @@ class ItemsMenuActivityTest {
         assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
     }
 
-
     // Companion functions
     private fun isKeyboardOpenedShellCheck(): Boolean {
         val checkKeyboardCmd = "dumpsys input_method | grep mInputShown"
@@ -185,5 +184,17 @@ class ItemsMenuActivityTest {
         } catch (e: IOException) {
             throw RuntimeException("Keyboard check failed", e)
         }
+    }
+
+    @Test
+    fun goToAddItemPageOnAddButton() {
+        onView(withId(R.id.add_new_item_button)).perform(click())
+        // Verify that the app goes to the Item List activity if the User enters valid info for his/her new item.
+        intended(
+            allOf(
+                toPackage("com.github.brugapp.brug"),
+                hasComponent(AddItemActivity::class.java.name)
+            )
+        )
     }
 }

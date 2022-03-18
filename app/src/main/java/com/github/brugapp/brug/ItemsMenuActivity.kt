@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationBarView
-import com.google.android.material.snackbar.Snackbar
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
 private const val SEARCH_HINT: String = "Search items here…"
@@ -68,10 +67,10 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     private fun initFloatingAddButton(){
         val addButton = findViewById<FloatingActionButton>(R.id.add_new_item_button)
-        addButton.setOnClickListener{ view ->
-            Snackbar.make(view, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show()
+
+        addButton.setOnClickListener{
+            val myIntent = Intent(this, AddItemActivity::class.java).apply {  }
+            startActivity(myIntent)
         }
     }
 
