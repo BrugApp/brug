@@ -48,5 +48,18 @@ class User// later generate id
         return email
     }
 
+    fun getItemList(): ArrayList<Item> {
+        return items
+    }
+
+    fun addItem(item : Item) : Boolean{
+
+        if(item != null){
+            items.add(item)
+            return true
+        }
+        return false
+
+    }
 
 }
