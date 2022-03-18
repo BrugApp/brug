@@ -1,22 +1,24 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.view_model
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.github.brugapp.brug.R
+import com.github.brugapp.brug.model.ChatMessage
 
 // Adapter that binds the list of messages to the instances of ChatItemModel
-class ChatMessagesListAdapter(private val messageList: ArrayList<ChatItemModel>) :
+class ChatMessagesListAdapter(private val messageList: ArrayList<ChatMessage>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatMessagesListAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
             LayoutInflater.from(parent.context).inflate(R.layout.chat_item_layout, parent, false)
         return ViewHolder(itemView)
     }
 
-    override fun onBindViewHolder(holder: ChatMessagesListAdapter.ViewHolder, position: Int) {
-        val message: ChatItemModel = messageList[position]
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val message: ChatMessage = messageList[position]
         holder.sender.text = message.sender
         holder.content.text = message.content
         holder.datetime.text = message.datetime

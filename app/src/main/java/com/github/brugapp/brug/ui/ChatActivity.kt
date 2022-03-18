@@ -1,4 +1,4 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.ui
 
 import android.annotation.SuppressLint
 import android.content.ContentValues.TAG
@@ -13,16 +13,20 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.brugapp.brug.view_model.ChatMessagesListAdapter
+import com.github.brugapp.brug.ItemsMenuActivity
+import com.github.brugapp.brug.QrCodeScannerActivity
+import com.github.brugapp.brug.R
+import com.github.brugapp.brug.model.ChatMessage
 import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.firestore.*
-import com.google.firebase.ktx.Firebase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var chatArrayList: ArrayList<ChatItemModel>
+    private lateinit var chatArrayList: ArrayList<ChatMessage>
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var db: FirebaseFirestore
 
@@ -38,9 +42,6 @@ class ChatActivity : AppCompatActivity() {
         // SEND BUTTON
         val buttonSendMessage = findViewById<Button>(R.id.buttonSendMessage)
         buttonSendMessage.setOnClickListener { sendMessage() }
-
-        // NAVIGATION BAR
-        initNavigationBar()
     }
 
     private fun initMessageList(){
@@ -109,7 +110,7 @@ class ChatActivity : AppCompatActivity() {
                     // Add retrieved messages to the list of displayed messages
                     for (dc: DocumentChange in value?.documentChanges!!)
                         if (dc.type == DocumentChange.Type.ADDED) {
-                            chatArrayList.add(dc.document.toObject(ChatItemModel::class.java))
+                            chatArrayList.add(dc.document.toObject(ChatMessage::class.java))
                         }
 
                     // Notify the adapter to update the list
@@ -118,27 +119,5 @@ class ChatActivity : AppCompatActivity() {
                     rv.smoothScrollToPosition(adapter.itemCount - 1)
                 }
             })
-    }
-
-    // Setup the navigation bar
-    private fun initNavigationBar() {
-        val bottomNavBar = findViewById<NavigationBarView>(R.id.bottom_navigation)
-        bottomNavBar.setOnItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.items_list_menu_button -> {
-                    startActivity(Intent(this, ItemsMenuActivity::class.java))
-                    true
-                }
-                R.id.qr_scan_menu_button -> {
-                    startActivity(Intent(this, QrCodeScannerActivity::class.java))
-                    true
-                }
-                R.id.chat_menu_button -> {
-                    true
-                }
-                else -> false
-            }
-        }
-        bottomNavBar.selectedItemId = R.id.chat_menu_button
     }
 }
