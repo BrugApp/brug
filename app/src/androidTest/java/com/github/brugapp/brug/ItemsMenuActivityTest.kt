@@ -188,16 +188,13 @@ class ItemsMenuActivityTest {
 
     @Test
     fun goToAddItemPageOnAddButton() {
-        Intents.init()
         onView(withId(R.id.add_new_item_button)).perform(click())
-
         // Verify that the app goes to the Item List activity if the User enters valid info for his/her new item.
-        Intents.intended(
+        intended(
             allOf(
                 toPackage("com.github.brugapp.brug"),
                 hasComponent(AddItemActivity::class.java.name)
             )
         )
-        Intents.release()
     }
 }
