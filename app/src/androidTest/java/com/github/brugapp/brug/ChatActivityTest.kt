@@ -56,17 +56,4 @@ class ChatActivityTest {
             )
         )
     }
-
-    // NAVBAR Tests
-    @Test
-    fun changingBottomNavBarMenuToItemsListChangesFocus() {
-        val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
-        itemsListMenuButton.perform(click()).check(matches(isEnabled()))
-    }
-
-    @Test
-    fun changingBottomNavBarMenuToChatChangesFocus() {
-        val chatMenuButton = onView(withId(R.id.chat_menu_button))
-        chatMenuButton.perform(click()).check(matches(isEnabled()))
-    }
 }

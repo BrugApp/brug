@@ -51,7 +51,7 @@ class ChatActivity : AppCompatActivity() {
         recyclerView.adapter = viewModel.getAdapter()
     }
 
-    fun updateData(numberOfMessages: Int){
+    fun updateData(numberOfMessages: Int) {
         print("THIS IS DONE")
         val rv = findViewById<View>(R.id.recyclerView) as RecyclerView
         rv.smoothScrollToPosition(numberOfMessages - 1)

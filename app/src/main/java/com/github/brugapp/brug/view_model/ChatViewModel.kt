@@ -8,12 +8,12 @@ import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
+import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.firebase.firestore.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import com.github.brugapp.brug.R
 
 class ChatViewModel : ViewModel() {
 
