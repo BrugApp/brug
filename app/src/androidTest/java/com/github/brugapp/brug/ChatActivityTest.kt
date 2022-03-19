@@ -7,6 +7,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.Matchers.*
 import org.junit.Rule
 import org.junit.Test
@@ -54,18 +55,5 @@ class ChatActivityTest {
                 )
             )
         )
-    }
-
-    // NAVBAR Tests
-    @Test
-    fun changingBottomNavBarMenuToItemsListChangesFocus() {
-        val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
-        itemsListMenuButton.perform(click()).check(matches(isEnabled()))
-    }
-
-    @Test
-    fun changingBottomNavBarMenuToChatChangesFocus() {
-        val chatMenuButton = onView(withId(R.id.chat_menu_button))
-        chatMenuButton.perform(click()).check(matches(isEnabled()))
     }
 }
