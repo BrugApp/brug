@@ -48,11 +48,11 @@ class ChatActivity : AppCompatActivity() {
         recyclerView.layoutManager = linearManager
         recyclerView.setHasFixedSize(true)
 
+        viewModel.initAdapter()
         recyclerView.adapter = viewModel.getAdapter()
     }
 
     fun updateData(numberOfMessages: Int) {
-        print("THIS IS DONE")
         val rv = findViewById<View>(R.id.recyclerView) as RecyclerView
         rv.smoothScrollToPosition(numberOfMessages - 1)
     }

@@ -10,8 +10,11 @@ import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.ChatMessage
+import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.firebase.firestore.*
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -23,16 +26,19 @@ class ChatViewModel : ViewModel() {
     private lateinit var chatArrayList: ArrayList<ChatMessage>
     private lateinit var adapter: ChatMessagesListAdapter
 
-    public fun getAdapter(): ChatMessagesListAdapter {
+    public fun initAdapter() {
         chatArrayList = arrayListOf()
         adapter = ChatMessagesListAdapter(chatArrayList)
+    }
+
+    public fun getAdapter(): ChatMessagesListAdapter {
         return adapter
     }
 
     fun eventChangeListener(activity: ChatActivity) {
         // TODO: Change the document when ChatListActivity is implemented
         // TODO: Update code to use data.Database when implemented
-        db = FirebaseFirestore.getInstance()
+        db = Firebase.firestore
         db.collection("Chat").document("User1User2").collection("Messages")
             .orderBy("datetime", Query.Direction.ASCENDING)
             .addSnapshotListener(object : EventListener<QuerySnapshot> {
@@ -79,8 +85,7 @@ class ChatViewModel : ViewModel() {
         )
 
         // Add a new document i.e. message
-        db = FirebaseFirestore.getInstance()
-        // Firebase.firestore change for kotlin?
+        db = Firebase.firestore
         db.collection("Chat").document("User1User2")
             .collection("Messages")
             .add(message)

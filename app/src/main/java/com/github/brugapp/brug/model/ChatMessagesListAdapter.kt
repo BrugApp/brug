@@ -1,4 +1,4 @@
-package com.github.brugapp.brug.view_model
+package com.github.brugapp.brug.model
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.model.ChatMessage
 
 // Adapter that binds the list of messages to the instances of ChatItemModel
 class ChatMessagesListAdapter(private val messageList: ArrayList<ChatMessage>) :
