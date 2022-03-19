@@ -18,9 +18,10 @@
             android:parentActivityName=".ItemsMenuActivity">
         </activity>
         <activity
-            android:name=".ChatActivity"
+            android:name=".ui.ChatActivity"
             android:exported="false"
-            android:label="Chat"/>
+            android:label="Chat"
+            android:parentActivityName=".ChatMenuActivity" />
         <activity
             android:name=".RegisterUser"
             android:exported="false" />
@@ -28,7 +29,7 @@
             android:name=".ui.SignInActivity"
             android:exported="false" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.SettingsActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity">
 

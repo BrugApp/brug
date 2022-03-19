@@ -6,6 +6,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import com.github.brugapp.brug.ui.ChatActivity
+import com.github.brugapp.brug.ui.SettingsActivity
 import com.github.brugapp.brug.ui.SignInActivity
 
 class MainActivity : AppCompatActivity() {
