@@ -42,7 +42,7 @@ class ChatViewModel : ViewModel() {
         db.collection("Chat").document("User1User2").collection("Messages")
             .orderBy("datetime", Query.Direction.ASCENDING)
             .addSnapshotListener(object : EventListener<QuerySnapshot> {
-                @SuppressLint("NotifyDataSetChanged")
+                @SuppressLint("NotifyDataSetChanged") // Used by the adapter
                 override fun onEvent(
                     value: QuerySnapshot?,
                     error: FirebaseFirestoreException?
@@ -69,8 +69,7 @@ class ChatViewModel : ViewModel() {
             })
     }
 
-    @SuppressLint("CutPasteId")
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.O) // Used by LocalDateTime
     fun sendMessage(sender: String, content: String) {
         // Compute timestamp
         val current = LocalDateTime.now()

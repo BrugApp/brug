@@ -19,8 +19,8 @@ class ChatActivity : AppCompatActivity() {
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
 
-    @SuppressLint("CutPasteId")
-    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
+    @RequiresApi(Build.VERSION_CODES.O) // Needed for the adapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
