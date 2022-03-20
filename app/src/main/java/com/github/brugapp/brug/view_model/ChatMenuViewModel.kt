@@ -10,38 +10,46 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.ItemsListAdapter
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.User
 import com.google.android.material.snackbar.Snackbar
-import java.util.*
 
-class ItemsMenuViewModel : ViewModel() {
-    private val myItemsList: MutableList<Item> by lazy {
-        loadItems()
+class ChatMenuViewModel : ViewModel() {
+    private val myChatList: MutableList<Conversation> by lazy {
+        loadConversations()
     }
 
-    private fun loadItems(): MutableList<Item> {
+    private fun loadConversations(): MutableList<Conversation> {
         // TODO in the future: Refactor to fetch values from actual database
         return mutableListOf(
-            Item("Phone", R.drawable.ic_baseline_smartphone_24, "Samsung Galaxy S22"),
-            Item("Wallet", R.drawable.ic_baseline_account_balance_wallet_24, "With all my belongings"),
-            Item("BMW Key", R.drawable.ic_baseline_car_rental_24, "BMW M3 F80 Competition"),
-            Item("Keys", R.drawable.ic_baseline_vpn_key_24,"House and everything else")
+            Conversation(
+                User("Anna", "Rosenberg", "anna@rosenberg.com", "123456"),
+                listOf("Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne")),
+            Conversation(
+                User("Henry", "Crawford", "crawform@services.co.uk", "129271"),
+                listOf("Hey ! I might have found your wallet yesterday near the EPFL campus")),
+            Conversation(
+                User("Jenna", "Hewitt", "jenna.hewitt@epfl.ch", "310827"),
+                listOf("Me: Fine, lets meet on Saturday then !")),
+            Conversation(
+                User("John", "Newmann", "john@microsoft.com", "1892122"),
+                listOf("Give me my money back you thief !!!"))
         )
     }
 
-    fun getItemsList(): MutableList<Item> {
-        return myItemsList
+    fun getChatList(): MutableList<Conversation> {
+        return myChatList
     }
 
-    inner class ItemsListCallback(val context: Context, private val listViewAdapter: ItemsListAdapter, private val onDeleteStr: String)
+    inner class ChatListCallback(val context: Context, private val listViewAdapter: ChatListAdapter)
         : ItemTouchHelper.SimpleCallback(
-        ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
+        0,
         ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
     ) {
-        private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_baseline_delete_24) !! // To trigger NullPointerException if icon not found
-        private val swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#d65819")) // To move in a color database (maybe ?)
+        private val checkText = "The conversation has been marked as resolved."
+        private val checkIcon = ContextCompat.getDrawable(context, R.drawable.ic_baseline_check_circle_outline_24) !! // To trigger NullPointerException if icon not found
+        private val swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#15b800")) // To move in a color database (maybe ?)
 
         /* DRAG TO REORDER (UP AND DOWN THE LIST) */
         override fun onMove(
@@ -49,28 +57,17 @@ class ItemsMenuViewModel : ViewModel() {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            val startPosition = viewHolder.adapterPosition
-            val endPosition = target.adapterPosition
-
-            val list = listViewAdapter.getItemsList()
-            Collections.swap(list, startPosition, endPosition)
-            recyclerView.adapter?.notifyItemMoved(startPosition, endPosition)
-
-            Snackbar.make(recyclerView,
-                "Item has been moved from $startPosition to $endPosition",
-                Snackbar.LENGTH_LONG)
-                .show()
             return true
         }
 
         /* SWIPE TO DELETE (LEFT AND RIGHT) */
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
             val position = viewHolder.adapterPosition
-            val list = listViewAdapter.getItemsList()
+            val list = listViewAdapter.getChatList()
             val deletedElt = list.removeAt(position)
             listViewAdapter.notifyItemRemoved(position)
 
-            Snackbar.make(viewHolder.itemView, onDeleteStr, Snackbar.LENGTH_LONG)
+            Snackbar.make(viewHolder.itemView, checkText, Snackbar.LENGTH_LONG)
                 .setAction("Undo") {
                     list.add(position, deletedElt)
                     listViewAdapter.notifyItemInserted(position)
@@ -89,17 +86,17 @@ class ItemsMenuViewModel : ViewModel() {
             isCurrentlyActive: Boolean
         ) {
             val chatView = viewHolder.itemView
-            val iconMargin = (chatView.height - deleteIcon.intrinsicHeight) / 2
+            val iconMargin = (chatView.height - checkIcon.intrinsicHeight) / 2
 
-            deleteIcon.setTint(Color.WHITE)
+            checkIcon.setTint(Color.WHITE)
 
             swipeBG.bounds = computeBGBounds(dX, chatView)
-            deleteIcon.bounds = computeIconBounds(dX, iconMargin, chatView)
+            checkIcon.bounds = computeIconBounds(dX, iconMargin, chatView)
 
             swipeBG.draw(c)
             c.save()
             c.clipRect(swipeBG.bounds)
-            deleteIcon.draw(c)
+            checkIcon.draw(c)
             c.restore()
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
@@ -126,9 +123,9 @@ class ItemsMenuViewModel : ViewModel() {
             val rightOffset: Int
             if(dX > 0){
                 leftOffset = chatView.left + iconMargin
-                rightOffset = chatView.left + iconMargin + deleteIcon.intrinsicWidth
+                rightOffset = chatView.left + iconMargin + checkIcon.intrinsicWidth
             } else {
-                leftOffset = chatView.right - iconMargin - deleteIcon.intrinsicWidth
+                leftOffset = chatView.right - iconMargin - checkIcon.intrinsicWidth
                 rightOffset = chatView.right - iconMargin
             }
 
