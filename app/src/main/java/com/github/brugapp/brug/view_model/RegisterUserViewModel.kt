@@ -3,16 +3,12 @@ package com.github.brugapp.brug.view_model
 import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.di.sign_in.AuthDatabase
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import javax.inject.Inject
 
-class RegisterUserViewModel @Inject constructor(
-    private val auth: AuthDatabase
-) : ViewModel() {
+class RegisterUserViewModel : ViewModel() {
     private lateinit var db: FirebaseFirestore
     private lateinit var progressBar: ProgressBar
     private lateinit var mAuth: FirebaseAuth
