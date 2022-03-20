@@ -1,13 +1,13 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.view_model
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Item
 
 /**
- * Custom adapter class for the RecyclerView lists in ItemsMenuActivity
+ * Custom adapter class for the RecyclerView lists in ChatMenuActivity
  */
 class ChatListAdapter(
     private val chatList: MutableList<Conversation>,
@@ -27,7 +27,8 @@ class ChatListAdapter(
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = chatList[position]
 
-        holder.icon.setImageResource(R.mipmap.ic_launcher) // TODO: replace the hardcoded image by the ID of the profile-pic of user
+        // TODO: replace the hardcoded image ID by the ID of the profile-pic of user
+        holder.icon.setImageResource(R.mipmap.ic_launcher)
         holder.title.text = listElement.user.getFirstName()
         holder.desc.text = listElement.messages.last()
 

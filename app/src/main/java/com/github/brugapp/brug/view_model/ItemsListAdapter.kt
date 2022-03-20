@@ -1,8 +1,9 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.view_model
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.Item
 
 /**
