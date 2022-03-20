@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.view_model
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -24,13 +25,15 @@ class ChatListAdapter(
     }
 
     // Binds the list items to a view
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = chatList[position]
 
         // TODO: replace the hardcoded image ID by the ID of the profile-pic of user
+        val lastMessage = listElement.messages.last()
         holder.icon.setImageResource(R.mipmap.ic_launcher)
         holder.title.text = listElement.user.getFirstName()
-        holder.desc.text = listElement.messages.last()
+        holder.desc.text = "${lastMessage.sender}: ${lastMessage.content}"
 
     }
 

@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.User
 import com.google.android.material.snackbar.Snackbar
@@ -25,16 +26,28 @@ class ChatMenuViewModel : ViewModel() {
         return mutableListOf(
             Conversation(
                 User("Anna", "Rosenberg", "anna@rosenberg.com", "123456"),
-                listOf("Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne")),
+                listOf(ChatMessage(
+                        "Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne",
+                        "2022.03.19",
+                        "Me"))),
             Conversation(
                 User("Henry", "Crawford", "crawform@services.co.uk", "129271"),
-                listOf("Hey ! I might have found your wallet yesterday near the EPFL campus")),
+                listOf(ChatMessage(
+                    "Hey ! I might have found your wallet yesterday near the EPFL campus",
+                    "2022.03.19",
+                    "Henry"))),
             Conversation(
                 User("Jenna", "Hewitt", "jenna.hewitt@epfl.ch", "310827"),
-                listOf("Me: Fine, lets meet on Saturday then !")),
+                listOf(ChatMessage(
+                    "Fine, lets meet on Saturday then !",
+                    "2022.03.19",
+                    "Me"))),
             Conversation(
                 User("John", "Newmann", "john@microsoft.com", "1892122"),
-                listOf("Give me my money back you thief !!!"))
+                listOf(ChatMessage(
+                    "Give me my money back you thief !!!",
+                    "2022.03.19",
+                    "John")))
         )
     }
 
