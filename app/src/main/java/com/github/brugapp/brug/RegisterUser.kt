@@ -55,11 +55,11 @@ class RegisterUser : AppCompatActivity(), View.OnClickListener{
 
     private fun onClickHelper() {
         progressBar.visibility = View.VISIBLE
-        mAuth?.createUserWithEmailAndPassword(emailtxt, passwordtxt)
-            ?.addOnCompleteListener(this) { task ->
+        mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
+            .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
-                    val user = mAuth?.currentUser
+                    val user = mAuth.currentUser
                     val list = listOf<String>()
                     val userToAdd = hashMapOf("ItemIDArray" to list, "UserID" to (user?.uid ?: String), "email" to emailtxt, "firstName" to firstnametxt, "lastName" to lastnametxt)
 

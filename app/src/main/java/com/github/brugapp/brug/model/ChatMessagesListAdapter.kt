@@ -27,7 +27,7 @@ class ChatMessagesListAdapter(private val messageList: ArrayList<ChatMessage>) :
         return messageList.size
     }
 
-    public class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val sender: TextView = itemView.findViewById(R.id.chat_item_sender)
         val datetime: TextView = itemView.findViewById(R.id.chat_item_datetime)
         val content: TextView = itemView.findViewById(R.id.chat_item_content)
