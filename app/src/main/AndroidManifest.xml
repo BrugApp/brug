@@ -15,13 +15,13 @@
         <activity
             android:name=".AddItemActivity"
             android:exported="false"
-            android:parentActivityName=".ItemsMenuActivity">
+            android:parentActivityName=".ui.ItemsMenuActivity">
         </activity>
         <activity
             android:name=".ui.ChatActivity"
             android:exported="false"
             android:label="Chat"
-            android:parentActivityName=".ChatMenuActivity" />
+            android:parentActivityName=".ui.ChatMenuActivity" />
         <activity
             android:name=".RegisterUser"
             android:exported="false" />
@@ -47,7 +47,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".ItemsMenuActivity"
+            android:name=".ui.ItemsMenuActivity"
             android:exported="false"
             android:label="@string/item_activity_title">
             <intent-filter>
@@ -67,7 +67,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ChatMenuActivity"
+            android:name=".ui.ChatMenuActivity"
             android:label="@string/chat_menu_label"
             android:exported="false">
             <intent-filter>
@@ -79,7 +79,7 @@
         </activity>
         <activity
             android:name=".ItemInformationActivity"
-            android:parentActivityName=".ItemsMenuActivity"
+            android:parentActivityName=".ui.ItemsMenuActivity"
             android:exported="false">
         </activity>
     </application>

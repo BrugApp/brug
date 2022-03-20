@@ -1,4 +1,4 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.view_model
 
 import android.view.View
 import android.widget.ImageView
