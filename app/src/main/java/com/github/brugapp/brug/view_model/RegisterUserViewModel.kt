@@ -1,7 +1,11 @@
 package com.github.brugapp.brug.view_model
 
+import android.content.ContentValues
+import android.util.Log
+import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
@@ -10,12 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class RegisterUserViewModel : ViewModel() {
     private lateinit var db: FirebaseFirestore
-    private lateinit var progressBar: ProgressBar
     private lateinit var mAuth: FirebaseAuth
-    private lateinit var firstName: EditText
-    private lateinit var lastName: EditText
-    private lateinit var email: EditText
-    private lateinit var password: EditText
     private var firstnametxt = ""
     private var lastnametxt = ""
     private var emailtxt = ""
@@ -46,10 +45,6 @@ class RegisterUserViewModel : ViewModel() {
     ) {
         this.db = db
         this.mAuth = mAuth
-        this.firstName = firstName
-        this.lastName = lastName
-        this.password = password
-        this.email = email
         firstnametxt = firstName.text.toString().trim()
         lastnametxt = lastName.text.toString().trim()
         emailtxt = email.text.toString().trim()
@@ -57,7 +52,7 @@ class RegisterUserViewModel : ViewModel() {
     }
 
     //checks if input data is valid
-    fun anyEmpty(): Boolean {
+    fun anyEmpty(firstName: EditText, lastName: EditText, email: EditText, password: EditText): Boolean {
         when {
             firstnametxt.isEmpty() -> {
                 firstName.error = "Please enter first name"
@@ -94,7 +89,35 @@ class RegisterUserViewModel : ViewModel() {
         return db.collection("Users").add(userToAdd)
     }
 
-    fun createAuthAccount(): com.google.android.gms.tasks.Task<com.google.firebase.auth.AuthResult> {
-        return mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
+    fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar) {
+        mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
+                    Log.d(ContentValues.TAG, "createUserWithEmail:success")
+                    addRegisterUserTask(createNewRegisterUser())
+                        .addOnSuccessListener { documentReference ->
+                            Log.d(
+                                ContentValues.TAG,
+                                "DocumentSnapshot added with ID: ${documentReference.id}"
+                            )
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(
+                                ContentValues.TAG,
+                                "Error adding document",
+                                e
+                            )
+                        }
+                    progressBar.visibility = View.GONE //updateUI(user)
+                } else { // If sign in fails, display a message to the user.
+                    Log.w(ContentValues.TAG, "createUserWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        context,
+                        "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    progressBar.visibility = View.GONE //updateUI(null)
+                }
+            }
     }
 }
