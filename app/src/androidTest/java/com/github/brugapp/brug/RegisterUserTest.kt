@@ -15,6 +15,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.brugapp.brug.ui.RegisterUserActivity
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,7 +23,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RegisterUserTest {
     @get:Rule
-    var registerUserActivityRule = ActivityScenarioRule(RegisterUser::class.java)
+    var registerUserActivityRule = ActivityScenarioRule(RegisterUserActivity::class.java)
 
     @Test
     fun registerUserTypeAndSubmitTest(){
@@ -62,7 +63,7 @@ class RegisterUserTest {
         intending(
             IntentMatchers.hasComponent(
                 ComponentNameMatchers.hasClassName(
-                    RegisterUser::class.java.name
+                    RegisterUserActivity::class.java.name
                 )
             )
         )
