@@ -17,10 +17,12 @@ import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ItemsListAdapter
 import com.github.brugapp.brug.view_model.ItemsMenuViewModel
+import com.github.brugapp.brug.view_model.ListCallback
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
 private const val SEARCH_HINT: String = "Search items here…"
+private const val DELETE_TEXT: String = "Item has been deleted."
 
 class ItemsMenuActivity : AppCompatActivity() {
 
@@ -60,11 +62,21 @@ class ItemsMenuActivity : AppCompatActivity() {
 
         listView.layoutManager = LinearLayoutManager(this)
 
+        val dragPair = Pair(
+            ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
+            ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
+        )
+
         val swipePair = Pair(
             ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24) !!,
             ContextCompat.getColor(this, R.color.list_item_del_BG))
 
-        val listCallback = model.ItemsListCallback(swipePair, swipePair, itemsListAdapter)
+        val listAdapterPair = Pair(
+            model.getItemsList(),
+            itemsListAdapter
+        )
+
+        val listCallback = ListCallback(DELETE_TEXT, dragPair, swipePair, listAdapterPair)
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
 
         listView.adapter = itemsListAdapter

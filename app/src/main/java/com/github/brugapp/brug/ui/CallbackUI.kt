@@ -17,20 +17,13 @@ class CallbackUI(private val c: Canvas, private val viewHolder: RecyclerView.Vie
      * Defines what is drawn in the window in the case of the swipe left (resp. swipe right) events.
      */
     fun setSwipeUI(
-        leftSwipePair: Pair<Drawable, Int>,
-        rightSwipePair: Pair<Drawable, Int>
+        swipePair: Pair<Drawable, Int>
     ){
         val chatView = viewHolder.itemView
-        val icon: Drawable
-        val swipeBGColor: Int
 
-        if(dX > 0){
-            icon = leftSwipePair.first
-            swipeBGColor = leftSwipePair.second
-        } else {
-            icon = rightSwipePair.first
-            swipeBGColor = rightSwipePair.second
-        }
+        val icon: Drawable = swipePair.first
+        val swipeBGColor: Int = swipePair.second
+
 
         val iconMargin = (chatView.height - icon.intrinsicHeight) / 2
         icon.setTint(Color.WHITE)

@@ -15,13 +15,13 @@ class ListViewHolder (view: View,
                       onItemClicked: (Int) -> Unit
 ) : RecyclerView.ViewHolder(view){
 
-        init{
-            itemView.setOnClickListener {
-                onItemClicked(adapterPosition)
-            }
+    init{
+        itemView.setOnClickListener {
+            onItemClicked(adapterPosition)
         }
+    }
 
-        val icon: ImageView = view.findViewById(iconId)
-        val title: TextView = view.findViewById(titleId)
-        val desc: TextView = view.findViewById(descId)
+    val icon: ImageView = view.findViewById(iconId)
+    val title: TextView = view.findViewById(titleId)
+    val desc: TextView = view.findViewById(descId)
 }
