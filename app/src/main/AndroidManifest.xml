@@ -23,7 +23,7 @@
             android:label="Chat"
             android:parentActivityName=".ChatMenuActivity" />
         <activity
-            android:name=".RegisterUser"
+            android:name=".ui.RegisterUserActivity"
             android:exported="false" />
         <activity
             android:name=".ui.SignInActivity"
