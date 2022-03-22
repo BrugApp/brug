@@ -16,8 +16,9 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiScrollable
-import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.ui.ChatMenuActivity
+import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.view_model.ListViewHolder
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
@@ -27,12 +28,7 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
-private const val DELETE_CHAT_TEXT = "Chat feed has been deleted."
-private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
-
-private const val LIST_VIEW_ID: String = "$APP_PACKAGE_NAME:id/chat_listview"
-private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/chat_entry_title"
-private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
+private const val DELETE_CHAT_TEXT = "The conversation has been marked as resolved."
 
 @RunWith(AndroidJUnit4::class)
 class ChatMenuActivityTest {
@@ -110,51 +106,6 @@ class ChatMenuActivityTest {
             )
         )
         snackBar.check(matches(withText(DELETE_CHAT_TEXT)))
-    }
-
-    @Test
-    fun dragUpOnItemReordersList(){
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-        val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToDrag = chatList.getChild(
-            UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(1))
-
-        val finalDestination = chatList.getChild(
-            UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(0))
-
-        entryToDrag.dragTo(0, finalDestination.bounds.centerY() - 50,40)
-
-        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual("Item has been moved from 1 to 0"))
-    }
-
-    @Test
-    fun dragDownOnItemReordersList(){
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-
-        val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToDrag = chatList.getChild(
-            UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(2))
-
-        val finalDestination = chatList.getChild(
-            UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(3))
-
-        entryToDrag.dragTo(0, finalDestination.bounds.centerY() + 50,40)
-        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual("Item has been moved from 2 to 3"))
     }
 
     @Test

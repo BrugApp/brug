@@ -16,6 +16,9 @@ import androidx.test.uiautomator.UiDevice
 import org.hamcrest.Matchers.allOf
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.ui.ChatMenuActivity
+import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.view_model.ListViewHolder
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
@@ -26,7 +29,9 @@ import java.io.IOException
 
 private const val DUMMY_TEXT = "Actual behavior coming soon…"
 private const val DELETE_ITEM_TEXT: String = "Item has been deleted."
+private const val MOVE_ITEM_TEXT: String = "Item has been moved."
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
+
 
 private const val LIST_VIEW_ID: String = "$APP_PACKAGE_NAME:id/items_listview"
 private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/list_item_title"
@@ -127,7 +132,7 @@ class ItemsMenuActivityTest {
         entryToDrag.dragTo(0, finalDestination.bounds.centerY() - 50,40)
 
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual("Item has been moved from 1 to 0"))
+        assertThat(snackBarTextView.text, IsEqual(MOVE_ITEM_TEXT))
     }
 
     @Test
@@ -147,7 +152,7 @@ class ItemsMenuActivityTest {
 
         entryToDrag.dragTo(0, finalDestination.bounds.centerY() + 50,40)
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual("Item has been moved from 2 to 3"))
+        assertThat(snackBarTextView.text, IsEqual(MOVE_ITEM_TEXT))
     }
 
     @Test
@@ -160,7 +165,7 @@ class ItemsMenuActivityTest {
         )
         intended(
             allOf(
-                toPackage("com.github.brugapp.brug"),
+                toPackage(APP_PACKAGE_NAME),
                 hasComponent(ItemInformationActivity::class.java.name)
             )
         )
@@ -192,7 +197,7 @@ class ItemsMenuActivityTest {
         // Verify that the app goes to the Item List activity if the User enters valid info for his/her new item.
         intended(
             allOf(
-                toPackage("com.github.brugapp.brug"),
+                toPackage(APP_PACKAGE_NAME),
                 hasComponent(AddItemActivity::class.java.name)
             )
         )
