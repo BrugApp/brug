@@ -9,12 +9,15 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class RegisterUserViewModel : ViewModel() {
-    private lateinit var db: FirebaseFirestore
-    private lateinit var mAuth: FirebaseAuth
+    private val db: FirebaseFirestore = Firebase.firestore
+    private val mAuth: FirebaseAuth = Firebase.auth
     private var firstnametxt = ""
     private var lastnametxt = ""
     private var emailtxt = ""
@@ -36,15 +39,11 @@ class RegisterUserViewModel : ViewModel() {
 
     //stores user input data in the view model
     fun storeUserInput(
-        mAuth: FirebaseAuth,
-        db: FirebaseFirestore,
         firstName: EditText,
         lastName: EditText,
         password: EditText,
         email: EditText
     ) {
-        this.db = db
-        this.mAuth = mAuth
         firstnametxt = firstName.text.toString().trim()
         lastnametxt = lastName.text.toString().trim()
         emailtxt = email.text.toString().trim()
