@@ -1,9 +1,10 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import com.github.brugapp.brug.R
 
 private const val NOT_IMPLEMENTED: String = "no information yet"
 class ItemInformationActivity : AppCompatActivity() {
