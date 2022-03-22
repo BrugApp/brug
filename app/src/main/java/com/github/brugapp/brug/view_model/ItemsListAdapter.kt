@@ -37,6 +37,9 @@ class ItemsListAdapter(
         return itemsList.size
     }
 
+    /**
+     * Getter for the list of items.
+     */
     fun getItemsList(): MutableList<Item> {
         return itemsList
     }

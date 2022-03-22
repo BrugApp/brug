@@ -5,6 +5,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
+/**
+ * View holder for the lists of items & conversations in the app.
+ */
 class ListViewHolder (view: View,
                       iconId: Int,
                       titleId: Int,
