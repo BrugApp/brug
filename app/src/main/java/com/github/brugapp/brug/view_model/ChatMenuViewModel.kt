@@ -1,21 +1,22 @@
 package com.github.brugapp.brug.view_model
 
-import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Rect
-import android.graphics.drawable.ColorDrawable
-import android.view.View
-import androidx.core.content.ContextCompat
+import android.graphics.drawable.Drawable
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.ui.CallbackUI
 import com.google.android.material.snackbar.Snackbar
 
+private const val CHECK_TEXT: String = "The conversation has been marked as resolved."
+private const val UNDO_TEXT: String = "Undo"
+
+/**
+ * ViewModel of the Chat Menu UI, handling its UI logic.
+ */
 class ChatMenuViewModel : ViewModel() {
     private val myChatList: MutableList<Conversation> by lazy {
         loadConversations()
@@ -51,18 +52,24 @@ class ChatMenuViewModel : ViewModel() {
         )
     }
 
+    /**
+     * Getter for the list of conversations.
+     */
     fun getChatList(): MutableList<Conversation> {
         return myChatList
     }
 
-    inner class ChatListCallback(val context: Context, private val listViewAdapter: ChatListAdapter)
+    /**
+     * Callback for events on the list of conversations.
+     */
+    inner class ChatListCallback(
+        private val leftSwipePair: Pair<Drawable, Int>,
+        private val rightSwipePair: Pair<Drawable, Int>,
+        private val listViewAdapter: ChatListAdapter)
         : ItemTouchHelper.SimpleCallback(
         0,
         ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
     ) {
-        private val checkText = "The conversation has been marked as resolved."
-        private val checkIcon = ContextCompat.getDrawable(context, R.drawable.ic_baseline_check_circle_outline_24) !! // To trigger NullPointerException if icon not found
-        private val swipeBG: ColorDrawable = ColorDrawable(Color.parseColor("#15b800")) // To move in a color database (maybe ?)
 
         /* DRAG TO REORDER (UP AND DOWN THE LIST) */
         override fun onMove(
@@ -70,7 +77,7 @@ class ChatMenuViewModel : ViewModel() {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            return true
+            return false
         }
 
         /* SWIPE TO DELETE (LEFT AND RIGHT) */
@@ -80,8 +87,8 @@ class ChatMenuViewModel : ViewModel() {
             val deletedElt = list.removeAt(position)
             listViewAdapter.notifyItemRemoved(position)
 
-            Snackbar.make(viewHolder.itemView, checkText, Snackbar.LENGTH_LONG)
-                .setAction("Undo") {
+            Snackbar.make(viewHolder.itemView, CHECK_TEXT, Snackbar.LENGTH_LONG)
+                .setAction(UNDO_TEXT) {
                     list.add(position, deletedElt)
                     listViewAdapter.notifyItemInserted(position)
                 }.show()
@@ -98,51 +105,10 @@ class ChatMenuViewModel : ViewModel() {
             actionState: Int,
             isCurrentlyActive: Boolean
         ) {
-            val chatView = viewHolder.itemView
-            val iconMargin = (chatView.height - checkIcon.intrinsicHeight) / 2
-
-            checkIcon.setTint(Color.WHITE)
-
-            swipeBG.bounds = computeBGBounds(dX, chatView)
-            checkIcon.bounds = computeIconBounds(dX, iconMargin, chatView)
-
-            swipeBG.draw(c)
-            c.save()
-            c.clipRect(swipeBG.bounds)
-            checkIcon.draw(c)
-            c.restore()
+            val callbackUI = CallbackUI(c, viewHolder, dX)
+            callbackUI.setSwipeUI(leftSwipePair, rightSwipePair)
 
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
-        }
-
-
-        private fun computeBGBounds(dX: Float, chatView: View): Rect {
-            val leftOffset: Int
-            val rightOffset: Int
-            if(dX > 0){
-                leftOffset = chatView.left
-                rightOffset = dX.toInt()
-            } else {
-                leftOffset = chatView.right + dX.toInt()
-                rightOffset = chatView.right
-            }
-
-            return Rect(leftOffset, chatView.top, rightOffset, chatView.bottom)
-        }
-
-
-        private fun computeIconBounds(dX: Float, iconMargin: Int, chatView: View): Rect {
-            val leftOffset: Int
-            val rightOffset: Int
-            if(dX > 0){
-                leftOffset = chatView.left + iconMargin
-                rightOffset = chatView.left + iconMargin + checkIcon.intrinsicWidth
-            } else {
-                leftOffset = chatView.right - iconMargin - checkIcon.intrinsicWidth
-                rightOffset = chatView.right - iconMargin
-            }
-
-            return Rect(leftOffset, chatView.top + iconMargin, rightOffset, chatView.bottom - iconMargin)
         }
     }
 }

@@ -6,16 +6,18 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.*
+import com.github.brugapp.brug.AddItemActivity
+import com.github.brugapp.brug.ItemInformationActivity
+import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ItemsListAdapter
 import com.github.brugapp.brug.view_model.ItemsMenuViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationBarView
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
 private const val SEARCH_HINT: String = "Search items here…"
@@ -58,7 +60,13 @@ class ItemsMenuActivity : AppCompatActivity() {
 
         listView.layoutManager = LinearLayoutManager(this)
 
-        ItemTouchHelper(model.ItemsListCallback(this, itemsListAdapter)).attachToRecyclerView(listView)
+        val swipePair = Pair(
+            ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24) !!,
+            ContextCompat.getColor(this, R.color.list_item_del_BG))
+
+        val listCallback = model.ItemsListCallback(swipePair, swipePair, itemsListAdapter)
+        ItemTouchHelper(listCallback).attachToRecyclerView(listView)
+
         listView.adapter = itemsListAdapter
     }
 

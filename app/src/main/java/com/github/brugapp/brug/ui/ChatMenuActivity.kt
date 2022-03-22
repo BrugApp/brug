@@ -1,22 +1,21 @@
 package com.github.brugapp.brug.ui
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.LinearLayout
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.*
+import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ChatListAdapter
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
-import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.snackbar.Snackbar
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
@@ -56,7 +55,12 @@ class ChatMenuActivity : AppCompatActivity() {
 
         listView.layoutManager = LinearLayoutManager(this)
 
-        ItemTouchHelper(model.ChatListCallback(this, listViewAdapter)).attachToRecyclerView(listView)
+        val swipePair = Pair(
+            ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_circle_outline_24)!!,
+            ContextCompat.getColor(this, R.color.chat_list_resolve_BG))
+
+        val listCallback = model.ChatListCallback(swipePair, swipePair, listViewAdapter)
+        ItemTouchHelper(listCallback).attachToRecyclerView(listView)
         listView.adapter = listViewAdapter
 
         listView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
