@@ -24,8 +24,11 @@ class ChatListAdapter(
         }
     }
 
-    // Binds the list items to a view
+    // Better way would be to have a format string in the strings.xml,
+    // but it seems too complicated (I wasn't able to use the proper methods
+    // to populate the slots + complicates the implementation for nothing)
     @SuppressLint("SetTextI18n")
+    // Binds the list items to a view
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = chatList[position]
 
