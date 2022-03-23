@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.widget.SwitchCompat
 
 private const val NOT_IMPLEMENTED: String = "no information yet"
 class ItemInformationActivity : AppCompatActivity() {
@@ -14,6 +15,13 @@ class ItemInformationActivity : AppCompatActivity() {
 
         //This function will set the text for all the textView
         setTextAllView()
+
+        val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
+        switch.setOnCheckedChangeListener { _, isChecked ->
+            val message = if (isChecked) "Switch1:ON" else "Switch1:OFF"
+        }
+
+
     }
 
     private fun setTextAllView() {

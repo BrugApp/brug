@@ -53,4 +53,5 @@
     <string name="receiver">Receiver</string>
     <string name="message">Message</string>
     <string name="send">Send</string>
+    <string name="is_lost">Is Lost</string>
 </resources>

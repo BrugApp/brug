@@ -67,7 +67,6 @@
     </RelativeLayout>
 
 
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -78,8 +77,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
             android:layout_marginTop="20dp"
+            android:layout_marginRight="30dp"
             android:orientation="vertical"
             tools:ignore="UselessParent">
 
@@ -202,8 +201,23 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/isLostSwitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/is_lost"
+                    android:textColor="@color/headings" />
+            </LinearLayout>
+
 
         </LinearLayout>
+
 
     </RelativeLayout>
 

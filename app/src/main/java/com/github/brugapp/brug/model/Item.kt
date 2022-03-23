@@ -8,10 +8,20 @@ class Item// Generate the id later
     // add QR code attribute
     // add last localization attribute
 
+    private var lost: Boolean = false
+
     init {
         if(name.isBlank()){
             throw IllegalArgumentException("Invalid name")
         }
+    }
+
+    fun isLost():Boolean{
+        return lost
+    }
+
+    fun setLost(value:Boolean){
+        lost = value
     }
 
     fun getName() : String{
