@@ -7,17 +7,10 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.github.brugapp.brug.data.FirebaseHelper
 
 class RegisterUserViewModel : ViewModel() {
-    private val db: FirebaseFirestore = Firebase.firestore
-    private val mAuth: FirebaseAuth = Firebase.auth
+    private val helper = FirebaseHelper()
     private var firstnametxt = ""
     private var lastnametxt = ""
     private var emailtxt = ""
@@ -25,11 +18,11 @@ class RegisterUserViewModel : ViewModel() {
 
     // return new registerUser to add to FireBase
     fun createNewRegisterUser(): HashMap<String, Any> {
-        val user = mAuth.currentUser
+        val user = helper.getCurrentUser()
         val list = listOf<String>()
         val userToAdd = hashMapOf(
             "ItemIDArray" to list,
-            "UserID" to (user?.uid ?: String),
+            "UserID" to (helper.getCurrentUserID() ?: String),
             "email" to emailtxt,
             "firstName" to firstnametxt,
             "lastName" to lastnametxt
@@ -84,16 +77,12 @@ class RegisterUserViewModel : ViewModel() {
         return true
     }
 
-    fun addRegisterUserTask(userToAdd: HashMap<String, Any>): Task<DocumentReference> {
-        return db.collection("Users").add(userToAdd)
-    }
-
     fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar) {
-        mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
+        helper.getFirebaseAuth().createUserWithEmailAndPassword(emailtxt, passwordtxt)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
                     Log.d(ContentValues.TAG, "createUserWithEmail:success")
-                    addRegisterUserTask(createNewRegisterUser())
+                    helper.addRegisterUserTask(createNewRegisterUser())
                         .addOnSuccessListener { documentReference ->
                             Log.d(
                                 ContentValues.TAG,
