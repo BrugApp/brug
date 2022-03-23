@@ -52,7 +52,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initMessageList() {
         recyclerView = findViewById(R.id.recyclerView)
-        val linearManager: LinearLayoutManager = LinearLayoutManager(this)
+        val linearManager = LinearLayoutManager(this)
         linearManager.stackFromEnd = true
         recyclerView.layoutManager = linearManager
         recyclerView.setHasFixedSize(true)

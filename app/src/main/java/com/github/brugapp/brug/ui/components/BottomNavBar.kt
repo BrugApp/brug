@@ -2,10 +2,10 @@ package com.github.brugapp.brug.ui.components
 
 import android.app.Activity
 import android.content.Intent
-import com.github.brugapp.brug.QrCodeScannerActivity
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.ChatMenuActivity
 import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.google.android.material.navigation.NavigationBarView
 
 class BottomNavBar {
