@@ -39,7 +39,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".QrCodeScannerActivity"
+            android:name=".ui.QrCodeScannerActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity">
             <meta-data
@@ -78,7 +78,7 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".ItemInformationActivity"
+            android:name=".ui.ItemInformationActivity"
             android:parentActivityName=".ui.ItemsMenuActivity"
             android:exported="false">
         </activity>

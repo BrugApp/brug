@@ -18,6 +18,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.github.brugapp.brug.ui.ChatMenuActivity
 import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.github.brugapp.brug.view_model.ListViewHolder
 import org.hamcrest.core.IsEqual
 import org.junit.After
