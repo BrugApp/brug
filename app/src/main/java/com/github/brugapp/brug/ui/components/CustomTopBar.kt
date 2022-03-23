@@ -1,9 +1,10 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.ui.components
 
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import com.github.brugapp.brug.R
 import com.google.android.material.snackbar.Snackbar
 
 class CustomTopBar {

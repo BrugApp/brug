@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.fake.MockDatabase
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.ui.ItemsMenuActivity
 
 class AddItemActivity : AppCompatActivity() {
 
