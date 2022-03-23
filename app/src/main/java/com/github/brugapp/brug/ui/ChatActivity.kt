@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -13,11 +14,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.ChatViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
 
 class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
+
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     @RequiresApi(Build.VERSION_CODES.O) // Needed for the adapter
@@ -29,8 +32,8 @@ class ChatActivity : AppCompatActivity() {
         initMessageList()
         viewModel.eventChangeListener(this)
 
-        // SEND BUTTON
-        val buttonSendMessage = findViewById<Button>(R.id.buttonSendMessage)
+        // SEND MESSAGE BUTTON
+        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendMessage)
         buttonSendMessage.setOnClickListener {
             // Get elements from UI
             val sender: String = this.findViewById<TextView?>(R.id.editName).text.toString()
@@ -38,6 +41,12 @@ class ChatActivity : AppCompatActivity() {
             // Clear the message field
             this.findViewById<TextView?>(R.id.editMessage).text = ""
             viewModel.sendMessage(sender, content)
+        }
+
+        // SEND LOCALISATION BUTTON
+        val buttonSendLocalisation = findViewById<ImageButton>(R.id.buttonSendLocalisation)
+        buttonSendLocalisation.setOnClickListener {
+            viewModel.sendLocalisation(this)
         }
     }
 

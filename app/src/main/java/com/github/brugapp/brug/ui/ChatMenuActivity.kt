@@ -37,10 +37,10 @@ class ChatMenuActivity : AppCompatActivity() {
     }
 
     // Initializing the top-bar
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        customTopBar.inflateTopBar(menuInflater, menu, SEARCH_HINT)
-        return super.onCreateOptionsMenu(menu)
-    }
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        customTopBar.inflateTopBar(menuInflater, menu, SEARCH_HINT)
+//        return super.onCreateOptionsMenu(menu)
+//    }
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
