@@ -8,6 +8,8 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.ui.ItemInformationActivity
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -15,14 +17,14 @@ import org.junit.runner.RunWith
 class ItemInformationActivityTest{
 
     private val str = "no information yet"
-    private val itemsViewModel = (ListViewModel(R.drawable.ic_baseline_smartphone_24, "Phone", "Samsung Galaxy S22"))
+    private val itemsViewModel = (Item("Phone", R.drawable.ic_baseline_smartphone_24,"Samsung Galaxy S22"))
     val intent = Intent(
         ApplicationProvider.getApplicationContext(),
         ItemInformationActivity::class.java
     ).apply {
-        putExtra("title",itemsViewModel.title)
-        putExtra("description",itemsViewModel.desc)
-        putExtra("image",itemsViewModel.iconId)
+        putExtra("title",itemsViewModel.getName())
+        putExtra("description",itemsViewModel.getDescription())
+        putExtra("image",itemsViewModel.getId())
     }
 
 

@@ -6,9 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import com.github.brugapp.brug.ui.ChatActivity
-import com.github.brugapp.brug.ui.SettingsActivity
-import com.github.brugapp.brug.ui.SignInActivity
+import com.github.brugapp.brug.ui.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,7 +18,7 @@ class MainActivity : AppCompatActivity() {
         triggerGoToActivity(R.id.tempButton, ItemsMenuActivity::class.java)
         triggerGoToActivity(R.id.mainCamera, QrCodeScannerActivity::class.java)
         triggerGoToActivity(R.id.chat, ChatActivity::class.java)
-        triggerGoToActivity(R.id.signUpButton, RegisterUser::class.java)
+        triggerGoToActivity(R.id.signUpButton, RegisterUserActivity::class.java)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

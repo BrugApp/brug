@@ -26,12 +26,12 @@ class ChatViewModel : ViewModel() {
     private lateinit var chatArrayList: ArrayList<ChatMessage>
     private lateinit var adapter: ChatMessagesListAdapter
 
-    public fun initAdapter() {
+    fun initAdapter() {
         chatArrayList = arrayListOf()
         adapter = ChatMessagesListAdapter(chatArrayList)
     }
 
-    public fun getAdapter(): ChatMessagesListAdapter {
+    fun getAdapter(): ChatMessagesListAdapter {
         return adapter
     }
 

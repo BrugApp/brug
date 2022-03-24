@@ -1,13 +1,16 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.ui
 
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.InputFilter.LengthFilter
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.github.brugapp.brug.fake.MockDatabase
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.R
+import com.github.brugapp.brug.view_model.AddItemViewModel
+
+const val DESCRIPTION_LIMIT = 60
 
 class AddItemActivity : AppCompatActivity() {
 
@@ -17,9 +20,7 @@ class AddItemActivity : AppCompatActivity() {
     private lateinit var itemNameView : EditText
     private lateinit var nameHelperText : TextView
 
-    companion object {
-        const val DESCRIPTION_LIMIT = 60
-    }
+    private val viewModel: AddItemViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,9 +40,6 @@ class AddItemActivity : AppCompatActivity() {
 
         nameHelperText = findViewById(R.id.itemNameHelper)
 
-        // allowing the user the verify if the item's name he/she enters is valid
-        //nameFocusListener()
-
         addButton = findViewById(R.id.add_item_button)
         addButton.setOnClickListener {
             addItemOnListener()
@@ -49,45 +47,12 @@ class AddItemActivity : AppCompatActivity() {
     }
 
     private fun addItemOnListener(){
-        if(verifyForm()){
-            val itemId = 1
-            val newItem = Item(itemNameView.text.toString(), itemId, description.text.toString())
-            MockDatabase.currentUser.addItem(newItem)
-
-            val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {  }
+        if(viewModel.verifyForm(nameHelperText, itemNameView)){
+            nameHelperText.text = getString(R.string.required)
+            viewModel.addItem(itemNameView, description)
+            val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)
         }
-    }
-
-    private fun verifyForm() : Boolean{
-
-        //checking if the item's name is valid (i.e non-empty)
-        nameHelperText.text = validName()
-
-        if(nameHelperText.text.isNotEmpty()){
-
-            /* Alert window pops up to explain that name is invalid
-            Currently commented to make testing easier
-            AlertDialog.Builder(this)
-                .setTitle("Invalid Name")
-                .setMessage(nameHelperText.text)
-                .setPositiveButton("Continue"){ _,_ ->
-                }
-                .show()*/
-            return false
-        }
-
-        nameHelperText.text = getString(R.string.required)
-        return true
-    }
-
-    private fun validName(): String {
-        val nameText = itemNameView.text.toString()
-        if(nameText.isEmpty()){
-            return "Name must contain at least 1 character"
-        }
-
-        return ""
     }
 
 }

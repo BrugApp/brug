@@ -11,9 +11,11 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
-import com.github.brugapp.brug.AddItemActivity.Companion.DESCRIPTION_LIMIT
 import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.ui.AddItemActivity
+import com.github.brugapp.brug.ui.DESCRIPTION_LIMIT
+import com.github.brugapp.brug.ui.ItemsMenuActivity
 import org.hamcrest.CoreMatchers.`is` as Is
 import org.hamcrest.MatcherAssert.*
 

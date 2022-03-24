@@ -14,7 +14,7 @@
         android:theme="@style/Theme.Brug">
 
         <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
-     See README(https://goo.gl/l4GJaQ) for more. -->
+        See README(https://goo.gl/l4GJaQ) for more. -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/unlost_logo" />
@@ -28,16 +28,17 @@
             android:name=".ui.ReportItemActivity"
             android:exported="false" />
         <activity
-            android:name=".AddItemActivity"
+            android:name=".ui.AddItemActivity"
             android:exported="false"
-            android:parentActivityName=".ItemsMenuActivity" />
+            android:parentActivityName=".ui.ItemsMenuActivity">
+        </activity>
         <activity
             android:name=".ui.ChatActivity"
             android:exported="false"
             android:label="Chat"
-            android:parentActivityName=".ChatMenuActivity" />
+            android:parentActivityName=".ui.ChatMenuActivity" />
         <activity
-            android:name=".RegisterUser"
+            android:name=".ui.RegisterUserActivity"
             android:exported="false" />
         <activity
             android:name=".ui.SignInActivity"
@@ -53,7 +54,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".QrCodeScannerActivity"
+            android:name=".ui.QrCodeScannerActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity">
             <meta-data
@@ -61,7 +62,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".ItemsMenuActivity"
+            android:name=".ui.ItemsMenuActivity"
             android:exported="false"
             android:label="@string/item_activity_title">
             <intent-filter>
@@ -81,9 +82,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ChatMenuActivity"
-            android:exported="false"
-            android:label="@string/chat_menu_label">
+            android:name=".ui.ChatMenuActivity"
+            android:label="@string/chat_menu_label"
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -93,10 +94,9 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".ItemInformationActivity"
-            android:exported="false"
-            android:parentActivityName=".ItemsMenuActivity" />
-
+            android:name=".ui.ItemInformationActivity"
+            android:parentActivityName=".ui.ItemsMenuActivity"
+            android:exported="false" />
         <service
             android:name=".messaging.MyFCMMessagingService"
             android:exported="false">

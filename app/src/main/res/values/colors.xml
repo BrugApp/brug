@@ -22,4 +22,7 @@
     <color name="followingBg">#49BEFF</color>
     <color name="grey">#E5E5E5</color>
 
+    <color name="list_item_del_BG">#D65819</color>
+    <color name="chat_list_resolve_BG">#15B800</color>
+
 </resources>
