@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
         <activity
-            android:name=".AddItemActivity"
+            android:name=".ui.AddItemActivity"
             android:exported="false"
             android:parentActivityName=".ui.ItemsMenuActivity">
         </activity>
