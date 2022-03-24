@@ -44,12 +44,16 @@ android {
     buildFeatures {
         viewBinding true
     }
+    packagingOptions {
+        exclude "META-INF/DEPENDENCIES"
+    }
 }
 jacoco {
     toolVersion = "0.8.7"
 }
 
 dependencies {
+
     def lifecycle_version = "2.5.0-alpha04"
     def arch_version = "2.1.0"
 
@@ -132,6 +136,8 @@ dependencies {
 
     // For localisation
     implementation 'com.google.android.gms:play-services-location:19.0.1'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+
 }
 configurations.all{
     resolutionStrategy {
