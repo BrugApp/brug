@@ -19,6 +19,7 @@ class ChatViewModel : ViewModel() {
     }
 
     fun sendMessage(content: String){
+        // TODO: Change the sender text to something related to the actual user in the future
         val newMessage = ChatMessage(content, LocalDateTime.now(), "Me")
         messages.add(newMessage)
         adapter.notifyItemInserted(messages.size-1)
