@@ -32,7 +32,12 @@ class ChatActivityTest {
 
     @Test
     fun checkIfSendButtonIsPresent() {
-        onView(withId(R.id.buttonSendMessage)).check(matches(withText("Send")))
+        onView(withId(R.id.buttonSendMessage)).check(matches(withContentDescription("Send")))
+    }
+
+    @Test
+    fun checkIfSendLocalisationButtonIsPresent() {
+        onView(withId(R.id.buttonSendLocalisation)).check(matches(withContentDescription("Send localisation")))
     }
 
     // FUNCTIONALITY Tests
@@ -52,6 +57,21 @@ class ChatActivityTest {
                 `is`(instanceOf(Map::class.java)), hasEntry(
                     equalTo("STR"),
                     `is`("Sender: TestSender")
+                )
+            )
+        )
+    }
+
+    @Test
+    fun sendAndRetrieveLocalisationWorks() {
+        var sendLocalisationButton = onView(withId(R.id.buttonSendLocalisation)).perform(click())
+
+        // Check the localisation in message
+        onData(
+            allOf(
+                `is`(instanceOf(Map::class.java)), hasEntry(
+                    equalTo("STR"),
+                    `is`("Sender: Localisation service")
                 )
             )
         )
