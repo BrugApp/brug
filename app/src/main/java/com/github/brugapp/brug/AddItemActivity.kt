@@ -8,6 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.fake.MockDatabase
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 
 class AddItemActivity : AppCompatActivity() {
@@ -27,7 +28,7 @@ class AddItemActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_item)
 
         itemType = findViewById(R.id.itemTypeSpinner)
-        val types = arrayOf("Wallet", "Bag", "AirPods", "Phone", "Id", "Other")
+        val types = arrayOf("Wallet", "Keys","Car keys", "Phone", "Other")
         itemType.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, types)
 
         description = findViewById(R.id.itemDescription)
@@ -49,10 +50,22 @@ class AddItemActivity : AppCompatActivity() {
         }
     }
 
+    private fun stringToItemType(str:String):ItemType{
+        val type = when (str){
+            "Wallet" -> ItemType.Wallet
+            "Keys" -> ItemType.Keys
+            "Car keys" -> ItemType.CarKeys
+            "Phone" -> ItemType.Phone
+            else -> ItemType.Other
+        }
+        return type
+    }
+
     private fun addItemOnListener(){
         if(verifyForm()){
-            val itemId = 1
+            val itemId = 0
             val newItem = Item(itemNameView.text.toString(), itemId, description.text.toString())
+                .setType(stringToItemType(itemType.selectedItem.toString()))
             MockDatabase.currentUser.addItem(newItem)
 
             val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {  }

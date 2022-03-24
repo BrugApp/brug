@@ -52,10 +52,8 @@ class ItemsMenuActivity : AppCompatActivity() {
         val listView = findViewById<RecyclerView>(R.id.items_listview)
         val itemsListAdapter = ItemsListAdapter(model.getItemsList())
         { clickedItem ->
-            val intent = Intent(this, ItemInformationActivity::class.java)
-            intent.putExtra("image", clickedItem.getId())
-            intent.putExtra("title", clickedItem.getName())
-            intent.putExtra("description", clickedItem.getDescription())
+            val intent = Intent(this,ItemInformationActivity::class.java )
+            intent.putExtra("index",model.getItemsList().indexOf(clickedItem))
             startActivity(intent)
         }
 

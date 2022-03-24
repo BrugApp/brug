@@ -35,7 +35,7 @@ class AddItemTest {
     @Test
     fun spinnerItemTest(){
         val bagSpinnerIndex = 1
-        val bagItemName = "Bag"
+        val bagItemName = "Keys"
 
         val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
         itemTypeSpinner.perform(click())
@@ -125,14 +125,13 @@ class AddItemTest {
         onView(withId(R.id.add_item_button)).perform(click())
 
         val itemDescription = onView(withId(R.id.itemDescription))
-        val itemId = 1
 
-        val newItem = Item(itemName.toString(), itemId, itemDescription.toString())
-        var itemList = ArrayList<Item>()
+        val newItem = Item(itemName.toString(), 0, itemDescription.toString())
+        val itemList = ArrayList<Item>()
         itemList.add(newItem)
 
         //verify that the added item
-        assertThat(currentUser.getItemList()[0].getId(), Is(newItem.getId()))
+        assertThat(currentUser.getItemList().last().getName(), Is(validName))
     }
 
 

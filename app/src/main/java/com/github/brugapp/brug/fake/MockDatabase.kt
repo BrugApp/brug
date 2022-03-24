@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.fake
 
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
 
 class MockDatabase {
