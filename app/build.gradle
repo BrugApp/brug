@@ -41,12 +41,16 @@ android {
     buildFeatures {
         viewBinding true
     }
+    packagingOptions {
+        exclude "META-INF/DEPENDENCIES"
+    }
 }
 jacoco {
     toolVersion = "0.8.7"
 }
 
 dependencies {
+
     def lifecycle_version = "2.5.0-alpha04"
     def arch_version = "2.1.0"
 
@@ -127,6 +131,7 @@ dependencies {
 
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
 }
 configurations.all{
     resolutionStrategy {
