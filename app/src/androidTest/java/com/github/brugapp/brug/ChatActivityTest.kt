@@ -110,7 +110,7 @@ class ChatActivityTest {
 
 
 
-    /* OLD TESTS USING FIREBASE */
+    /* OLD TESTS USING FIREBASE -> COMMENTED TO BE REUSED WHEN FINAL DB IS PROPERLY SETUP */
     // DISPLAY Tests
 //    @Test
 //    fun checkIfReceiverFieldIsPresent() {
