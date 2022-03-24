@@ -1,25 +1,32 @@
 package com.github.brugapp.brug.view_model
 
-import android.annotation.SuppressLint
-import android.content.ContentValues
-import android.os.Build
-import android.util.Log
-import android.view.View
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
-import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
-import com.github.brugapp.brug.ui.ChatActivity
-import com.google.firebase.firestore.*
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class ChatViewModel : ViewModel() {
+    private lateinit var messages: MutableList<ChatMessage>
+    private lateinit var adapter: ChatMessagesListAdapter
 
+    fun initViewModel(messages: MutableList<ChatMessage>){
+        this.messages = messages
+        this.adapter = ChatMessagesListAdapter(messages)
+    }
+
+    fun getAdapter(): ChatMessagesListAdapter {
+        return adapter
+    }
+
+    fun sendMessage(content: String){
+        val newMessage = ChatMessage(content, LocalDateTime.now(), "Me")
+        messages.add(newMessage)
+        adapter.notifyItemInserted(messages.size-1)
+    }
+
+
+
+/* OLD IMPLEMENTATION USING FIREBASE -> TO BE REFACTORED PROPERLY AFTERWARDS
     // TODO: Have to be removed when the data.DataBase class is implemented
     private lateinit var db: FirebaseFirestore
 
@@ -95,4 +102,7 @@ class ChatViewModel : ViewModel() {
                 Log.w(ContentValues.TAG, "Error adding document", e)
             }
     }
+
+
+    */
 }

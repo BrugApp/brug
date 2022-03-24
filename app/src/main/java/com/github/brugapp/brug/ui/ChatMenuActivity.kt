@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -14,10 +15,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
-import com.github.brugapp.brug.view_model.ChatListAdapter
+import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
 import com.github.brugapp.brug.view_model.ListCallback
-import com.google.android.material.snackbar.Snackbar
 
 private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
 private const val SEARCH_HINT: String = "Search for a conversation…"
@@ -50,10 +50,11 @@ class ChatMenuActivity : AppCompatActivity() {
 
     private fun initChatList(model: ChatMenuViewModel) {
         val listView = findViewById<RecyclerView>(R.id.chat_listview)
-        val listViewAdapter = ChatListAdapter(model.getChatList()) {
-            Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show()
+
+        val listViewAdapter = ConversationListAdapter(model.getChatList()) { clickedConv ->
+            val intent = Intent(this, ChatActivity::class.java)
+            intent.putExtra("conversation", clickedConv)
+            startActivity(intent)
         }
 
         listView.layoutManager = LinearLayoutManager(this)
