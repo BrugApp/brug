@@ -48,16 +48,6 @@ class MyFCMMessagingService : FirebaseMessagingService() {
         sendNotification(this, messageTitle, messageBody)
     }
 
-//    private val view_package = "com.github.brugapp.brug"
-//    private fun notificationRemoteView(messageTitle: String, messageBody: String): RemoteViews {
-//        val remoteView = RemoteViews(view_package, R.layout.notification)
-//        remoteView.setTextViewText(R.id.notification_title, messageTitle)
-//        remoteView.setTextViewText(R.id.notification_text, messageBody)
-//        remoteView.setImageViewResource(R.id.unlost_logo, R.drawable.unlost_logo)
-//
-//        return remoteView
-//    }
-
     companion object {
         fun sendNotification(context: Context, messageTitle: String, messageBody: String) {
             val intent = Intent(context, MainActivity::class.java)
