@@ -29,9 +29,9 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(model: ChatViewModel) {
-        val conversation: Conversation = intent.getSerializableExtra("conversation") as Conversation
+        val conversation: Conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
 
-        val messageList = findViewById<RecyclerView>(R.id.recyclerView)
+        val messageList = findViewById<RecyclerView>(R.id.messagesList)
 
         model.initViewModel(conversation.messages)
 

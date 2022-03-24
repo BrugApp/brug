@@ -16,10 +16,7 @@ import androidx.test.uiautomator.UiDevice
 import org.hamcrest.Matchers.allOf
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.ui.ChatMenuActivity
-import com.github.brugapp.brug.ui.ItemInformationActivity
-import com.github.brugapp.brug.ui.ItemsMenuActivity
-import com.github.brugapp.brug.ui.QrCodeScannerActivity
+import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.view_model.ListViewHolder
 import org.hamcrest.core.IsEqual
 import org.junit.After
@@ -29,9 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
-private const val DUMMY_TEXT = "Actual behavior coming soon…"
-private const val DELETE_ITEM_TEXT: String = "Item has been deleted."
-private const val MOVE_ITEM_TEXT: String = "Item has been moved."
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
 
 
@@ -97,7 +91,7 @@ class ItemsMenuActivityTest {
         entryToSwipe.swipeLeft(50)
 
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(DELETE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(ITEMS_DELETE_TEXT))
     }
 
     @Test
@@ -113,7 +107,7 @@ class ItemsMenuActivityTest {
         entryToSwipe.swipeRight(50)
 
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(DELETE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(ITEMS_DELETE_TEXT))
     }
 
     @Test
@@ -134,7 +128,7 @@ class ItemsMenuActivityTest {
         entryToDrag.dragTo(0, finalDestination.bounds.centerY() - 50,40)
 
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(MOVE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(ITEMS_MOVE_TEXT))
     }
 
     @Test
@@ -154,7 +148,7 @@ class ItemsMenuActivityTest {
 
         entryToDrag.dragTo(0, finalDestination.bounds.centerY() + 50,40)
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(MOVE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(ITEMS_MOVE_TEXT))
     }
 
     @Test

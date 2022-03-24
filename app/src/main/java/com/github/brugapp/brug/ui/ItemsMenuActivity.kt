@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.AddItemActivity
+import com.github.brugapp.brug.DUMMY_TEXT
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
@@ -19,9 +20,9 @@ import com.github.brugapp.brug.view_model.ItemsMenuViewModel
 import com.github.brugapp.brug.view_model.ListCallback
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
-private const val SEARCH_HINT: String = "Search items here…"
-private const val DELETE_TEXT: String = "Item has been deleted."
+private const val ITEMS_SEARCH_HINT: String = "Search items here…"
+const val ITEMS_MOVE_TEXT: String = "Item has been moved."
+const val ITEMS_DELETE_TEXT: String = "Item has been deleted."
 
 class ItemsMenuActivity : AppCompatActivity() {
 
@@ -38,7 +39,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // For the searchbar when pressing on the top bar's search icon
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        customTopBar.inflateTopBar(menuInflater, menu, SEARCH_HINT)
+        customTopBar.inflateTopBar(menuInflater, menu, ITEMS_SEARCH_HINT)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -75,7 +76,7 @@ class ItemsMenuActivity : AppCompatActivity() {
             itemsListAdapter
         )
 
-        val listCallback = ListCallback(DELETE_TEXT, dragPair, swipePair, listAdapterPair)
+        val listCallback = ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair)
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
 
         listView.adapter = itemsListAdapter

@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.brugapp.brug.DUMMY_TEXT
+import com.github.brugapp.brug.MainActivity
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
@@ -19,9 +21,10 @@ import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
 import com.github.brugapp.brug.view_model.ListCallback
 
-private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
-private const val SEARCH_HINT: String = "Search for a conversation…"
-private const val CHECK_TEXT: String = "The conversation has been marked as resolved."
+const val CHAT_SEARCH_HINT: String = "Search for a conversation…"
+const val CHAT_CHECK_TEXT: String = "The conversation has been marked as resolved."
+
+const val CHAT_INTENT_KEY = "conversation"
 
 
 class ChatMenuActivity : AppCompatActivity() {
@@ -38,7 +41,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
     // Initializing the top-bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        customTopBar.inflateTopBar(menuInflater, menu, SEARCH_HINT)
+        customTopBar.inflateTopBar(menuInflater, menu, CHAT_SEARCH_HINT)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -53,7 +56,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
         val listViewAdapter = ConversationListAdapter(model.getChatList()) { clickedConv ->
             val intent = Intent(this, ChatActivity::class.java)
-            intent.putExtra("conversation", clickedConv)
+            intent.putExtra(CHAT_INTENT_KEY, clickedConv)
             startActivity(intent)
         }
 
@@ -72,7 +75,7 @@ class ChatMenuActivity : AppCompatActivity() {
             listViewAdapter
         )
 
-        val listCallback = ListCallback(CHECK_TEXT, dragPair, swipePair, listAdapterPair)
+        val listCallback = ListCallback(CHAT_CHECK_TEXT, dragPair, swipePair, listAdapterPair)
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
         listView.adapter = listViewAdapter
 
