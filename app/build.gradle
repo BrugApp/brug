@@ -51,8 +51,6 @@ jacoco {
 
 dependencies {
 
-
-//    implementation 'androidx.work:work-runtime-ktx:2.5.0'
     def lifecycle_version = "2.5.0-alpha04"
     def arch_version = "2.1.0"
 

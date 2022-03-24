@@ -57,4 +57,5 @@
     <string name="default_notification_channel_id">fcm_default_channel</string>
     <string name="default_notification_channel_name">Weather</string>
     <string name="fcm_message">FCM Message</string>
+    <string name="unlost_logo">logo_description</string>
 </resources>
