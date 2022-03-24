@@ -18,4 +18,5 @@ class ReportItemTest {
         onView(withId(R.id.report_item_button))
             .perform(ViewActions.click())
     }
+
 }
