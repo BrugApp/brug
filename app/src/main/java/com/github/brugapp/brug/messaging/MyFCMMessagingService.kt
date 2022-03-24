@@ -24,7 +24,7 @@ class MyFCMMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Check if message contains a notification payload.
         remoteMessage.notification?.let {
-            sendNotification(it.title!!, it.body!!)
+            sendNotification(this, it.title!!, it.body!!)
         }
     }
 
@@ -33,22 +33,17 @@ class MyFCMMessagingService : FirebaseMessagingService() {
      * the previous token had been compromised. Note that this is called when the
      * FCM registration token is initially generated so this is where you would retrieve the token.
      */
-    override fun onNewToken(token: String) {
-//         If you want to send messages to this application instance or
-//         manage this apps subscriptions on the server side, send the
-//         FCM registration token to your app server.
-    }
+    override fun onNewToken(token: String){}
 
-    /**
-     * Create and show a simple notification containing the received FCM message.
-     *
-     * @param messageBody FCM message body received.
-     */
-    private fun sendNotification(messageTitle: String, messageBody: String) {
-        sendNotification(this, messageTitle, messageBody)
-    }
 
     companion object {
+        /**
+         * Create and show a simple notification containing the received FCM message.
+         *
+         * @param context application context.
+         * @param messageTitle FCM message title received.
+         * @param messageBody FCM message body received.
+         */
         fun sendNotification(context: Context, messageTitle: String, messageBody: String) {
             val intent = Intent(context, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -58,8 +53,18 @@ class MyFCMMessagingService : FirebaseMessagingService() {
             val channelId = context.getString(R.string.default_notification_channel_id)
             val channelName = context.getString(R.string.default_notification_channel_name)
 
-            val notificationBuilder = createNotificationBuilder(context, channelId,
-                messageTitle, messageBody, pendingIntent)
+            val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val iconBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.unlost_logo)
+            val notificationBuilder = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setLargeIcon(iconBitmap)
+                .setVibrate(longArrayOf(1000))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentTitle(messageTitle)
+                .setContentText(messageBody)
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setContentIntent(pendingIntent)
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
                     as NotificationManager
@@ -78,26 +83,6 @@ class MyFCMMessagingService : FirebaseMessagingService() {
                     NotificationManager.IMPORTANCE_HIGH)
                 notificationManager.createNotificationChannel(channel)
             }
-        }
-
-        private fun createNotificationBuilder(context: Context,
-                                              channelId: String,
-                                              messageTitle: String,
-                                              messageBody: String,
-                                              pendingIntent: PendingIntent): NotificationCompat.Builder {
-
-            val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-            val iconBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.unlost_logo)
-            return NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setLargeIcon(iconBitmap)
-                .setVibrate(longArrayOf(1000))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentTitle(messageTitle)
-                .setContentText(messageBody)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent)
         }
     }
 

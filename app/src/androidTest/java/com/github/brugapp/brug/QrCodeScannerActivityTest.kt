@@ -43,6 +43,7 @@ class QrCodeScannerActivityTest {
         onView(withId(R.id.buttonReportItem))
             .perform(ViewActions.click())
         NotificationManagerCompat.from(ApplicationProvider.getApplicationContext()).cancelAll()
+        Thread.sleep(1000)
     }
 }
 

@@ -20,6 +20,7 @@ class ReportItemTest {
         onView(withId(R.id.report_item_button))
             .perform(ViewActions.click())
         NotificationManagerCompat.from(ApplicationProvider.getApplicationContext()).cancelAll()
+        Thread.sleep(1000)
     }
 
 }
