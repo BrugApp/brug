@@ -22,11 +22,6 @@ class FirebaseHelperTest {
     }
 
     @Test
-    fun getFirestoreTest() {
-        assertThat(helper.getFirestore(), `is`(firestore))
-    }
-
-    @Test
     fun getCurrentUserTest() {
         assertThat(helper.getCurrentUser(), `is`(auth.currentUser))
     }

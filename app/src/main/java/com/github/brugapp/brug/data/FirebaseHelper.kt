@@ -20,11 +20,6 @@ class FirebaseHelper {
         return mAuth
     }
 
-    //returns Firestore database
-    fun getFirestore(): FirebaseFirestore {
-        return db
-    }
-
     //returns the current session's authenticated user
     fun getCurrentUser(): FirebaseUser? {
         return mAuth.currentUser
