@@ -7,6 +7,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.Matchers.*
 import org.junit.Rule
@@ -76,4 +77,12 @@ class ChatActivityTest {
             )
         )
     }
+
+    // TODO: See with the team if granting permissions only during tests is a good idea (better coverage)
+    //@get:Rule var permissionRule1: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+    //@get:Rule var permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    //@Test
+    //fun localisationPermissionAsked() {
+    //    onView(withId(R.id.buttonSendLocalisation)).perform(click())
+    //}
 }

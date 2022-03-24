@@ -134,7 +134,7 @@ class ItemsMenuActivityTest {
         entryToDrag.dragTo(0, finalDestination.bounds.centerY() - 50,40)
 
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(MOVE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(DELETE_ITEM_TEXT))
     }
 
     @Test
@@ -154,7 +154,7 @@ class ItemsMenuActivityTest {
 
         entryToDrag.dragTo(0, finalDestination.bounds.centerY() + 50,40)
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(MOVE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(DELETE_ITEM_TEXT))
     }
 
     @Test
