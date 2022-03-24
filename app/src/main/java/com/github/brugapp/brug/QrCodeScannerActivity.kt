@@ -4,11 +4,13 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.budiyev.android.codescanner.*
+import com.github.brugapp.brug.messaging.MyFCMMessagingService
 
 private const val CAMERA_REQUEST_CODE = 101
 
@@ -23,6 +25,10 @@ class QrCodeScannerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_qr_code_scanner)
         checkPermission()
         codeScanner()
+
+        findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
+            displayReportNotification()
+        }
     }
     private fun checkPermission(){
         val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -63,6 +69,11 @@ class QrCodeScannerActivity : AppCompatActivity() {
     override fun onPause() {
         codeScanner.releaseResources()
         super.onPause()
+    }
+
+    private fun displayReportNotification() {
+        MyFCMMessagingService.sendNotification(this, "Item found",
+            "One of your Items was found !")
     }
 
 }
