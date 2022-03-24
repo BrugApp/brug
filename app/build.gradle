@@ -8,6 +8,9 @@ plugins {
 
 apply plugin: 'com.google.gms.google-services'
 
+// for localisation
+apply plugin: 'com.android.application'
+
 android {
     compileSdk 31
 
@@ -77,9 +80,7 @@ dependencies {
     // optional - Test helpers for LiveData
     testImplementation "androidx.arch.core:core-testing:$arch_version"
     implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0'
-    // (also needed for localisation)
     implementation "androidx.fragment:fragment-ktx:1.4.1"
-
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
@@ -90,10 +91,6 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.3.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-
-    // Localisation
-    implementation 'com.google.android.gms:play-services-location-ktx:19.0.1'
-    implementation 'androidx.activity:activity-ktx:1.4.0'
 
     // Declare the dependency for the Firebase Authentication library
     // When using the BoM, you don't  specify versions in Firebase library dependencies
@@ -132,6 +129,9 @@ dependencies {
 
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // For localisation
+    implementation 'com.google.android.gms:play-services-location:19.0.1'
 }
 configurations.all{
     resolutionStrategy {
