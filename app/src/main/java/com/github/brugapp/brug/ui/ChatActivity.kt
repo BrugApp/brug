@@ -9,7 +9,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -60,7 +59,6 @@ class ChatActivity : AppCompatActivity() {
         val buttonSendLocalisation = findViewById<ImageButton>(R.id.buttonSendLocalisation)
         buttonSendLocalisation.setOnClickListener {
             requestLocation()
-            //
         }
     }
 
@@ -69,21 +67,11 @@ class ChatActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun requestLocation() {
         // Check if permissions are given
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ), LOCATION_REQUEST
-            )
-        } else {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions( arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_REQUEST)}
+        else {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { lastKnownLocation: Location? ->
                     if (lastKnownLocation != null) foundLocation(lastKnownLocation)
