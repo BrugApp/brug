@@ -15,7 +15,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/unlost_logo"
-            android:contentDescription="@string/unlost_logo"/>
+            android:contentDescription="@string/unlost_logo_description"/>
 
         <TextView
             android:id="@+id/notification_title"
