@@ -23,7 +23,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="15dp"
             android:layout_toRightOf="@id/unlost_logo"
-            android:text="kskskskks"
+            android:text=""
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -34,7 +34,7 @@
             android:layout_below="@id/notification_title"
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@id/unlost_logo"
-            android:text="sidjkfkr"
+            android:text=""
             android:textSize="20sp" />
     </RelativeLayout>
 
