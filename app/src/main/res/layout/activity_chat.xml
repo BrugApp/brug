@@ -27,7 +27,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/messagesList"
         android:layout_width="416dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/editMessage"
