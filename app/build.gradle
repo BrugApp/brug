@@ -8,6 +8,9 @@ plugins {
 
 apply plugin: 'com.google.gms.google-services'
 
+// for localisation
+apply plugin: 'com.android.application'
+
 android {
     compileSdk 31
 
@@ -41,12 +44,16 @@ android {
     buildFeatures {
         viewBinding true
     }
+    packagingOptions {
+        exclude "META-INF/DEPENDENCIES"
+    }
 }
 jacoco {
     toolVersion = "0.8.7"
 }
 
 dependencies {
+
     def lifecycle_version = "2.5.0-alpha04"
     def arch_version = "2.1.0"
 
@@ -78,7 +85,6 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$arch_version"
     implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0'
     implementation "androidx.fragment:fragment-ktx:1.4.1"
-
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
@@ -127,6 +133,11 @@ dependencies {
 
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // For localisation
+    implementation 'com.google.android.gms:play-services-location:19.0.1'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+
 }
 configurations.all{
     resolutionStrategy {

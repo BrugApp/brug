@@ -7,6 +7,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.Matchers.*
 import org.junit.Rule
@@ -32,7 +33,12 @@ class ChatActivityTest {
 
     @Test
     fun checkIfSendButtonIsPresent() {
-        onView(withId(R.id.buttonSendMessage)).check(matches(withText("Send")))
+        onView(withId(R.id.buttonSendMessage)).check(matches(withContentDescription("Send")))
+    }
+
+    @Test
+    fun checkIfSendLocalisationButtonIsPresent() {
+        onView(withId(R.id.buttonSendLocalisation)).check(matches(withContentDescription("Send localisation")))
     }
 
     // FUNCTIONALITY Tests
@@ -56,4 +62,27 @@ class ChatActivityTest {
             )
         )
     }
+
+    @Test
+    fun sendAndRetrieveLocalisationWorks() {
+        var sendLocalisationButton = onView(withId(R.id.buttonSendLocalisation)).perform(click())
+
+        // Check the localisation in message
+        onData(
+            allOf(
+                `is`(instanceOf(Map::class.java)), hasEntry(
+                    equalTo("STR"),
+                    `is`("Sender: Localisation service")
+                )
+            )
+        )
+    }
+
+    // TODO: See with the team if granting permissions only during tests is a good idea (better coverage)
+    //@get:Rule var permissionRule1: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+    //@get:Rule var permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    //@Test
+    //fun localisationPermissionAsked() {
+    //    onView(withId(R.id.buttonSendLocalisation)).perform(click())
+    //}
 }
