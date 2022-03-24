@@ -16,10 +16,7 @@ import androidx.test.uiautomator.UiDevice
 import org.hamcrest.Matchers.allOf
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.ui.ChatMenuActivity
-import com.github.brugapp.brug.ui.ItemInformationActivity
-import com.github.brugapp.brug.ui.ItemsMenuActivity
-import com.github.brugapp.brug.ui.QrCodeScannerActivity
+import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.view_model.ListViewHolder
 import org.hamcrest.core.IsEqual
 import org.junit.After
