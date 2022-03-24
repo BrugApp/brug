@@ -4,10 +4,11 @@ import com.github.brugapp.brug.R
 import java.lang.IllegalArgumentException
 
 class Item// Generate the id later
-    (private var name: String, private var id: Int, private var description : String) {
+    (private var name: String, private var description : String, private var id : Int) {
 
     // add QR code attribute
     // add last localization attribute
+    // image_id attribute is for future use (with image type)
 
     private var lost: Boolean = false
     private var type:ItemType = ItemType.Other
@@ -60,7 +61,12 @@ class Item// Generate the id later
             ItemType.Phone -> R.drawable.ic_baseline_smartphone_24
             ItemType.Other -> R.drawable.ic_baseline_add_24
         }
+        println(iconId)
         return this
+    }
+
+    fun getIcon():Int{
+        return iconId
     }
 
     fun setDescription(description : String){

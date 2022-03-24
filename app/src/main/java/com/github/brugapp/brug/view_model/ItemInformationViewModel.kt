@@ -11,7 +11,7 @@ class ItemInformationViewModel: ViewModel() {
         this.item = item
         val hash: HashMap<String,String> = HashMap()
         hash["title"] = item.getName()
-        hash["image"] = item.getId().toString()
+        hash["image"] = item.getIcon().toString()
         hash["description"] = item.getDescription()
         hash["isLost"] = item.isLost().toString()
         return hash

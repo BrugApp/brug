@@ -11,9 +11,12 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
-import com.github.brugapp.brug.AddItemActivity.Companion.DESCRIPTION_LIMIT
 import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
+import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
+import com.github.brugapp.brug.ui.AddItemActivity
+import com.github.brugapp.brug.ui.DESCRIPTION_LIMIT
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import org.hamcrest.CoreMatchers.`is` as Is
 import org.hamcrest.MatcherAssert.*
@@ -112,7 +115,6 @@ class AddItemTest {
     //JUnit test to move to JUnit tests
     @Test
     fun itemAddedAfterValidForm(){
-
         val validName = "Wallet"
         val itemName = onView(withId(R.id.itemName))
         itemName.perform(typeText(validName))
@@ -126,13 +128,77 @@ class AddItemTest {
 
         val itemDescription = onView(withId(R.id.itemDescription))
 
-        val newItem = Item(itemName.toString(), 0, itemDescription.toString())
-        val itemList = ArrayList<Item>()
-        itemList.add(newItem)
+        val newItem = Item(itemName.toString(), itemDescription.toString(), itemId)
 
-        //verify that the added item
-        assertThat(currentUser.getItemList().last().getName(), Is(validName))
+        /* verify that the added item will always pass for now,
+        as all items have the same id, it will become a "real" test when ids are generated with the database
+         */
+        assertThat(currentUser.getItemList().last().getId(), Is(newItem.getId()))
+    }
+
+    @Test
+    fun addWalletCorrectIcon(){
+        val validName = "Wallet"
+        val itemName = onView(withId(R.id.itemName))
+        itemName.perform(typeText(validName))
+        itemName.perform(closeSoftKeyboard())
+        val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
+        itemTypeSpinner.perform(click())
+        onData(anything()).atPosition(ItemType.Wallet.ordinal).perform(click())
+        onView(withId(R.id.add_item_button)).perform(click())
+        assertThat(currentUser.getItemList().last().getIcon(), Is(R.drawable.ic_baseline_account_balance_wallet_24))
+    }
+
+    @Test
+    fun addKeysCorrectIcon(){
+        val validName = "Keys"
+        val itemName = onView(withId(R.id.itemName))
+        itemName.perform(typeText(validName))
+        itemName.perform(closeSoftKeyboard())
+        val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
+        itemTypeSpinner.perform(click())
+        onData(anything()).atPosition(ItemType.Keys.ordinal).perform(click())
+        onView(withId(R.id.add_item_button)).perform(click())
+        assertThat(currentUser.getItemList().last().getIcon(), Is(R.drawable.ic_baseline_vpn_key_24))
+    }
+
+    @Test
+    fun addCarKeysCorrectIcon(){
+        val validName = "Car Keys"
+        val itemName = onView(withId(R.id.itemName))
+        itemName.perform(typeText(validName))
+        itemName.perform(closeSoftKeyboard())
+        val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
+        itemTypeSpinner.perform(click())
+        onData(anything()).atPosition(ItemType.CarKeys.ordinal).perform(click())
+        onView(withId(R.id.add_item_button)).perform(click())
+        assertThat(currentUser.getItemList().last().getIcon(), Is(R.drawable.ic_baseline_car_rental_24))
     }
 
 
+    @Test
+    fun addPhoneCorrectIcon(){
+        val validName = "BigBoyPhone"
+        val itemName = onView(withId(R.id.itemName))
+        itemName.perform(typeText(validName))
+        itemName.perform(closeSoftKeyboard())
+        val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
+        itemTypeSpinner.perform(click())
+        onData(anything()).atPosition(ItemType.Phone.ordinal).perform(click())
+        onView(withId(R.id.add_item_button)).perform(click())
+        assertThat(currentUser.getItemList().last().getIcon(), Is(R.drawable.ic_baseline_smartphone_24))
+    }
+
+    @Test
+    fun addOtherCorrectIcon(){
+        val validName = "Dunno"
+        val itemName = onView(withId(R.id.itemName))
+        itemName.perform(typeText(validName))
+        itemName.perform(closeSoftKeyboard())
+        val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
+        itemTypeSpinner.perform(click())
+        onData(anything()).atPosition(ItemType.Other.ordinal).perform(click())
+        onView(withId(R.id.add_item_button)).perform(click())
+        assertThat(currentUser.getItemList().last().getIcon(), Is(R.drawable.ic_baseline_add_24))
+    }
 }
