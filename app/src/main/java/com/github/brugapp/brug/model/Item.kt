@@ -7,6 +7,7 @@ class Item// Generate the id later
 
     // add QR code attribute
     // add last localization attribute
+    // image_id attribute is for future use (with image type)
 
     init {
         if(name.isBlank()){
@@ -19,7 +20,7 @@ class Item// Generate the id later
     }
 
     fun getId() : Int{
-        return image_id
+        return id
     }
 
     fun getDescription() : String{
