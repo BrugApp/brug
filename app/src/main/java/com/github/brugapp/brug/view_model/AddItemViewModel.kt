@@ -2,15 +2,16 @@ package com.github.brugapp.brug.view_model
 
 import android.widget.*
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.fake.MockDatabase
+import com.github.brugapp.brug.R
+import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
+import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
 import com.github.brugapp.brug.model.Item
 
 class AddItemViewModel : ViewModel() {
 
     fun addItem(itemNameView : EditText, description : EditText){
-        val itemId = 1
-        val newItem = Item(itemNameView.text.toString(), itemId, description.text.toString())
-        MockDatabase.currentUser.addItem(newItem)
+        val newItem = Item(itemNameView.text.toString(), R.drawable.ic_baseline_add_24, description.text.toString(), itemId)
+        currentUser.addItem(newItem)
     }
 
     fun verifyForm(nameHelperText : TextView, itemNameView : EditText) : Boolean{
