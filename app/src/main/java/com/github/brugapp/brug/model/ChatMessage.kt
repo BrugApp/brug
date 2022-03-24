@@ -1,7 +1,6 @@
 package com.github.brugapp.brug.model
 
-data class ChatMessage(
-    val content: String? = null,
-    val datetime: String? = null,
-    val sender: String? = null
-)
+import java.io.Serializable
+import java.time.LocalDateTime
+
+data class ChatMessage(val content: String, val datetime: LocalDateTime, val sender: String): Serializable

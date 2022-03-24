@@ -45,11 +45,4 @@ class ChatListAdapter(
         return chatList.size
     }
 
-    /**
-     * Getter for the list of conversations.
-     */
-    fun getChatList(): MutableList<Conversation> {
-        return chatList
-    }
-
 }

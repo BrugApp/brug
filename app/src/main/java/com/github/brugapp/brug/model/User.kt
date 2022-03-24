@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.model
 
+import java.io.Serializable
 import java.util.regex.Pattern
 
 class User// later generate id
@@ -8,7 +9,7 @@ class User// later generate id
     private var lastName: String,
     private var email: String,
     private var id: String
-) {
+): Serializable {
     private var items: ArrayList<Item>
 
     init {

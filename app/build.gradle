@@ -34,6 +34,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -127,6 +128,9 @@ dependencies {
 
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'
+
+    // Enable LocalDateTime functions on older API level
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }
 configurations.all{
     resolutionStrategy {
