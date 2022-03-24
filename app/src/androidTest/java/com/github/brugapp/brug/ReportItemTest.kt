@@ -22,5 +22,4 @@ class ReportItemTest {
         NotificationManagerCompat.from(ApplicationProvider.getApplicationContext()).cancelAll()
         Thread.sleep(1000)
     }
-
 }
