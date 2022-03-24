@@ -1,10 +1,15 @@
 package com.github.brugapp.brug
 
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -33,7 +38,13 @@ class QrCodeScannerActivityTest {
             .check(matches((withHint("Report item…"))))
     }
 
-
+    @Test
+    fun reportButtonDisplaysNotificationWithoutCrashing(){
+        onView(withId(R.id.buttonReportItem))
+            .perform(ViewActions.click())
+        NotificationManagerCompat.from(ApplicationProvider.getApplicationContext()).cancelAll()
+        Thread.sleep(1000)
+    }
 }
 
 @RunWith(AndroidJUnit4::class)

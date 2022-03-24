@@ -35,7 +35,7 @@ class MainActivityTest {
     @get:Rule var permissionRule: GrantPermissionRule = GrantPermissionRule
         .grant(android.Manifest.permission.CAMERA)
 
-  @get:Rule
+    @get:Rule
     var rule = HiltAndroidRule(this)
 
 

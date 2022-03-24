@@ -103,7 +103,7 @@ class SignInActivityTestFake {
                 .check(matches(withText("Sign in to Unlost")))
             // check if contains sign in button
             onView(withId(R.id.sign_in_google_button))
-                .check(matches(ViewMatchers.isDisplayed()))
+                .check(matches(isDisplayed()))
         }
     }
 
