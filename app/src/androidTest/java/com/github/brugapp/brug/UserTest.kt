@@ -73,10 +73,9 @@ class UserTest {
 
         val validUser = User(firstName, lastName, email, id)
 
-        val newItem = Item("Wallet", 0, "Grey wallet")
+        val newItem = Item("Wallet", R.drawable.ic_baseline_add_24, "Grey wallet", 0)
+        var itemList = ArrayList<Item>(validUser.getItemList())
         validUser.addItem(newItem)
-
-        var itemList = ArrayList<Item>()
         itemList.add(newItem)
 
         assertThat(validUser.getItemList(), Is(itemList))

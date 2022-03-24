@@ -13,12 +13,11 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.DUMMY_TEXT
-import com.github.brugapp.brug.MainActivity
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
-import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
+import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.github.brugapp.brug.view_model.ListCallback
 
 const val CHAT_SEARCH_HINT: String = "Search for a conversation…"

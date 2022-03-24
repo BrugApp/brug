@@ -5,19 +5,22 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import org.hamcrest.Matchers.allOf
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
+import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.view_model.ListViewHolder
+import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
@@ -47,6 +50,25 @@ class ItemsMenuActivityTest {
     fun releaseIntents() {
         Intents.release()
     }
+
+    @Before
+    fun addItemsToUser() {
+        val phone = Item("Phone", R.drawable.ic_baseline_smartphone_24, "Samsung Galaxy S22", itemId)
+        val wallet = Item("Wallet", R.drawable.ic_baseline_account_balance_wallet_24, "With all my belongings", itemId)
+        val carKeys = Item("BMW Key", R.drawable.ic_baseline_car_rental_24, "BMW M3 F80 Competition", itemId)
+        val keys = Item("Keys", R.drawable.ic_baseline_vpn_key_24,"House and everything else", itemId)
+
+        currentUser.addItem(phone)
+        currentUser.addItem(wallet)
+        currentUser.addItem(carKeys)
+        currentUser.addItem(keys)
+    }
+
+    @After
+    fun deleteAddedItems() {
+        currentUser.getItemList().clear()
+    }
+
 
     @Test
     fun changingBottomNavBarMenuToItemsListKeepsFocus() {

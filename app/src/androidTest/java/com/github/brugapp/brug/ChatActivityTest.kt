@@ -32,7 +32,7 @@ import java.time.Month
 @RunWith(AndroidJUnit4::class)
 class ChatActivityTest {
     private val dummyUser = User("John", "Doe", "john@doe.com", "310200")
-    private val dummyItem = Item("DummyItem", 0, "Description")
+    private val dummyItem = Item("DummyItem", R.drawable.ic_baseline_smartphone_24, "Description", 0)
     private val dummyDate = LocalDateTime.of(
         2022, Month.MARCH, 23, 15, 30
     )
@@ -88,6 +88,28 @@ class ChatActivityTest {
                 atPosition(1, hasDescendant(withText(newMessageText)))
             ))
 
+        }
+    }
+
+    @Test
+    fun sendLocationCorrectlyAddsNewMessage(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val conversation = Conversation(
+            dummyUser, dummyItem, mutableListOf(dummyMessage)
+        )
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            val messagesList = onView(withId(R.id.messagesList))
+            onView(withId(R.id.buttonSendLocalisation)).perform(click())
+
+            messagesList.check(matches(
+                atPosition(1, hasDescendant(withText("Location")))
+            ))
         }
     }
 
@@ -148,4 +170,47 @@ class ChatActivityTest {
 //            )
 //        )
 //    }
-}
+//    @Test
+//    fun sendAndRetrieveMessageWorks() {
+//        // Enter data in fields
+//        onView(withId(R.id.editName)).perform(typeText("TestSender"))
+//        closeSoftKeyboard()
+//        onView(withId(R.id.editMessage)).perform(typeText("TestMessage"))
+//        closeSoftKeyboard()
+//
+//        var sendButton = onView(withId(R.id.buttonSendMessage)).perform(click())
+//
+//        // Check the message
+//        onData(
+//            allOf(
+//                `is`(instanceOf(Map::class.java)), hasEntry(
+//                    equalTo("STR"),
+//                    `is`("Sender: TestSender")
+//                )
+//            )
+//        )
+//    }
+//
+//    @Test
+//    fun sendAndRetrieveLocalisationWorks() {
+//        var sendLocalisationButton = onView(withId(R.id.buttonSendLocalisation)).perform(click())
+//
+//        // Check the localisation in message
+//        onData(
+//            allOf(
+//                `is`(instanceOf(Map::class.java)), hasEntry(
+//                    equalTo("STR"),
+//                    `is`("Sender: Localisation service")
+//                )
+//            )
+//        )
+    }
+
+    // TODO: See with the team if granting permissions only during tests is a good idea (better coverage)
+    //@get:Rule var permissionRule1: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+    //@get:Rule var permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    //@Test
+    //fun localisationPermissionAsked() {
+    //    onView(withId(R.id.buttonSendLocalisation)).perform(click())
+    //}
+//}

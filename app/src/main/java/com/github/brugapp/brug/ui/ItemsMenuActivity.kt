@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.AddItemActivity
 import com.github.brugapp.brug.DUMMY_TEXT
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.components.BottomNavBar
@@ -54,7 +53,7 @@ class ItemsMenuActivity : AppCompatActivity() {
         val itemsListAdapter = ItemsListAdapter(model.getItemsList())
         { clickedItem ->
             val intent = Intent(this, ItemInformationActivity::class.java)
-            intent.putExtra("image", clickedItem.getId())
+            intent.putExtra("image", clickedItem.getImage())
             intent.putExtra("title", clickedItem.getName())
             intent.putExtra("description", clickedItem.getDescription())
             startActivity(intent)
@@ -86,7 +85,7 @@ class ItemsMenuActivity : AppCompatActivity() {
         val addButton = findViewById<FloatingActionButton>(R.id.add_new_item_button)
 
         addButton.setOnClickListener{
-            val myIntent = Intent(this, AddItemActivity::class.java).apply {  }
+            val myIntent = Intent(this, AddItemActivity::class.java)
             startActivity(myIntent)
         }
     }

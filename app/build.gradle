@@ -8,6 +8,9 @@ plugins {
 
 apply plugin: 'com.google.gms.google-services'
 
+// for localisation
+apply plugin: 'com.android.application'
+
 android {
     compileSdk 31
 
@@ -42,13 +45,16 @@ android {
     buildFeatures {
         viewBinding true
     }
+    packagingOptions {
+        exclude "META-INF/DEPENDENCIES"
+    }
 }
 jacoco {
     toolVersion = "0.8.7"
 }
 
 dependencies {
-    def lifecycle_version = "2.5.0-alpha04"
+    def lifecycle_version = "2.5.0-alpha05"
     def arch_version = "2.1.0"
 
     // ViewModel
@@ -100,7 +106,7 @@ dependencies {
 
     implementation "com.google.dagger:hilt-android:2.38.1"
     implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.0.2'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.1.0'
     kapt "com.google.dagger:hilt-compiler:2.38.1"
     testImplementation 'junit:junit:4.13.2'
 
@@ -131,6 +137,11 @@ dependencies {
 
     // Enable LocalDateTime functions on older API level
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+
+    // For localisation
+    implementation 'com.google.android.gms:play-services-location:19.0.1'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+
 }
 configurations.all{
     resolutionStrategy {

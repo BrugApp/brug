@@ -6,35 +6,60 @@
     android:layout_height="match_parent"
     tools:context=".ui.ChatActivity">
 
-    <EditText
-        android:id="@+id/editMessage"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:autofillHints=""
-        android:ems="10"
-        android:hint="@string/message"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/buttonSendMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/send"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messagesList"
         android:layout_width="416dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/editMessage"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.628" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <EditText
+            android:id="@+id/editMessage"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:autofillHints=""
+            android:ems="10"
+            android:hint="@string/message"
+            android:inputType="textPersonName"
+            android:textColorHint="#757575"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSendLocalisation"
+            android:layout_weight="1"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/buttonSendLocalisation"
+            style="@android:style/Widget.Holo.ImageButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:contentDescription="@string/send_localisation"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
+            app:srcCompat="@drawable/ic_baseline_location_on_24" />
+
+        <ImageButton
+            android:id="@+id/buttonSendMessage"
+            style="@android:style/Widget.Holo.ImageButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:contentDescription="@string/send"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_baseline_send_24" />
+    </LinearLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

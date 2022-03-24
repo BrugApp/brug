@@ -4,10 +4,11 @@ import java.io.Serializable
 import java.lang.IllegalArgumentException
 
 class Item// Generate the id later
-    (private var name: String, private var id: Int, private var description : String): Serializable {
+    (private var name: String, private var image_id: Int, private var description : String, private var id : Int): Serializable {
 
     // add QR code attribute
     // add last localization attribute
+    // image_id attribute is for future use (with image type)
 
     init {
         if(name.isBlank()){
@@ -17,6 +18,10 @@ class Item// Generate the id later
 
     fun getName() : String{
         return name
+    }
+
+    fun getImage(): Int{
+        return image_id
     }
 
     fun getId() : Int{
