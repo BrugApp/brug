@@ -52,14 +52,43 @@ class MyFCMMessagingService : FirebaseMessagingService() {
         fun sendNotification(context: Context, messageTitle: String, messageBody: String) {
             val intent = Intent(context, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            val pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
+            val pendingIntent = PendingIntent.getActivity(context, 0, intent,
                 PendingIntent.FLAG_IMMUTABLE)
 
             val channelId = context.getString(R.string.default_notification_channel_id)
             val channelName = context.getString(R.string.default_notification_channel_name)
+
+            val notificationBuilder = createNotificationBuilder(context, channelId,
+                messageTitle, messageBody, pendingIntent)
+
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                    as NotificationManager
+
+            initChannel(channelId, channelName, notificationManager)
+
+            notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
+
+        }
+
+        private fun initChannel(channelId: String, channelName: String, notificationManager: NotificationManager) {
+            // Since android Oreo notification channel is needed.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(channelId,
+                    channelName,
+                    NotificationManager.IMPORTANCE_HIGH)
+                notificationManager.createNotificationChannel(channel)
+            }
+        }
+
+        private fun createNotificationBuilder(context: Context,
+                                              channelId: String,
+                                              messageTitle: String,
+                                              messageBody: String,
+                                              pendingIntent: PendingIntent): NotificationCompat.Builder {
+
             val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val iconBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.unlost_logo)
-            val notificationBuilder = NotificationCompat.Builder(context, channelId)
+            return NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setLargeIcon(iconBitmap)
                 .setVibrate(longArrayOf(1000))
@@ -69,19 +98,6 @@ class MyFCMMessagingService : FirebaseMessagingService() {
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent)
-
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-            // Since android Oreo notification channel is needed.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(channelId,
-                    channelName,
-                    NotificationManager.IMPORTANCE_HIGH)
-                notificationManager.createNotificationChannel(channel)
-            }
-
-            notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
-
         }
     }
 

@@ -19,12 +19,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SettingsTest {
     @get:Rule
-    var settingsActivityRule = ActivityScenarioRule(SettingsActivity::class.java)
+    var mainActivityRule = ActivityScenarioRule(MainActivity::class.java)
 
     @Test
     fun endToEndSettingsTest() {
-//        onView(withId(R.id.mainHelloWorld)).check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
-//        onView(withId(R.id.action_settings)).perform(click())
+        onView(withId(R.id.mainHelloWorld)).check(ViewAssertions.matches(ViewMatchers.withText("Welcome to Unlost!")))
+        onView(withId(R.id.action_settings)).perform(click())
         onView(withId(R.id.titleSettings)).check(ViewAssertions.matches(ViewMatchers.withText("Settings")))
     }
 }
