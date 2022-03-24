@@ -70,7 +70,6 @@ class ItemsMenuActivityTest {
         val chatMenuButton = onView(withId(R.id.chat_menu_button))
         chatMenuButton.perform(click()).check(matches(isEnabled()))
         intended(hasComponent(ChatMenuActivity::class.java.name))
-
     }
 
     @Test

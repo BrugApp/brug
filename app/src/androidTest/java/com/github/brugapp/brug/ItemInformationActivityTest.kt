@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
 class ItemInformationActivityTest{
 
     private val str = "no information yet"
-    private val itemsViewModel = (Item("Phone", R.drawable.ic_baseline_smartphone_24,"Samsung Galaxy S22"))
+    private val itemsViewModel = Item("Phone", R.drawable.ic_baseline_smartphone_24,"Samsung Galaxy S22",0)
     val intent = Intent(
         ApplicationProvider.getApplicationContext(),
         ItemInformationActivity::class.java
