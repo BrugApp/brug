@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.AddItemViewModel
 
+const val DESCRIPTION_LIMIT = 60
+
 class AddItemActivity : AppCompatActivity() {
 
     private lateinit var itemType : Spinner
@@ -19,10 +21,6 @@ class AddItemActivity : AppCompatActivity() {
     private lateinit var nameHelperText : TextView
 
     private val viewModel: AddItemViewModel by viewModels()
-
-    companion object {
-        const val DESCRIPTION_LIMIT = 60
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +40,6 @@ class AddItemActivity : AppCompatActivity() {
 
         nameHelperText = findViewById(R.id.itemNameHelper)
 
-
         addButton = findViewById(R.id.add_item_button)
         addButton.setOnClickListener {
             addItemOnListener()
@@ -53,10 +50,9 @@ class AddItemActivity : AppCompatActivity() {
         if(viewModel.verifyForm(nameHelperText, itemNameView)){
             nameHelperText.text = getString(R.string.required)
             viewModel.addItem(itemNameView, description)
-            val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {  }
+            val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)
         }
     }
-
 
 }

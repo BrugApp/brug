@@ -36,11 +36,8 @@ class AddItemViewModel : ViewModel() {
 
      private fun validName(itemNameView : EditText): String {
         val nameText = itemNameView.text.toString()
-        if(nameText.isEmpty()){
-            return "Name must contain at least 1 character"
-        }
 
-        return ""
+        return if(nameText.isEmpty()) "Name must contain at least 1 character" else ""
     }
 
 
