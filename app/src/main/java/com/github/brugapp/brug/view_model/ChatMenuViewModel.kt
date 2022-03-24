@@ -3,7 +3,9 @@ package com.github.brugapp.brug.view_model
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
+import java.time.LocalDateTime
 
 /**
  * ViewModel of the Chat Menu UI, handling its UI logic.
@@ -18,27 +20,31 @@ class ChatMenuViewModel : ViewModel() {
         return mutableListOf(
             Conversation(
                 User("Anna", "Rosenberg", "anna@rosenberg.com", "123456"),
-                listOf(ChatMessage(
-                    "Me: Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne",
-                    "2022.03.19",
+                Item("AirPods", 0, "My beloved AirPods"),
+                mutableListOf(ChatMessage(
+                    "Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne",
+                    LocalDateTime.now(),
                     "Me"))),
             Conversation(
                 User("Henry", "Crawford", "crawform@services.co.uk", "129271"),
-                listOf(ChatMessage(
+                Item("Wallet", 0, "With all my belongings"),
+                mutableListOf(ChatMessage(
                     "Hey ! I might have found your wallet yesterday near the EPFL campus",
-                    "2022.03.19",
+                    LocalDateTime.now(),
                     "Henry"))),
             Conversation(
                 User("Jenna", "Hewitt", "jenna.hewitt@epfl.ch", "310827"),
-                listOf(ChatMessage(
+                Item("Keys", 0, "Home keys"),
+                mutableListOf(ChatMessage(
                     "Fine, lets meet on Saturday then !",
-                    "2022.03.19",
+                    LocalDateTime.now(),
                     "Me"))),
             Conversation(
                 User("John", "Newmann", "john@microsoft.com", "1892122"),
-                listOf(ChatMessage(
+                Item("Laptop", 0, "MacBook Pro"),
+                mutableListOf(ChatMessage(
                     "Give me my money back you thief !!!",
-                    "2022.03.19",
+                    LocalDateTime.now(),
                     "John")))
         )
     }
