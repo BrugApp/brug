@@ -16,16 +16,14 @@ import androidx.test.uiautomator.UiDevice
 import org.hamcrest.Matchers.allOf
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.ui.ChatMenuActivity
-import com.github.brugapp.brug.ui.ItemInformationActivity
-import com.github.brugapp.brug.ui.ItemsMenuActivity
-import com.github.brugapp.brug.ui.QrCodeScannerActivity
+import com.github.brugapp.brug.fake.MockDatabase
+import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
+import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
+import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.view_model.ListViewHolder
 import org.hamcrest.core.IsEqual
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import java.io.IOException
 
@@ -54,6 +52,25 @@ class ItemsMenuActivityTest {
         Intents.release()
     }
 
+    @Before
+    fun addItemsToUser() {
+        val phone = Item("Phone", R.drawable.ic_baseline_smartphone_24, "Samsung Galaxy S22", itemId)
+        val wallet = Item("Wallet", R.drawable.ic_baseline_account_balance_wallet_24, "With all my belongings", itemId)
+        val carKeys = Item("BMW Key", R.drawable.ic_baseline_car_rental_24, "BMW M3 F80 Competition", itemId)
+        val keys = Item("Keys", R.drawable.ic_baseline_vpn_key_24,"House and everything else", itemId)
+
+        currentUser.addItem(phone)
+        currentUser.addItem(wallet)
+        currentUser.addItem(carKeys)
+        currentUser.addItem(keys)
+    }
+
+    @After
+    fun deleteAddedItems() {
+        currentUser.getItemList().clear()
+    }
+
+
     @Test
     fun changingBottomNavBarMenuToItemsListKeepsFocus() {
         val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
@@ -73,7 +90,6 @@ class ItemsMenuActivityTest {
         val chatMenuButton = onView(withId(R.id.chat_menu_button))
         chatMenuButton.perform(click()).check(matches(isEnabled()))
         intended(hasComponent(ChatMenuActivity::class.java.name))
-
     }
 
     @Test
@@ -86,6 +102,7 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
+
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
