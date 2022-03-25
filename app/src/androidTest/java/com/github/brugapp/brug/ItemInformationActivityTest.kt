@@ -53,7 +53,6 @@ class ItemInformationActivityTest{
         ActivityScenario.launch<ItemInformationActivity>(intent).use {
             onView(ViewMatchers.withId(R.id.item_last_location)).check(matches(withText(str)))
             onView(ViewMatchers.withId(R.id.item_owner)).check(matches(withText(str)))
-            onView(ViewMatchers.withId(R.id.item_date)).check(matches(withText(str)))
         }
     }
 

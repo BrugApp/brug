@@ -25,7 +25,6 @@ class Item// Generate the id later
     }
 
     fun setLost(value:Boolean):Item{
-        this.name = "changed"
         this.lost = value
         return this
     }
@@ -61,7 +60,6 @@ class Item// Generate the id later
             ItemType.Phone -> R.drawable.ic_baseline_smartphone_24
             ItemType.Other -> R.drawable.ic_baseline_add_24
         }
-        println(iconId)
         return this
     }
 

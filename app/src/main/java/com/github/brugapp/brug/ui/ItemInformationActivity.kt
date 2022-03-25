@@ -41,7 +41,6 @@ class ItemInformationActivity : AppCompatActivity() {
         setTextView(R.id.item_name, textSet["title"])
         setTextView(R.id.item_last_location, textSet["lastLocation"])
         setTextView(R.id.item_owner, textSet["owner"])
-        setTextView(R.id.item_date, textSet["addedOn"])
         setTextView(R.id.item_description, textSet["description"])
 
         //get and set the icon
