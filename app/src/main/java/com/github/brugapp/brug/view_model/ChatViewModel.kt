@@ -18,6 +18,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class ChatViewModel : ViewModel() {
+    // TODO: Have to be removed when the data.DataBase class is implemented
     private val helper = FirebaseHelper()
     private lateinit var chatArrayList: ArrayList<ChatMessage>
     private lateinit var adapter: ChatMessagesListAdapter
@@ -33,7 +34,8 @@ class ChatViewModel : ViewModel() {
 
     fun eventChangeListener(activity: ChatActivity) {
         // TODO: Change the document when ChatListActivity is implemented
-        helper.getMessageCollection("User1","User2")
+        // TODO: Update code to use data.Database when implemented
+        helper.getMessageCollection("UserID1","UserID2")
             .orderBy("datetime", Query.Direction.ASCENDING)
             .addSnapshotListener(object : EventListener<QuerySnapshot> {
                 @SuppressLint("NotifyDataSetChanged") // Used by the adapter
@@ -63,12 +65,12 @@ class ChatViewModel : ViewModel() {
             })
     }
 
-    @RequiresApi(Build.VERSION_CODES.O) // Used by LocalDateTime
+    @RequiresApi(Build.VERSION_CODES.O) // Required for datetime
     fun sendMessage(sender: String, content: String) {
+        // TODO: Change the document when ChatListActivity is implemented
+        // TODO: Update code to use data.Database when implemented
         // Compute timestamp
-        val current = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss")
-        val datetime: String = current.format(formatter)
+        val datetime: String = computeDateTime()
 
         // Create a new message
         val message = hashMapOf(
@@ -78,7 +80,42 @@ class ChatViewModel : ViewModel() {
         )
 
         // Add a new document i.e. message
-        helper.addDocumentMessage("User1","User2",message)
+        helper.addDocumentMessage("UserID1","UserID2",message)
+            .addOnSuccessListener { documentReference ->
+                Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(ContentValues.TAG, "Error adding document", e)
+            }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun computeDateTime(): String {
+        val current = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss")
+        return current.format(formatter)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O) // Required for datetime
+    fun sendLocalisation(longitude: Double, latitude: Double) {
+        // TODO: Change the document when ChatListActivity is implemented
+        // TODO: Update code to use data.Database when implemented
+        // Get localisation of user
+        val localisation: String
+        localisation = "longitude: $longitude; latitude: $latitude"
+
+        // Compute datetime
+        val datetime: String = computeDateTime()
+
+        // Create a message
+        val message = hashMapOf(
+            "sender" to "Localisation service",
+            "content" to localisation,
+            "datetime" to datetime
+        )
+
+        // Add a new document i.e. localisation
+        helper.addDocumentMessage("UserID1","UserID2",message)
             .addOnSuccessListener { documentReference ->
                 Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
             }
