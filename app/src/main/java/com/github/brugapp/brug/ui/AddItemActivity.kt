@@ -7,7 +7,6 @@ import android.text.InputFilter.LengthFilter
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.github.brugapp.brug.fake.MockDatabase
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.R
@@ -49,23 +48,11 @@ class AddItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun stringToItemType(str:String):ItemType{
-        val type = when (str){
-            "Wallet" -> ItemType.Wallet
-            "Keys" -> ItemType.Keys
-            "Car keys" -> ItemType.CarKeys
-            "Phone" -> ItemType.Phone
-            else -> ItemType.Other
-        }
-        return type
-    }
+
 
     private fun addItemOnListener(){
         if(viewModel.verifyForm(nameHelperText,itemNameView)){
-            val itemId = 0
-            val newItem = Item(itemNameView.text.toString(), description.text.toString(),itemId)
-                .setType(stringToItemType(itemType.selectedItem.toString()))
-            MockDatabase.currentUser.addItem(newItem)
+            viewModel.addItem(itemNameView,description,itemType)
 
             val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {  }
             startActivity(myIntent)

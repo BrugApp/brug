@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.Button
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.messaging.MyFCMMessagingService
-import com.google.android.gms.common.SignInButton
 
 class ReportItemActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

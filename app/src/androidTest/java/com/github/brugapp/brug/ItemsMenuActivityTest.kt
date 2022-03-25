@@ -16,7 +16,6 @@ import androidx.test.uiautomator.UiDevice
 import org.hamcrest.Matchers.allOf
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.fake.MockDatabase
 import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
 import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
 import com.github.brugapp.brug.model.Item
