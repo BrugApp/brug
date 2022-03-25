@@ -16,9 +16,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import com.github.brugapp.brug.ui.ChatMenuActivity
-import com.github.brugapp.brug.ui.ItemsMenuActivity
-import com.github.brugapp.brug.ui.QrCodeScannerActivity
+import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.view_model.ListViewHolder
 import org.hamcrest.core.IsEqual
 import org.junit.After
@@ -27,9 +25,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-
-private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
-private const val DELETE_CHAT_TEXT = "The conversation has been marked as resolved."
 
 @RunWith(AndroidJUnit4::class)
 class ChatMenuActivityTest {
@@ -90,7 +85,7 @@ class ChatMenuActivityTest {
                 )
             )
         )
-        snackBar.check(matches(withText(DELETE_CHAT_TEXT)))
+        snackBar.check(matches(withText(CHAT_CHECK_TEXT)))
     }
 
     @Test
@@ -106,19 +101,18 @@ class ChatMenuActivityTest {
                 )
             )
         )
-        snackBar.check(matches(withText(DELETE_CHAT_TEXT)))
+        snackBar.check(matches(withText(CHAT_CHECK_TEXT)))
     }
 
     @Test
-    fun clickOnItemTriggersSnackBar() {
+    fun clickOnItemGoesToChatActivity() {
         val chatList = onView(withId(R.id.chat_listview))
-        val snackbar = onView(withId(com.google.android.material.R.id.snackbar_text))
         chatList.perform(
             RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
                 1, click()
             )
         )
-        snackbar.check(matches(withText(DUMMY_TEXT)))
+        intended(hasComponent(ChatActivity::class.java.name))
     }
 
 

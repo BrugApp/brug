@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -11,17 +12,18 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.brugapp.brug.DUMMY_TEXT
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
-import com.github.brugapp.brug.view_model.ChatListAdapter
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
+import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.github.brugapp.brug.view_model.ListCallback
-import com.google.android.material.snackbar.Snackbar
 
-private const val DUMMY_TEXT: String = "Actual behavior coming soon…"
-private const val SEARCH_HINT: String = "Search for a conversation…"
-private const val CHECK_TEXT: String = "The conversation has been marked as resolved."
+const val CHAT_SEARCH_HINT: String = "Search for a conversation…"
+const val CHAT_CHECK_TEXT: String = "The conversation has been marked as resolved."
+
+const val CHAT_INTENT_KEY = "conversation"
 
 
 class ChatMenuActivity : AppCompatActivity() {
@@ -38,7 +40,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
     // Initializing the top-bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        customTopBar.inflateTopBar(menuInflater, menu, SEARCH_HINT)
+        customTopBar.inflateTopBar(menuInflater, menu, CHAT_SEARCH_HINT)
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -50,10 +52,11 @@ class ChatMenuActivity : AppCompatActivity() {
 
     private fun initChatList(model: ChatMenuViewModel) {
         val listView = findViewById<RecyclerView>(R.id.chat_listview)
-        val listViewAdapter = ChatListAdapter(model.getChatList()) {
-            Snackbar.make(window.decorView, DUMMY_TEXT, Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .show()
+
+        val listViewAdapter = ConversationListAdapter(model.getChatList()) { clickedConv ->
+            val intent = Intent(this, ChatActivity::class.java)
+            intent.putExtra(CHAT_INTENT_KEY, clickedConv)
+            startActivity(intent)
         }
 
         listView.layoutManager = LinearLayoutManager(this)
@@ -71,7 +74,7 @@ class ChatMenuActivity : AppCompatActivity() {
             listViewAdapter
         )
 
-        val listCallback = ListCallback(CHECK_TEXT, dragPair, swipePair, listAdapterPair)
+        val listCallback = ListCallback(CHAT_CHECK_TEXT, dragPair, swipePair, listAdapterPair)
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
         listView.adapter = listViewAdapter
 
