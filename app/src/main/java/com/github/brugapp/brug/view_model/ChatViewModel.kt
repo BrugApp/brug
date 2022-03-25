@@ -34,7 +34,6 @@ class ChatViewModel : ViewModel() {
 
     fun eventChangeListener(activity: ChatActivity) {
         // TODO: Change the document when ChatListActivity is implemented
-        // TODO: Update code to use data.Database when implemented
         helper.getMessageCollection("UserID1","UserID2")
             .orderBy("datetime", Query.Direction.ASCENDING)
             .addSnapshotListener(object : EventListener<QuerySnapshot> {
