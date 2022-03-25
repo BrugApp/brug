@@ -10,7 +10,7 @@ import com.github.brugapp.brug.model.Conversation
 /**
  * Custom adapter class for the RecyclerView lists in ChatMenuActivity
  */
-class ChatListAdapter(
+class ConversationListAdapter(
     private val chatList: MutableList<Conversation>,
     private val onItemClicked: (Conversation) -> Unit
 ) : RecyclerView.Adapter<ListViewHolder>() {
@@ -35,7 +35,7 @@ class ChatListAdapter(
         // TODO: replace the hardcoded image ID by the ID of the profile-pic of user
         val lastMessage = listElement.messages.last()
         holder.icon.setImageResource(R.mipmap.ic_launcher)
-        holder.title.text = listElement.user.getFirstName()
+        holder.title.text = "${listElement.user.getFirstName()} ${listElement.user.getLastName()}"
         holder.desc.text = "${lastMessage.sender}: ${lastMessage.content}"
 
     }
@@ -43,13 +43,6 @@ class ChatListAdapter(
     // Returns the number of elements in the list
     override fun getItemCount(): Int {
         return chatList.size
-    }
-
-    /**
-     * Getter for the list of conversations.
-     */
-    fun getChatList(): MutableList<Conversation> {
-        return chatList
     }
 
 }

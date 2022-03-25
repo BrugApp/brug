@@ -1,10 +1,11 @@
 package com.github.brugapp.brug.model
 
 import com.github.brugapp.brug.R
+import java.io.Serializable
 import java.lang.IllegalArgumentException
 
 class Item// Generate the id later
-    (private var name: String, private var description : String, private var id : Int) {
+    (private var name: String, private var description : String, private var id : Int): Serializable {
 
     // add QR code attribute
     // add last localization attribute
@@ -32,6 +33,7 @@ class Item// Generate the id later
     fun getName() : String{
         return name
     }
+
 
     fun getId() : Int{
         return id

@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.model
 
+import java.io.Serializable
 import java.util.regex.Pattern
 
 class User// later generate id
@@ -8,8 +9,8 @@ class User// later generate id
     private var lastName: String,
     private var email: String,
     private var id: String
-) {
-    private var items: ArrayList<Item>
+): Serializable {
+    private var items: MutableList<Item>
 
     init {
         if (firstName.isBlank() || lastName.isBlank() || id.isBlank()) {
@@ -29,7 +30,12 @@ class User// later generate id
             throw IllegalArgumentException("Invalid email !")
 
         }
-        items = ArrayList()
+        items = mutableListOf(
+            Item("Phone", "Samsung Galaxy S22", 0).setType(ItemType.Phone),
+            Item("Wallet", "With all my belongings", 0).setType(ItemType.Wallet),
+            Item("BMW Key", "BMW M3 F80 Competition", 0).setType(ItemType.CarKeys),
+            Item("Keys","House and everything else", 0).setType(ItemType.Keys)
+        )
     }
 
     fun getFirstName(): String {
@@ -48,7 +54,7 @@ class User// later generate id
         return email
     }
 
-    fun getItemList(): ArrayList<Item> {
+    fun getItemList(): MutableList<Item> {
         return items
     }
 

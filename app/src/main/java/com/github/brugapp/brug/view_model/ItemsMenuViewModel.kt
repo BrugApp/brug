@@ -14,6 +14,7 @@ class ItemsMenuViewModel : ViewModel() {
      * Getter for the list of items.
      */
     fun getItemsList(): MutableList<Item> {
+//        MockDatabase.initUserItems()
         return MockDatabase.currentUser.getItemList()
     }
 }

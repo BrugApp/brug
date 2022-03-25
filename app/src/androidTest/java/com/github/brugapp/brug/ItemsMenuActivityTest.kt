@@ -5,15 +5,14 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import org.hamcrest.Matchers.allOf
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
@@ -21,14 +20,15 @@ import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.view_model.ListViewHolder
+import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsEqual
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
-private const val DUMMY_TEXT = "Actual behavior coming soon…"
-private const val DELETE_ITEM_TEXT: String = "Item has been deleted."
-private const val MOVE_ITEM_TEXT: String = "Item has been moved."
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
 
 
@@ -89,6 +89,7 @@ class ItemsMenuActivityTest {
         val chatMenuButton = onView(withId(R.id.chat_menu_button))
         chatMenuButton.perform(click()).check(matches(isEnabled()))
         intended(hasComponent(ChatMenuActivity::class.java.name))
+
     }
 
     @Test
@@ -101,7 +102,6 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
@@ -113,7 +113,7 @@ class ItemsMenuActivityTest {
         entryToSwipe.swipeLeft(50)
 
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(DELETE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(ITEMS_DELETE_TEXT))
     }
 
     @Test
@@ -129,7 +129,7 @@ class ItemsMenuActivityTest {
         entryToSwipe.swipeRight(50)
 
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(DELETE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(ITEMS_DELETE_TEXT))
     }
 
     @Test
@@ -150,7 +150,7 @@ class ItemsMenuActivityTest {
         entryToDrag.dragTo(0, finalDestination.bounds.centerY() - 50,40)
 
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(MOVE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(ITEMS_MOVE_TEXT))
     }
 
     @Test
@@ -170,7 +170,7 @@ class ItemsMenuActivityTest {
 
         entryToDrag.dragTo(0, finalDestination.bounds.centerY() + 50,40)
         val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-        assertThat(snackBarTextView.text, IsEqual(MOVE_ITEM_TEXT))
+        assertThat(snackBarTextView.text, IsEqual(ITEMS_MOVE_TEXT))
     }
 
     @Test
