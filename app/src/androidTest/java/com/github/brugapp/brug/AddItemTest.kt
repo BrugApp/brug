@@ -11,9 +11,11 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
-import com.github.brugapp.brug.AddItemActivity.Companion.DESCRIPTION_LIMIT
 import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
+import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.ui.AddItemActivity
+import com.github.brugapp.brug.ui.DESCRIPTION_LIMIT
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import org.hamcrest.CoreMatchers.`is` as Is
 import org.hamcrest.MatcherAssert.*
@@ -125,14 +127,13 @@ class AddItemTest {
         onView(withId(R.id.add_item_button)).perform(click())
 
         val itemDescription = onView(withId(R.id.itemDescription))
-        val itemId = 1
 
-        val newItem = Item(itemName.toString(), itemId, itemDescription.toString())
-        var itemList = ArrayList<Item>()
-        itemList.add(newItem)
+        val newItem = Item(itemName.toString(), R.drawable.ic_baseline_add_24, itemDescription.toString(), itemId)
 
-        //verify that the added item
-        assertThat(currentUser.getItemList()[0].getId(), Is(newItem.getId()))
+        /* verify that the added item will always pass for now,
+        as all items have the same id, it will become a "real" test when ids are generated with the database
+         */
+        assertThat(currentUser.getItemList().last().getId(), Is(newItem.getId()))
     }
 
 

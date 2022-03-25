@@ -11,7 +11,7 @@ class ItemTest {
     fun invalidNameItemTest() {
         val blankName = "    "
         val description = "Grey wallet"
-        Item(blankName, 1, description)
+        Item(blankName, R.drawable.ic_baseline_add_24, description, 1)
 
     }
 
@@ -19,7 +19,7 @@ class ItemTest {
     fun emptyNameItemTest() {
         val emptyName = ""
         val description = "Grey wallet"
-        Item(emptyName, 1, description)
+        Item(emptyName, R.drawable.ic_baseline_add_24, description, 1)
 
     }
 
@@ -28,7 +28,7 @@ class ItemTest {
         val itemName = "Wallet"
         val itemId = 1
         val description = "Grey wallet"
-        val validUser = Item(itemName, itemId, description)
+        val validUser = Item(itemName, R.drawable.ic_baseline_add_24, description, itemId)
 
         assertThat(validUser.getName(), Is(itemName))
 
@@ -39,7 +39,7 @@ class ItemTest {
         val itemName = "Wallet"
         val itemId = 1
         val description = "Grey wallet"
-        val validUser = Item(itemName, itemId, description)
+        val validUser = Item(itemName, R.drawable.ic_baseline_add_24, description, itemId)
 
         assertThat(validUser.getId(), Is(itemId))
 
@@ -50,7 +50,7 @@ class ItemTest {
         val itemName = "Wallet"
         val itemId = 1
         val description = "Grey wallet"
-        val validUser = Item(itemName, itemId, description)
+        val validUser = Item(itemName, R.drawable.ic_baseline_add_24, description, itemId)
 
         assertThat(validUser.getDescription(), Is(description))
 
@@ -61,7 +61,7 @@ class ItemTest {
         val itemName = "Wallet"
         val itemId = 1
         val description = "Grey wallet"
-        val validUser = Item(itemName, itemId, description)
+        val validUser = Item(itemName, R.drawable.ic_baseline_add_24, description, itemId)
 
         val invalidName = "    "
 
@@ -74,7 +74,7 @@ class ItemTest {
         val itemName = "Wallet"
         val itemId = 1
         val description = "Grey wallet"
-        val validUser = Item(itemName, itemId, description)
+        val validUser = Item(itemName, R.drawable.ic_baseline_add_24, description, itemId)
 
         val validName = "Bag"
 
@@ -88,7 +88,7 @@ class ItemTest {
         val itemName = "Wallet"
         val itemId = 1
         val description = "Grey wallet"
-        val validUser = Item(itemName, itemId, description)
+        val validUser = Item(itemName, R.drawable.ic_baseline_add_24, description, itemId)
 
         val newDescription = "Black wallet"
 
