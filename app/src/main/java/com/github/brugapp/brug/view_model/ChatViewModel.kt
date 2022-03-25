@@ -9,18 +9,17 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.firebase.firestore.*
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class ChatViewModel : ViewModel() {
     // TODO: Have to be removed when the data.DataBase class is implemented
-    private lateinit var db: FirebaseFirestore
+    private val helper = FirebaseHelper()
     private lateinit var chatArrayList: ArrayList<ChatMessage>
     private lateinit var adapter: ChatMessagesListAdapter
 
@@ -36,8 +35,7 @@ class ChatViewModel : ViewModel() {
     fun eventChangeListener(activity: ChatActivity) {
         // TODO: Change the document when ChatListActivity is implemented
         // TODO: Update code to use data.Database when implemented
-        db = Firebase.firestore
-        db.collection("Chat").document("User1User2").collection("Messages")
+        helper.getMessageCollection("UserID1","UserID2")
             .orderBy("datetime", Query.Direction.ASCENDING)
             .addSnapshotListener(object : EventListener<QuerySnapshot> {
                 @SuppressLint("NotifyDataSetChanged") // Used by the adapter
@@ -82,10 +80,7 @@ class ChatViewModel : ViewModel() {
         )
 
         // Add a new document i.e. message
-        db = Firebase.firestore
-        db.collection("Chat").document("User1User2")
-            .collection("Messages")
-            .add(message)
+        helper.addDocumentMessage("UserID1","UserID2",message)
             .addOnSuccessListener { documentReference ->
                 Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
             }
@@ -120,10 +115,7 @@ class ChatViewModel : ViewModel() {
         )
 
         // Add a new document i.e. localisation
-        db = Firebase.firestore
-        db.collection("Chat").document("User1User2")
-            .collection("Messages")
-            .add(message)
+        helper.addDocumentMessage("UserID1","UserID2",message)
             .addOnSuccessListener { documentReference ->
                 Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
             }
