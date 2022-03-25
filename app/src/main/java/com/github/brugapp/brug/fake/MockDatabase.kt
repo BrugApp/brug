@@ -6,6 +6,7 @@ class MockDatabase {
 
     companion object{
         val currentUser = User("Rayan", "Kikou", "rayan.kikou@gmail.com", "0")
+
         //TODO generate actual item id with the database
         var itemId = 0
     }

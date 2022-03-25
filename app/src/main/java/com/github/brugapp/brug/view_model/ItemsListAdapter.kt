@@ -26,7 +26,7 @@ class ItemsListAdapter(
     // Binds the list items to a view
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = itemsList[position]
-        holder.icon.setImageResource(listElement.getId())
+        holder.icon.setImageResource(listElement.getIcon())
         holder.title.text = listElement.getName()
         holder.desc.text = listElement.getDescription()
 
@@ -35,13 +35,6 @@ class ItemsListAdapter(
     // Returns the number of elements in the list
     override fun getItemCount(): Int {
         return itemsList.size
-    }
-
-    /**
-     * Getter for the list of items.
-     */
-    fun getItemsList(): MutableList<Item> {
-        return itemsList
     }
 
 }

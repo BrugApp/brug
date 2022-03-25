@@ -53,6 +53,7 @@
     <string name="receiver">Receiver</string>
     <string name="message">Message</string>
     <string name="send">Send</string>
+    <string name="is_lost">Is Lost</string>
     <string name="send_localisation">Send localisation</string>
     <string name="report_button_text">REPORT</string>
     <string name="default_notification_channel_id">fcm_default_channel</string>
