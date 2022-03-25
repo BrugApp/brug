@@ -113,6 +113,7 @@ class ChatActivityTest {
         ActivityScenario.launch<Activity>(intent).use {
             val messagesList = onView(withId(R.id.messagesList))
             onView(withId(R.id.buttonSendLocalisation)).perform(click())
+            onView(withId(R.id.buttonSendLocalisation)).perform(click())
 
             messagesList.check(matches(
                 atPosition(1, hasDescendant(withText("Location")))
