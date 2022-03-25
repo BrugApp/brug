@@ -53,10 +53,10 @@ class ItemsMenuActivityTest {
 
     @Before
     fun addItemsToUser() {
-        val phone = Item("Phone", R.drawable.ic_baseline_smartphone_24, "Samsung Galaxy S22", itemId)
-        val wallet = Item("Wallet", R.drawable.ic_baseline_account_balance_wallet_24, "With all my belongings", itemId)
-        val carKeys = Item("BMW Key", R.drawable.ic_baseline_car_rental_24, "BMW M3 F80 Competition", itemId)
-        val keys = Item("Keys", R.drawable.ic_baseline_vpn_key_24,"House and everything else", itemId)
+        val phone = Item("Phone", "Samsung Galaxy S22", itemId)
+        val wallet = Item("Wallet","With all my belongings", itemId)
+        val carKeys = Item("BMW Key", "BMW M3 F80 Competition", itemId)
+        val keys = Item("Keys","House and everything else", itemId)
 
         currentUser.addItem(phone)
         currentUser.addItem(wallet)

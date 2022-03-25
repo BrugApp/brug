@@ -73,7 +73,7 @@ class UserTest {
 
         val validUser = User(firstName, lastName, email, id)
 
-        val newItem = Item("Wallet", R.drawable.ic_baseline_add_24, "Grey wallet", 0)
+        val newItem = Item("Wallet", "Grey wallet", 0)
         var itemList = ArrayList<Item>(validUser.getItemList())
         validUser.addItem(newItem)
         itemList.add(newItem)

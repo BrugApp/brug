@@ -7,6 +7,8 @@ import android.text.InputFilter.LengthFilter
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.AddItemViewModel
 
@@ -27,7 +29,7 @@ class AddItemActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_item)
 
         itemType = findViewById(R.id.itemTypeSpinner)
-        val types = arrayOf("Wallet", "Bag", "AirPods", "Phone", "Id", "Other")
+        val types = arrayOf("Wallet", "Keys","Car keys", "Phone", "Other")
         itemType.adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, types)
 
         description = findViewById(R.id.itemDescription)
@@ -46,11 +48,13 @@ class AddItemActivity : AppCompatActivity() {
         }
     }
 
+
+
     private fun addItemOnListener(){
-        if(viewModel.verifyForm(nameHelperText, itemNameView)){
-            nameHelperText.text = getString(R.string.required)
-            viewModel.addItem(itemNameView, description)
-            val myIntent = Intent(this, ItemsMenuActivity::class.java)
+        if(viewModel.verifyForm(nameHelperText,itemNameView)){
+            viewModel.addItem(itemNameView,description,itemType)
+
+            val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {  }
             startActivity(myIntent)
         }
     }
