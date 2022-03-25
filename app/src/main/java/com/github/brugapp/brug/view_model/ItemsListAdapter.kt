@@ -26,7 +26,7 @@ class ItemsListAdapter(
     // Binds the list items to a view
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = itemsList[position]
-        holder.icon.setImageResource(listElement.getImage())
+        holder.icon.setImageResource(listElement.getIcon())
         holder.title.text = listElement.getName()
         holder.desc.text = listElement.getDescription()
 
