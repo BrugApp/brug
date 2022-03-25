@@ -15,6 +15,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
@@ -23,6 +24,7 @@ import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.Description
 import org.hamcrest.Matcher
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
@@ -31,6 +33,11 @@ import java.time.Month
 
 @RunWith(AndroidJUnit4::class)
 class ChatActivityTest {
+    @get:Rule
+    val permissionRule1: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+    @get:Rule
+    val permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+
     private val dummyUser = User("John", "Doe", "john@doe.com", "310200")
     private val dummyItem = Item("DummyItem", R.drawable.ic_baseline_smartphone_24, "Description", 0)
     private val dummyDate = LocalDateTime.of(
@@ -207,8 +214,7 @@ class ChatActivityTest {
     }
 
     // TODO: See with the team if granting permissions only during tests is a good idea (better coverage)
-    //@get:Rule var permissionRule1: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
-    //@get:Rule var permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+
     //@Test
     //fun localisationPermissionAsked() {
     //    onView(withId(R.id.buttonSendLocalisation)).perform(click())
