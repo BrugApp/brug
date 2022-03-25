@@ -8,6 +8,8 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.ui.*
 
+const val DUMMY_TEXT: String = "Actual behavior coming soon…"
+
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

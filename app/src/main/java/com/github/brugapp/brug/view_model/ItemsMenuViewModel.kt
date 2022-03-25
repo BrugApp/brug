@@ -1,7 +1,6 @@
 package com.github.brugapp.brug.view_model
 
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.R
 import com.github.brugapp.brug.fake.MockDatabase
 import com.github.brugapp.brug.model.Item
 
@@ -15,6 +14,7 @@ class ItemsMenuViewModel : ViewModel() {
      * Getter for the list of items.
      */
     fun getItemsList(): MutableList<Item> {
+//        MockDatabase.initUserItems()
         return MockDatabase.currentUser.getItemList()
     }
 }

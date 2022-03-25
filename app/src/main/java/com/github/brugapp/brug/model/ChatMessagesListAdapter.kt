@@ -6,9 +6,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 // Adapter that binds the list of messages to the instances of ChatItemModel
-class ChatMessagesListAdapter(private val messageList: ArrayList<ChatMessage>) :
+class ChatMessagesListAdapter(private val messageList: MutableList<ChatMessage>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
@@ -20,11 +22,16 @@ class ChatMessagesListAdapter(private val messageList: ArrayList<ChatMessage>) :
         val message: ChatMessage = messageList[position]
         holder.sender.text = message.sender
         holder.content.text = message.content
-        holder.datetime.text = message.datetime
+        holder.datetime.text = formatDateTime(message.datetime)
     }
 
     override fun getItemCount(): Int {
         return messageList.size
+    }
+
+    private fun formatDateTime(date: LocalDateTime): String {
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yy - HH:mm")
+        return date.format(formatter)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
