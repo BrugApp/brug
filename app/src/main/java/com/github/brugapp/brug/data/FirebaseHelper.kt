@@ -69,7 +69,13 @@ class FirebaseHelper {
         return getMessageCollection(userID1, userID2).add(message)
     }
 
-    // return new registerUser to add to FireBase
+    /*
+    Returns a User HashMap object that can be sent to FireBase
+    @param  emailtxt  the email of the user that we are building
+    @param  firstnametxt  the first name of the user that we are building
+    @param  lastnametxt the last name of the user that we are building
+    @return the User HashMap object with given parameters that can be sent to firebase
+    */
     fun createNewRegisterUser(emailtxt: String, firstnametxt: String, lastnametxt: String): HashMap<String, Any> {
         val user = getCurrentUser()
         val list = listOf<String>()
@@ -83,6 +89,15 @@ class FirebaseHelper {
         return userToAdd
     }
 
+    /*
+    Returns a Task<DocumentReference> that tries to create a new FireBase User
+    Toasts text corresponding to the task's success/failure
+    @param  emailtxt  the email of the user that we are building
+    @param  passwordtxt the password of the user that we are building
+    @param  firstnametxt  the first name of the user that we are building
+    @param  lastnametxt the last name of the user that we are building
+    @return the Task<DocumentReference> that tries to create a new FireBase User
+    */
     fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar, emailtxt: String, passwordtxt: String, firstnametxt: String, lastnametxt: String){
         mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
             .addOnCompleteListener { task ->
