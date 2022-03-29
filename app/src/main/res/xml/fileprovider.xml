@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-  
-</PreferenceScreen>
+<paths>
+    <!-- See table below.  The external-files-path DOES NOT require external storage permissions. -->
+    <external-files-path
+        name="images"
+        path="Pictures" />
+
+    <!--Uncomment below to share the entire application specific directory -->
+    <!--<external-path name="all_dirs" path="."/>-->
+</paths>

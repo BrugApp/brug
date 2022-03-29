@@ -142,6 +142,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:19.0.1'
     implementation 'com.google.firebase:firebase-messaging-ktx'
 
+    // For firebase storage
+    implementation 'com.google.firebase:firebase-storage-ktx'
+
 }
 configurations.all{
     resolutionStrategy {

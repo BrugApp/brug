@@ -36,7 +36,7 @@ class ConversationListAdapter(
         val lastMessage = listElement.messages.last()
         holder.icon.setImageResource(R.mipmap.ic_launcher)
         holder.title.text = "${listElement.user.getFirstName()} ${listElement.user.getLastName()}"
-        holder.desc.text = "${lastMessage.sender}: ${lastMessage.content}"
+        holder.desc.text = "${lastMessage.sender}: ${lastMessage.body}"
 
     }
 

@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 // Adapter that binds the list of messages to the instances of ChatItemModel
-class ChatMessagesListAdapter(private val messageList: MutableList<ChatMessage>) :
+class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView =
@@ -19,10 +19,10 @@ class ChatMessagesListAdapter(private val messageList: MutableList<ChatMessage>)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val message: ChatMessage = messageList[position]
+        val message: Message = messageList[position]
         holder.sender.text = message.sender
-        holder.content.text = message.content
-        holder.datetime.text = formatDateTime(message.datetime)
+        holder.content.text = message.body
+        holder.datetime.text = formatDateTime(message.timestamp)
     }
 
     override fun getItemCount(): Int {
