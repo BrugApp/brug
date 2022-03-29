@@ -1,5 +1,10 @@
 package com.github.brugapp.brug.data
 
+import android.content.ContentValues
+import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
+import android.widget.Toast
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -62,5 +67,51 @@ class FirebaseHelper {
         message: HashMap<String, String>
     ): Task<DocumentReference> {
         return getMessageCollection(userID1, userID2).add(message)
+    }
+
+    // return new registerUser to add to FireBase
+    fun createNewRegisterUser(emailtxt: String, firstnametxt: String, lastnametxt: String): HashMap<String, Any> {
+        val user = getCurrentUser()
+        val list = listOf<String>()
+        val userToAdd = hashMapOf(
+            "ItemIDArray" to list,
+            "UserID" to (user?.uid ?: String),
+            "email" to emailtxt,
+            "firstName" to firstnametxt,
+            "lastName" to lastnametxt
+        )
+        return userToAdd
+    }
+
+    fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar, emailtxt: String, passwordtxt: String, firstnametxt: String, lastnametxt: String){
+        mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
+                    Log.d(ContentValues.TAG, "createUserWithEmail:success")
+                    addRegisterUserTask(createNewRegisterUser(emailtxt, firstnametxt, lastnametxt))
+                        .addOnSuccessListener { documentReference ->
+                            Log.d(
+                                ContentValues.TAG,
+                                "DocumentSnapshot added with ID: ${documentReference.id}"
+                            )
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w(
+                                ContentValues.TAG,
+                                "Error adding document",
+                                e
+                            )
+                        }
+                    progressBar.visibility = View.GONE
+                } else { // If sign in fails, display a message to the user.
+                    Log.w(ContentValues.TAG, "createUserWithEmail:failure", task.exception)
+                    Toast.makeText(
+                        context,
+                        "Authentication failed.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    progressBar.visibility = View.GONE
+                }
+            }
     }
 }
