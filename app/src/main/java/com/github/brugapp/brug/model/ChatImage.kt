@@ -2,7 +2,8 @@ package com.github.brugapp.brug.model
 
 import java.time.LocalDateTime
 
-data class ChatMessage(
+data class ChatImage(
+    val imageURI: String,
     override val sender: String,
     override val mid: Int,
     override val timestamp: LocalDateTime,
