@@ -44,9 +44,10 @@ class ChatActivityTest {
         2022, Month.MARCH, 23, 15, 30
     )
     private val dummyMessage = ChatMessage(
-        "Dummy Test Message",
+        "${dummyUser.getFirstName()} ${dummyUser.getLastName()}",
+        0,
         dummyDate,
-        "${dummyUser.getFirstName()} ${dummyUser.getLastName()}"
+        "Dummy Test Message"
     )
 
     @Test
