@@ -1,26 +1,18 @@
 package com.github.brugapp.brug.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Location
 import android.location.LocationManager
-import android.location.LocationListener
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.Menu
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
@@ -60,7 +52,8 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(model: ChatViewModel) {
-        val conversation: Conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
+        val conversation: Conversation =
+            intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
 
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
 
@@ -76,7 +69,7 @@ class ChatActivity : AppCompatActivity() {
         )
     }
 
-    private fun inflateActionBar(username: String, itemLost: String){
+    private fun inflateActionBar(username: String, itemLost: String) {
         supportActionBar!!.title = username
         supportActionBar!!.subtitle = "Related to your item \"$itemLost\""
     }
@@ -104,8 +97,8 @@ class ChatActivity : AppCompatActivity() {
     private fun initSendLocationButton(
         model: ChatViewModel,
         locationManager: LocationManager,
-        fusedLocationClient: FusedLocationProviderClient)
-    {
+        fusedLocationClient: FusedLocationProviderClient
+    ) {
         val buttonSendLocalisation = findViewById<ImageButton>(R.id.buttonSendLocalisation)
         buttonSendLocalisation.setOnClickListener {
             model.requestLocation(this, fusedLocationClient, locationManager)
@@ -151,7 +144,7 @@ class ChatActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     private val locationListener: LocationListener =
         LocationListener { location -> foundLocation(location) }
-     */
+
 
     // HELPER METHODS TO DISPLAY LIST OF MESSAGES
     private fun initMessageList() {
@@ -164,15 +157,15 @@ class ChatActivity : AppCompatActivity() {
         viewModel.initAdapter()
         messageList.adapter = viewModel.getAdapter()
     }
+    */
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val TAKE_PICTURE_REQUEST_CODE = 1
-        if(requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK){
+        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
             Toast.makeText(this, "Image uploaded", Toast.LENGTH_SHORT).show()
-            val uri = viewModel.uploadImage(this)
-            findViewById<ImageView>(R.id.upladedImage).setImageURI(uri)
+            viewModel.uploadImage(this)
         }
     }
 }

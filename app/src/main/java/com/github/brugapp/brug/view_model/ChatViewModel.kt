@@ -1,9 +1,7 @@
 package com.github.brugapp.brug.view_model
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -13,8 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.requestPermissions
@@ -22,21 +18,15 @@ import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
-import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.R
+import com.github.brugapp.brug.model.ChatImage
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.firebase.firestore.*
-import com.google.firebase.firestore.EventListener
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class ChatViewModel : ViewModel() {
@@ -203,11 +193,14 @@ class ChatViewModel : ViewModel() {
     // IMAGE RELATED
     fun takeCameraImage(activity: ChatActivity) {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if(intent.resolveActivity(activity.packageManager) != null) {
+        if (intent.resolveActivity(activity.packageManager) != null) {
             val imageFile = createImageFile(activity)
             // Create a file Uri for saving the image
-            imageUri = FileProvider.getUriForFile(activity, "com.github.brugapp.brug.fileprovider", imageFile)
-            Toast.makeText(activity, imageUri.toString(), Toast.LENGTH_SHORT).show() //TODO: remove before push
+            imageUri = FileProvider.getUriForFile(
+                activity,
+                "com.github.brugapp.brug.fileprovider",
+                imageFile
+            )
             intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
             // Launch the intent (launch the camera)
             startActivityForResult(activity, intent, TAKE_PICTURE_REQUEST_CODE, null)
@@ -221,12 +214,12 @@ class ChatViewModel : ViewModel() {
             "JPEG_${simpleDateFormat.format(Date())}_",
             ".jpg",
             storageDir
-            )
+        )
     }
 
     // TODO: Finish this implementation when the firebase helper is implemented
     @RequiresApi(Build.VERSION_CODES.O)
-    fun uploadImage(activity: Activity): Uri {
+    fun uploadImage(activity: Activity) {
         //val progressDialog = ProgressDialog(activity)
         //progressDialog.setMessage("Uploading image, wait ...")
         //progressDialog.setCancelable(false)
@@ -237,18 +230,10 @@ class ChatViewModel : ViewModel() {
 
         //storageRef.putFile(imageUri).addOnSuccessListener { ... }
 
-        // Return the URI so that the activity can get the image from disc
-        return imageUri
+        val newMessage = ChatImage(imageUri.toString(), "Me", 0, LocalDateTime.now(), "An image")
+        messages.add(newMessage)
+        adapter.notifyItemInserted(messages.size - 1)
     }
-
-    // HELPER METHODS
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun computeDateTime(): String {
-        val current = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss")
-        return current.format(formatter)
-    }
-
 
 
     // ===========================================================================================

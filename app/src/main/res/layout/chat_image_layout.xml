@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/chat_item_sender"
+                android:id="@+id/chat_image_sender"
                 android:layout_marginStart="8dp"
                 android:text="J-E"
                 android:textColor="@color/black" />
@@ -45,9 +45,11 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:id="@+id/imageView"
+                android:id="@+id/chat_image_imageView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxWidth="150dp"
+                android:maxHeight="150dp"
                 tools:ignore="ImageContrastCheck"
                 tools:srcCompat="@tools:sample/avatars"
                 android:contentDescription="ImageSent" />

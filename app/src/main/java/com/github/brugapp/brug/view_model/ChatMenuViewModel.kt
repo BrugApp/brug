@@ -46,14 +46,7 @@ class ChatMenuViewModel : ViewModel() {
             Conversation(
                 User("John", "Newmann", "john@microsoft.com", "1892122"),
                 Item("Smartphone", "Galaxy S22", 0),
-                mutableListOf(
-                    ChatImage(
-                        "content://com.github.brugapp.brug.fileprovider/images/JPEG_20220329_165630_1949197185066641075.jpg",
-                        "Me",
-                        0,
-                        LocalDateTime.now(),
-                        "This is just an image"),
-                    ChatMessage(
+                mutableListOf(ChatMessage(
                         "Me",
                         0,
                         LocalDateTime.now(),
