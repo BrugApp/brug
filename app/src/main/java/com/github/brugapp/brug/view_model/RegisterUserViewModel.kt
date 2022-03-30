@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import com.github.brugapp.brug.data.FirebaseHelper
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -16,25 +17,15 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class RegisterUserViewModel : ViewModel() {
-    private val db: FirebaseFirestore = Firebase.firestore
-    private val mAuth: FirebaseAuth = Firebase.auth
-    private var firstnametxt = ""
-    private var lastnametxt = ""
-    private var emailtxt = ""
-    private var passwordtxt = ""
+    private val helper: FirebaseHelper = FirebaseHelper()
+    private lateinit var firstnametxt: String
+    private lateinit var lastnametxt: String
+    private lateinit var emailtxt: String
+    private lateinit var passwordtxt: String
 
     // return new registerUser to add to FireBase
     fun createNewRegisterUser(): HashMap<String, Any> {
-        val user = mAuth.currentUser
-        val list = listOf<String>()
-        val userToAdd = hashMapOf(
-            "ItemIDArray" to list,
-            "UserID" to (user?.uid ?: String),
-            "email" to emailtxt,
-            "firstName" to firstnametxt,
-            "lastName" to lastnametxt
-        )
-        return userToAdd
+        return helper.createNewRegisterUser(emailtxt, firstnametxt, lastnametxt)
     }
 
     //stores user input data in the view model
@@ -85,38 +76,10 @@ class RegisterUserViewModel : ViewModel() {
     }
 
     fun addRegisterUserTask(userToAdd: HashMap<String, Any>): Task<DocumentReference> {
-        return db.collection("Users").add(userToAdd)
+        return helper.addRegisterUserTask(userToAdd)
     }
 
     fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar) {
-        mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
-                    Log.d(ContentValues.TAG, "createUserWithEmail:success")
-                    addRegisterUserTask(createNewRegisterUser())
-                        .addOnSuccessListener { documentReference ->
-                            Log.d(
-                                ContentValues.TAG,
-                                "DocumentSnapshot added with ID: ${documentReference.id}"
-                            )
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w(
-                                ContentValues.TAG,
-                                "Error adding document",
-                                e
-                            )
-                        }
-                    progressBar.visibility = View.GONE //updateUI(user)
-                } else { // If sign in fails, display a message to the user.
-                    Log.w(ContentValues.TAG, "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        context,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    progressBar.visibility = View.GONE //updateUI(null)
-                }
-            }
+        return helper.createAuthAccount(context,progressBar, emailtxt, passwordtxt, firstnametxt, lastnametxt)
     }
 }
