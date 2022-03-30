@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.data
 
 import android.content.ContentValues
+import android.content.Context
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
@@ -98,7 +99,7 @@ class FirebaseHelper {
     @param  lastnametxt the last name of the user that we are building
     @return the Task<DocumentReference> that tries to create a new FireBase User
     */
-    fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar, emailtxt: String, passwordtxt: String, firstnametxt: String, lastnametxt: String){
+    fun createAuthAccount(context: Context, progressBar: ProgressBar, emailtxt: String, passwordtxt: String, firstnametxt: String, lastnametxt: String){
         mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
