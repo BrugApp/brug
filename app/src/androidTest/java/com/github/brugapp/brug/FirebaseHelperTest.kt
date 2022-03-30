@@ -72,4 +72,22 @@ class FirebaseHelperTest {
         val task2 = helper.getMessageCollection("userID1", "userID2").add(empty)
         assertThat(task1.isSuccessful, `is`(task2.isSuccessful))
     }
+
+    @Test
+    fun createNewRegisterUserTest() {
+        val user = helper.getCurrentUser()
+        val list = listOf<String>()
+        val userToAdd = hashMapOf(
+            "ItemIDArray" to list,
+            "UserID" to (user?.uid ?: String),
+            "email" to "emailtxt",
+            "firstName" to "firstnametxt",
+            "lastName" to "lastnametxt"
+        )
+        assertThat(
+            helper.createNewRegisterUser("emailtxt", "firstnametxt", "lastnametxt"),
+            `is`(userToAdd)
+        )
+    }
+    //createAuthAccount is tested by registerUserActivityTest()
 }
