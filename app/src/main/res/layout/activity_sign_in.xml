@@ -7,6 +7,17 @@
     tools:context=".ui.SignInActivity">
 
     <Button
+        android:id="@+id/qr_found_btn"
+        android:layout_width="241dp"
+        android:layout_height="57dp"
+        android:layout_marginBottom="20dp"
+        android:text="I found a tag !"
+        app:layout_constraintBottom_toTopOf="@+id/sign_in_google_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.517"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
         android:id="@+id/sign_in_sign_out_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -15,29 +26,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.846" />
+        app:layout_constraintVertical_bias="0.843" />
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_google_button"
-        android:layout_width="223dp"
-        android:layout_height="58dp"
+        android:layout_width="238dp"
+        android:layout_height="64dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.508"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.573" />
+        app:layout_constraintVertical_bias="0.733" />
 
-    <TextView
-        android:id="@+id/sign_in_main_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="211dp"
-        android:text="@string/action_sign_in"
-        android:textSize="24sp"
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="264dp"
+        android:layout_height="249dp"
+        android:layout_marginTop="60dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/unlost_logo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

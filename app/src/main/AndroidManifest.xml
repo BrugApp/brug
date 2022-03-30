@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.brugapp.brug">
 
-    <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- For localisation service -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- For localisation service -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -16,14 +14,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
-
-        <!-- Set custom default icon. This is used when no icon is set for incoming notification messages.
-        See README(https://goo.gl/l4GJaQ) for more. -->
+        <activity
+            android:name=".ui.TagFoundActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.HomeActivity"
+            android:exported="false" />
+        <!--
+         Set custom default icon. This is used when no icon is set for incoming notification messages.
+        See README(https://goo.gl/l4GJaQ) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/unlost_logo" />
-        <!-- Set color used with incoming notification messages. This is used when no color is set for the incoming
-             notification message. See README(https://goo.gl/6BKBk7) for more. -->
+        <!--
+ Set color used with incoming notification messages. This is used when no color is set for the incoming
+             notification message. See README(https://goo.gl/6BKBk7) for more.
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
@@ -34,8 +41,7 @@
         <activity
             android:name=".ui.AddItemActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity">
-        </activity>
+            android:parentActivityName=".ui.ItemsMenuActivity" />
         <activity
             android:name=".ui.ChatActivity"
             android:exported="false"
@@ -82,13 +88,14 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.ChatMenuActivity"
-            android:label="@string/chat_menu_label"
-            android:exported="false">
+            android:exported="false"
+            android:label="@string/chat_menu_label">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -99,8 +106,9 @@
         </activity>
         <activity
             android:name=".ui.ItemInformationActivity"
-            android:parentActivityName=".ui.ItemsMenuActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.ItemsMenuActivity" />
+
         <service
             android:name=".messaging.MyFCMMessagingService"
             android:exported="false">

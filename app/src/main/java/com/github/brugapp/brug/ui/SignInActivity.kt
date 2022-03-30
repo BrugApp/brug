@@ -34,6 +34,11 @@ class SignInActivity : AppCompatActivity() {
             signOut()
         }
 
+        findViewById<Button>(R.id.qr_found_btn).setOnClickListener {
+            val myIntent = Intent(this, QrCodeScannerActivity::class.java).apply {}
+            startActivity(myIntent)
+        }
+
     }
 
     override fun onStart() {
@@ -45,19 +50,25 @@ class SignInActivity : AppCompatActivity() {
     fun updateUI(user: DatabaseUser?) {
         // If already signed-in display welcome message and sign out button
         if (user != null) {
-            findViewById<TextView>(R.id.sign_in_main_text).apply {
-                textSize = 16f
-                text = getString(R.string.welcome_and_email, user.displayName, user.email)
-            }
+//            findViewById<TextView>(R.id.sign_in_main_text).apply {
+//                textSize = 16f
+//                text = getString(R.string.welcome_and_email, user.displayName, user.email)
+//            }
+
+            val myIntent = Intent(this, ItemsMenuActivity::class.java).apply {}
+            startActivity(myIntent)
+
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
+            findViewById<Button>(R.id.qr_found_btn).visibility = View.GONE
             findViewById<Button>(R.id.sign_in_sign_out_button).visibility = View.VISIBLE
-            // else display sign-in message and button
+
         } else {
-            findViewById<TextView>(R.id.sign_in_main_text).apply {
-                textSize = 24f
-                text = getString(R.string.action_sign_in)
-            }
+//            findViewById<TextView>(R.id.sign_in_main_text).apply {
+//                textSize = 24f
+//                text = getString(R.string.action_sign_in)
+//            }
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.VISIBLE
+            findViewById<Button>(R.id.qr_found_btn).visibility = View.VISIBLE
             findViewById<Button>(R.id.sign_in_sign_out_button).visibility = View.GONE
         }
     }
