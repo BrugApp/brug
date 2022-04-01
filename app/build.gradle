@@ -181,19 +181,21 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
             '**/*_Factory.class',
             '**/*_MembersInjector.class'
     ]
-    def debugTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes/debug", excludes: fileFilter)
+    def debugTree = fileTree(dir: "$project.buildDir/intermediates/javac/debug/classes", excludes: fileFilter)
     def mainSrc = "$project.projectDir/src/main/java"
 
     sourceDirectories.setFrom(files([mainSrc]))
     classDirectories.setFrom(files([debugTree]))
     executionData.setFrom(fileTree(dir: project.buildDir, includes: [
-            'jacoco/testDebugUnitTest.exec', 'outputs/code_coverage/debugAndroidTest/connected/*coverage.ec'
+            'outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec',
+            'outputs/code_coverage/debugAndroidTest/connected/*/coverage.ec'
     ]))
 }
 
 connectedCheck {
     finalizedBy jacocoTestReport
 }
+
 
 configurations.all {
     resolutionStrategy {

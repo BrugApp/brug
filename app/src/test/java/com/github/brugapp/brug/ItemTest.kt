@@ -11,7 +11,7 @@ class ItemTest {
     fun invalidNameItemTest() {
         val blankName = "    "
         val description = "Grey wallet"
-        Item(blankName, description, 1)
+        Item(blankName, description, "1")
 
     }
 
@@ -19,14 +19,14 @@ class ItemTest {
     fun emptyNameItemTest() {
         val emptyName = ""
         val description = "Grey wallet"
-        Item(emptyName, description, 1)
+        Item(emptyName, description, "1")
 
     }
 
     @Test
     fun validNameItemTest(){
         val itemName = "Wallet"
-        val itemId = 1
+        val itemId = "1"
         val description = "Grey wallet"
         val validUser = Item(itemName, description, itemId)
 
@@ -37,7 +37,7 @@ class ItemTest {
     @Test
     fun validIdItemTest(){
         val itemName = "Wallet"
-        val itemId = 1
+        val itemId = "1"
         val description = "Grey wallet"
         val validUser = Item(itemName, description, itemId)
 
@@ -48,7 +48,7 @@ class ItemTest {
     @Test
     fun descriptionTest(){
         val itemName = "Wallet"
-        val itemId = 1
+        val itemId = "1"
         val description = "Grey wallet"
         val validUser = Item(itemName, description, itemId)
 
@@ -59,7 +59,7 @@ class ItemTest {
     @Test(expected = IllegalArgumentException::class)
     fun setInvalidNameTest() {
         val itemName = "Wallet"
-        val itemId = 1
+        val itemId = "1"
         val description = "Grey wallet"
         val validUser = Item(itemName, description, itemId)
 
@@ -72,7 +72,7 @@ class ItemTest {
     @Test
     fun setValidNameTest(){
         val itemName = "Wallet"
-        val itemId = 1
+        val itemId = "1"
         val description = "Grey wallet"
         val validUser = Item(itemName, description, itemId)
 
@@ -86,7 +86,7 @@ class ItemTest {
     @Test
     fun setDescriptionTest(){
         val itemName = "Wallet"
-        val itemId = 1
+        val itemId = "1"
         val description = "Grey wallet"
         val validUser = Item(itemName, description, itemId)
 

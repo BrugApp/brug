@@ -73,7 +73,7 @@ class UserTest {
 
         val validUser = User(firstName, lastName, email, id)
 
-        val newItem = Item("Wallet", "Grey wallet", 0)
+        val newItem = Item("Wallet", "Grey wallet", "0")
         var itemList = ArrayList<Item>(validUser.getItemList())
         validUser.addItem(newItem)
         itemList.add(newItem)
