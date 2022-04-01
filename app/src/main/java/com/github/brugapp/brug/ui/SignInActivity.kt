@@ -43,8 +43,11 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        //viewModel.signOut()
         val currentUser = viewModel.getAuth().currentUser
         updateUI(currentUser)
+
+
     }
 
     fun updateUI(user: DatabaseUser?) {

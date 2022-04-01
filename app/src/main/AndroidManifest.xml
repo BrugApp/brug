@@ -50,26 +50,26 @@
         <activity
             android:name=".ui.RegisterUserActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.SignInActivity"
-            android:exported="false" />
+<!--        <activity-->
+<!--            android:name=".ui.SignInActivity"-->
+<!--            android:exported="false" />-->
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".ui.SignInActivity">
 
             <!-- support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.SignInActivity" />
         </activity>
         <activity
             android:name=".ui.QrCodeScannerActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".ui.SignInActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value=".ui.SignInActivity" />
         </activity>
         <activity
             android:name=".ui.ItemsMenuActivity"
@@ -84,11 +84,10 @@
                 android:resource="@xml/searchable" />
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.SignInActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
