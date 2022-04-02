@@ -6,5 +6,5 @@ data class AudioMessage(
     override val sender: String,
     override val timestamp: LocalDateTime,
     override val body: String,
-    private val audioUrl: String)
+    val audioUrl: String)
     : Message(sender, timestamp, body)
