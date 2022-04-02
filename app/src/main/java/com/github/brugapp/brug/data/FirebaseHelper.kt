@@ -152,6 +152,7 @@ object FirebaseHelper {
     }
 
 
+    //TODO: REMOVE THIS FUNCTION WHEN USER RETRIEVAL IS COMPLETED
     suspend fun getConversationsFromUserID(uid: String): TempConvListResponse {
         val tempConvListResponse = TempConvListResponse()
         try {
