@@ -16,10 +16,11 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.github.brugapp.brug.model.ChatMessage
-import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.data.ConvResponse
+import com.github.brugapp.brug.data.ConvUserResponse
+import com.github.brugapp.brug.data.ItemNameResponse
+import com.github.brugapp.brug.data.MessageResponse
+import com.github.brugapp.brug.model.*
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.Description
@@ -38,16 +39,15 @@ class ChatActivityTest {
     @get:Rule
     val permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
-    private val dummyUser = User("John", "Doe", "john@doe.com", "310200")
-    private val dummyItem = Item("DummyItem", "Description", 0)
+    private val dummyUser = Pair("John Doe", "/Users/mouniraki/Documents/SDP/BrugApp/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp")
+    private val dummyItemName = "DummyItem"
+
     private val dummyDate = LocalDateTime.of(
         2022, Month.MARCH, 23, 15, 30
     )
-    private val dummyMessage = ChatMessage(
-        "${dummyUser.getFirstName()} ${dummyUser.getLastName()}",
-        0,
-        dummyDate,
-        "Dummy Test Message"
+
+    private val dummyMessage = Message(
+        dummyUser.first, dummyDate, "Dummy Test Message"
     )
 
     @Test
@@ -55,11 +55,11 @@ class ChatActivityTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
+            ConvUserResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
         )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(CHAT_INTENT_KEY, ConvResponse(conversation))
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -76,13 +76,13 @@ class ChatActivityTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
+            ConvUserResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
         )
 
         val newMessageText = "Test sending new messages"
 
         val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(CHAT_INTENT_KEY, ConvResponse(conversation))
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -104,11 +104,11 @@ class ChatActivityTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
+            ConvUserResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
         )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(CHAT_INTENT_KEY, ConvResponse(conversation))
         }
 
         ActivityScenario.launch<Activity>(intent).use {
