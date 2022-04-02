@@ -2,12 +2,12 @@ package com.github.brugapp.brug.data
 
 import android.content.ContentValues
 import android.content.Context
+import android.location.Location
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
-import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.*
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -21,15 +21,12 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 
-
 private const val USERS_DB = "Users"
 private const val MSG_DB = "Messages"
-private const val CONV_DB = "Conversations"
-private const val ITEM_TYPE_DB = "Item_Type"
+private const val CONV_REFS_DB = "Conv_Refs"
 private const val ITEMS_DB = "Items"
 
-//TODO: UNDERSTAND HOW TO RETURN VALUES FROM PRIVATE FIREBASE FUNCTIONS
-class FirebaseHelper {
+object FirebaseHelper {
 
     private val db: FirebaseFirestore = Firebase.firestore
     private val mAuth: FirebaseAuth = Firebase.auth
@@ -75,28 +72,78 @@ class FirebaseHelper {
     }
 
 
+    //TODO: REFACTOR USER CLASS TO HOLD THE NECESSARY VALUES
+    suspend fun getAuthUserFieldsFromID(uid: String): UserResponse {
+        val userResponse = UserResponse()
+        try {
+            val userDoc = db.collection(USERS_DB).document(uid)
+            val retrievedUserDoc = userDoc.get().await()
 
-    suspend fun getUserConvFromRef(ref: String, uid: String): ConvResponse {
+
+            if(!retrievedUserDoc.exists()){
+                userResponse.onError = Exception("The requested user doesn't exist")
+            } else if(!retrievedUserDoc.contains("firstname")
+                || !retrievedUserDoc.contains("lastname")
+                || !retrievedUserDoc.contains("user_icon")
+                || !retrievedUserDoc.contains("conversations")) {
+                userResponse.onError = Exception("Invalid User format")
+            } else {
+                val firstname = retrievedUserDoc["firstname"] as String
+                val lastname = retrievedUserDoc["lastname"] as String
+                val userIconPath = retrievedUserDoc["user_icon"] as String
+                val userItems = userDoc.collection(ITEMS_DB).get().await().map { item ->
+                    getUserItemFromSnapshot(item)
+                }
+                val userConvs = userDoc.collection(CONV_REFS_DB).get().await().map{ conversation ->
+                    getUserConvFromSnapshot(conversation, userDoc.id)
+                }
+                userResponse.onSuccess = User(firstname, lastname, userIconPath, userItems, userConvs)
+            }
+        } catch (e: Exception){
+            userResponse.onError = e
+        }
+        return userResponse
+    }
+
+
+    //TODO: REFACTOR ITEM CLASS TO HOLD ISLOST IN PARAMETERS
+    private suspend fun getUserItemFromSnapshot(item: QueryDocumentSnapshot): ItemResponse {
+        val itemResponse = ItemResponse()
+        try {
+            if(!item.contains("item_name")
+                || !item.contains("item_type")
+                || !item.contains("item_description")
+                || !item.contains("is_lost")){
+                itemResponse.onError = Exception("Invalid Item format")
+            } else {
+                val itemName = item["item_name"] as String
+                val itemTypePath = item["item_type"] as String
+                val itemDesc = item["item_description"] as String
+                val isLostFlag = item["is_lost"] as Boolean
+                itemResponse.onSuccess = Item(itemName, itemDesc, itemTypePath, isLostFlag)
+            }
+        } catch (e: Exception) {
+            itemResponse.onError = e
+        }
+        return itemResponse
+    }
+
+
+    private suspend fun getUserConvFromSnapshot(conv: QueryDocumentSnapshot, uid: String): ConvResponse {
         val convResponse = ConvResponse()
         try{
-            val convDoc = db.document(ref)
-            val retrievedConv = convDoc.get().await()
-
-            if(!retrievedConv.exists()){
-                convResponse.onError = Exception("The requested Conversation doesn't exist")
+            if(!conv.contains("lost_item_path")){
+                convResponse.onError = Exception("Invalid Conversation format")
             } else {
-                if(!retrievedConv.contains("lost_item_path")){
-                    convResponse.onError = Exception("Invalid Conversation format")
-                } else {
-                    val convUserID = getUserNameFromPath(getConvUserNameFromID("$USERS_DB/${retrievedConv.id}", uid))
-                    val lostItemName = getLostItemNameFromRef(retrievedConv["lost_item_path"] as String)
-                    val messages = convDoc.collection(MSG_DB).get().await().map { message ->
-                        getConvMessageFromSnapshot(message)
-                    }
-
-                    convResponse.onSuccess = Conversation(convUserID, lostItemName, messages.toMutableList())
+                val convUserID = getUserNameFromPath(getConvUserNameFromID("$USERS_DB/${conv.id}", uid))
+                val lostItemName = getLostItemNameFromRef(conv["lost_item_path"] as String)
+                val messages = conv.reference.collection(MSG_DB).get().await().map { message -> //NEED TO CHECK IF CORRECT
+                    getConvMessageFromSnapshot(message)
                 }
+
+                convResponse.onSuccess = Conversation(convUserID, lostItemName, messages.toMutableList())
             }
+
         } catch (e: Exception) {
             convResponse.onError = e
         }
@@ -148,18 +195,18 @@ class FirebaseHelper {
                     when {
                         messageDoc.contains("location") -> {
                             //TODO: PROPERLY HANDLE LOCATION MESSAGES
-                            val location = messageDoc["location"]
-                            message = Message(senderNameResponse.onSuccess!!, timeStamp, body)
+                            val location = messageDoc["location"] as Location
+                            message = LocationMessage(senderNameResponse.onSuccess!!, timeStamp, body, location)
                         }
                         messageDoc.contains("image_url") -> {
                             //TODO: PROPERLY HANDLE IMAGE MESSAGES
-                            val imgUrl = messageDoc["image_url"]
-                            message = Message(senderNameResponse.onSuccess!!, timeStamp, body)
+                            val imgUrl = messageDoc["image_url"] as String
+                            message = PicMessage(senderNameResponse.onSuccess!!, timeStamp, body, imgUrl)
                         }
                         messageDoc.contains("audio_url") -> {
                             //TODO: PROPERLY HANDLE AUDIO MESSAGES
-                            val audioUrl = messageDoc["audio_url"]
-                            message = Message(senderNameResponse.onSuccess!!, timeStamp, body)
+                            val audioUrl = messageDoc["audio_url"] as String
+                            message = AudioMessage(senderNameResponse.onSuccess!!, timeStamp, body, audioUrl)
                         }
                         else -> {
                             message = Message(senderNameResponse.onSuccess!!, timeStamp, body)

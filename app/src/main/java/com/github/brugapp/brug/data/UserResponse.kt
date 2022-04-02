@@ -1,3 +1,6 @@
 package com.github.brugapp.brug.data
 
-data class UserResponse()
+import com.github.brugapp.brug.model.User
+import java.lang.Exception
+
+data class UserResponse(var onSuccess: User? = null, var onError: Exception? = null)
