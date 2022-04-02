@@ -34,11 +34,23 @@ class ConversationListAdapter(
 
         // TODO: replace the hardcoded image ID by the ID of the profile-pic of user
         val lastMessage = listElement.messages.last()
-        holder.icon.setImageResource(R.mipmap.ic_launcher)
+        val pp = listElement.user.getProfilePicture()
+
+        if(pp == null)
+            holder.icon.setImageResource(R.mipmap.ic_launcher)
+        else
+            holder.icon.setImageDrawable(pp)
+
         holder.title.text = "${listElement.user.getFirstName()} ${listElement.user.getLastName()}"
         holder.desc.text = "${lastMessage.sender}: ${lastMessage.content}"
 
     }
+
+   // private fun uriToDrawable(uriString: String?): Drawable {
+   //     val uri = Uri.parse(uriString)
+   //     val inputStream = activity.contentResolver.openInputStream(uri)
+   //     return Drawable.createFromStream(inputStream, uri.toString())
+   // }
 
     // Returns the number of elements in the list
     override fun getItemCount(): Int {

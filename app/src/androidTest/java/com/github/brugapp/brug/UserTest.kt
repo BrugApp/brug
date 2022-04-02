@@ -13,37 +13,37 @@ class UserTest {
     @Test(expected = IllegalArgumentException::class)
     fun invalidFirstName() {
         val firstName = "   "
-        User(firstName, "Kikou", "rayan.kikou@gmail.com", "0")
+        User(firstName, "Kikou", "rayan.kikou@gmail.com", "0", null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun emptyFirstName() {
         val firstName = ""
-        User(firstName, "Kikou", "rayan.kikou@gmail.com", "0")
+        User(firstName, "Kikou", "rayan.kikou@gmail.com", "0", null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun invalidLastName() {
         val lastName = "   "
-        User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
+        User("Rayan", lastName, "rayan.kikou@gmail.com", "0", null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun emptyLastName() {
         val lastName = ""
-        User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
+        User("Rayan", lastName, "rayan.kikou@gmail.com", "0", null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun invalidEmail() {
         val email = "test.com"
-        User("Rayan", "Kikou", email, "0")
+        User("Rayan", "Kikou", email, "0", null)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun invalidID() {
         val id = ""
-        User("Rayan", "Kikou", "rayan.kikou@gmail.com", id)
+        User("Rayan", "Kikou", "rayan.kikou@gmail.com", id, null)
     }
 
     @Test
@@ -54,7 +54,7 @@ class UserTest {
         val email = "rayan.kikou@gmail.com"
         val id = "0"
 
-        val validUser = User(firstName, lastName, email, id)
+        val validUser = User(firstName, lastName, email, id, null)
 
         assertThat(1, Is(1))
         assertThat(validUser.getFirstName(), Is(firstName))
@@ -71,7 +71,7 @@ class UserTest {
         val email = "rayan.kikou@gmail.com"
         val id = "0"
 
-        val validUser = User(firstName, lastName, email, id)
+        val validUser = User(firstName, lastName, email, id, null)
 
         val newItem = Item("Wallet", "Grey wallet", 0)
         var itemList = ArrayList<Item>(validUser.getItemList())

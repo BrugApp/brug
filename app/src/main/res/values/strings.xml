@@ -60,4 +60,6 @@
     <string name="default_notification_channel_name">Weather</string>
     <string name="fcm_message">FCM Message</string>
     <string name="unlost_logo_description">Unlost logo</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>
