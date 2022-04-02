@@ -39,6 +39,9 @@
             android:name=".ui.ReportItemActivity"
             android:exported="false" />
         <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.AddItemActivity"
             android:exported="false"
             android:parentActivityName=".ui.ItemsMenuActivity" />

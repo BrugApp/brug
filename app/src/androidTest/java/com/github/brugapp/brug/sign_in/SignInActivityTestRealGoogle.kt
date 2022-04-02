@@ -9,13 +9,16 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intending
+import androidx.test.espresso.intent.matcher.ComponentNameMatchers
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.SignInCredentialGetter
 import com.github.brugapp.brug.di.sign_in.module.SignInCredentialGetterModule
 import com.github.brugapp.brug.fake.FakeGoogleSignInCredentialGetter
+import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import dagger.Module
 import dagger.Provides
@@ -58,7 +61,7 @@ class SignInActivityTestRealGoogle {
     }
 
     @Test
-    fun signInActivityGetsNullAccountOnFakeResult() {
+    fun signInActivityWorksOnFakeResult() {
 
         intending(
             hasComponent(
@@ -80,12 +83,13 @@ class SignInActivityTestRealGoogle {
                 activity.getSignInResult.launch(Intent(activity.intent))
             }
 
-            // check if displays correct display name
-            onView(withId(R.id.sign_in_main_text))
-                .check(matches(withText("Sign in to Unlost")))
-            // check if contains sign out button
-            onView(withId(R.id.sign_in_google_button))
-                .check(matches(isDisplayed()))
+            Intents.intended(
+                hasComponent(
+                    hasClassName(
+                        ItemsMenuActivity::class.java.name
+                    )
+                )
+            )
         }
     }
 }

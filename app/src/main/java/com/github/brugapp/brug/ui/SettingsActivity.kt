@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.ui
 
 import android.content.Intent
+import android.content.Intent.ACTION_VIEW
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.viewModels
@@ -11,10 +12,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
+const val EXTRA_SIGN_OUT = "com.github.brugapp.brug.SIGN_OUT"
 class SettingsActivity : AppCompatActivity() {
-
-    private val signInViewModel: SignInViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
@@ -26,8 +25,9 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun signOut() {
-        signInViewModel.signOut()
-        val myIntent = Intent(this, SignInActivity::class.java)
+        val myIntent = Intent(this, SignInActivity::class.java).apply {
+            putExtra(EXTRA_SIGN_OUT, true)
+        }
         startActivity(myIntent)
     }
 }

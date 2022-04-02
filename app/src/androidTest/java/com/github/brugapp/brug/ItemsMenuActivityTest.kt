@@ -93,11 +93,10 @@ class ItemsMenuActivityTest {
     }
 
     @Test
-    fun clickingOnSettingsButtonTriggersSnackBar() {
+    fun clickingOnSettingsButtonGoesToActivity() {
         val settingsButton = onView(withId(R.id.my_settings))
-        val snackBar = onView(withId(com.google.android.material.R.id.snackbar_text))
         settingsButton.perform(click())
-        snackBar.check(matches(withText(DUMMY_TEXT)))
+        intended(hasComponent(SettingsActivity::class.java.name))
     }
 
     @Test
