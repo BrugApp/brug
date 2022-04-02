@@ -55,7 +55,7 @@ class ChatMenuActivity : AppCompatActivity() {
     private fun initChatList(model: ChatMenuViewModel) {
         val listView = findViewById<RecyclerView>(R.id.chat_listview)
 
-        model.conversationsLiveData.observe(this) { tempConvListResponse ->
+        model.getConversationsLiveData().observe(this) { tempConvListResponse ->
             val convList: MutableList<ConvResponse>
 
             if(tempConvListResponse.onSuccess == null){

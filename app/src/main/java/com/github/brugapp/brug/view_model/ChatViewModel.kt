@@ -22,6 +22,7 @@ import com.github.brugapp.brug.data.MessageResponse
 import com.github.brugapp.brug.model.*
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.type.LatLng
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -142,7 +143,7 @@ class ChatViewModel : ViewModel() {
     private fun sendLocation(location: Location) {
         //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
 //        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
-        val newMessage = LocationMessage("Me", LocalDateTime.now(), "Location", location)//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
+        val newMessage = LocationMessage("Me", LocalDateTime.now(), "Location", LocationService.fromAndroidLocation(location))//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
         messages.add(MessageResponse(newMessage))
         adapter.notifyItemInserted(messages.size - 1)
         // TODO: Removed from now (to prevent the use of Firebase)

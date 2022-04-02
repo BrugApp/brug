@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.MessageResponse
+import com.github.brugapp.brug.model.ChatMessagesListAdapter.MessageType.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -17,16 +18,24 @@ import java.time.format.DateTimeFormatter
 class ChatMessagesListAdapter(private val messageList: MutableList<MessageResponse>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
 
-    companion object {
-        private const val ERROR = -1
-        private const val TYPE_MESSAGE = 0
-        private const val TYPE_IMAGE = 1
+    enum class MessageType {
+        TYPE_MESSAGE, TYPE_IMAGE, TYPE_AUDIO, TYPE_LOCATION
     }
 
+//    companion object {
+//        private const val ERROR = -1
+//        private const val TYPE_MESSAGE = 0
+//        private const val TYPE_IMAGE = 1
+//        private const val TYPE_LOCATION = 2
+//    }
+
+    //TODO: CHANGE TO CORRECT LAYOUT WHEN IMPLEMENTED
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layout = when (viewType) {
-            TYPE_MESSAGE -> R.layout.chat_item_layout
-            TYPE_IMAGE -> R.layout.chat_image_layout
+            TYPE_MESSAGE.ordinal -> R.layout.chat_item_layout
+            TYPE_IMAGE.ordinal -> R.layout.chat_image_layout
+            TYPE_AUDIO.ordinal -> R.layout.chat_image_layout
+            TYPE_LOCATION.ordinal -> R.layout.chat_item_layout
             else -> throw IllegalArgumentException("Invalid type")
         }
 
@@ -37,7 +46,7 @@ class ChatMessagesListAdapter(private val messageList: MutableList<MessageRespon
     // Bind view with data models
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val messageResponse = messageList[position]
-        if(messageResponse.onError != null){
+        if(messageResponse.onSuccess == null){
             Log.e("Firebase error", messageResponse.onError.toString())
         } else {
             holder.bind(messageResponse.onSuccess!!)
@@ -53,11 +62,13 @@ class ChatMessagesListAdapter(private val messageList: MutableList<MessageRespon
 
         return if(messageResponse.onError != null){
             Log.e("Firebase error", messageResponse.onError.toString())
-            ERROR
+            -1
         } else {
             when(messageResponse.onSuccess!!){
-                is PicMessage -> TYPE_IMAGE
-                else -> TYPE_MESSAGE
+                is AudioMessage -> TYPE_AUDIO.ordinal
+                is LocationMessage -> TYPE_LOCATION.ordinal
+                is PicMessage -> TYPE_IMAGE.ordinal
+                else -> TYPE_MESSAGE.ordinal
             }
         }
     }
@@ -75,7 +86,7 @@ class ChatMessagesListAdapter(private val messageList: MutableList<MessageRespon
             return date.format(formatter)
         }
 
-        private fun bindTextMessage(message: Message) {
+        private fun bindLocationMessage(message: LocationMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.sender
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text = formatDateTime(message.timestamp)
             itemView.findViewById<TextView>(R.id.chat_item_content).text = message.body
@@ -86,9 +97,22 @@ class ChatMessagesListAdapter(private val messageList: MutableList<MessageRespon
             itemView.findViewById<ImageView>(R.id.chat_image_imageView).setImageURI(Uri.parse(message.imgUrl))
         }
 
+        private fun bindAudioMessage(message: AudioMessage) {
+            itemView.findViewById<TextView>(R.id.chat_image_sender).text = message.sender
+            itemView.findViewById<ImageView>(R.id.chat_image_imageView).setImageURI(Uri.parse(message.audioUrl))
+        }
+
+        private fun bindTextMessage(message: Message) {
+            itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.sender
+            itemView.findViewById<TextView>(R.id.chat_item_datetime).text = formatDateTime(message.timestamp)
+            itemView.findViewById<TextView>(R.id.chat_item_content).text = message.body
+        }
+
         fun bind(messageModel: Message) {
             when (messageModel) {
+                is LocationMessage -> bindLocationMessage(messageModel)
                 is PicMessage -> bindPicMessage(messageModel)
+                is AudioMessage -> bindAudioMessage(messageModel)
                 else -> bindTextMessage(messageModel)
             }
         }
