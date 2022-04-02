@@ -8,7 +8,7 @@ class MockDatabase {
         val currentUser = User("Rayan", "Kikou", "rayan.kikou@gmail.com", "0", null)
 
         //TODO generate actual item id with the database
-        var itemId = 0
+        var itemId = "0"
     }
 
 }

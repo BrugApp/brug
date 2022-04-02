@@ -35,10 +35,10 @@ class User// later generate id
 
         }
         items = mutableListOf(
-            Item("Phone", "Samsung Galaxy S22", 0).setType(ItemType.Phone),
-            Item("Wallet", "With all my belongings", 0).setType(ItemType.Wallet),
-            Item("BMW Key", "BMW M3 F80 Competition", 0).setType(ItemType.CarKeys),
-            Item("Keys","House and everything else", 0).setType(ItemType.Keys)
+            Item("Phone", "Samsung Galaxy S22", "").setType(ItemType.Phone),
+            Item("Wallet", "With all my belongings", "").setType(ItemType.Wallet),
+            Item("BMW Key", "BMW M3 F80 Competition", "").setType(ItemType.CarKeys),
+            Item("Keys","House and everything else", "").setType(ItemType.Keys)
         )
     }
 
