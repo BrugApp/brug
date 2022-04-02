@@ -2,23 +2,26 @@ package com.github.brugapp.brug.data
 
 import android.content.ContentValues
 import android.content.Context
-import android.location.Location
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import com.github.brugapp.brug.model.*
 import com.google.android.gms.tasks.Task
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 private const val USERS_DB = "Users"
 private const val MSG_DB = "Messages"
@@ -127,10 +130,10 @@ object FirebaseHelper {
 
 
     // NEEDED FUNCTION TO RETRIEVE ITEM NAME
-    private suspend fun getItemNameFromPath(path: String): ItemTypeResponse {
+    private suspend fun getItemNameFromRef(ref: DocumentReference): ItemTypeResponse {
         val stringPairResponse = ItemTypeResponse()
         try {
-            val itemTypeDoc = Firebase.firestore.document(path).get().await()
+            val itemTypeDoc = ref.get().await()
             if(!itemTypeDoc.exists()){
                 stringPairResponse.onError = Exception("The requested item type doesn't exist")
             } else if(
@@ -153,9 +156,13 @@ object FirebaseHelper {
         val tempConvListResponse = TempConvListResponse()
         try {
             val convSnapshot = Firebase.firestore.collection(USERS_DB).document(uid).collection(CONV_REFS_DB).get().await().map { conv ->
-                getUserConvFromSnapshot(conv, uid)
+                if(!conv.contains("reference")){
+                    Log.e("Firebase error", "No reference found")
+                } else {
+                    getUserConvFromRef(conv["reference"] as DocumentReference, uid)
+                }
             }
-            tempConvListResponse.onSuccess = convSnapshot
+            tempConvListResponse.onSuccess = convSnapshot as List<ConvResponse>
         } catch(e: Exception) {
             tempConvListResponse.onError = e
         }
@@ -163,14 +170,18 @@ object FirebaseHelper {
     }
 
     // MY PART
-    private suspend fun getUserConvFromSnapshot(conv: QueryDocumentSnapshot, uid: String): ConvResponse {
+    private suspend fun getUserConvFromRef(ref: DocumentReference, uid: String): ConvResponse {
         val convResponse = ConvResponse()
         try{
+            val conv = ref.get().await()
             if(!conv.contains("lost_item_path")){
                 convResponse.onError = Exception("Invalid Conversation format")
             } else {
-                val convUserID = getUserFieldsFromPath(parseConvUserNameFromID("$USERS_DB/${conv.id}", uid))
-                val lostItemName = getLostItemNameFromRef(conv["lost_item_path"] as String)
+                val convUserID = getUserFieldsFromRef(
+                    Firebase.firestore
+                        .collection(USERS_DB)
+                        .document(parseConvUserNameFromID(conv.id, uid)))
+                val lostItemName = getLostItemNameFromRef(conv["lost_item_path"] as DocumentReference)
                 val messages = conv.reference.collection(MSG_DB).get().await().map { message -> //NEED TO CHECK IF CORRECT
                     getConvMessageFromSnapshot(message)
                 }
@@ -189,16 +200,16 @@ object FirebaseHelper {
     }
 
     // MAYBE CONSIDER REFACTORING
-    private suspend fun getLostItemNameFromRef(ref: String): ItemNameResponse {
+    private suspend fun getLostItemNameFromRef(ref: DocumentReference): ItemNameResponse {
         val stringResponse = ItemNameResponse()
         try {
-            val itemDoc = Firebase.firestore.document(ref).get().await()
+            val itemDoc = ref.get().await()
             if(!itemDoc.exists()){
                 stringResponse.onError = Exception("The requested item doesn't exist")
             } else if (!itemDoc.contains("item_type")) {
                 stringResponse.onError = Exception("Invalid Item format")
             } else {
-                val getItemName = getItemNameFromPath(itemDoc["item_type"] as String)
+                val getItemName = getItemNameFromRef(itemDoc["item_type"] as DocumentReference)
                 if(getItemName.onError != null){
                     stringResponse.onError = getItemName.onError
                 } else {
@@ -221,29 +232,45 @@ object FirebaseHelper {
             ) {
                 messageResponse.onError = Exception("Invalid message format")
             } else {
-                val senderResponse = getUserFieldsFromPath(messageDoc["sender"] as String)
+                val senderResponse = getUserFieldsFromRef(messageDoc["sender"] as DocumentReference)
                 if (senderResponse.onError != null){
                     messageResponse.onError = senderResponse.onError
                 } else {
-                    val timeStamp = messageDoc["timestamp"] as LocalDateTime
+                    val timeStamp = messageDoc["timestamp"] as Timestamp
                     val body = messageDoc["body"] as String
 
                     val message: Message
                     when {
                         messageDoc.contains("location") -> {
-                            val location = messageDoc["location"] as Location
-                            message = LocationMessage(senderResponse.onSuccess!!.first, timeStamp, body, location)
+                            val location = messageDoc["location"] as GeoPoint
+
+                            message = LocationMessage(
+                                senderResponse.onSuccess!!.first,
+                                LocalDateTime.ofInstant(Instant.ofEpochSecond(timeStamp.seconds), ZoneId.of("UTC")),
+                                body,
+                                LocationService.fromGeoPoint(location))
                         }
                         messageDoc.contains("image_url") -> {
                             val imgUrl = messageDoc["image_url"] as String
-                            message = PicMessage(senderResponse.onSuccess!!.first, timeStamp, body, imgUrl)
+                            message = PicMessage(
+                                senderResponse.onSuccess!!.first,
+                                LocalDateTime.ofInstant(Instant.ofEpochSecond(timeStamp.seconds), ZoneId.of("UTC")),
+                                body,
+                                imgUrl)
                         }
                         messageDoc.contains("audio_url") -> {
                             val audioUrl = messageDoc["audio_url"] as String
-                            message = AudioMessage(senderResponse.onSuccess!!.first, timeStamp, body, audioUrl)
+                            message = AudioMessage(
+                                senderResponse.onSuccess!!.first,
+                                LocalDateTime.ofInstant(Instant.ofEpochSecond(timeStamp.seconds), ZoneId.of("UTC")),
+                                body,
+                                audioUrl)
                         }
                         else -> {
-                            message = Message(senderResponse.onSuccess!!.first, timeStamp, body)
+                            message = Message(
+                                senderResponse.onSuccess!!.first,
+                                LocalDateTime.ofInstant(Instant.ofEpochSecond(timeStamp.seconds), ZoneId.of("UTC")),
+                                body)
                         }
                     }
                     messageResponse.onSuccess = message
@@ -255,10 +282,10 @@ object FirebaseHelper {
         return messageResponse
     }
 
-    private suspend fun getUserFieldsFromPath(path: String): ConvUserResponse {
+    private suspend fun getUserFieldsFromRef(ref: DocumentReference): ConvUserResponse {
         val convUserResponse = ConvUserResponse()
         try {
-            val userDoc = Firebase.firestore.document(path).get().await()
+            val userDoc = ref.get().await()
             if(!userDoc.exists()){
                 convUserResponse.onError = Exception("The requested user doesn't exist")
             } else {
