@@ -14,9 +14,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
-        <activity
-            android:name=".ui.TagFoundActivity"
-            android:exported="false" />
         <!--
          Set custom default icon. This is used when no icon is set for incoming notification messages.
         See README(https://goo.gl/l4GJaQ) for more.
@@ -50,9 +47,6 @@
         <activity
             android:name=".ui.RegisterUserActivity"
             android:exported="false" />
-<!--        <activity-->
-<!--            android:name=".ui.SignInActivity"-->
-<!--            android:exported="false" />-->
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
