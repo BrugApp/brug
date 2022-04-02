@@ -21,7 +21,7 @@ class ChatMenuViewModel : ViewModel() {
         return mutableListOf(
             Conversation(
                 User("Anna", "Rosenberg", "anna@rosenberg.com", "123456"),
-                Item("AirPods", "My beloved AirPods", 0),
+                Item("AirPods", "My beloved AirPods", "0"),
                 mutableListOf(ChatMessage(
                     "Me",
                     0,
@@ -29,7 +29,7 @@ class ChatMenuViewModel : ViewModel() {
                     "Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne"))),
             Conversation(
                 User("Henry", "Crawford", "crawform@services.co.uk", "129271"),
-                Item("Wallet", "With all my belongings", 0),
+                Item("Wallet", "With all my belongings", "0"),
                 mutableListOf(ChatMessage(
                     "Me",
                     0,
@@ -37,7 +37,7 @@ class ChatMenuViewModel : ViewModel() {
                     "Hey ! I might have found your wallet yesterday near the EPFL campus"))),
             Conversation(
                 User("Jenna", "Hewitt", "jenna.hewitt@epfl.ch", "310827"),
-                Item("Keys", "Home keys", 0),
+                Item("Keys", "Home keys", "0"),
                 mutableListOf(ChatMessage(
                     "Me",
                     0,
@@ -45,7 +45,7 @@ class ChatMenuViewModel : ViewModel() {
                     "Fine, lets meet on Saturday then !"))),
             Conversation(
                 User("John", "Newmann", "john@microsoft.com", "1892122"),
-                Item("Smartphone", "Galaxy S22", 0),
+                Item("Smartphone", "Galaxy S22", "0"),
                 mutableListOf(ChatMessage(
                         "Me",
                         0,

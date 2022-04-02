@@ -39,7 +39,7 @@ class ChatActivityTest {
     val permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     private val dummyUser = User("John", "Doe", "john@doe.com", "310200")
-    private val dummyItem = Item("DummyItem", "Description", 0)
+    private val dummyItem = Item("DummyItem", "Description", "0")
     private val dummyDate = LocalDateTime.of(
         2022, Month.MARCH, 23, 15, 30
     )
