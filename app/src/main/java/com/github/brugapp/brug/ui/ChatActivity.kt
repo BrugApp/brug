@@ -6,6 +6,7 @@ import android.content.Intent
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.widget.ImageButton
 import android.widget.TextView
@@ -16,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.data.ConvResponse
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -52,21 +53,41 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(model: ChatViewModel) {
-        val conversation: Conversation =
-            intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
+        val convResponse: ConvResponse =
+            intent.getSerializableExtra(CHAT_INTENT_KEY) as ConvResponse
 
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
 
-        model.initViewModel(conversation.messages)
+        if(convResponse.onError != null){
+            Log.e("Firebase error", convResponse.onError.toString())
+        } else {
+            val conversation = convResponse.onSuccess!!
+            model.initViewModel(conversation.messages)
 
-        messageList.layoutManager = LinearLayoutManager(this)
-        messageList.adapter = model.getAdapter()
+            messageList.layoutManager = LinearLayoutManager(this)
+            messageList.adapter = model.getAdapter()
 
-        // Set the title bar name with informations related to the conversation
-        inflateActionBar(
-            "${conversation.user.getFirstName()} ${conversation.user.getLastName()}",
-            conversation.lostItem.getName()
-        )
+            // Set the title bar name with informations related to the conversation
+            val userName = if(conversation.userInfos.onError != null){
+                Log.e("Firebase error", conversation.userInfos.onError.toString())
+                "Unknown User"
+            } else {
+                conversation.userInfos.onSuccess!!.first
+            }
+
+            val lostItemName = if(conversation.lostItemName.onError != null){
+                Log.e("Firebase error", conversation.lostItemName.onError.toString())
+                "Unknown item"
+            } else {
+                conversation.lostItemName.onSuccess!!
+            }
+
+            inflateActionBar(
+                userName, lostItemName
+            )
+        }
+
+
     }
 
     private fun inflateActionBar(username: String, itemLost: String) {

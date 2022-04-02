@@ -18,10 +18,8 @@ import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.model.ChatImage
-import com.github.brugapp.brug.model.ChatMessage
-import com.github.brugapp.brug.model.ChatMessagesListAdapter
-import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.data.MessageResponse
+import com.github.brugapp.brug.model.*
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import java.io.File
@@ -38,23 +36,24 @@ class ChatViewModel : ViewModel() {
     private val locationRequestCode = 1
     private val locationListener = LocationListener { sendLocation(it) }
 
+    //TODO: REMOVE INITIAL INITIALIZATION AND REVERT TO LATEINIT VAR
     // For the list of messages
-    private lateinit var messages: MutableList<Message>
+    private var messages: MutableList<MessageResponse> = mutableListOf()
 
     // For the images
     private lateinit var imageUri: Uri
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
     private val TAKE_PICTURE_REQUEST_CODE = 1
 
-    fun initViewModel(messages: MutableList<Message>) {
+    fun initViewModel(messages: MutableList<MessageResponse>) {
         this.messages = messages
         this.adapter = ChatMessagesListAdapter(messages)
     }
 
-    fun initAdapter() {
-        chatArrayList = arrayListOf()
-        adapter = ChatMessagesListAdapter(chatArrayList)
-    }
+//    fun initAdapter() {
+//        chatArrayList = arrayListOf()
+//        adapter = ChatMessagesListAdapter(chatArrayList)
+//    }
 
     fun getAdapter(): ChatMessagesListAdapter {
         return adapter
@@ -62,8 +61,9 @@ class ChatViewModel : ViewModel() {
 
     fun sendMessage(content: String) {
         // TODO: Change the sender text to something related to the actual user in the future
-        val newMessage = ChatMessage(content, 0, LocalDateTime.now(), "Me")
-        messages.add(newMessage)
+        //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
+        val newMessage = Message("Me", LocalDateTime.now(), content)//ChatMessage(content, 0, LocalDateTime.now(), "Me")
+        messages.add(MessageResponse(newMessage))
         adapter.notifyItemInserted(messages.size - 1)
     }
 
@@ -140,9 +140,10 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun sendLocation(location: Location) {
-        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
-        val newMessage = ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
-        messages.add(newMessage)
+        //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
+//        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
+        val newMessage = LocationMessage("Me", LocalDateTime.now(), "Location", location)//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
+        messages.add(MessageResponse(newMessage))
         adapter.notifyItemInserted(messages.size - 1)
         // TODO: Removed from now (to prevent the use of Firebase)
         // sendMessage(locationString)
@@ -230,8 +231,9 @@ class ChatViewModel : ViewModel() {
 
         //storageRef.putFile(imageUri).addOnSuccessListener { ... }
 
-        val newMessage = ChatImage(imageUri.toString(), "Me", 0, LocalDateTime.now(), "An image")
-        messages.add(newMessage)
+        //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
+        val newMessage = PicMessage("Me", LocalDateTime.now(), "An image", imageUri.toString())
+        messages.add(MessageResponse(newMessage))
         adapter.notifyItemInserted(messages.size - 1)
     }
 

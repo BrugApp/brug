@@ -6,5 +6,5 @@ data class PicMessage(
     override val sender: String,
     override val timestamp: LocalDateTime,
     override val body: String,
-    private val imgUrl: String)
+    val imgUrl: String)
     : Message(sender, timestamp, body)

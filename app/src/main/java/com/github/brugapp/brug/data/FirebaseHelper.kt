@@ -14,7 +14,6 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -28,7 +27,6 @@ private const val ITEMS_DB = "Items"
 
 object FirebaseHelper {
 
-    private val db: FirebaseFirestore = Firebase.firestore
     private val mAuth: FirebaseAuth = Firebase.auth
 
     //returns Firestore authentication
@@ -48,12 +46,12 @@ object FirebaseHelper {
 
     //returns the collection of users from the Firestore database
     fun getUserCollection(): CollectionReference {
-        return db.collection("Users")
+        return Firebase.firestore.collection("Users")
     }
 
     //returns the collection of chats from the Firestore database
     fun getChatCollection(): CollectionReference {
-        return db.collection("Chat")
+        return Firebase.firestore.collection("Chat")
     }
 
     //returns the specific chat document between userID1 and userID2
@@ -72,70 +70,106 @@ object FirebaseHelper {
     }
 
 
-    //TODO: REFACTOR USER CLASS TO HOLD THE NECESSARY VALUES
-    suspend fun getAuthUserFieldsFromID(uid: String): UserResponse {
-        val userResponse = UserResponse()
+//    //TODO: REFACTOR USER CLASS TO HOLD THE NECESSARY VALUES
+//    suspend fun getCompleteUserFromID(uid: String): UserResponse {
+//        val userResponse = UserResponse()
+//        try {
+//            val userDoc = db.collection(USERS_DB).document(uid)
+//            val retrievedUserDoc = userDoc.get().await()
+//
+//
+//            if(!retrievedUserDoc.exists()){
+//                userResponse.onError = Exception("The requested user doesn't exist")
+//            } else if(!retrievedUserDoc.contains("firstname")
+//                || !retrievedUserDoc.contains("lastname")
+//                || !retrievedUserDoc.contains("user_icon")
+//                || !retrievedUserDoc.contains("conversations")) {
+//                userResponse.onError = Exception("Invalid User format")
+//            } else {
+//                val firstname = retrievedUserDoc["firstname"] as String
+//                val lastname = retrievedUserDoc["lastname"] as String
+//                val userIconPath = retrievedUserDoc["user_icon"] as String
+//                val userItems = userDoc.collection(ITEMS_DB).get().await().map { item ->
+//                    getUserItemFromSnapshot(item)
+//                }
+//                val userConvs = userDoc.collection(CONV_REFS_DB).get().await().map{ conversation ->
+//                    getUserConvFromSnapshot(conversation, userDoc.id)
+//                }
+//                userResponse.onSuccess = User(firstname, lastname, userIconPath, userItems.toMutableList(), userConvs.toMutableList())
+//            }
+//        } catch (e: Exception){
+//            userResponse.onError = e
+//        }
+//        return userResponse
+//    }
+//
+//
+//    //TODO: REFACTOR ITEM CLASS TO HOLD ISLOST IN PARAMETERS
+//    private suspend fun getUserItemFromSnapshot(item: QueryDocumentSnapshot): ItemResponse {
+//        val itemResponse = ItemResponse()
+//        try {
+//            if(!item.contains("item_type")
+//                || !item.contains("item_description")
+//                || !item.contains("is_lost")){
+//                itemResponse.onError = Exception("Invalid Item format")
+//            } else {
+//                val itemTypePair = getItemNameFromPath(item["item_type"] as String)
+//                val itemDesc = item["item_description"] as String
+//                val isLostFlag = item["is_lost"] as Boolean
+//                itemResponse.onSuccess = Item(itemTypePair, itemDesc, isLostFlag)
+//            }
+//        } catch (e: Exception) {
+//            itemResponse.onError = e
+//        }
+//        return itemResponse
+//    }
+//
+
+
+    // NEEDED FUNCTION TO RETRIEVE ITEM NAME
+    private suspend fun getItemNameFromPath(path: String): ItemTypeResponse {
+        val stringPairResponse = ItemTypeResponse()
         try {
-            val userDoc = db.collection(USERS_DB).document(uid)
-            val retrievedUserDoc = userDoc.get().await()
-
-
-            if(!retrievedUserDoc.exists()){
-                userResponse.onError = Exception("The requested user doesn't exist")
-            } else if(!retrievedUserDoc.contains("firstname")
-                || !retrievedUserDoc.contains("lastname")
-                || !retrievedUserDoc.contains("user_icon")
-                || !retrievedUserDoc.contains("conversations")) {
-                userResponse.onError = Exception("Invalid User format")
+            val itemTypeDoc = Firebase.firestore.document(path).get().await()
+            if(!itemTypeDoc.exists()){
+                stringPairResponse.onError = Exception("The requested item type doesn't exist")
+            } else if(
+                !itemTypeDoc.contains("type_icon")
+                || !itemTypeDoc.contains("type_name")) {
+                stringPairResponse.onError = Exception("Invalid Item Type format")
             } else {
-                val firstname = retrievedUserDoc["firstname"] as String
-                val lastname = retrievedUserDoc["lastname"] as String
-                val userIconPath = retrievedUserDoc["user_icon"] as String
-                val userItems = userDoc.collection(ITEMS_DB).get().await().map { item ->
-                    getUserItemFromSnapshot(item)
-                }
-                val userConvs = userDoc.collection(CONV_REFS_DB).get().await().map{ conversation ->
-                    getUserConvFromSnapshot(conversation, userDoc.id)
-                }
-                userResponse.onSuccess = User(firstname, lastname, userIconPath, userItems, userConvs)
+                val itemName = itemTypeDoc["type_name"] as String
+                val itemPicPath = itemTypeDoc["type_icon"] as String
+                stringPairResponse.onSuccess = Pair(itemName, itemPicPath)
             }
-        } catch (e: Exception){
-            userResponse.onError = e
+        } catch(e: Exception){
+            stringPairResponse.onError = e
         }
-        return userResponse
+        return stringPairResponse
     }
 
 
-    //TODO: REFACTOR ITEM CLASS TO HOLD ISLOST IN PARAMETERS
-    private suspend fun getUserItemFromSnapshot(item: QueryDocumentSnapshot): ItemResponse {
-        val itemResponse = ItemResponse()
+    suspend fun getConversationsFromUserID(uid: String): TempConvListResponse {
+        val tempConvListResponse = TempConvListResponse()
         try {
-            if(!item.contains("item_name")
-                || !item.contains("item_type")
-                || !item.contains("item_description")
-                || !item.contains("is_lost")){
-                itemResponse.onError = Exception("Invalid Item format")
-            } else {
-                val itemName = item["item_name"] as String
-                val itemTypePath = item["item_type"] as String
-                val itemDesc = item["item_description"] as String
-                val isLostFlag = item["is_lost"] as Boolean
-                itemResponse.onSuccess = Item(itemName, itemDesc, itemTypePath, isLostFlag)
+            val convSnapshot = Firebase.firestore.collection(USERS_DB).document(uid).collection(CONV_REFS_DB).get().await().map { conv ->
+                getUserConvFromSnapshot(conv, uid)
             }
-        } catch (e: Exception) {
-            itemResponse.onError = e
+            tempConvListResponse.onSuccess = convSnapshot
+        } catch(e: Exception) {
+            tempConvListResponse.onError = e
         }
-        return itemResponse
+        return tempConvListResponse
     }
 
-
+    // MY PART
     private suspend fun getUserConvFromSnapshot(conv: QueryDocumentSnapshot, uid: String): ConvResponse {
         val convResponse = ConvResponse()
         try{
             if(!conv.contains("lost_item_path")){
                 convResponse.onError = Exception("Invalid Conversation format")
             } else {
-                val convUserID = getUserNameFromPath(getConvUserNameFromID("$USERS_DB/${conv.id}", uid))
+                val convUserID = getUserFieldsFromPath(parseConvUserNameFromID("$USERS_DB/${conv.id}", uid))
                 val lostItemName = getLostItemNameFromRef(conv["lost_item_path"] as String)
                 val messages = conv.reference.collection(MSG_DB).get().await().map { message -> //NEED TO CHECK IF CORRECT
                     getConvMessageFromSnapshot(message)
@@ -150,20 +184,26 @@ object FirebaseHelper {
         return convResponse
     }
 
-    private fun getConvUserNameFromID(convID: String, uid: String): String {
+    private fun parseConvUserNameFromID(convID: String, uid: String): String {
         return convID.replace(uid, "", ignoreCase = false)
     }
 
-    private suspend fun getLostItemNameFromRef(ref: String): StringResponse {
-        val stringResponse = StringResponse()
+    // MAYBE CONSIDER REFACTORING
+    private suspend fun getLostItemNameFromRef(ref: String): ItemNameResponse {
+        val stringResponse = ItemNameResponse()
         try {
-            val itemDoc = db.document(ref).get().await()
+            val itemDoc = Firebase.firestore.document(ref).get().await()
             if(!itemDoc.exists()){
                 stringResponse.onError = Exception("The requested item doesn't exist")
-            } else if (!itemDoc.contains("item_name")) {
+            } else if (!itemDoc.contains("item_type")) {
                 stringResponse.onError = Exception("Invalid Item format")
             } else {
-                stringResponse.onSuccess = itemDoc["item_name"] as String
+                val getItemName = getItemNameFromPath(itemDoc["item_type"] as String)
+                if(getItemName.onError != null){
+                    stringResponse.onError = getItemName.onError
+                } else {
+                    stringResponse.onSuccess = getItemName.onSuccess!!.first
+                }
             }
         } catch(e: Exception){
             stringResponse.onError = e
@@ -172,9 +212,6 @@ object FirebaseHelper {
         return stringResponse
     }
 
-
-    //TODO: REFACTOR MESSAGE CLASS TO REMOVE MID
-    //TODO: HAVE MANY MESSAGE TYPES IMPLEMENTATIONS
     private suspend fun getConvMessageFromSnapshot(messageDoc: QueryDocumentSnapshot): MessageResponse {
         val messageResponse = MessageResponse()
         try {
@@ -184,9 +221,9 @@ object FirebaseHelper {
             ) {
                 messageResponse.onError = Exception("Invalid message format")
             } else {
-                val senderNameResponse = getUserNameFromPath(messageDoc["sender"] as String)
-                if (senderNameResponse.onError != null){
-                    messageResponse.onError = senderNameResponse.onError
+                val senderResponse = getUserFieldsFromPath(messageDoc["sender"] as String)
+                if (senderResponse.onError != null){
+                    messageResponse.onError = senderResponse.onError
                 } else {
                     val timeStamp = messageDoc["timestamp"] as LocalDateTime
                     val body = messageDoc["body"] as String
@@ -194,22 +231,19 @@ object FirebaseHelper {
                     val message: Message
                     when {
                         messageDoc.contains("location") -> {
-                            //TODO: PROPERLY HANDLE LOCATION MESSAGES
                             val location = messageDoc["location"] as Location
-                            message = LocationMessage(senderNameResponse.onSuccess!!, timeStamp, body, location)
+                            message = LocationMessage(senderResponse.onSuccess!!.first, timeStamp, body, location)
                         }
                         messageDoc.contains("image_url") -> {
-                            //TODO: PROPERLY HANDLE IMAGE MESSAGES
                             val imgUrl = messageDoc["image_url"] as String
-                            message = PicMessage(senderNameResponse.onSuccess!!, timeStamp, body, imgUrl)
+                            message = PicMessage(senderResponse.onSuccess!!.first, timeStamp, body, imgUrl)
                         }
                         messageDoc.contains("audio_url") -> {
-                            //TODO: PROPERLY HANDLE AUDIO MESSAGES
                             val audioUrl = messageDoc["audio_url"] as String
-                            message = AudioMessage(senderNameResponse.onSuccess!!, timeStamp, body, audioUrl)
+                            message = AudioMessage(senderResponse.onSuccess!!.first, timeStamp, body, audioUrl)
                         }
                         else -> {
-                            message = Message(senderNameResponse.onSuccess!!, timeStamp, body)
+                            message = Message(senderResponse.onSuccess!!.first, timeStamp, body)
                         }
                     }
                     messageResponse.onSuccess = message
@@ -221,23 +255,27 @@ object FirebaseHelper {
         return messageResponse
     }
 
-    private suspend fun getUserNameFromPath(path: String): StringResponse {
-        val stringResponse = StringResponse()
+    private suspend fun getUserFieldsFromPath(path: String): ConvUserResponse {
+        val convUserResponse = ConvUserResponse()
         try {
-            val userDoc = db.document(path).get().await()
+            val userDoc = Firebase.firestore.document(path).get().await()
             if(!userDoc.exists()){
-                stringResponse.onError = Exception("The requested user doesn't exist")
+                convUserResponse.onError = Exception("The requested user doesn't exist")
             } else {
-                if(userDoc.contains("firstname") && userDoc.contains("lastname")){
-                    stringResponse.onSuccess = "${userDoc["firstname"] as String} ${userDoc["lastname"] as String}"
+                if(!userDoc.contains("firstname")
+                    || !userDoc.contains("lastname")
+                    || !userDoc.contains("user_icon")){
+                    convUserResponse.onError = Exception("Invalid user format")
                 } else {
-                    stringResponse.onError = Exception("Invalid user format")
+                    convUserResponse.onSuccess = Pair(
+                        "${userDoc["firstname"] as String} ${userDoc["lastname"] as String}",
+                        userDoc["user_icon"] as String)
                 }
             }
         } catch (e: Exception){
-            stringResponse.onError = e
+            convUserResponse.onError = e
         }
-        return stringResponse
+        return convUserResponse
     }
 
 
