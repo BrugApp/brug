@@ -12,14 +12,6 @@ import javax.inject.Inject
 class SettingsActivity : AppCompatActivity() {
 
     @Inject lateinit var fragmentFactory: SettingsFragmentFactory
-    //private val viewModel: SettingsViewModel by viewModels()
-    //private val getContent = registerForActivityResult(GetContent()) { uri: Uri? ->
-    //    if (uri != null) {
-    //        viewModel.setProfilePic(uri, this)
-    //    }
-    //    val myIntent = Intent(this, SettingsActivity::class.java)
-    //    startActivity(myIntent)
-    //}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,13 +20,5 @@ class SettingsActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment,SettingsFragment::class.java,null)
             .commit()
-       // val button = findViewById<Button>(R.id.loadButton)
-       // button.setOnClickListener {
-       //     getContent.launch("image/*")
-   //  //       ImageContract(this.activityResultRegistry).getImageFromGallery().observe(this) {
-   //  //           it?.let { u ->
-   //  //               viewModel.setProfilePic(u, this)
-   //  //           }
-   //  //       }
         }
     }

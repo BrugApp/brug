@@ -39,9 +39,6 @@ import org.junit.runner.RunWith
  * Settings Activity Tests
  *
  */
-//@UninstallModules(
-//    SettingsModule::class
-//)
 @HiltAndroidTest
 @UninstallModules(ActivityResultModule::class)
 @RunWith(AndroidJUnit4::class)
@@ -95,7 +92,6 @@ class SettingsTest {
 
         ActivityScenario.launch<SignInActivity>(intent).use {
             Espresso.onView(ViewMatchers.withId(R.id.loadButton)).perform(click())
-            Log.d("temp",MockDatabase.currentUser.getProfilePicture().toString())
             assert(MockDatabase.currentUser.getProfilePicture()==null )
         }
     }

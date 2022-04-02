@@ -34,16 +34,13 @@ class SettingsFragment(
 
     private val getContent = registerForActivityResult(ActivityResultContracts.GetContent(),registry) { uri: Uri? ->
         if(uri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
-            Log.d("temp", "I'm begin in $uri")
             val inputStream = activity?.contentResolver?.openInputStream(uri)
-            Log.d("temp", "I'm begin in stream $inputStream")
             val drawable = Drawable.createFromStream(inputStream, uri.toString())
             activity?.let {
                 Log.d("temp", "I'm begin in $drawable")
                 viewModel.setProfilePic(resize(drawable))
             }
         }
-        Log.d("temp","I'm in")
         val myIntent = Intent(activity, SettingsActivity::class.java)
         startActivity(myIntent)
     }
