@@ -6,6 +6,8 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
+import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.Message
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -13,9 +15,20 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
+import java.time.LocalDateTime
 
+
+private const val USERS_DB = "Users"
+private const val MSG_DB = "Messages"
+private const val CONV_DB = "Conversations"
+private const val ITEM_TYPE_DB = "Item_Type"
+private const val ITEMS_DB = "Items"
+
+//TODO: UNDERSTAND HOW TO RETURN VALUES FROM PRIVATE FIREBASE FUNCTIONS
 class FirebaseHelper {
 
     private val db: FirebaseFirestore = Firebase.firestore
@@ -60,6 +73,153 @@ class FirebaseHelper {
     fun addRegisterUserTask(userToAdd: HashMap<String, Any>): Task<DocumentReference> {
         return getUserCollection().add(userToAdd)
     }
+
+
+
+    suspend fun getUserConvFromRef(ref: String, uid: String): ConvResponse {
+        val convResponse = ConvResponse()
+        try{
+            val convDoc = db.document(ref)
+            val retrievedConv = convDoc.get().await()
+
+            if(!retrievedConv.exists()){
+                convResponse.onError = Exception("The requested Conversation doesn't exist")
+            } else {
+                if(!retrievedConv.contains("lost_item_path")){
+                    convResponse.onError = Exception("Invalid Conversation format")
+                } else {
+                    val convUserID = getUserNameFromPath(getConvUserNameFromID("$USERS_DB/${retrievedConv.id}", uid))
+                    val lostItemName = getLostItemNameFromRef(retrievedConv["lost_item_path"] as String)
+                    val messages = convDoc.collection(MSG_DB).get().await().map { message ->
+                        getConvMessageFromSnapshot(message)
+                    }
+
+                    convResponse.onSuccess = Conversation(convUserID, lostItemName, messages.toMutableList())
+                }
+            }
+        } catch (e: Exception) {
+            convResponse.onError = e
+        }
+        return convResponse
+    }
+
+    private fun getConvUserNameFromID(convID: String, uid: String): String {
+        return convID.replace(uid, "", ignoreCase = false)
+    }
+
+    private suspend fun getLostItemNameFromRef(ref: String): StringResponse {
+        val stringResponse = StringResponse()
+        try {
+            val itemDoc = db.document(ref).get().await()
+            if(!itemDoc.exists()){
+                stringResponse.onError = Exception("The requested item doesn't exist")
+            } else if (!itemDoc.contains("item_name")) {
+                stringResponse.onError = Exception("Invalid Item format")
+            } else {
+                stringResponse.onSuccess = itemDoc["item_name"] as String
+            }
+        } catch(e: Exception){
+            stringResponse.onError = e
+        }
+
+        return stringResponse
+    }
+
+
+    //TODO: REFACTOR MESSAGE CLASS TO REMOVE MID
+    //TODO: HAVE MANY MESSAGE TYPES IMPLEMENTATIONS
+    private suspend fun getConvMessageFromSnapshot(messageDoc: QueryDocumentSnapshot): MessageResponse {
+        val messageResponse = MessageResponse()
+        try {
+            if (!messageDoc.contains("sender")
+                || !messageDoc.contains("timestamp")
+                || !messageDoc.contains("body")
+            ) {
+                messageResponse.onError = Exception("Invalid message format")
+            } else {
+                val senderNameResponse = getUserNameFromPath(messageDoc["sender"] as String)
+                if (senderNameResponse.onError != null){
+                    messageResponse.onError = senderNameResponse.onError
+                } else {
+                    val timeStamp = messageDoc["timestamp"] as LocalDateTime
+                    val body = messageDoc["body"] as String
+
+                    val message: Message
+                    when {
+                        messageDoc.contains("location") -> {
+                            //TODO: PROPERLY HANDLE LOCATION MESSAGES
+                            val location = messageDoc["location"]
+                            message = Message(senderNameResponse.onSuccess!!, timeStamp, body)
+                        }
+                        messageDoc.contains("image_url") -> {
+                            //TODO: PROPERLY HANDLE IMAGE MESSAGES
+                            val imgUrl = messageDoc["image_url"]
+                            message = Message(senderNameResponse.onSuccess!!, timeStamp, body)
+                        }
+                        messageDoc.contains("audio_url") -> {
+                            //TODO: PROPERLY HANDLE AUDIO MESSAGES
+                            val audioUrl = messageDoc["audio_url"]
+                            message = Message(senderNameResponse.onSuccess!!, timeStamp, body)
+                        }
+                        else -> {
+                            message = Message(senderNameResponse.onSuccess!!, timeStamp, body)
+                        }
+                    }
+                    messageResponse.onSuccess = message
+                }
+            }
+        } catch(e: Exception){
+            messageResponse.onError = e
+        }
+        return messageResponse
+    }
+
+    private suspend fun getUserNameFromPath(path: String): StringResponse {
+        val stringResponse = StringResponse()
+        try {
+            val userDoc = db.document(path).get().await()
+            if(!userDoc.exists()){
+                stringResponse.onError = Exception("The requested user doesn't exist")
+            } else {
+                if(userDoc.contains("firstname") && userDoc.contains("lastname")){
+                    stringResponse.onSuccess = "${userDoc["firstname"] as String} ${userDoc["lastname"] as String}"
+                } else {
+                    stringResponse.onError = Exception("Invalid user format")
+                }
+            }
+        } catch (e: Exception){
+            stringResponse.onError = e
+        }
+        return stringResponse
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //adds a new message parameter to the Firestore database message collection
     fun addDocumentMessage(
