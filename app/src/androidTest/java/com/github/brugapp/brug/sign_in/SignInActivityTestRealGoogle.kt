@@ -61,7 +61,7 @@ class SignInActivityTestRealGoogle {
     }
 
     @Test
-    fun signInActivityWorksOnFakeResult() {
+    fun signInActivityFailsOnFakeResult() {
 
         intending(
             hasComponent(
@@ -83,13 +83,12 @@ class SignInActivityTestRealGoogle {
                 activity.getSignInResult.launch(Intent(activity.intent))
             }
 
-            Intents.intended(
-                hasComponent(
-                    hasClassName(
-                        ItemsMenuActivity::class.java.name
-                    )
-                )
-            )
+            // check if contains guest button
+            onView(withId(R.id.qr_found_btn))
+                .check(matches(isDisplayed()))
+            // check if contains sign out button
+            onView(withId(R.id.sign_in_google_button))
+                .check(matches(isDisplayed()))
         }
     }
 }

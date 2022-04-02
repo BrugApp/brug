@@ -46,29 +46,18 @@ class SignInActivityTestFakeGoogle {
     @get:Rule
     val rule = HiltAndroidRule(this)
 
-    @Before
-    fun setUp() {
-        Intents.init()
-    }
-
-    @After
-    fun cleanUp() {
-        Intents.release()
-    }
-
     @Test
-    fun signInActivityWorksForDefaultSignedInUser() {
+    fun signInActivityFailsForDefaultSignedInUser() {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
 
         ActivityScenario.launch<SignInActivity>(intent).use {
-            Intents.intended(
-                IntentMatchers.hasComponent(
-                    ComponentNameMatchers.hasClassName(
-                        ItemsMenuActivity::class.java.name
-                    )
-                )
-            )
+            // check if contains guest button
+            onView(withId(R.id.qr_found_btn))
+                .check(matches(isDisplayed()))
+            // check if contains sign out button
+            onView(withId(R.id.sign_in_google_button))
+                .check(matches(isDisplayed()))
         }
 
     }
