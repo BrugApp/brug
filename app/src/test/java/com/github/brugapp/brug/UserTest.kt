@@ -3,6 +3,7 @@ package com.github.brugapp.brug
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
 import org.hamcrest.MatcherAssert.*
+import org.junit.Assert
 import java.lang.IllegalArgumentException
 import org.junit.Test
 import org.hamcrest.CoreMatchers.`is` as Is
@@ -10,40 +11,54 @@ import org.hamcrest.CoreMatchers.`is` as Is
 
 class UserTest {
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun invalidFirstName() {
         val firstName = "   "
-        User(firstName, "Kikou", "rayan.kikou@gmail.com", "0")
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            User(firstName, "Kikou", "rayan.kikou@gmail.com", "0")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun emptyFirstName() {
         val firstName = ""
-        User(firstName, "Kikou", "rayan.kikou@gmail.com", "0")
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            User(firstName, "Kikou", "rayan.kikou@gmail.com", "0")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun invalidLastName() {
         val lastName = "   "
-        User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun emptyLastName() {
         val lastName = ""
-        User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            User("Rayan", lastName, "rayan.kikou@gmail.com", "0")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun invalidEmail() {
         val email = "test.com"
-        User("Rayan", "Kikou", email, "0")
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            User("Rayan", "Kikou", email, "0")
+        }
+
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun invalidID() {
         val id = ""
-        User("Rayan", "Kikou", "rayan.kikou@gmail.com", id)
+        Assert.assertThrows(IllegalArgumentException::class.java) {
+            User("Rayan", "Kikou", "rayan.kikou@gmail.com", id)
+        }
+
     }
 
     @Test

@@ -65,11 +65,11 @@ class Item// Generate the id later
         return this
     }
 
-    fun getIcon():Int{
+    fun getIcon():Int {
         return iconId
     }
 
-    fun setDescription(description : String){
+    fun setDescription(description : String) {
         this.description = description
     }
 }

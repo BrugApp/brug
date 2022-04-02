@@ -2,25 +2,28 @@ package com.github.brugapp.brug
 
 import com.github.brugapp.brug.model.Item
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.hamcrest.CoreMatchers.`is` as Is
 
 class ItemTest {
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun invalidNameItemTest() {
         val blankName = "    "
         val description = "Grey wallet"
-        Item(blankName, description, "1")
-
+        assertThrows(IllegalArgumentException::class.java) {
+            Item(blankName, description, "1")
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun emptyNameItemTest() {
         val emptyName = ""
         val description = "Grey wallet"
-        Item(emptyName, description, "1")
-
+        assertThrows(IllegalArgumentException::class.java) {
+            Item(emptyName, description, "1")
+        }
     }
 
     @Test
@@ -56,7 +59,7 @@ class ItemTest {
 
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test
     fun setInvalidNameTest() {
         val itemName = "Wallet"
         val itemId = "1"
@@ -65,8 +68,9 @@ class ItemTest {
 
         val invalidName = "    "
 
-        validUser.setName(invalidName)
-
+        assertThrows(IllegalArgumentException::class.java) {
+            validUser.setName(invalidName)
+        }
     }
 
     @Test
