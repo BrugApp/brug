@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
-import android.util.Log
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.core.app.ActivityOptionsCompat
@@ -15,6 +14,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.assertThat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
 import com.github.brugapp.brug.fake.MockDatabase
@@ -28,6 +28,8 @@ import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import org.hamcrest.Matchers.nullValue
+import org.hamcrest.core.Is
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -92,7 +94,7 @@ class SettingsTest {
 
         ActivityScenario.launch<SignInActivity>(intent).use {
             Espresso.onView(ViewMatchers.withId(R.id.loadButton)).perform(click())
-            assert(MockDatabase.currentUser.getProfilePicture()==null )
+            assertThat(MockDatabase.currentUser.getProfilePicture(), Is(nullValue()) )
         }
     }
 
