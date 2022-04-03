@@ -62,4 +62,7 @@
     <string name="unlost_logo_description">Unlost logo</string>
     <string name="send_image">Send image</string>
     <string name="send_image_via_camera">Send image via camera</string>
+    <string name="profile_picture">Profile picture</string>
+    <string name="load_profile_picture">Load</string>
+    >>>>>>> main
 </resources>
