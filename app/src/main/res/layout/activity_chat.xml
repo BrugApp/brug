@@ -78,6 +78,13 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_baseline_send_24" />
+
+        <com.devlomi.record_view.RecordView
+            android:layout_width="20dp"
+            android:layout_height="20dp">
+
+        </com.devlomi.record_view.RecordView>
+
     </LinearLayout>
 
 

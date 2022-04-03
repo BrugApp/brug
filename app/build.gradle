@@ -57,6 +57,13 @@ dependencies {
     def lifecycle_version = "2.5.0-alpha05"
     def arch_version = "2.1.0"
 
+    //for AppCompat use:
+    //appcompat v26+ is highly recommended to support older APIs
+    //implementation 'com.devlomi.record-view:record-view:2.0.1'
+
+    //for AndroidX use:
+    implementation 'com.github.3llomi:RecordView:3.1.1'
+
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     // ViewModel utilities for Compose
