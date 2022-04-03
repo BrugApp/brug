@@ -2,22 +2,24 @@ package com.github.brugapp.brug.view_model
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
+import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.model.ChatImage
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
@@ -33,6 +35,9 @@ class ChatViewModel : ViewModel() {
     // For the message list
     private lateinit var chatArrayList: ArrayList<Message>
     private lateinit var adapter: ChatMessagesListAdapter
+    private lateinit var mediaRecorder : MediaRecorder
+    private lateinit var audioPath : String
+    private val RECORDING_REQUEST_CODE : Int = 3000
 
     // For the localisation
     private val locationRequestCode = 1
@@ -276,4 +281,51 @@ class ChatViewModel : ViewModel() {
             })
     }
     */
+
+    fun isAudioPermissionOk(context : Context) : Boolean{
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestRecording(activity: Activity){
+        requestPermissions(activity, Array(1){Manifest.permission.RECORD_AUDIO}, RECORDING_REQUEST_CODE)
+    }
+
+    fun setupRecording(){
+
+        mediaRecorder = MediaRecorder()
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+        val file = File(Environment.getExternalStorageDirectory().absolutePath, "ChatMe/Media/Recording")
+
+        if (!file.exists()) {
+            file.mkdirs()
+        }
+        audioPath = file.absolutePath + File.separator + System.currentTimeMillis() + ".3gp"
+
+        mediaRecorder.setOutputFile(audioPath)
+    }
+
+    fun startRecording(){
+        mediaRecorder.prepare()
+        mediaRecorder.start()
+    }
+
+    fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
+        recordButton.isListenForRecord = bool
+    }
+
+    fun deleteAudio(){
+
+        mediaRecorder.reset()
+        mediaRecorder.release()
+        val file = File(audioPath)
+        if(file.exists()){
+            file.delete()
+        }
+
+    }
+
+
 }

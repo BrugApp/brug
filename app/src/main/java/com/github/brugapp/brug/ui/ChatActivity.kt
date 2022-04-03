@@ -4,17 +4,21 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
+import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.devlomi.record_view.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.view_model.ChatViewModel
@@ -29,6 +33,13 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var messageList: RecyclerView
+    private lateinit var buttonSendTextMessage : ImageButton
+    private lateinit var recordButton : RecordButton
+    private lateinit var messageLayout : LinearLayout
+    private lateinit var audioRecMessage : TextView
+    private lateinit var buttonSendAudio : ImageButton
+    private lateinit var deleteAudio : ImageButton
+    private lateinit var textMessage : EditText
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,11 +51,28 @@ class ChatActivity : AppCompatActivity() {
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        buttonSendTextMessage = findViewById(R.id.buttonSendMessage)
+
         initMessageList(model)
         initSendMessageButton(model)
         initSendLocationButton(model, locationManager, fusedLocationClient)
         initSendImageButton(model)
         //initSendImageCameraButton() // TODO: Implement this
+
+        messageLayout = findViewById(R.id.messageLayout)
+        audioRecMessage = findViewById(R.id.audioRecording)
+        buttonSendAudio = findViewById(R.id.buttonSendAudio)
+
+        recordButton = findViewById(R.id.recordButton)
+        model.setListenForRecord(recordButton, false)
+        initRecordButton(model)
+
+        deleteAudio = findViewById(R.id.deleteAudio)
+        initDeleteAudioButton(model)
+
+        textMessage = findViewById(R.id.editMessage)
+        initTextInputField()
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -76,8 +104,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initSendMessageButton(model: ChatViewModel) {
         // SEND MESSAGE BUTTON
-        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendMessage)
-        buttonSendMessage.setOnClickListener {
+        buttonSendTextMessage.setOnClickListener {
             // Get elements from UI
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
             // Clear the message field
@@ -167,5 +194,61 @@ class ChatActivity : AppCompatActivity() {
             Toast.makeText(this, "Image uploaded", Toast.LENGTH_SHORT).show()
             viewModel.uploadImage(this)
         }
+    }
+
+    private fun initRecordButton(model : ChatViewModel) {
+        recordButton.setOnClickListener {
+
+            if(model.isAudioPermissionOk(this)){
+                model.setListenForRecord(recordButton, true)
+            }else{
+                model.requestRecording(this)
+            }
+
+            model.setupRecording()
+
+            model.startRecording()
+
+            messageLayout.visibility = View.GONE
+            recordButton.visibility = View.GONE
+            buttonSendAudio.visibility = View.VISIBLE
+            deleteAudio.visibility = View.VISIBLE
+            audioRecMessage.visibility = View.VISIBLE
+
+        }
+    }
+
+    private fun initDeleteAudioButton(model : ChatViewModel){
+        deleteAudio.setOnClickListener {
+            model.deleteAudio()
+            buttonSendAudio.visibility = View.GONE
+            deleteAudio.visibility = View.GONE
+            audioRecMessage.visibility = View.GONE
+            messageLayout.visibility = View.VISIBLE
+            recordButton.visibility = View.VISIBLE
+        }
+    }
+
+    private fun initTextInputField(){
+        textMessage.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                if (s.toString().trim().isEmpty()) {
+                    buttonSendTextMessage.visibility = View.GONE
+                    recordButton.visibility = View.VISIBLE
+                }else{
+                    recordButton.visibility = View.GONE
+                    buttonSendTextMessage.visibility = View.VISIBLE
+                }
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
     }
 }

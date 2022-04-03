@@ -24,50 +24,76 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <EditText
-            android:id="@+id/editMessage"
+        <LinearLayout
+            android:id="@+id/messageLayout"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.8"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <EditText
+                android:id="@+id/editMessage"
+                android:layout_width="186dp"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:autofillHints=""
+                android:ems="10"
+                android:hint="@string/message"
+                android:inputType="textPersonName"
+                android:textColorHint="#757575"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonSendLocalisation"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageButton
+                android:id="@+id/buttonSendLocalisation"
+                style="@android:style/Widget.Holo.ImageButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:contentDescription="@string/send_localisation"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
+                app:srcCompat="@drawable/ic_baseline_location_on_24" />
+
+            <ImageButton
+                android:id="@+id/buttonSendImage"
+                style="@android:style/Widget.Holo.ImageButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:contentDescription="@string/send_image"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@drawable/ic_baseline_image_24" />
+
+            <ImageButton
+                android:id="@+id/buttonSendImagePerCamera"
+                style="@android:style/Widget.Holo.ImageButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:contentDescription="@string/send_image_via_camera"
+                app:tint="#FFFFFF"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:srcCompat="@drawable/ic_baseline_camera_24" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/audioRecording"
+            android:layout_width="34dp"
             android:layout_height="50dp"
+            android:layout_weight="1"
             android:autofillHints=""
             android:ems="10"
-            android:hint="@string/message"
-            android:inputType="textPersonName"
-            android:textColorHint="#757575"
+            android:hint="@string/RecordingAudio"
+            android:textAlignment="center"
+            android:textColorHint="#FA4B4B"
+            android:textSize="24sp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonSendLocalisation"
-            android:layout_weight="1"
             app:layout_constraintStart_toStartOf="parent" />
-
-        <ImageButton
-            android:id="@+id/buttonSendLocalisation"
-            style="@android:style/Widget.Holo.ImageButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:contentDescription="@string/send_localisation"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
-            app:srcCompat="@drawable/ic_baseline_location_on_24" />
-
-        <ImageButton
-            android:id="@+id/buttonSendImage"
-            style="@android:style/Widget.Holo.ImageButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:contentDescription="@string/send_image"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_image_24" />
-
-        <ImageButton
-            android:id="@+id/buttonSendImagePerCamera"
-            style="@android:style/Widget.Holo.ImageButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:contentDescription="@string/send_image_via_camera"
-            app:tint="#FFFFFF"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_camera_24" />
 
         <ImageButton
             android:id="@+id/buttonSendMessage"
@@ -77,13 +103,47 @@
             android:contentDescription="@string/send"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_send_24" />
+            app:srcCompat="@drawable/ic_baseline_send_24"
+            android:visibility="gone"/>
 
-        <com.devlomi.record_view.RecordView
-            android:layout_width="20dp"
-            android:layout_height="20dp">
+        <ImageButton
+            android:id="@+id/deleteAudio"
+            style="@android:style/Widget.Holo.ImageButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:contentDescription="@string/deleteAudio"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_baseline_delete_24"
+            android:visibility="gone"/>
 
-        </com.devlomi.record_view.RecordView>
+        <ImageButton
+            android:id="@+id/buttonSendAudio"
+            style="@android:style/Widget.Holo.ImageButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:contentDescription="@string/sendAudio"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@drawable/ic_baseline_send_24"
+            android:visibility="gone"/>
+
+        <com.devlomi.record_view.RecordButton
+            android:id="@+id/recordButton"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="5dp"
+            android:layout_weight=".2"
+            android:background="@drawable/mic_background"
+            android:scaleType="center"
+            android:tint="@color/colorAccent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:mic_icon="@drawable/ic_mic"
+            android:visibility="visible"
+            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck">
+
+        </com.devlomi.record_view.RecordButton>
 
     </LinearLayout>
 
