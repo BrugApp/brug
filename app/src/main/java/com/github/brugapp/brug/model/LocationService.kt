@@ -4,7 +4,7 @@ import android.location.Location
 import com.google.firebase.firestore.GeoPoint
 import java.io.Serializable
 
-class LocationService private constructor(val latitude: Double, val longitude: Double): Serializable {
+class LocationService private constructor(private val latitude: Double, private val longitude: Double): Serializable {
     companion object {
         fun fromGeoPoint(geopoint: GeoPoint): LocationService{
             return LocationService(geopoint.latitude, geopoint.longitude)
