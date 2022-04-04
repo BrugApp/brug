@@ -7,6 +7,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
+import org.hamcrest.core.IsNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -17,60 +18,30 @@ class FirebaseHelperTest {
     val firestore = Firebase.firestore
 
     @Test
-    fun getFirebaseAuthTest() {
-        assertThat(helper.getFirebaseAuth(), `is`(auth))
-    }
-
-    @Test
     fun getCurrentUserTest() {
-        assertThat(helper.getCurrentUser(), `is`(auth.currentUser))
+        assertThat(helper.getCurrentUser(), IsNull.nullValue())
     }
 
     @Test
-    fun getCurrentUserIDTest() {
-        assertThat(helper.getCurrentUserID(), `is`(auth.currentUser?.uid))
+    fun getItemFromCurrentUserTest() {
+        assertThat(helper.getItemFromCurrentUser("badObjectID"), IsNull.nullValue())
     }
 
     @Test
-    fun getUserCollectionTest() {
-        assertThat(helper.getUserCollection(), `is`(firestore.collection("Users")))
-    }
-
-    @Test
-    fun getChatCollectionTest() {
-        assertThat(helper.getChatCollection(), `is`(firestore.collection("Chat")))
-    }
-
-    @Test
-    fun getChatFromIDPairTest() {
-        assertThat(
-            helper.getChatFromIDPair("userID1", "userID2"),
-            `is`(helper.getChatCollection().document("userID1" + "userID2"))
-        )
-    }
-
-    @Test
-    fun getMessageCollectionTest() {
-        assertThat(
-            helper.getMessageCollection("userID1", "userID2"),
-            `is`(helper.getChatFromIDPair("userID1", "userID2").collection("Messages"))
-        )
-    }
-
-    @Test
-    fun addRegisterUserTaskTest() {
+    fun addRegisterUserTest() {
         val empty = HashMap<String, Any>()
-        val task1 = helper.addRegisterUserTask(empty)
-        val task2 = helper.getUserCollection().add(empty)
-        assertThat(task1.isSuccessful, `is`(task2.isSuccessful))
+        val task1 = helper.addRegisterUser(empty)
+        val task2 = Firebase.firestore.collection("Users").add(empty)
+        assertThat(task2.isSuccessful, `is`(false))
     }
 
     @Test
     fun addDocumentMessageTest() {
         val empty = HashMap<String, String>()
         val task1 = helper.addDocumentMessage("userID1", "userID2", empty)
-        val task2 = helper.getMessageCollection("userID1", "userID2").add(empty)
-        assertThat(task1.isSuccessful, `is`(task2.isSuccessful))
+        val task2 = Firebase.firestore.collection("Users").document("userID1" + "userID2")
+            .collection("Messages").add(empty)
+        assertThat(task2.isSuccessful, `is`(false))
     }
 
     @Test
@@ -79,7 +50,7 @@ class FirebaseHelperTest {
         val list = listOf<String>()
         val userToAdd = hashMapOf(
             "ItemIDArray" to list,
-            "UserID" to (user?.uid ?: String),
+            "UserID" to (auth.uid ?: String),
             "email" to "emailtxt",
             "firstName" to "firstnametxt",
             "lastName" to "lastnametxt"

@@ -75,8 +75,8 @@ class RegisterUserViewModel : ViewModel() {
         return true
     }
 
-    fun addRegisterUserTask(userToAdd: HashMap<String, Any>): Task<DocumentReference> {
-        return helper.addRegisterUserTask(userToAdd)
+    fun addRegisterUserTask(userToAdd: HashMap<String, Any>){
+        return helper.addRegisterUser(userToAdd)
     }
 
     fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar) {

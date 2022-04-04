@@ -1,17 +1,19 @@
 package com.github.brugapp.brug.data
 
+import android.app.Activity
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
-import com.google.android.gms.tasks.Task
+import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
+import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -20,54 +22,96 @@ class FirebaseHelper {
 
     private val db: FirebaseFirestore = Firebase.firestore
     private val mAuth: FirebaseAuth = Firebase.auth
+    lateinit var activity: Activity
 
-    //returns Firestore authentication
-    fun getFirebaseAuth(): FirebaseAuth {
-        return mAuth
+    fun setNewActivity(activity: Activity) {
+        this.activity = activity
     }
 
     //returns the current session's authenticated user
-    fun getCurrentUser(): FirebaseUser? {
-        return mAuth.currentUser
+    fun getCurrentUser(): User? {
+        lateinit var firstname: String
+        lateinit var lastname: String
+        //lateinit var Conv_Refs: MutableList<String>
+        //lateinit var Items: MutableList<Item>
+
+        if (mAuth.currentUser != null) {
+            val docRef = mAuth.uid?.let { db.collection("Users").document(it) }
+            docRef?.get()?.addOnSuccessListener { document ->
+                if (document != null) {
+                    if (document.data?.get("firstname") != null && document.data?.get("lastname") != null) {
+                        firstname = document.data?.get("firstname") as String
+                        lastname = document.data?.get("lastname") as String
+                    }
+                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+                } else {
+                    Log.d(TAG, "No such document")
+                }
+            }?.addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+            }
+            val email = mAuth.currentUser!!.email
+            val id = mAuth.uid
+            val uri = mAuth.currentUser!!.photoUrl
+            val inputStream = uri?.let { activity.contentResolver.openInputStream(it) }
+            val profilePicture = Drawable.createFromStream(inputStream, uri.toString())
+            if (email == null || id == null || inputStream == null || profilePicture == null) {
+                return null
+            } else {
+                return User(firstname, lastname, email, id, profilePicture)
+            }
+            //items & conv_ref attributes will be added here later
+        }
+        return null
     }
 
-    //returns the unique user ID for the current user
-    fun getCurrentUserID(): String? {
-        return getCurrentUser()?.uid
+    fun getItemFromCurrentUser(objectID: String): Item? {
+        lateinit var name: String
+        lateinit var description: String
+        var is_lost = false //boolean cannot take null type as lateinit default
+        var success = false
+        lateinit var item_type: ItemType //integer cannot take null type as lateinit default
+        val id = mAuth.uid ?: return null
+        val docRef = db.collection("Users").document(id).collection("Items").document(objectID)
+        docRef.get().addOnSuccessListener { document ->
+            if (document != null) {
+                is_lost = document.data?.get("is_lost") as Boolean
+                description = document.data?.get("item_description") as String
+                item_type = document.data?.get("item_type") as ItemType
+                success = true
+                Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+            } else {
+                Log.d(TAG, "No such document")
+            }
+        }.addOnFailureListener { exception ->
+            Log.d(TAG, "get failed with ", exception)
+        }
+        if (success) {
+            val item = Item(name, description, objectID)
+            item.setType(item_type)
+            item.setLost(is_lost)
+            return item
+        } else {
+            return null
+        }
     }
-
-    //returns the collection of users from the Firestore database
-    fun getUserCollection(): CollectionReference {
-        return db.collection("Users")
-    }
-
-    //returns the collection of chats from the Firestore database
-    fun getChatCollection(): CollectionReference {
-        return db.collection("Chat")
-    }
-
-    //returns the specific chat document between userID1 and userID2
-    fun getChatFromIDPair(userID1: String, userID2: String): DocumentReference {
-        return getChatCollection().document(userID1 + userID2)
-    }
-
-    //returns the collection of messages from a specific chat between userID1 and userID2
-    fun getMessageCollection(userID1: String, userID2: String): CollectionReference {
-        return getChatFromIDPair(userID1, userID2).collection("Messages")
-    }
+    //@TODO functionA for person1 to declare item1 lost
+    //@TODO functionB for person2 to declare person1's item1 as found(unlost), creates chat (p1,p2),
 
     //adds a new user parameter to the Firestore database user collection
-    fun addRegisterUserTask(userToAdd: HashMap<String, Any>): Task<DocumentReference> {
-        return getUserCollection().add(userToAdd)
+    fun addRegisterUser(userToAdd: HashMap<String, Any>) {
+        db.collection("Users").add(userToAdd)
+            .addOnSuccessListener { documentReference ->
+                Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(ContentValues.TAG, "Error adding document", e)
+            }
     }
 
     //adds a new message parameter to the Firestore database message collection
-    fun addDocumentMessage(
-        userID1: String,
-        userID2: String,
-        message: HashMap<String, String>
-    ): Task<DocumentReference> {
-        return getMessageCollection(userID1, userID2).add(message)
+    fun addDocumentMessage(userID1: String, userID2: String, message: HashMap<String, String>) {
+        db.collection("Chat").document(userID1 + userID2).collection("Messages").add(message)
     }
 
     /*
@@ -77,12 +121,15 @@ class FirebaseHelper {
     @param  lastnametxt the last name of the user that we are building
     @return the User HashMap object with given parameters that can be sent to firebase
     */
-    fun createNewRegisterUser(emailtxt: String, firstnametxt: String, lastnametxt: String): HashMap<String, Any> {
-        val user = getCurrentUser()
+    fun createNewRegisterUser(
+        emailtxt: String,
+        firstnametxt: String,
+        lastnametxt: String
+    ): HashMap<String, Any> {
         val list = listOf<String>()
         val userToAdd = hashMapOf(
             "ItemIDArray" to list,
-            "UserID" to (user?.uid ?: String),
+            "UserID" to (mAuth.uid ?: String),
             "email" to emailtxt,
             "firstName" to firstnametxt,
             "lastName" to lastnametxt
@@ -91,33 +138,27 @@ class FirebaseHelper {
     }
 
     /*
-    Returns a Task<DocumentReference> that tries to create a new FireBase User
+    Returns void after executing a Task<DocumentReference> that tries to create a new FireBase User
     Toasts text corresponding to the task's success/failure
     @param  emailtxt  the email of the user that we are building
     @param  passwordtxt the password of the user that we are building
     @param  firstnametxt  the first name of the user that we are building
     @param  lastnametxt the last name of the user that we are building
-    @return the Task<DocumentReference> that tries to create a new FireBase User
+    @return void after execution of the Task<DocumentReference> that tries to create a new FireBase User
     */
-    fun createAuthAccount(context: Context, progressBar: ProgressBar, emailtxt: String, passwordtxt: String, firstnametxt: String, lastnametxt: String){
+    fun createAuthAccount(
+        context: Context,
+        progressBar: ProgressBar,
+        emailtxt: String,
+        passwordtxt: String,
+        firstnametxt: String,
+        lastnametxt: String
+    ) {
         mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
                     Log.d(ContentValues.TAG, "createUserWithEmail:success")
-                    addRegisterUserTask(createNewRegisterUser(emailtxt, firstnametxt, lastnametxt))
-                        .addOnSuccessListener { documentReference ->
-                            Log.d(
-                                ContentValues.TAG,
-                                "DocumentSnapshot added with ID: ${documentReference.id}"
-                            )
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w(
-                                ContentValues.TAG,
-                                "Error adding document",
-                                e
-                            )
-                        }
+                    addRegisterUser(createNewRegisterUser(emailtxt, firstnametxt, lastnametxt))
                     progressBar.visibility = View.GONE
                 } else { // If sign in fails, display a message to the user.
                     Log.w(ContentValues.TAG, "createUserWithEmail:failure", task.exception)
