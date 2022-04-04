@@ -75,7 +75,7 @@ class RegisterUserViewModel : ViewModel() {
         return true
     }
 
-    fun addRegisterUserTask(userToAdd: HashMap<String, Any>){
+    fun addRegisterUser(userToAdd: HashMap<String, Any>){
         return helper.addRegisterUser(userToAdd)
     }
 
