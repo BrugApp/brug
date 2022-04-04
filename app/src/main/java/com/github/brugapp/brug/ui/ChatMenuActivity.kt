@@ -15,12 +15,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.DUMMY_TEXT
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ConvResponse
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
 import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.github.brugapp.brug.view_model.ListCallback
+import com.google.android.material.snackbar.Snackbar
 
 const val CHAT_SEARCH_HINT: String = "Search for a conversation…"
 const val CHAT_CHECK_TEXT: String = "The conversation has been marked as resolved."
@@ -53,46 +53,44 @@ class ChatMenuActivity : AppCompatActivity() {
     }
 
     private fun initChatList(model: ChatMenuViewModel) {
-        val listView = findViewById<RecyclerView>(R.id.chat_listview)
-
         model.getConversationsLiveData().observe(this) { tempConvListResponse ->
-            val convList: MutableList<ConvResponse>
+            val listView = findViewById<RecyclerView>(R.id.chat_listview)
 
             if(tempConvListResponse.onSuccess == null){
-                convList = mutableListOf()
+                // Show a snackbar with an error message if no network service
                 Log.e("Firebase error", tempConvListResponse.onError.toString())
+                Snackbar.make(listView, "No network connection", Snackbar.LENGTH_LONG)
+                    .show()
+
             } else {
-                convList = tempConvListResponse.onSuccess!!.toMutableList()
+                val convList = tempConvListResponse.onSuccess!!.toMutableList()
+
+                val listViewAdapter = ConversationListAdapter(convList) { clickedConv ->
+                    val intent = Intent(this, ChatActivity::class.java)
+                    intent.putExtra(CHAT_INTENT_KEY, clickedConv)
+                    startActivity(intent)
+                }
+
+                listView.layoutManager = LinearLayoutManager(this)
+
+                val dragPair = Pair(
+                    0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
+                )
+
+                val swipePair = Pair(
+                    ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_circle_outline_24)!!,
+                    ContextCompat.getColor(this, R.color.chat_list_resolve_BG))
+
+                val listAdapterPair = Pair(
+                    convList,
+                    listViewAdapter
+                )
+
+                val listCallback = ListCallback(CHAT_CHECK_TEXT, dragPair, swipePair, listAdapterPair)
+                ItemTouchHelper(listCallback).attachToRecyclerView(listView)
+                listView.adapter = listViewAdapter
+                listView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
             }
-
-            //TODO: FIX CONVERSATION/CONV_RESPONSE ISSUES
-            val listViewAdapter = ConversationListAdapter(convList) { clickedConv ->
-                val intent = Intent(this, ChatActivity::class.java)
-                intent.putExtra(CHAT_INTENT_KEY, clickedConv)
-                startActivity(intent)
-            }
-
-            listView.layoutManager = LinearLayoutManager(this)
-
-            val dragPair = Pair(
-                0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
-            )
-
-            val swipePair = Pair(
-                ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_circle_outline_24)!!,
-                ContextCompat.getColor(this, R.color.chat_list_resolve_BG))
-
-            val listAdapterPair = Pair(
-                convList,
-                listViewAdapter
-            )
-
-            val listCallback = ListCallback(CHAT_CHECK_TEXT, dragPair, swipePair, listAdapterPair)
-            ItemTouchHelper(listCallback).attachToRecyclerView(listView)
-            listView.adapter = listViewAdapter
-
-            listView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
-
         }
 
     }

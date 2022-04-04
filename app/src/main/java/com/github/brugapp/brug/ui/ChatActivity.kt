@@ -68,11 +68,11 @@ class ChatActivity : AppCompatActivity() {
             messageList.adapter = model.getAdapter()
 
             // Set the title bar name with informations related to the conversation
-            val userName = if(conversation.userInfos.onError != null){
-                Log.e("Firebase error", conversation.userInfos.onError.toString())
+            val userName = if(conversation.userFieldsInfos.onError != null){
+                Log.e("Firebase error", conversation.userFieldsInfos.onError.toString())
                 "Unknown User"
             } else {
-                conversation.userInfos.onSuccess!!.first
+                conversation.userFieldsInfos.onSuccess!!.first
             }
 
             val lostItemName = if(conversation.lostItemName.onError != null){
