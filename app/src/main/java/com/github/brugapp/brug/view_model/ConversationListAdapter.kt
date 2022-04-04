@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ConvResponse
+import com.github.brugapp.brug.data.FileResponse
 import com.github.brugapp.brug.data.MessageResponse
+import java.io.File
 
 /**
  * Custom adapter class for the RecyclerView lists in ChatMenuActivity
@@ -36,21 +38,21 @@ class ConversationListAdapter(
         val listElement = chatList[position]
 
         //TODO: NEED ICON, FULL NAME OF USER, AND LAST MESSAGE CONTENT
-        val defaultIconPath = "/Users/mouniraki/Documents/SDP/BrugApp/app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp"
-        val userInfos: Pair<String, String>
-        val lastMessageContent: String // = ""
+        val defaultIconPath = "src/main/res/mipmap-xxxhdpi/ic_launcher.webp"
+        val userInfos: Pair<String, FileResponse>
+        val lastMessageContent: String
 
         if(listElement.onError != null){
             Log.e("Firebase error", listElement.onError.toString())
         } else {
             val conversation = listElement.onSuccess!!
 
-            // FOR THE (FULL_USERNAME, USER_ICON_PATH) PAIR
-            userInfos = if(conversation.userInfos.onError != null){
-                Log.e("Firebase error", conversation.userInfos.onError.toString())
-                Pair("User not found", defaultIconPath)
+            // FOR THE (FULL_USERNAME, USER_ICON) PAIR
+            userInfos = if(conversation.userFieldsInfos.onError != null){
+                Log.e("Firebase error", conversation.userFieldsInfos.onError.toString())
+                Pair("User not found", FileResponse(File(defaultIconPath)))
             } else {
-                conversation.userInfos.onSuccess!!
+                conversation.userFieldsInfos.onSuccess!!
             }
 
             // FOR THE LAST MESSAGE CONTENT
@@ -67,8 +69,11 @@ class ConversationListAdapter(
                     }
                 }
 
+
+            Log.e("FIREBASE CHECK", userInfos.second.onSuccess?.length().toString())
             holder.title.text = userInfos.first
-            holder.icon.setImageURI(Uri.parse(userInfos.second))
+            //TODO: FETCH CORRECT PROFILE PICTURE
+            holder.icon.setImageURI(Uri.parse(userInfos.second.onSuccess.toString()))
             holder.desc.text = lastMessageContent
         }
 

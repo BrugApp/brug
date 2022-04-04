@@ -18,7 +18,9 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
+import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -27,6 +29,7 @@ private const val USERS_DB = "Users"
 private const val MSG_DB = "Messages"
 private const val CONV_REFS_DB = "Conv_Refs"
 private const val ITEMS_DB = "Items"
+private const val FIRESTORE_URL = "gs://unlost-81847.appspot.com/"
 
 object FirebaseHelper {
 
@@ -129,29 +132,6 @@ object FirebaseHelper {
 //
 
 
-    // NEEDED FUNCTION TO RETRIEVE ITEM NAME
-    private suspend fun getItemNameFromRef(ref: DocumentReference): ItemTypeResponse {
-        val stringPairResponse = ItemTypeResponse()
-        try {
-            val itemTypeDoc = ref.get().await()
-            if(!itemTypeDoc.exists()){
-                stringPairResponse.onError = Exception("The requested item type doesn't exist")
-            } else if(
-                !itemTypeDoc.contains("type_icon")
-                || !itemTypeDoc.contains("type_name")) {
-                stringPairResponse.onError = Exception("Invalid Item Type format")
-            } else {
-                val itemName = itemTypeDoc["type_name"] as String
-                val itemPicPath = itemTypeDoc["type_icon"] as String
-                stringPairResponse.onSuccess = Pair(itemName, itemPicPath)
-            }
-        } catch(e: Exception){
-            stringPairResponse.onError = e
-        }
-        return stringPairResponse
-    }
-
-
     //TODO: REMOVE THIS FUNCTION WHEN USER RETRIEVAL IS COMPLETED
     suspend fun getConversationsFromUserID(uid: String): TempConvListResponse {
         val tempConvListResponse = TempConvListResponse()
@@ -210,7 +190,7 @@ object FirebaseHelper {
             } else if (!itemDoc.contains("item_type")) {
                 stringResponse.onError = Exception("Invalid Item format")
             } else {
-                val getItemName = getItemNameFromRef(itemDoc["item_type"] as DocumentReference)
+                val getItemName = getItemTypeFromRef(itemDoc["item_type"] as DocumentReference)
                 if(getItemName.onError != null){
                     stringResponse.onError = getItemName.onError
                 } else {
@@ -222,6 +202,28 @@ object FirebaseHelper {
         }
 
         return stringResponse
+    }
+
+    // NEEDED FUNCTION TO RETRIEVE ITEM TYPE FIELDS
+    private suspend fun getItemTypeFromRef(ref: DocumentReference): ItemTypeResponse {
+        val stringPairResponse = ItemTypeResponse()
+        try {
+            val itemTypeDoc = ref.get().await()
+            if(!itemTypeDoc.exists()){
+                stringPairResponse.onError = Exception("The requested item type doesn't exist")
+            } else if(
+                !itemTypeDoc.contains("type_icon")
+                || !itemTypeDoc.contains("type_name")) {
+                stringPairResponse.onError = Exception("Invalid Item Type format")
+            } else {
+                val itemName = itemTypeDoc["type_name"] as String
+                val itemPicPath = itemTypeDoc["type_icon"] as String
+                stringPairResponse.onSuccess = Pair(itemName, itemPicPath)
+            }
+        } catch(e: Exception){
+            stringPairResponse.onError = e
+        }
+        return stringPairResponse
     }
 
     private suspend fun getConvMessageFromSnapshot(messageDoc: QueryDocumentSnapshot): MessageResponse {
@@ -260,6 +262,7 @@ object FirebaseHelper {
                                 imgUrl)
                         }
                         messageDoc.contains("audio_url") -> {
+                            //TODO: COMPLETE THIS FUNCTION WITH CORRECT RETRIEVAL OF AUDIO FILE FROM FIRESTORE
                             val audioUrl = messageDoc["audio_url"] as String
                             message = AudioMessage(
                                 senderResponse.onSuccess!!.first,
@@ -283,8 +286,8 @@ object FirebaseHelper {
         return messageResponse
     }
 
-    private suspend fun getUserFieldsFromRef(ref: DocumentReference): ConvUserResponse {
-        val convUserResponse = ConvUserResponse()
+    private suspend fun getUserFieldsFromRef(ref: DocumentReference): UserFieldsResponse {
+        val convUserResponse = UserFieldsResponse()
         try {
             val userDoc = ref.get().await()
             if(!userDoc.exists()){
@@ -297,13 +300,40 @@ object FirebaseHelper {
                 } else {
                     convUserResponse.onSuccess = Pair(
                         "${userDoc["firstname"] as String} ${userDoc["lastname"] as String}",
-                        userDoc["user_icon"] as String)
+                        getUserIconFromPath(userDoc.id, (userDoc["user_icon"] as String))
+                    )
                 }
             }
         } catch (e: Exception){
             convUserResponse.onError = e
         }
         return convUserResponse
+    }
+
+    private suspend fun getUserIconFromPath(uid: String, path: String): FileResponse {
+        val fileResponse = FileResponse()
+        try {
+            val file = createTempIconFileFromUserID(uid)
+            // Wrapper is needed to retrieve image (due to authentication errors)
+            //TODO: REPLACE ANONYMOUS AUTHENTICATION WITH CORRECT USER AUTHENTICATION
+            mAuth.signInAnonymously().await().also {
+                Firebase.storage
+                    .getReference(path)
+                    .getFile(file)
+                    .await()
+
+                fileResponse.onSuccess = file
+            }
+        } catch (e: Exception) {
+            fileResponse.onError = e
+        }
+
+        return fileResponse
+    }
+
+    //REQUIRED TO MAKE THE GETUSERICONFROMPATH AN APPROPRIATE BLOCKING METHOD CALL
+    private fun createTempIconFileFromUserID(uid: String): File {
+        return File.createTempFile(uid, ".jpg")
     }
 
 
