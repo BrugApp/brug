@@ -17,7 +17,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.data.ConvResponse
-import com.github.brugapp.brug.data.ConvUserResponse
+import com.github.brugapp.brug.data.UserFieldsResponse
 import com.github.brugapp.brug.data.ItemNameResponse
 import com.github.brugapp.brug.data.MessageResponse
 import com.github.brugapp.brug.model.*
@@ -55,7 +55,7 @@ class ChatActivityTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val conversation = Conversation(
-            ConvUserResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
+            UserFieldsResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
         )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -76,7 +76,7 @@ class ChatActivityTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val conversation = Conversation(
-            ConvUserResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
+            UserFieldsResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
         )
 
         val newMessageText = "Test sending new messages"
@@ -104,7 +104,7 @@ class ChatActivityTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val conversation = Conversation(
-            ConvUserResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
+            UserFieldsResponse(dummyUser), ItemNameResponse(dummyItemName), mutableListOf(MessageResponse(dummyMessage))
         )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
