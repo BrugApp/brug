@@ -50,7 +50,7 @@ class FirebaseHelperTest {
         //val item1 = firestore.collection("Users").document("uid").collection("Items").document("objectID")
         helper.getItemFromCurrentUser("2kmiWr8jzQ37EDX5GAG5")
         //assertThat(helper.getItemFromCurrentUser("2kmiWr8jzQ37EDX5GAG5"), IsNull.notNullValue()) //maybe add uid param
-        assertThat(firestore.collection("Users").document("7IsGzvjHKd0KeeKK722m").collection("Items").document("2kmiWr8jzQ37EDX5GAG5"), IsNull.notNullValue()
+        assertThat(firestore.collection("Users").document("7IsGzvjHKd0KeeKK722m").collection("Items").document("2kmiWr8jzQ37EDX5GAG5"), IsNull.notNullValue())
     }
 
     @Test
