@@ -22,7 +22,7 @@ class FirebaseHelperTest {
     val firestore = Firebase.firestore
 
     @Test
-    fun setNewActivityTest(activity: Activity) {
+    fun setNewActivityTest() {
         val newHelper = FirebaseHelper()
         newHelper.setNewActivity(activity)
         assertThat(newHelper.activity, `is`(helper.activity))
