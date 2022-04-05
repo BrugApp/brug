@@ -20,6 +20,7 @@ class FirebaseHelperTest {
     val helper = FirebaseHelper()
     val auth = Firebase.auth
     val firestore = Firebase.firestore
+    val activity = Activity()
 
     @Test
     fun setNewActivityTest() {
