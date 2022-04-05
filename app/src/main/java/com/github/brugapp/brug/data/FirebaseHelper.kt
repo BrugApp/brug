@@ -20,8 +20,8 @@ import com.google.firebase.ktx.Firebase
 
 class FirebaseHelper {
 
-    private val db: FirebaseFirestore = Firebase.firestore
-    private val mAuth: FirebaseAuth = Firebase.auth
+    val db: FirebaseFirestore = Firebase.firestore
+    val mAuth: FirebaseAuth = Firebase.auth
     lateinit var activity: Activity
 
     fun setNewActivity(activity: Activity) {
