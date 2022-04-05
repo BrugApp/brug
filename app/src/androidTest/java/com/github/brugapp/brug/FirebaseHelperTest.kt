@@ -1,10 +1,8 @@
 package com.github.brugapp.brug
 
-import android.app.Activity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.ui.RegisterUserActivity
 import com.github.brugapp.brug.view_model.RegisterUserViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -29,14 +27,13 @@ class FirebaseHelperTest {
 
     @Test
     fun getGoodCurrentUserTest(){
-        val list = listOf<String>()
-        val userToAdd = hashMapOf(
-            "ItemIDArray" to list,
-            "UserID" to (helper.mAuth.uid ?: String),
-            "email" to "emailtxt",
-            "firstName" to "firstnametxt",
-            "lastName" to "lastnametxt"
+        val userToAdd = hashMapOf<String,Any>(
+            "firstname" to "firstnametxt",
+            "lastname" to "lastnametxt",
+            "user_icon" to "uritxt",
         )
+        //conv_refs & items not handled here as they are collections
+
         helper.addRegisterUser(userToAdd)
         assertThat(helper.getCurrentUser(), IsNull.nullValue()) //maybe add uid param
     }
