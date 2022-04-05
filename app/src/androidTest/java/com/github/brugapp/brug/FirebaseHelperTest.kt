@@ -1,17 +1,22 @@
 package com.github.brugapp.brug
 
-import android.app.Activity
+import android.content.Context
+import androidx.test.InstrumentationRegistry.getTargetContext
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.view_model.RegisterUserViewModel
+import com.github.brugapp.brug.ui.RegisterUserActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.core.IsNull
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -20,14 +25,6 @@ class FirebaseHelperTest {
     val helper = FirebaseHelper()
     val auth = Firebase.auth
     val firestore = Firebase.firestore
-    val activity = Activity()
-
-    @Test
-    fun setNewActivityTest() {
-        val newHelper = FirebaseHelper()
-        newHelper.setNewActivity(activity)
-        assertThat(newHelper.activity, `is`(helper.activity))
-    }
 
     @Test
     fun getBadCurrentUserTest() {

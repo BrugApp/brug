@@ -10,25 +10,25 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.test.core.app.ActivityScenario
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.ui.RegisterUserActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.qualifiers.ActivityContext
 
 
 class FirebaseHelper {
 
     val db: FirebaseFirestore = Firebase.firestore
     val mAuth: FirebaseAuth = Firebase.auth
-    lateinit var activity: Activity
-
-    fun setNewActivity(activity: Activity) {
-        this.activity = activity
-    }
 
     //returns the current session's authenticated user
     fun getCurrentUser(userID: String): User? {
@@ -58,14 +58,15 @@ class FirebaseHelper {
             var inputStream : Uri? = null
             var profilePicture: Drawable? = null
 
+            /* THIS IS HOW TO CONVERT A URI TO A DRAWABLE FOR UI CLASSES
             try {
-                val inputStream = uri?.let { activity.contentResolver.openInputStream(it) }
-                val profilePicture = Drawable.createFromStream(inputStream, uri.toString())
+                inputStream = uri?.let { getContentResolver().openInputStream(it) }
+                profilePicture = Drawable.createFromStream(inputStream, uri.toString())
             } catch (e: Exception) {
                 print("uri to drawable conversion failed")
-            }
+            }*/
 
-            if (email == null || id == null || inputStream == null || profilePicture == null) {
+            if (email == null || id == null || uri == null) { //    ||profilePicture == null
                 return null
             } else {
                 return User(firstname, lastname, email, id, profilePicture)
@@ -80,13 +81,17 @@ class FirebaseHelper {
         lateinit var description: String
         var is_lost = false //boolean cannot take null type as lateinit default
         var success = false
-        lateinit var item_type: ItemType //integer cannot take null type as lateinit default
+        lateinit var item_ref: DocumentReference
+        lateinit var item_type: String //integer cannot take null type as lateinit default
         val docRef = db.collection("Users").document(userID).collection("Items").document(objectID)
         docRef.get().addOnSuccessListener { document ->
             if (document != null) {
-                is_lost = document.data?.get("is_lost") as Boolean
+                if(document.data?.get("is_lost")!=null) {
+                    is_lost = document.data?.get("is_lost") as Boolean
+                }
                 description = document.data?.get("item_description") as String
-                item_type = document.data?.get("item_type") as ItemType
+                item_ref = document.data?.get("item_type") as DocumentReference
+                item_type = item_ref.toString().drop(item_ref.toString().length-1)
                 success = true
                 Log.d(TAG, "DocumentSnapshot data: ${document.data}")
             } else {
@@ -97,7 +102,8 @@ class FirebaseHelper {
         }
         if (success) {
             val item = Item(name, description, objectID)
-            item.setType(item_type)
+            //item.setType(item_type)
+            //@TODO convert item_type string to item_type local type
             item.setLost(is_lost)
             return item
         } else {
