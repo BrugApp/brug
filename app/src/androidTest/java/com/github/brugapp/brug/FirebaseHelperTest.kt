@@ -1,8 +1,10 @@
 package com.github.brugapp.brug
 
+import android.app.Activity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.ui.RegisterUserActivity
 import com.github.brugapp.brug.view_model.RegisterUserViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -30,7 +32,7 @@ class FirebaseHelperTest {
         val list = listOf<String>()
         val userToAdd = hashMapOf(
             "ItemIDArray" to list,
-            "UserID" to (auth.uid ?: String),
+            "UserID" to (helper.mAuth.uid ?: String),
             "email" to "emailtxt",
             "firstName" to "firstnametxt",
             "lastName" to "lastnametxt"

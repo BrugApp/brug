@@ -1,10 +1,12 @@
 package com.github.brugapp.brug.data
 
+import android.R
 import android.app.Activity
 import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
@@ -17,6 +19,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import java.io.FileNotFoundException
+
 
 class FirebaseHelper {
 
@@ -53,8 +57,16 @@ class FirebaseHelper {
             val email = mAuth.currentUser!!.email
             val id = mAuth.uid
             val uri = mAuth.currentUser!!.photoUrl
-            val inputStream = uri?.let { activity.contentResolver.openInputStream(it) }
-            val profilePicture = Drawable.createFromStream(inputStream, uri.toString())
+            var inputStream : Uri? = null
+            var profilePicture: Drawable? = null
+
+            try {
+                val inputStream = uri?.let { activity.contentResolver.openInputStream(it) }
+                val profilePicture = Drawable.createFromStream(inputStream, uri.toString())
+            } catch (e: Exception) {
+                print("uri to drawable conversion failed")
+            }
+
             if (email == null || id == null || inputStream == null || profilePicture == null) {
                 return null
             } else {
