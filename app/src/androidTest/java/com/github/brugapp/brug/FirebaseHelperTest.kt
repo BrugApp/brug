@@ -36,7 +36,7 @@ class FirebaseHelperTest {
             "lastName" to "lastnametxt"
         )
         helper.addRegisterUser(userToAdd)
-        assertThat(helper.getCurrentUser(), IsNull.notNullValue()) //maybe add uid param
+        assertThat(helper.getCurrentUser(), IsNull.nullValue()) //maybe add uid param
     }
 
     @Test
