@@ -31,15 +31,15 @@ class FirebaseHelper {
     }
 
     //returns the current session's authenticated user
-    fun getCurrentUser(): User? {
+    fun getCurrentUser(userID: String): User? {
         lateinit var firstname: String
         lateinit var lastname: String
         //lateinit var Conv_Refs: MutableList<String>
         //lateinit var Items: MutableList<Item>
 
         if (mAuth.currentUser != null) {
-            val docRef = mAuth.uid?.let { db.collection("Users").document(it) }
-            docRef?.get()?.addOnSuccessListener { document ->
+            val docRef = db.collection("Users").document(userID)
+            docRef.get().addOnSuccessListener { document ->
                 if (document != null) {
                     if (document.data?.get("firstname") != null && document.data?.get("lastname") != null) {
                         firstname = document.data?.get("firstname") as String
@@ -75,14 +75,13 @@ class FirebaseHelper {
         return null
     }
 
-    fun getItemFromCurrentUser(objectID: String): Item? {
+    fun getItemFromCurrentUser(userID: String, objectID: String): Item? {
         lateinit var name: String
         lateinit var description: String
         var is_lost = false //boolean cannot take null type as lateinit default
         var success = false
         lateinit var item_type: ItemType //integer cannot take null type as lateinit default
-        val id = mAuth.uid ?: return null
-        val docRef = db.collection("Users").document(id).collection("Items").document(objectID)
+        val docRef = db.collection("Users").document(userID).collection("Items").document(objectID)
         docRef.get().addOnSuccessListener { document ->
             if (document != null) {
                 is_lost = document.data?.get("is_lost") as Boolean
