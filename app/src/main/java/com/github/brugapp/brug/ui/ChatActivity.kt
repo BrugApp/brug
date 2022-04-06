@@ -3,6 +3,7 @@ package com.github.brugapp.brug.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.media.MediaRecorder
 import android.os.Build
@@ -29,6 +30,8 @@ class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
     private var LOCATION_REQUEST = 1
+    private val RECORDING_REQUEST_CODE = 3000
+    private val STORAGE_REQUEST_CODE = 2000
     private lateinit var locationManager: LocationManager
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -72,6 +75,8 @@ class ChatActivity : AppCompatActivity() {
 
         textMessage = findViewById(R.id.editMessage)
         initTextInputField()
+
+        initSendAudioButton(model)
 
     }
 
@@ -196,13 +201,58 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    private fun hasMicrophone(): Boolean {
+        val pmanager = this.packageManager
+        return pmanager.hasSystemFeature(
+            PackageManager.FEATURE_MICROPHONE)
+    }
+
+    /*override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == RECORDING_REQUEST_CODE){
+            recordButton.isEnabled = true
+        }
+    }*/
+
     private fun initRecordButton(model : ChatViewModel) {
         recordButton.setOnClickListener {
+            //recordButton.isEnabled = false
+            model.setListenForRecord(recordButton, true)
 
-            if(model.isAudioPermissionOk(this)){
-                model.setListenForRecord(recordButton, true)
+            if(model.isAudioPermissionOk(this) && model.isExtStorageOk(this)){
+
+                model.setupRecording()
+
+                messageLayout.visibility = View.GONE
+                recordButton.visibility = View.GONE
+                buttonSendAudio.visibility = View.VISIBLE
+                deleteAudio.visibility = View.VISIBLE
+                audioRecMessage.visibility = View.VISIBLE
+
+            }else if(model.isAudioPermissionOk(this)){
+                model.requestExtStorage(this)
+            }else if(model.isExtStorageOk(this)){
+                model.requestRecording(this)
             }else{
                 model.requestRecording(this)
+                model.requestExtStorage(this)
+            }
+
+
+            /*if(hasMicrophone()){
+                model.setupRecording()
+
+                //model.startRecording()
+
+                messageLayout.visibility = View.GONE
+                recordButton.visibility = View.GONE
+                buttonSendAudio.visibility = View.VISIBLE
+                deleteAudio.visibility = View.VISIBLE
+                audioRecMessage.visibility = View.VISIBLE
             }
 
             model.setupRecording()
@@ -213,7 +263,7 @@ class ChatActivity : AppCompatActivity() {
             recordButton.visibility = View.GONE
             buttonSendAudio.visibility = View.VISIBLE
             deleteAudio.visibility = View.VISIBLE
-            audioRecMessage.visibility = View.VISIBLE
+            audioRecMessage.visibility = View.VISIBLE*/
 
         }
     }
@@ -226,6 +276,19 @@ class ChatActivity : AppCompatActivity() {
             audioRecMessage.visibility = View.GONE
             messageLayout.visibility = View.VISIBLE
             recordButton.visibility = View.VISIBLE
+            model.setListenForRecord(recordButton, false)
+        }
+    }
+
+    private fun initSendAudioButton(model : ChatViewModel){
+        buttonSendAudio.setOnClickListener {
+            model.sendAudio()
+            buttonSendAudio.visibility = View.GONE
+            deleteAudio.visibility = View.GONE
+            audioRecMessage.visibility = View.GONE
+            messageLayout.visibility = View.VISIBLE
+            recordButton.visibility = View.VISIBLE
+            model.setListenForRecord(recordButton, false)
         }
     }
 

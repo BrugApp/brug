@@ -27,6 +27,7 @@ import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import java.io.File
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -37,8 +38,8 @@ class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
     private lateinit var audioPath : String
-    private val RECORDING_REQUEST_CODE : Int = 3000
-
+    private val RECORDING_REQUEST_CODE = 3000
+    private val STORAGE_REQUEST_CODE = 2000
     // For the localisation
     private val locationRequestCode = 1
     private val locationListener = LocationListener { sendLocation(it) }
@@ -290,26 +291,40 @@ class ChatViewModel : ViewModel() {
         requestPermissions(activity, Array(1){Manifest.permission.RECORD_AUDIO}, RECORDING_REQUEST_CODE)
     }
 
+    fun isExtStorageOk(context : Context) : Boolean{
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestExtStorage(activity: Activity){
+        requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
+    }
+
     fun setupRecording(){
 
-        mediaRecorder = MediaRecorder()
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/myReco.3gp"
 
-        val file = File(Environment.getExternalStorageDirectory().absolutePath, "ChatMe/Media/Recording")
+        /*val file = File(audioPath)
 
         if (!file.exists()) {
             file.mkdirs()
+        }*/
+        //audioPath = file.absolutePath + File.separator + System.currentTimeMillis() + ".3gp"
+
+        try {
+            mediaRecorder = MediaRecorder()
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+            //val file = File(Environment.getExternalStorageDirectory().absolutePath, "ChatMe/Media/Recording")
+
+            mediaRecorder.setOutputFile(audioPath)
+            mediaRecorder.prepare()
+            mediaRecorder.start()
+        }catch (e:Exception){
+            e.printStackTrace()
         }
-        audioPath = file.absolutePath + File.separator + System.currentTimeMillis() + ".3gp"
 
-        mediaRecorder.setOutputFile(audioPath)
-    }
-
-    fun startRecording(){
-        mediaRecorder.prepare()
-        mediaRecorder.start()
     }
 
     fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
@@ -317,14 +332,17 @@ class ChatViewModel : ViewModel() {
     }
 
     fun deleteAudio(){
-
         mediaRecorder.reset()
         mediaRecorder.release()
         val file = File(audioPath)
         if(file.exists()){
             file.delete()
         }
+    }
 
+    fun sendAudio(){
+        mediaRecorder.stop()
+        mediaRecorder.release()
     }
 
 
