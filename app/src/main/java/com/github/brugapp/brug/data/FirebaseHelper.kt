@@ -6,7 +6,13 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
-import com.github.brugapp.brug.model.*
+import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.message_types.AudioMessage
+import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.services.DateService
+import com.github.brugapp.brug.model.services.LocationService
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -21,15 +27,12 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
 import java.io.File
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 private const val USERS_DB = "Users"
 private const val MSG_DB = "Messages"
 private const val CONV_REFS_DB = "Conv_Refs"
+private const val CONV_DB = "Conversations"
 private const val ITEMS_DB = "Items"
-private const val FIRESTORE_URL = "gs://unlost-81847.appspot.com/"
 
 object FirebaseHelper {
 
@@ -132,6 +135,56 @@ object FirebaseHelper {
 //
 
 
+    /**
+     * ADD MESSAGE PART
+     */
+    suspend fun addMessageToConv(m: Message, senderID: String, convID: String): AddDeleteResponse {
+        val addResponse = AddDeleteResponse()
+        try {
+            val message = mutableMapOf(
+                "sender" to Firebase.firestore.document("$USERS_DB/$senderID"),
+                "timestamp" to m.timestamp.toFirebaseTimestamp(),
+                "body" to m.body
+            )
+            when(m){
+                is LocationMessage -> message["location"] = m.location.toFirebaseGeoPoint()
+                is AudioMessage -> message["audio_url"] = m.audioUrl
+                is PicMessage -> message["image_url"] = m.imgUrl
+            }
+
+            Firebase.firestore.collection(CONV_DB)
+                    .document(convID)
+                    .collection(MSG_DB)
+                    .add(message)
+                    .await()
+            addResponse.onSuccess = true
+        } catch(e: Exception){
+            addResponse.onError = e
+        }
+        return addResponse
+    }
+
+    //TODO: UNCOMMENT WHEN ADD CONVERSATION IS IMPLEMENTED
+//    /**
+//     * DELETE CONVERSATION PART
+//     */
+//    suspend fun deleteConvFromID(convID: String, uid: String): AddDeleteResponse{
+//        val deleteResponse = AddDeleteResponse()
+//        try {
+//            Firebase.firestore.collection(CONV_DB).document(convID).delete().await()
+//            Firebase.firestore.collection(USERS_DB).document(uid)
+//                .collection(CONV_REFS_DB).document(convID).delete().await()
+//            deleteResponse.onSuccess = true
+//        } catch (e: Exception) {
+//            deleteResponse.onError = e
+//        }
+//
+//        return deleteResponse
+//    }
+
+    /**
+     * GETTER PART
+     */
     //TODO: REMOVE THIS FUNCTION WHEN USER RETRIEVAL IS COMPLETED
     suspend fun getConversationsFromUserID(uid: String): TempConvListResponse {
         val tempConvListResponse = TempConvListResponse()
@@ -150,7 +203,7 @@ object FirebaseHelper {
         return tempConvListResponse
     }
 
-    // MY PART
+
     private suspend fun getUserConvFromRef(ref: DocumentReference, uid: String): ConvResponse {
         val convResponse = ConvResponse()
         try{
@@ -158,16 +211,17 @@ object FirebaseHelper {
             if(!conv.contains("lost_item_path")){
                 convResponse.onError = Exception("Invalid Conversation format")
             } else {
-                val convUserID = getUserFieldsFromRef(
+                val convID = conv.id
+                val convUserFields = getUserFieldsFromRef(
                     Firebase.firestore
                         .collection(USERS_DB)
                         .document(parseConvUserNameFromID(conv.id, uid)))
                 val lostItemName = getLostItemNameFromRef(conv["lost_item_path"] as DocumentReference)
-                val messages = conv.reference.collection(MSG_DB).get().await().map { message -> //NEED TO CHECK IF CORRECT
+                val messages = conv.reference.collection(MSG_DB).get().await().map { message ->
                     getConvMessageFromSnapshot(message)
-                }
+                }.sortedBy { it.onSuccess?.timestamp?.getSeconds() }
 
-                convResponse.onSuccess = Conversation(convUserID, lostItemName, messages.toMutableList())
+                convResponse.onSuccess = Conversation(convID, convUserFields, lostItemName, messages.toMutableList())
             }
 
         } catch (e: Exception) {
@@ -234,6 +288,7 @@ object FirebaseHelper {
                 || !messageDoc.contains("body")
             ) {
                 messageResponse.onError = Exception("Invalid message format")
+
             } else {
                 val senderResponse = getUserFieldsFromRef(messageDoc["sender"] as DocumentReference)
                 if (senderResponse.onError != null){
@@ -249,7 +304,7 @@ object FirebaseHelper {
 
                             message = LocationMessage(
                                 senderResponse.onSuccess!!.first,
-                                LocalDateTime.ofInstant(Instant.ofEpochSecond(timeStamp.seconds), ZoneId.of("UTC")),
+                                DateService.fromFirebaseTimestamp(timeStamp),
                                 body,
                                 LocationService.fromGeoPoint(location))
                         }
@@ -257,7 +312,7 @@ object FirebaseHelper {
                             val imgUrl = messageDoc["image_url"] as String
                             message = PicMessage(
                                 senderResponse.onSuccess!!.first,
-                                LocalDateTime.ofInstant(Instant.ofEpochSecond(timeStamp.seconds), ZoneId.of("UTC")),
+                                DateService.fromFirebaseTimestamp(timeStamp),
                                 body,
                                 imgUrl)
                         }
@@ -266,14 +321,14 @@ object FirebaseHelper {
                             val audioUrl = messageDoc["audio_url"] as String
                             message = AudioMessage(
                                 senderResponse.onSuccess!!.first,
-                                LocalDateTime.ofInstant(Instant.ofEpochSecond(timeStamp.seconds), ZoneId.of("UTC")),
+                                DateService.fromFirebaseTimestamp(timeStamp),
                                 body,
                                 audioUrl)
                         }
                         else -> {
                             message = Message(
                                 senderResponse.onSuccess!!.first,
-                                LocalDateTime.ofInstant(Instant.ofEpochSecond(timeStamp.seconds), ZoneId.of("UTC")),
+                                DateService.fromFirebaseTimestamp(timeStamp),
                                 body)
                         }
                     }
@@ -300,7 +355,7 @@ object FirebaseHelper {
                 } else {
                     convUserResponse.onSuccess = Pair(
                         "${userDoc["firstname"] as String} ${userDoc["lastname"] as String}",
-                        getUserIconFromPath(userDoc.id, (userDoc["user_icon"] as String))
+                        downloadUserIconFromPath(userDoc.id, (userDoc["user_icon"] as String))
                     )
                 }
             }
@@ -310,7 +365,7 @@ object FirebaseHelper {
         return convUserResponse
     }
 
-    private suspend fun getUserIconFromPath(uid: String, path: String): FileResponse {
+    private suspend fun downloadUserIconFromPath(uid: String, path: String): FileResponse {
         val fileResponse = FileResponse()
         try {
             val file = createTempIconFileFromUserID(uid)

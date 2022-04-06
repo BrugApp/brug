@@ -1,23 +1,18 @@
 package com.github.brugapp.brug.view_model
 
-import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ConvResponse
-import com.github.brugapp.brug.data.FileResponse
-import com.github.brugapp.brug.data.MessageResponse
-import java.io.File
 
 /**
  * Custom adapter class for the RecyclerView lists in ChatMenuActivity
  */
 class ConversationListAdapter(
     private val chatList: MutableList<ConvResponse>,
-    private val onItemClicked: (ConvResponse) -> Unit //TODO: CHECK IF CORRECT
+    private val onItemClicked: (ConvResponse) -> Unit
 ) : RecyclerView.Adapter<ListViewHolder>() {
 
     // Creates new views
@@ -29,60 +24,33 @@ class ConversationListAdapter(
         }
     }
 
-    // Better way would be to have a format string in the strings.xml,
-    // but it seems too complicated (I wasn't able to use the proper methods
-    // to populate the slots + complicates the implementation for nothing)
-    @SuppressLint("SetTextI18n")
     // Binds the list items to a view
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = chatList[position]
 
-        //TODO: NEED ICON, FULL NAME OF USER, AND LAST MESSAGE CONTENT
-        val defaultIconPath = "src/main/res/mipmap-xxxhdpi/ic_launcher.webp"
-        val userInfos: Pair<String, FileResponse>
-        val lastMessageContent: String
-
-        if(listElement.onError != null){
-            Log.e("Firebase error", listElement.onError.toString())
-        } else {
+        //TODO: CHECK IF THERE ARE SOME CASES NOT HANDLED PROPERLY
+        if(listElement.onError == null){
             val conversation = listElement.onSuccess!!
+            if(conversation.userFieldsInfos.onError == null){
 
-            // FOR THE (FULL_USERNAME, USER_ICON) PAIR
-            userInfos = if(conversation.userFieldsInfos.onError != null){
-                Log.e("Firebase error", conversation.userFieldsInfos.onError.toString())
-                Pair("User not found", FileResponse(File(defaultIconPath)))
-            } else {
-                conversation.userFieldsInfos.onSuccess!!
-            }
+                holder.title.text = conversation.userFieldsInfos.onSuccess!!.first
+                if(conversation.userFieldsInfos.onSuccess!!.second.onError == null){
+                    holder.icon.setImageURI(Uri.parse(conversation.userFieldsInfos.onSuccess!!.second.onSuccess!!.path))
+                }
 
-            // FOR THE LAST MESSAGE CONTENT
-            lastMessageContent =
-                if(conversation.messages.isEmpty()){
+                val lastMessageContent = if(conversation.messages.isEmpty()){
                     ""
                 } else {
-                    val lastMessage: MessageResponse = conversation.messages.last()
+                    val lastMessage = conversation.messages.last()
                     if(lastMessage.onError != null){
-                        Log.e("Firebase error", lastMessage.onError.toString())
-                        "Unable to retrieve last message"
+                        "Unable to retrieve the last message correctly"
                     } else {
                         lastMessage.onSuccess!!.body
                     }
                 }
-
-
-            Log.e("FIREBASE CHECK", userInfos.second.onSuccess?.length().toString())
-            holder.title.text = userInfos.first
-            //TODO: FETCH CORRECT PROFILE PICTURE
-            holder.icon.setImageURI(Uri.parse(userInfos.second.onSuccess.toString()))
-            holder.desc.text = lastMessageContent
+                holder.desc.text = lastMessageContent
+            }
         }
-
-//        // TODO: replace the hardcoded image ID by the ID of the profile-pic of user
-//        val lastMessage = listElement.messages.last()
-//        holder.icon.setImageResource(R.mipmap.ic_launcher)
-//        holder.title.text = "${listElement.user.getFirstName()} ${listElement.user.getLastName()}"
-//        holder.desc.text = "${lastMessage.sender}: ${lastMessage.body}"
-
     }
 
     // Returns the number of elements in the list
