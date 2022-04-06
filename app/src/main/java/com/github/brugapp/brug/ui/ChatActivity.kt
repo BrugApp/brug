@@ -6,7 +6,6 @@ import android.content.Intent
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.widget.ImageButton
 import android.widget.TextView
@@ -17,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ConvResponse
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -31,7 +29,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var messageList: RecyclerView
-    private var conversation: Conversation? = null
+    private lateinit var conversation: Conversation
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,39 +53,16 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(model: ChatViewModel) {
-        val convResponse: ConvResponse =
-            intent.getSerializableExtra(CHAT_INTENT_KEY) as ConvResponse
+        conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
 
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
+        model.initViewModel(conversation.messages)
+        messageList.layoutManager = LinearLayoutManager(this)
+        messageList.adapter = model.getAdapter()
 
-        if(convResponse.onError != null){
-            Log.e("Firebase error", convResponse.onError.toString())
-        } else {
-            conversation = convResponse.onSuccess!!
-            model.initViewModel(conversation!!.messages)
-
-            messageList.layoutManager = LinearLayoutManager(this)
-            messageList.adapter = model.getAdapter()
-
-            // Set the title bar name with informations related to the conversation
-            val userName = if(conversation!!.userFieldsInfos.onError != null){
-                Log.e("Firebase error", conversation!!.userFieldsInfos.onError.toString())
-                "Unknown User"
-            } else {
-                conversation!!.userFieldsInfos.onSuccess!!.first
-            }
-
-            val lostItemName = if(conversation!!.lostItemName.onError != null){
-                Log.e("Firebase error", conversation!!.lostItemName.onError.toString())
-                "Unknown item"
-            } else {
-                conversation!!.lostItemName.onSuccess!!
-            }
-
-            inflateActionBar(
-                userName, lostItemName
-            )
-        }
+        inflateActionBar(
+            conversation.userFields.getFullName(), conversation.lostItemName
+        )
 
 
     }
@@ -105,7 +80,7 @@ class ChatActivity : AppCompatActivity() {
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
-            model.sendMessage(content, conversation!!.convId, this)
+            model.sendMessage(content, conversation.convId, this)
         }
     }
 

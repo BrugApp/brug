@@ -79,70 +79,14 @@ object FirebaseHelper {
     }
 
 
-//    //TODO: REFACTOR USER CLASS TO HOLD THE NECESSARY VALUES
-//    suspend fun getCompleteUserFromID(uid: String): UserResponse {
-//        val userResponse = UserResponse()
-//        try {
-//            val userDoc = db.collection(USERS_DB).document(uid)
-//            val retrievedUserDoc = userDoc.get().await()
-//
-//
-//            if(!retrievedUserDoc.exists()){
-//                userResponse.onError = Exception("The requested user doesn't exist")
-//            } else if(!retrievedUserDoc.contains("firstname")
-//                || !retrievedUserDoc.contains("lastname")
-//                || !retrievedUserDoc.contains("user_icon")
-//                || !retrievedUserDoc.contains("conversations")) {
-//                userResponse.onError = Exception("Invalid User format")
-//            } else {
-//                val firstname = retrievedUserDoc["firstname"] as String
-//                val lastname = retrievedUserDoc["lastname"] as String
-//                val userIconPath = retrievedUserDoc["user_icon"] as String
-//                val userItems = userDoc.collection(ITEMS_DB).get().await().map { item ->
-//                    getUserItemFromSnapshot(item)
-//                }
-//                val userConvs = userDoc.collection(CONV_REFS_DB).get().await().map{ conversation ->
-//                    getUserConvFromSnapshot(conversation, userDoc.id)
-//                }
-//                userResponse.onSuccess = User(firstname, lastname, userIconPath, userItems.toMutableList(), userConvs.toMutableList())
-//            }
-//        } catch (e: Exception){
-//            userResponse.onError = e
-//        }
-//        return userResponse
-//    }
-//
-//
-//    //TODO: REFACTOR ITEM CLASS TO HOLD ISLOST IN PARAMETERS
-//    private suspend fun getUserItemFromSnapshot(item: QueryDocumentSnapshot): ItemResponse {
-//        val itemResponse = ItemResponse()
-//        try {
-//            if(!item.contains("item_type")
-//                || !item.contains("item_description")
-//                || !item.contains("is_lost")){
-//                itemResponse.onError = Exception("Invalid Item format")
-//            } else {
-//                val itemTypePair = getItemNameFromPath(item["item_type"] as String)
-//                val itemDesc = item["item_description"] as String
-//                val isLostFlag = item["is_lost"] as Boolean
-//                itemResponse.onSuccess = Item(itemTypePair, itemDesc, isLostFlag)
-//            }
-//        } catch (e: Exception) {
-//            itemResponse.onError = e
-//        }
-//        return itemResponse
-//    }
-//
-
-
     /**
      * ADD MESSAGE PART
      */
-    suspend fun addMessageToConv(m: Message, senderID: String, convID: String): AddDeleteResponse {
-        val addResponse = AddDeleteResponse()
+    suspend fun addMessageToConv(m: Message, senderID: String, convID: String): FirebaseResponse {
+        val addResponse = FirebaseResponse()
         try {
-            val message = mutableMapOf(
-                "sender" to Firebase.firestore.document("$USERS_DB/$senderID"),
+            val message: MutableMap<String, Any> = mutableMapOf(
+                "sender" to senderID,
                 "timestamp" to m.timestamp.toFirebaseTimestamp(),
                 "body" to m.body
             )
@@ -184,189 +128,82 @@ object FirebaseHelper {
 
     /**
      * GETTER PART
+     * THE ID OF A CONVERSATION CANNOT BE NULL
+     * THE USERNAME & PROFILE PIC CAN BE NULL; IN THIS CASE, A PLACEHOLDER IS LOADED & THE STRING "UNABLE TO LOAD USERNAME" IS DISPLAYED
+     * THE ITEM NAME CAN BE NULL IF RETRIEVAL FAILED; IN THIS CASE, WE RETURN A STRING "UNABLE TO LOAD ITEM TYPE"
+     * A LIST OF MESSAGE IN A CONVERSATION CAN CONTAIN SOME INCOMPLETE MESSAGES, BUT IT CANNOT BE EMPTY
      */
-    //TODO: REMOVE THIS FUNCTION WHEN USER RETRIEVAL IS COMPLETED
-    suspend fun getConversationsFromUserID(uid: String): TempConvListResponse {
-        val tempConvListResponse = TempConvListResponse()
-        try {
-            val convSnapshot = Firebase.firestore.collection(USERS_DB).document(uid).collection(CONV_REFS_DB).get().await().map { conv ->
-                if(!conv.contains("reference")){
-                    Log.e("Firebase error", "No reference found")
-                } else {
-                    getUserConvFromRef(conv["reference"] as DocumentReference, uid)
-                }
-            }
-            tempConvListResponse.onSuccess = convSnapshot as List<ConvResponse>
+
+    suspend fun getConversationsFromUserID(authUserID: String): MutableList<Conversation>? {
+        return try {
+            Firebase.firestore.collection(USERS_DB).document(authUserID)
+                .collection(CONV_REFS_DB).get().await().mapNotNull { convRef ->
+                    getConvFromRefSnapshot(convRef, authUserID)
+                }.toMutableList()
         } catch(e: Exception) {
-            tempConvListResponse.onError = e
+            Log.e("FIREBASE ERROR", e.message.toString())
+            null
         }
-        return tempConvListResponse
+    }
+
+    private suspend fun getConvFromRefSnapshot(refSnapshot: QueryDocumentSnapshot, authUserID: String): Conversation? {
+        try {
+            if(!refSnapshot.contains("reference")) return null
+
+            //FETCH CONV_ID
+            val convRef = refSnapshot["reference"] as DocumentReference
+            val convID = convRef.id
+            val convSnapshot = convRef.get().await()
+
+            // MAYBE TOO HARSH OF A CONDITION
+            if(!convSnapshot.contains("lost_item_name")) return null
+
+            //FETCH USER FIELDS
+            val userFields = getUserFieldsFromUID(
+                parseConvUserNameFromID(convID, authUserID)) ?: return null
+
+            //FETCH LOSTITEMNAME
+            val lostItemName = convSnapshot["lost_item_name"] as String
+
+            //FETCH MESSAGE
+            val messageUserName = userFields.getFullName()
+            val messages = convSnapshot.reference.collection(MSG_DB).get().await()
+                .mapNotNull { message ->
+                    getMessageFromSnapshot(message, messageUserName, authUserID)
+                }.sortedBy { it.timestamp.getSeconds() }
+            if(messages.isEmpty()) return null
+
+            return Conversation(convID, userFields, lostItemName, messages.toMutableList())
+        } catch(e: Exception) {
+            Log.e("FIREBASE CHECK", e.message.toString())
+            return null
+        }
     }
 
 
-    private suspend fun getUserConvFromRef(ref: DocumentReference, uid: String): ConvResponse {
-        val convResponse = ConvResponse()
-        try{
-            val conv = ref.get().await()
-            if(!conv.contains("lost_item_path")){
-                convResponse.onError = Exception("Invalid Conversation format")
-            } else {
-                val convID = conv.id
-                val convUserFields = getUserFieldsFromRef(
-                    Firebase.firestore
-                        .collection(USERS_DB)
-                        .document(parseConvUserNameFromID(conv.id, uid)))
-                val lostItemName = getLostItemNameFromRef(conv["lost_item_path"] as DocumentReference)
-                val messages = conv.reference.collection(MSG_DB).get().await().map { message ->
-                    getConvMessageFromSnapshot(message)
-                }.sortedBy { it.onSuccess?.timestamp?.getSeconds() }
-
-                convResponse.onSuccess = Conversation(convID, convUserFields, lostItemName, messages.toMutableList())
+    private suspend fun getUserFieldsFromUID(uid: String): DummyUser? {
+        try {
+            val userDoc = Firebase.firestore.collection(USERS_DB).document(uid).get().await()
+            if(!userDoc.contains("firstname")
+                || !userDoc.contains("lastname")){
+                return null
             }
+
+            val userIcon = if(userDoc.contains("user_icon")) getLocalPathToUserIcon(uid, userDoc["user_icon"] as String) else null
+
+            //TODO: REPLACE BY CORRECT USER FORMAT
+            return DummyUser(
+                userDoc["firstname"] as String,
+                userDoc["lastname"] as String,
+                userIcon
+            )
 
         } catch (e: Exception) {
-            convResponse.onError = e
+            return DummyUser("Unknown", "Name", null)
         }
-        return convResponse
     }
 
-    private fun parseConvUserNameFromID(convID: String, uid: String): String {
-        return convID.replace(uid, "", ignoreCase = false)
-    }
-
-    // MAYBE CONSIDER REFACTORING
-    private suspend fun getLostItemNameFromRef(ref: DocumentReference): ItemNameResponse {
-        val stringResponse = ItemNameResponse()
-        try {
-            val itemDoc = ref.get().await()
-            if(!itemDoc.exists()){
-                stringResponse.onError = Exception("The requested item doesn't exist")
-            } else if (!itemDoc.contains("item_type")) {
-                stringResponse.onError = Exception("Invalid Item format")
-            } else {
-                val getItemName = getItemTypeFromRef(itemDoc["item_type"] as DocumentReference)
-                if(getItemName.onError != null){
-                    stringResponse.onError = getItemName.onError
-                } else {
-                    stringResponse.onSuccess = getItemName.onSuccess!!.first
-                }
-            }
-        } catch(e: Exception){
-            stringResponse.onError = e
-        }
-
-        return stringResponse
-    }
-
-    // NEEDED FUNCTION TO RETRIEVE ITEM TYPE FIELDS
-    private suspend fun getItemTypeFromRef(ref: DocumentReference): ItemTypeResponse {
-        val stringPairResponse = ItemTypeResponse()
-        try {
-            val itemTypeDoc = ref.get().await()
-            if(!itemTypeDoc.exists()){
-                stringPairResponse.onError = Exception("The requested item type doesn't exist")
-            } else if(
-                !itemTypeDoc.contains("type_icon")
-                || !itemTypeDoc.contains("type_name")) {
-                stringPairResponse.onError = Exception("Invalid Item Type format")
-            } else {
-                val itemName = itemTypeDoc["type_name"] as String
-                val itemPicPath = itemTypeDoc["type_icon"] as String
-                stringPairResponse.onSuccess = Pair(itemName, itemPicPath)
-            }
-        } catch(e: Exception){
-            stringPairResponse.onError = e
-        }
-        return stringPairResponse
-    }
-
-    private suspend fun getConvMessageFromSnapshot(messageDoc: QueryDocumentSnapshot): MessageResponse {
-        val messageResponse = MessageResponse()
-        try {
-            if (!messageDoc.contains("sender")
-                || !messageDoc.contains("timestamp")
-                || !messageDoc.contains("body")
-            ) {
-                messageResponse.onError = Exception("Invalid message format")
-
-            } else {
-                val senderResponse = getUserFieldsFromRef(messageDoc["sender"] as DocumentReference)
-                if (senderResponse.onError != null){
-                    messageResponse.onError = senderResponse.onError
-                } else {
-                    val timeStamp = messageDoc["timestamp"] as Timestamp
-                    val body = messageDoc["body"] as String
-
-                    val message: Message
-                    when {
-                        messageDoc.contains("location") -> {
-                            val location = messageDoc["location"] as GeoPoint
-
-                            message = LocationMessage(
-                                senderResponse.onSuccess!!.first,
-                                DateService.fromFirebaseTimestamp(timeStamp),
-                                body,
-                                LocationService.fromGeoPoint(location))
-                        }
-                        messageDoc.contains("image_url") -> {
-                            val imgUrl = messageDoc["image_url"] as String
-                            message = PicMessage(
-                                senderResponse.onSuccess!!.first,
-                                DateService.fromFirebaseTimestamp(timeStamp),
-                                body,
-                                imgUrl)
-                        }
-                        messageDoc.contains("audio_url") -> {
-                            //TODO: COMPLETE THIS FUNCTION WITH CORRECT RETRIEVAL OF AUDIO FILE FROM FIRESTORE
-                            val audioUrl = messageDoc["audio_url"] as String
-                            message = AudioMessage(
-                                senderResponse.onSuccess!!.first,
-                                DateService.fromFirebaseTimestamp(timeStamp),
-                                body,
-                                audioUrl)
-                        }
-                        else -> {
-                            message = Message(
-                                senderResponse.onSuccess!!.first,
-                                DateService.fromFirebaseTimestamp(timeStamp),
-                                body)
-                        }
-                    }
-                    messageResponse.onSuccess = message
-                }
-            }
-        } catch(e: Exception){
-            messageResponse.onError = e
-        }
-        return messageResponse
-    }
-
-    private suspend fun getUserFieldsFromRef(ref: DocumentReference): UserFieldsResponse {
-        val convUserResponse = UserFieldsResponse()
-        try {
-            val userDoc = ref.get().await()
-            if(!userDoc.exists()){
-                convUserResponse.onError = Exception("The requested user doesn't exist")
-            } else {
-                if(!userDoc.contains("firstname")
-                    || !userDoc.contains("lastname")
-                    || !userDoc.contains("user_icon")){
-                    convUserResponse.onError = Exception("Invalid user format")
-                } else {
-                    convUserResponse.onSuccess = Pair(
-                        "${userDoc["firstname"] as String} ${userDoc["lastname"] as String}",
-                        downloadUserIconFromPath(userDoc.id, (userDoc["user_icon"] as String))
-                    )
-                }
-            }
-        } catch (e: Exception){
-            convUserResponse.onError = e
-        }
-        return convUserResponse
-    }
-
-    private suspend fun downloadUserIconFromPath(uid: String, path: String): FileResponse {
-        val fileResponse = FileResponse()
+    private suspend fun getLocalPathToUserIcon(uid: String, path: String): String? {
         try {
             val file = createTempIconFileFromUserID(uid)
             // Wrapper is needed to retrieve image (due to authentication errors)
@@ -377,13 +214,11 @@ object FirebaseHelper {
                     .getFile(file)
                     .await()
 
-                fileResponse.onSuccess = file
+                return file.path
             }
         } catch (e: Exception) {
-            fileResponse.onError = e
+            return null
         }
-
-        return fileResponse
     }
 
     //REQUIRED TO MAKE THE GETUSERICONFROMPATH AN APPROPRIATE BLOCKING METHOD CALL
@@ -391,42 +226,53 @@ object FirebaseHelper {
         return File.createTempFile(uid, ".jpg")
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //adds a new message parameter to the Firestore database message collection
-    fun addDocumentMessage(
-        userID1: String,
-        userID2: String,
-        message: HashMap<String, String>
-    ): Task<DocumentReference> {
-        return getMessageCollection(userID1, userID2).add(message)
+    private fun parseConvUserNameFromID(convID: String, uid: String): String {
+        return convID.replace(uid, "", ignoreCase = false)
     }
+
+
+    private fun getMessageFromSnapshot(snapshot: QueryDocumentSnapshot, userName: String, authUserID: String): Message? {
+        if(!snapshot.contains("sender")
+            || !snapshot.contains("timestamp")
+            || !snapshot.contains("body")){
+                return null
+        }
+
+        //TODO: CHECK IF SENDERNAME IS NOT EMPTY
+        val senderName = if((snapshot["sender"] as String) != authUserID) userName else "Me"
+
+        val message = Message(
+            senderName,
+            DateService.fromFirebaseTimestamp(snapshot["timestamp"] as Timestamp),
+            snapshot["body"] as String,
+        )
+
+        //TODO: CLEANUP CODE A BIT MORE TO AVOID COPIES OF ATTRIBUTES
+        when {
+            snapshot.contains("location") -> return LocationMessage(
+                message.senderName,
+                message.timestamp,
+                message.body,
+                LocationService.fromGeoPoint(snapshot["location"] as GeoPoint)
+            )
+            snapshot.contains("image_url") -> return PicMessage(
+                message.senderName,
+                message.timestamp,
+                message.body,
+                snapshot["image_url"] as String
+            )
+            snapshot.contains("audio_url") -> return AudioMessage(
+                message.senderName,
+                message.timestamp,
+                message.body,
+                snapshot["audio_url"] as String
+            )
+            else -> return message
+        }
+    }
+
+
+
 
     /*
     Returns a User HashMap object that can be sent to FireBase

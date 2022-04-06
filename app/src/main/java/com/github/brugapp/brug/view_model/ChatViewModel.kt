@@ -20,8 +20,8 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.data.FirebaseHelper
-import com.github.brugapp.brug.data.MessageResponse
-import com.github.brugapp.brug.model.*
+import com.github.brugapp.brug.model.ChatMessagesListAdapter
+import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -47,14 +47,14 @@ class ChatViewModel : ViewModel() {
 
     //TODO: REMOVE INITIAL INITIALIZATION AND REVERT TO LATEINIT VAR
     // For the list of messages
-    private var messages: MutableList<MessageResponse> = mutableListOf()
+    private var messages: MutableList<Message> = mutableListOf()
 
     // For the images
     private lateinit var imageUri: Uri
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
     private val TAKE_PICTURE_REQUEST_CODE = 1
 
-    fun initViewModel(messages: MutableList<MessageResponse>) {
+    fun initViewModel(messages: MutableList<Message>) {
         this.messages = messages
         this.adapter = ChatMessagesListAdapter(messages)
     }
@@ -69,9 +69,8 @@ class ChatViewModel : ViewModel() {
     }
 
     fun sendMessage(content: String, convID: String, activity: AppCompatActivity) {
-        // TODO (optional): Change the sender text to something related to the actual user in the future
         val newMessage = Message("Me", DateService.fromLocalDateTime(LocalDateTime.now()), content)
-        messages.add(MessageResponse(newMessage))
+        messages.add(newMessage)
 
         liveData(Dispatchers.IO) {
             //TODO: REPLACE WITH ACTUAL AUTHENTICATED USER ID
@@ -134,7 +133,7 @@ class ChatViewModel : ViewModel() {
         //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
 //        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
         val newMessage = LocationMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), "Location", LocationService.fromAndroidLocation(location))//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
-        messages.add(MessageResponse(newMessage))
+        messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)
         // TODO: Removed from now (to prevent the use of Firebase)
         // sendMessage(locationString)
@@ -182,7 +181,7 @@ class ChatViewModel : ViewModel() {
 
         //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
         val newMessage = PicMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), "An image", imageUri.toString())
-        messages.add(MessageResponse(newMessage))
+        messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)
     }
 

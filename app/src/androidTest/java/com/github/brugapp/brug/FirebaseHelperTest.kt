@@ -1,7 +1,5 @@
 package com.github.brugapp.brug
 
-import androidx.lifecycle.liveData
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.Message
@@ -9,12 +7,10 @@ import com.github.brugapp.brug.model.services.DateService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.core.IsEqual
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
@@ -77,13 +73,6 @@ class FirebaseHelperTest {
         assertThat(task1.isSuccessful, `is`(task2.isSuccessful))
     }
 
-    @Test
-    fun addDocumentMessageTest() {
-        val empty = HashMap<String, String>()
-        val task1 = FirebaseHelper.addDocumentMessage("userID1", "userID2", empty)
-        val task2 = FirebaseHelper.getMessageCollection("userID1", "userID2").add(empty)
-        assertThat(task1.isSuccessful, `is`(task2.isSuccessful))
-    }
 
     @Test
     fun createNewRegisterUserTest() {
@@ -106,7 +95,7 @@ class FirebaseHelperTest {
     @Test
     fun getConvReturnsWithoutErrors() = runBlocking {
         val response = FirebaseHelper.getConversationsFromUserID(uid)
-        assertThat(response.onError, IsEqual(null))
+        assertThat(response.isNullOrEmpty(), IsEqual(false))
     }
 
     @Test

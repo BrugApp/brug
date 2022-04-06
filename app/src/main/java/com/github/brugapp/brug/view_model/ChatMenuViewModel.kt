@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.data.FirebaseHelper
-import com.github.brugapp.brug.data.TempConvListResponse
+import com.github.brugapp.brug.model.Conversation
 import kotlinx.coroutines.Dispatchers
 
 /**
@@ -20,7 +20,7 @@ class ChatMenuViewModel : ViewModel() {
     /**
      * Getter for the list of conversations.
      */
-    fun getConversationsLiveData(): LiveData<TempConvListResponse> {
+    fun getConversationsLiveData(): LiveData<MutableList<Conversation>?> {
         return conversationsLiveData
     }
 

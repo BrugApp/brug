@@ -39,7 +39,8 @@ class ChatActivityTest {
     val permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     private val convID = "0"
-    private val dummyUser = Pair("John Doe", FileResponse(File.createTempFile("tempIMG", ".jpg")))
+    //TODO: CHANGE THIS TO ACTUAL USER
+    private val dummyUser = DummyUser("John", "Doe", File.createTempFile("tempIMG", ".jpg").path)
     private val dummyItemName = "DummyItem"
 
     private val dummyDate = DateService.fromLocalDateTime(
@@ -49,29 +50,22 @@ class ChatActivityTest {
     )
 
     private val dummyMessage = Message(
-        dummyUser.first, dummyDate, "Dummy Test Message"
+        dummyUser.getFullName(), dummyDate, "Dummy Test Message"
     )
 
     private val conversation = Conversation(
         convID,
-        UserFieldsResponse(dummyUser),
-        ItemNameResponse(dummyItemName),
-        mutableListOf(MessageResponse(dummyMessage))
+        dummyUser,
+        dummyItemName,
+        mutableListOf(dummyMessage)
     )
 
     @Test
     fun chatViewCorrectlyGetsConversationInfos() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val conversation = Conversation(
-            convID,
-            UserFieldsResponse(dummyUser),
-            ItemNameResponse(dummyItemName),
-            mutableListOf(MessageResponse(dummyMessage))
-        )
-
         val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, ConvResponse(conversation))
+            putExtra(CHAT_INTENT_KEY, conversation)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -90,7 +84,7 @@ class ChatActivityTest {
         val newMessageText = "Test sending new messages"
 
         val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, ConvResponse(conversation))
+            putExtra(CHAT_INTENT_KEY, conversation)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -112,7 +106,7 @@ class ChatActivityTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, ConvResponse(conversation))
+            putExtra(CHAT_INTENT_KEY, conversation)
         }
 
         ActivityScenario.launch<Activity>(intent).use {

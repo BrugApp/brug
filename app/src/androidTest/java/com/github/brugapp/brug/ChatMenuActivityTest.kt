@@ -74,7 +74,7 @@ class ChatMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-        Thread.sleep(30000)
+        Thread.sleep(20000)
         val chatList = onView(withId(R.id.chat_listview))
         val snackBar =
             onView(withId(com.google.android.material.R.id.snackbar_text))
@@ -91,7 +91,7 @@ class ChatMenuActivityTest {
 
     @Test
     fun swipeRightOnItemDeletesItem() { //FAILING -> NEEDS ASYNCHRONY
-        Thread.sleep(30000)
+        Thread.sleep(20000)
         val chatList = onView(withId(R.id.chat_listview))
         val snackBar =
             onView(withId(com.google.android.material.R.id.snackbar_text))
@@ -108,7 +108,7 @@ class ChatMenuActivityTest {
 
     @Test
     fun clickOnItemGoesToChatActivity() {
-        Thread.sleep(30000)
+        Thread.sleep(20000)
         val chatList = onView(withId(R.id.chat_listview))
         chatList.perform(
             RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(

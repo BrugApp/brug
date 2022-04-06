@@ -9,21 +9,18 @@ import android.widget.LinearLayout
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.DUMMY_TEXT
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
 import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.github.brugapp.brug.view_model.ListCallback
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.Dispatchers
 
 const val CHAT_SEARCH_HINT: String = "Search for a conversation…"
 const val CHAT_CHECK_TEXT: String = "The conversation has been marked as resolved."
@@ -56,32 +53,20 @@ class ChatMenuActivity : AppCompatActivity() {
     }
 
     private fun initChatList(model: ChatMenuViewModel) {
-        model.getConversationsLiveData().observe(this) { tempConvListResponse ->
+        model.getConversationsLiveData().observe(this) { conversations ->
             val listView = findViewById<RecyclerView>(R.id.chat_listview)
-
-            if(tempConvListResponse.onSuccess == null){
-                // Show a snackbar with an error message if no network service
-                Log.e("Firebase error", tempConvListResponse.onError.toString())
-                Snackbar.make(listView, "ERROR: No network connection", Snackbar.LENGTH_LONG)
+            if (conversations == null) {
+                Log.e("Firebase error", "Error while loading the conversations")
+                Snackbar.make(listView, "Error while loading the conversations", Snackbar.LENGTH_LONG)
                     .show()
-
             } else {
-                val convList = tempConvListResponse.onSuccess!!.toMutableList()
-
-                val listViewAdapter = ConversationListAdapter(convList) { clickedConv ->
-                    if(clickedConv.onSuccess == null){
-                        Log.e("Firebase error", clickedConv.onError.toString())
-                        Snackbar.make(listView, "ERROR: The selected conversation is invalid.", Snackbar.LENGTH_LONG)
-                            .show()
-                    } else {
-                        val intent = Intent(this, ChatActivity::class.java)
-                        intent.putExtra(CHAT_INTENT_KEY, clickedConv)
-                        startActivity(intent)
-                    }
+                val listViewAdapter = ConversationListAdapter(conversations) { clickedConv ->
+                    val intent = Intent(this, ChatActivity::class.java)
+                    intent.putExtra(CHAT_INTENT_KEY, clickedConv)
+                    startActivity(intent)
                 }
 
                 listView.layoutManager = LinearLayoutManager(this)
-
                 val dragPair = Pair(
                     0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
                 )
@@ -91,7 +76,7 @@ class ChatMenuActivity : AppCompatActivity() {
                     ContextCompat.getColor(this, R.color.chat_list_resolve_BG))
 
                 val listAdapterPair = Pair(
-                    convList,
+                    conversations,
                     listViewAdapter
                 )
 
@@ -109,10 +94,11 @@ class ChatMenuActivity : AppCompatActivity() {
                 ItemTouchHelper(listCallback).attachToRecyclerView(listView)
                 listView.adapter = listViewAdapter
                 listView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
+
             }
         }
-
     }
+
 
     companion object {
         private val customTopBar = CustomTopBar()
