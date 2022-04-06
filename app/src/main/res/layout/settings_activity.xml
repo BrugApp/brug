@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/conditions"
+        android:layout_width="215dp"
+        android:layout_height="57dp"
+        android:gravity="center_vertical"
+        android:text="@string/terms_amp_conditions"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/permissions" />
+
+    <Switch
+        android:id="@+id/cacheSwitch"
+        android:layout_width="215dp"
+        android:layout_height="57dp"
+        android:minHeight="48dp"
+        android:text="@string/use_cache"
+        android:textSize="28sp"
+        app:layout_constraintBottom_toTopOf="@+id/nightModeSwitch"
+        app:layout_constraintStart_toStartOf="@+id/nightModeSwitch"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <TextView
+        android:id="@+id/permissions"
+        android:layout_width="215dp"
+        android:layout_height="57dp"
+        android:gravity="center_vertical"
+        android:text="@string/permissions"
+        android:textColor="#000000"
+        android:textSize="28sp"
+        app:layout_constraintBottom_toTopOf="@+id/conditions"
+        app:layout_constraintStart_toStartOf="@+id/conditions"
+        app:layout_constraintTop_toBottomOf="@+id/nightModeSwitch" />
+
+    <Switch
+        android:id="@+id/nightModeSwitch"
+        android:layout_width="215dp"
+        android:layout_height="57dp"
+        android:minHeight="48dp"
+        android:textSize="28sp"
+        android:text="@string/night_mode"
+        app:layout_constraintBottom_toTopOf="@+id/permissions"
+        app:layout_constraintStart_toStartOf="@+id/permissions"
+        app:layout_constraintTop_toBottomOf="@+id/cacheSwitch"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <TextView
+        android:id="@+id/titleSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/settings"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textSize="40sp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/cacheSwitch"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/changeProfilePictureButton"
+        android:layout_width="100dp"
+        android:layout_height="44dp"
+        android:text="@string/change"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.697"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/conditions"
+        app:layout_constraintVertical_bias="0.115" />
+
+    <TextView
+        android:id="@+id/settingsProfileText"
+        android:layout_width="165dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="60dp"
+        android:text="@string/profile_picture"
+        android:textColor="#000000"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/changeProfilePictureButton"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/conditions"
+        app:layout_constraintVertical_bias="0.115" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,96 +4,67 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.SettingsFragment">
+    tools:context=".ui.ProfileSettingsFragment">
 
-    <TextView
-        android:id="@+id/conditions"
-        android:layout_width="215dp"
-        android:layout_height="57dp"
-        android:gravity="center_vertical"
-        android:text="@string/terms_amp_conditions"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/permissions" />
-
-    <Switch
-        android:id="@+id/cacheSwitch"
-        android:layout_width="215dp"
-        android:layout_height="57dp"
-        android:minHeight="48dp"
-        android:text="@string/use_cache"
-        android:textSize="28sp"
-        app:layout_constraintBottom_toTopOf="@+id/nightModeSwitch"
-        app:layout_constraintStart_toStartOf="@+id/nightModeSwitch"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-    <TextView
-        android:id="@+id/permissions"
-        android:layout_width="215dp"
-        android:layout_height="57dp"
-        android:gravity="center_vertical"
-        android:text="@string/permissions"
-        android:textColor="#000000"
-        android:textSize="28sp"
-        app:layout_constraintBottom_toTopOf="@+id/conditions"
-        app:layout_constraintStart_toStartOf="@+id/conditions"
-        app:layout_constraintTop_toBottomOf="@+id/nightModeSwitch" />
-
-    <Switch
-        android:id="@+id/nightModeSwitch"
-        android:layout_width="215dp"
-        android:layout_height="57dp"
-        android:minHeight="48dp"
-        android:textSize="28sp"
-        android:text="@string/night_mode"
-        app:layout_constraintBottom_toTopOf="@+id/permissions"
-        app:layout_constraintStart_toStartOf="@+id/permissions"
-        app:layout_constraintTop_toBottomOf="@+id/cacheSwitch"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-    <TextView
-        android:id="@+id/titleSettings"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/rellay12"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/settings"
-        android:textAlignment="center"
-        android:textAllCaps="false"
-        android:textSize="40sp"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toTopOf="@+id/cacheSwitch"
+        android:background="@drawable/grad"
+        android:paddingBottom="80dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RelativeLayout
+            android:id="@+id/imgUserProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/circle_border">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imgProfile"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginStart="9dp"
+                android:layout_marginTop="9dp"
+                android:layout_marginEnd="9dp"
+                android:layout_marginBottom="9dp"
+                app:civ_border_color="#FF000000"
+                app:civ_border_width="2dp" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imgUserProfile"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15sp"
+            android:fontFamily="sans-serif-light"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="32sp" />
+
+
+    </RelativeLayout>
+
 
     <Button
         android:id="@+id/loadButton"
-        android:layout_width="87dp"
-        android:layout_height="44dp"
+        android:layout_width="200dp"
+        android:layout_height="54dp"
+        android:layout_below="@+id/rellay12"
         android:text="@string/load_profile_picture"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.697"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/conditions"
-        app:layout_constraintVertical_bias="0.115" />
+        app:layout_constraintTop_toBottomOf="@+id/rellay12"
+        app:layout_constraintVertical_bias="0.154" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="165dp"
-        android:layout_height="44dp"
-        android:text="@string/profile_picture"
-        android:textColor="#000000"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/loadButton"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/conditions"
-        app:layout_constraintVertical_bias="0.115" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

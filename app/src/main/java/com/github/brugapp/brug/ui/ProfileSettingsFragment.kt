@@ -13,13 +13,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.SettingsViewModel
 
-class SettingsFragment(
+class ProfileSettingsFragment(
     private val registry: ActivityResultRegistry
 ) : Fragment() {
 
@@ -28,7 +30,7 @@ class SettingsFragment(
     private fun resize(image: Drawable?): Drawable? {
         if(image == null) return null
         val b = (image as BitmapDrawable).bitmap
-        val bitmapResized = Bitmap.createScaledBitmap(b, 80, 80, false)
+        val bitmapResized = Bitmap.createScaledBitmap(b, 200, 200, false)
         return BitmapDrawable(resources, bitmapResized)
     }
 
@@ -37,11 +39,10 @@ class SettingsFragment(
             val inputStream = activity?.contentResolver?.openInputStream(uri)
             val drawable = Drawable.createFromStream(inputStream, uri.toString())
             activity?.let {
-                Log.d("temp", "I'm begin in $drawable")
                 viewModel.setProfilePic(resize(drawable))
             }
         }
-        val myIntent = Intent(activity, SettingsActivity::class.java)
+        val myIntent = Intent(activity, ProfilePictureSetActivity::class.java)
         startActivity(myIntent)
     }
 
@@ -53,8 +54,19 @@ class SettingsFragment(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val button = view.findViewById<Button>(R.id.loadButton)
+        val profilePic = view.findViewById<ImageView>(R.id.imgProfile)
+        val profilePicDrawable = viewModel.getProfilePic()
 
+        if(profilePicDrawable != null){
+            profilePic.setImageDrawable(profilePicDrawable)
+        }else{
+            profilePic.setImageResource(R.drawable.ic_person_outline_black_24dp)
+        }
+
+        val username = view.findViewById<TextView>(R.id.username)
+        username.text = viewModel.getUsername()
+
+        val button = view.findViewById<Button>(R.id.loadButton)
         button.setOnClickListener {
             getContent.launch("image/*")
         }
