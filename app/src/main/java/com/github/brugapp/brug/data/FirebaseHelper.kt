@@ -52,15 +52,7 @@ class FirebaseHelper {
             var inputStream : Uri? = null
             var profilePicture: Drawable? = null
 
-            /* THIS IS HOW TO CONVERT A URI TO A DRAWABLE FOR UI CLASSES
-            try {
-                inputStream = uri?.let { getContentResolver().openInputStream(it) }
-                profilePicture = Drawable.createFromStream(inputStream, uri.toString())
-            } catch (e: Exception) {
-                print("uri to drawable conversion failed")
-            }*/
-
-            if (email == null || id == null || uri == null) { //    ||profilePicture == null
+            if (email == null || id == null || uri == null) {
                 return null
             } else {
                 return User(firstname, lastname, email, id, profilePicture)
@@ -69,14 +61,14 @@ class FirebaseHelper {
         }
         return null
     }
-
+    //returns item from a given user
     fun getItemFromCurrentUser(userID: String, objectID: String): Item? {
         lateinit var name: String
         lateinit var description: String
-        var is_lost = false //boolean cannot take null type as lateinit default
+        var is_lost = false
         var success = false
         lateinit var item_ref: DocumentReference
-        lateinit var item_type: String //integer cannot take null type as lateinit default
+        lateinit var item_type: String
         val docRef = db.collection("Users").document(userID).collection("Items").document(objectID)
         docRef.get().addOnSuccessListener { document ->
             if (document != null) {
@@ -109,7 +101,7 @@ class FirebaseHelper {
         }
     }
     //@TODO functionA for person1 to declare item1 lost
-    //@TODO functionB for person2 to declare person1's item1 as found(unlost), creates chat (p1,p2),
+    //@TODO functionB for person2 to declare person1's item1 as found(unlost), creates chat (p1,p2)
 
     //adds a new user parameter to the Firestore database user collection
     fun addRegisterUser(userToAdd: HashMap<String, Any>) {
