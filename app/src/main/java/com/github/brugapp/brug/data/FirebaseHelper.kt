@@ -86,10 +86,13 @@ class FirebaseHelper {
         val docRef = db.collection("Users").document(userID).collection("Items").document(objectID)
         docRef.get().addOnSuccessListener { document ->
             if (document != null) {
-                if(document.data?.get("is_lost")!=null) {
+                if(document.data?.get("is_lost")!=null && document.data?.get("item_description")!=null) {
                     is_lost = document.data?.get("is_lost") as Boolean
+                    description = document.data?.get("item_description") as String
+                }else{
+                    is_lost = false
+                    description = ""
                 }
-                description = document.data?.get("item_description") as String
                 item_ref = document.data?.get("item_type") as DocumentReference
                 item_type = item_ref.toString().drop(item_ref.toString().length-1)
                 success = true
