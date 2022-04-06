@@ -64,5 +64,10 @@
     <string name="send_image_via_camera">Send image via camera</string>
     <string name="profile_picture">Profile picture</string>
     <string name="load_profile_picture">Load</string>
+    <string name="imagesent">ImageSent</string>
+    <string name="sender">Sender</string>
+    <string name="long_message">Hi, this is a very very long message that should be wrapped!</string>
+    <string name="timestamp_example">220317133700</string>
+    <string name="profile_picture_description">Profile picture</string>
     >>>>>>> main
 </resources>
