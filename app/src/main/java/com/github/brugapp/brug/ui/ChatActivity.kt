@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ConvResponse
+import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -30,6 +31,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var messageList: RecyclerView
+    private var conversation: Conversation? = null
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,25 +63,25 @@ class ChatActivity : AppCompatActivity() {
         if(convResponse.onError != null){
             Log.e("Firebase error", convResponse.onError.toString())
         } else {
-            val conversation = convResponse.onSuccess!!
-            model.initViewModel(conversation.messages)
+            conversation = convResponse.onSuccess!!
+            model.initViewModel(conversation!!.messages)
 
             messageList.layoutManager = LinearLayoutManager(this)
             messageList.adapter = model.getAdapter()
 
             // Set the title bar name with informations related to the conversation
-            val userName = if(conversation.userFieldsInfos.onError != null){
-                Log.e("Firebase error", conversation.userFieldsInfos.onError.toString())
+            val userName = if(conversation!!.userFieldsInfos.onError != null){
+                Log.e("Firebase error", conversation!!.userFieldsInfos.onError.toString())
                 "Unknown User"
             } else {
-                conversation.userFieldsInfos.onSuccess!!.first
+                conversation!!.userFieldsInfos.onSuccess!!.first
             }
 
-            val lostItemName = if(conversation.lostItemName.onError != null){
-                Log.e("Firebase error", conversation.lostItemName.onError.toString())
+            val lostItemName = if(conversation!!.lostItemName.onError != null){
+                Log.e("Firebase error", conversation!!.lostItemName.onError.toString())
                 "Unknown item"
             } else {
-                conversation.lostItemName.onSuccess!!
+                conversation!!.lostItemName.onSuccess!!
             }
 
             inflateActionBar(
@@ -92,7 +94,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun inflateActionBar(username: String, itemLost: String) {
         supportActionBar!!.title = username
-        supportActionBar!!.subtitle = "Related to your item \"$itemLost\""
+        supportActionBar!!.subtitle = "Related to the item \"$itemLost\""
     }
 
     private fun initSendMessageButton(model: ChatViewModel) {
@@ -103,7 +105,7 @@ class ChatActivity : AppCompatActivity() {
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
-            model.sendMessage(content)
+            model.sendMessage(content, conversation!!.convId, this)
         }
     }
 

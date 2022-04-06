@@ -11,23 +11,31 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.data.MessageResponse
 import com.github.brugapp.brug.model.*
+import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.services.DateService
+import com.github.brugapp.brug.model.services.LocationService
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.type.LatLng
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 
+//TODO: NEEDS REFACTORING & DOCUMENTATION
 class ChatViewModel : ViewModel() {
     // For the message list
     private lateinit var chatArrayList: ArrayList<Message>
@@ -60,43 +68,25 @@ class ChatViewModel : ViewModel() {
         return adapter
     }
 
-    fun sendMessage(content: String) {
-        // TODO: Change the sender text to something related to the actual user in the future
-        //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
-        val newMessage = Message("Me", LocalDateTime.now(), content)//ChatMessage(content, 0, LocalDateTime.now(), "Me")
+    fun sendMessage(content: String, convID: String, activity: AppCompatActivity) {
+        // TODO (optional): Change the sender text to something related to the actual user in the future
+        val newMessage = Message("Me", DateService.fromLocalDateTime(LocalDateTime.now()), content)
         messages.add(MessageResponse(newMessage))
+
+        liveData(Dispatchers.IO) {
+            //TODO: REPLACE WITH ACTUAL AUTHENTICATED USER ID
+            emit(FirebaseHelper.addMessageToConv(newMessage, "7IsGzvjHKd0KeeKK722m", convID))
+        }.observe(activity) { response ->
+            if(response.onError != null){
+                Snackbar.make(activity.findViewById(android.R.id.content),
+                    "ERROR: Unable to register the new message in the database",
+                    Snackbar.LENGTH_LONG)
+                    .show()
+            }
+        }
+
         adapter.notifyItemInserted(messages.size - 1)
     }
-
-    // TODO: Currently not used as firebase helper is not implemented
-    /*
-    @RequiresApi(Build.VERSION_CODES.O) // Required for datetime
-    fun sendMessage(sender: String, content: String) {
-        // TODO: Change the document when ChatListActivity is implemented
-        // TODO: Update code to use data.Database when implemented
-        // Compute timestamp
-        val datetime: String = computeDateTime()
-
-        // Create a new message
-        val message = hashMapOf(
-            "sender" to sender,
-            "content" to content,
-            "datetime" to datetime
-        )
-
-        // Add a new document i.e. message
-        db = Firebase.firestore
-        db.collection("Chat").document("User1User2")
-            .collection("Messages")
-            .add(message)
-            .addOnSuccessListener { documentReference ->
-                Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-            }
-            .addOnFailureListener { e ->
-                Log.w(ContentValues.TAG, "Error adding document", e)
-            }
-    }
-     */
 
     // LOCATION RELATED
     fun requestLocation(
@@ -143,54 +133,12 @@ class ChatViewModel : ViewModel() {
     private fun sendLocation(location: Location) {
         //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
 //        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
-        val newMessage = LocationMessage("Me", LocalDateTime.now(), "Location", LocationService.fromAndroidLocation(location))//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
+        val newMessage = LocationMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), "Location", LocationService.fromAndroidLocation(location))//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
         messages.add(MessageResponse(newMessage))
         adapter.notifyItemInserted(messages.size - 1)
         // TODO: Removed from now (to prevent the use of Firebase)
         // sendMessage(locationString)
     }
-
-    // TODO: Currently not used as firebase helper is not implemented
-    /*
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun sendLocalisation(longitude: Double, latitude: Double) {
-        // TODO: Change the document when ChatListActivity is implemented
-        // TODO: Update code to use data.Database when implemented
-        // Get localisation of user
-        val localisation: String = "longitude: $longitude; latitude: $latitude"
-
-        // Compute datetime
-        val datetime: String = computeDateTime()
-
-        // Create a message
-        val message = hashMapOf(
-            "sender" to "Localisation service",
-            "content" to localisation,
-            "datetime" to datetime
-        )
-
-        // Add a new document i.e. localisation
-        db = Firebase.firestore
-        db.collection("Chat").document("User1User2")
-            .collection("Messages")
-            .add(message)
-            .addOnSuccessListener { documentReference ->
-                Log.d(
-                    ContentValues.TAG,
-                    "DocumentSnapshot added with ID: ${documentReference.id}"
-                )
-            }
-            .addOnFailureListener { e ->
-                Log.w(ContentValues.TAG, "Error adding document", e)
-            }
-    }
-
-    // Requests an update when location is available
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun foundLocation(location: Location) {
-        sendLocalisation(location.longitude, location.latitude)
-    }
-    */
 
     // IMAGE RELATED
     fun takeCameraImage(activity: ChatActivity) {
@@ -233,7 +181,7 @@ class ChatViewModel : ViewModel() {
         //storageRef.putFile(imageUri).addOnSuccessListener { ... }
 
         //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
-        val newMessage = PicMessage("Me", LocalDateTime.now(), "An image", imageUri.toString())
+        val newMessage = PicMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), "An image", imageUri.toString())
         messages.add(MessageResponse(newMessage))
         adapter.notifyItemInserted(messages.size - 1)
     }

@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.MessageResponse
 import com.github.brugapp.brug.model.ChatMessagesListAdapter.MessageType.*
+import com.github.brugapp.brug.model.message_types.AudioMessage
+import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.message_types.PicMessage
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -87,24 +90,24 @@ class ChatMessagesListAdapter(private val messageList: MutableList<MessageRespon
         }
 
         private fun bindLocationMessage(message: LocationMessage) {
-            itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.sender
-            itemView.findViewById<TextView>(R.id.chat_item_datetime).text = formatDateTime(message.timestamp)
-            itemView.findViewById<TextView>(R.id.chat_item_content).text = message.body
+            itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.senderName
+            itemView.findViewById<TextView>(R.id.chat_item_datetime).text = formatDateTime(message.timestamp.toLocalDateTime())
+            itemView.findViewById<TextView>(R.id.chat_item_content).text = message.location.toString()
         }
 
         private fun bindPicMessage(message: PicMessage) {
-            itemView.findViewById<TextView>(R.id.chat_image_sender).text = message.sender
+            itemView.findViewById<TextView>(R.id.chat_image_sender).text = message.senderName
             itemView.findViewById<ImageView>(R.id.chat_image_imageView).setImageURI(Uri.parse(message.imgUrl))
         }
 
         private fun bindAudioMessage(message: AudioMessage) {
-            itemView.findViewById<TextView>(R.id.chat_image_sender).text = message.sender
+            itemView.findViewById<TextView>(R.id.chat_image_sender).text = message.senderName
             itemView.findViewById<ImageView>(R.id.chat_image_imageView).setImageURI(Uri.parse(message.audioUrl))
         }
 
         private fun bindTextMessage(message: Message) {
-            itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.sender
-            itemView.findViewById<TextView>(R.id.chat_item_datetime).text = formatDateTime(message.timestamp)
+            itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.senderName
+            itemView.findViewById<TextView>(R.id.chat_item_datetime).text = formatDateTime(message.timestamp.toLocalDateTime())
             itemView.findViewById<TextView>(R.id.chat_item_content).text = message.body
         }
 
