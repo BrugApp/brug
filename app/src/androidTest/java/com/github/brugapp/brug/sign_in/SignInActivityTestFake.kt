@@ -7,8 +7,11 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers
+import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
 import androidx.test.espresso.intent.matcher.IntentMatchers
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.AuthDatabase
@@ -91,9 +94,9 @@ class SignInActivityTestFake {
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
 
         ActivityScenario.launch<SignInActivity>(intent).use {
-            Intents.intended(
-                IntentMatchers.hasComponent(
-                    ComponentNameMatchers.hasClassName(
+            intended(
+                hasComponent(
+                    hasClassName(
                         ItemsMenuActivity::class.java.name
                     )
                 )
