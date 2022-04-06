@@ -1,6 +1,5 @@
 package com.github.brugapp.brug.data
 
-import android.app.Activity
 import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -10,19 +9,14 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.test.core.app.ActivityScenario
 import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.ui.RegisterUserActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import dagger.hilt.android.qualifiers.ActivityContext
 
 
 class FirebaseHelper {
