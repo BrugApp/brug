@@ -33,7 +33,9 @@ class ConversationListAdapter(
         } else {
             holder.icon.setImageURI(Uri.parse(listElement.userFields.iconPath))
         }
-        holder.desc.text = listElement.messages.last().body
+        val lastMessage = listElement.messages.last()
+        val lastMessageBody = "${lastMessage.senderName}: ${lastMessage.body}"
+        holder.desc.text = lastMessageBody
     }
 
     // Returns the number of elements in the list
