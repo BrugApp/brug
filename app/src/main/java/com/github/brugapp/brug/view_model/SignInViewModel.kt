@@ -49,7 +49,8 @@ class SignInViewModel @Inject constructor(
             firstName,
             lastName,
             email,
-            idToken
+            idToken,
+            null
         )
     }
 

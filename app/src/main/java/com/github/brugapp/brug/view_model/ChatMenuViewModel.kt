@@ -2,8 +2,10 @@ package com.github.brugapp.brug.view_model
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.github.brugapp.brug.fake.MockDatabase
 import com.github.brugapp.brug.model.*
 import java.time.LocalDateTime
+
 
 /**
  * ViewModel of the Chat Menu UI, handling its UI logic.
@@ -20,32 +22,32 @@ class ChatMenuViewModel : ViewModel() {
         println("===========================================================")
         return mutableListOf(
             Conversation(
-                User("Anna", "Rosenberg", "anna@rosenberg.com", "123456"),
-                Item("AirPods", "My beloved AirPods", 0),
+                User("Anna", "Rosenberg", "anna@rosenberg.com", "123456",null),
+                Item("AirPods", "My beloved AirPods", "0"),
                 mutableListOf(ChatMessage(
                     "Me",
                     0,
                     LocalDateTime.now(),
                     "Where are you located ? I'm near the center of Lausanne, so feel free to propose me any location in Lausanne"))),
             Conversation(
-                User("Henry", "Crawford", "crawform@services.co.uk", "129271"),
-                Item("Wallet", "With all my belongings", 0),
+                User("Henry", "Crawford", "crawform@services.co.uk", "129271", MockDatabase.currentUser.getProfilePicture() ),
+                Item("Wallet", "With all my belongings", "0"),
                 mutableListOf(ChatMessage(
                     "Me",
                     0,
                     LocalDateTime.now(),
                     "Hey ! I might have found your wallet yesterday near the EPFL campus"))),
             Conversation(
-                User("Jenna", "Hewitt", "jenna.hewitt@epfl.ch", "310827"),
-                Item("Keys", "Home keys", 0),
+                User("Jenna", "Hewitt", "jenna.hewitt@epfl.ch", "310827",null),
+                Item("Keys", "Home keys", "0"),
                 mutableListOf(ChatMessage(
                     "Me",
                     0,
                     LocalDateTime.now(),
                     "Fine, lets meet on Saturday then !"))),
             Conversation(
-                User("John", "Newmann", "john@microsoft.com", "1892122"),
-                Item("Smartphone", "Galaxy S22", 0),
+                User("John", "Newmann", "john@microsoft.com", "1892122",null),
+                Item("Smartphone", "Galaxy S22", "0"),
                 mutableListOf(ChatMessage(
                         "Me",
                         0,
