@@ -54,6 +54,7 @@ jacoco {
 }
 
 dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-testing:2.4.1'
     def lifecycle_version = "2.5.0-alpha05"
     def arch_version = "2.1.0"
@@ -86,6 +87,14 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$arch_version"
     implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0'
     implementation "androidx.fragment:fragment-ktx:1.4.1"
+    //----------
+    def fragmentx_version = "1.4.0"
+    implementation "androidx.fragment:fragment:$fragmentx_version"
+    debugImplementation ("androidx.fragment:fragment-testing:$fragmentx_version"){
+        exclude group: 'androidx.test', module: 'core'
+    }
+    debugImplementation 'androidx.test:core-ktx:1.4.0'
+    //----------
 
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -131,7 +140,7 @@ dependencies {
     kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.38.1'
 
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:29.2.0')
+    implementation platform('com.google.firebase:firebase-bom:29.3.0')
 
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'
@@ -190,20 +199,11 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
     sourceDirectories.setFrom(files([mainSrc]))
     classDirectories.setFrom(files([debugTree]))
     executionData.setFrom(fileTree(dir: project.buildDir, includes: [
-            'jacoco/testDebugUnitTest.exec', 'outputs/code_coverage/debugAndroidTest/connected/*coverage.ec'
+            'outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec',
+            'outputs/code_coverage/debugAndroidTest/connected/*/coverage.ec'
     ]))
 }
 
 connectedCheck {
     finalizedBy jacocoTestReport
-}
-
-configurations.all {
-    resolutionStrategy {
-        eachDependency { details ->
-            if ('org.jacoco' == details.requested.group) {
-                details.useVersion "0.8.7"
-            }
-        }
-    }
 }

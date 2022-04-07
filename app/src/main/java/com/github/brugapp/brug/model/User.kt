@@ -1,14 +1,19 @@
 package com.github.brugapp.brug.model
 
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import java.io.Serializable
 import java.util.regex.Pattern
+
 
 class User// later generate id
     (
     private var firstName: String,
     private var lastName: String,
     private var email: String,
-    private var id: String
+    private var id: String,
+    @Transient
+    private var profilePicture: Drawable?
 ): Serializable {
     private var items: MutableList<Item>
 
@@ -31,10 +36,10 @@ class User// later generate id
 
         }
         items = mutableListOf(
-            Item("Phone", "Samsung Galaxy S22", 0).setType(ItemType.Phone),
-            Item("Wallet", "With all my belongings", 0).setType(ItemType.Wallet),
-            Item("BMW Key", "BMW M3 F80 Competition", 0).setType(ItemType.CarKeys),
-            Item("Keys","House and everything else", 0).setType(ItemType.Keys)
+            Item("Phone", "Samsung Galaxy S22", "").setType(ItemType.Phone),
+            Item("Wallet", "With all my belongings", "").setType(ItemType.Wallet),
+            Item("BMW Key", "BMW M3 F80 Competition", "").setType(ItemType.CarKeys),
+            Item("Keys","House and everything else", "").setType(ItemType.Keys)
         )
     }
 
@@ -56,6 +61,16 @@ class User// later generate id
 
     fun getItemList(): MutableList<Item> {
         return items
+    }
+
+
+    fun setProfilePicture(drawable: Drawable?): User{
+        this.profilePicture = drawable
+        return this
+    }
+
+    fun getProfilePicture(): Drawable? {
+        return this.profilePicture
     }
 
     fun addItem(item : Item) : Boolean{

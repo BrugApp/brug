@@ -38,6 +38,12 @@ class ConversationListAdapter(
         holder.desc.text = lastMessageBody
     }
 
+   // private fun uriToDrawable(uriString: String?): Drawable {
+   //     val uri = Uri.parse(uriString)
+   //     val inputStream = activity.contentResolver.openInputStream(uri)
+   //     return Drawable.createFromStream(inputStream, uri.toString())
+   // }
+
     // Returns the number of elements in the list
     override fun getItemCount(): Int {
         return chatList.size

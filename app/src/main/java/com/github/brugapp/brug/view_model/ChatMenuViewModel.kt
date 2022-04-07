@@ -7,6 +7,7 @@ import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.Conversation
 import kotlinx.coroutines.Dispatchers
 
+
 /**
  * ViewModel of the Chat Menu UI, handling its UI logic.
  */
