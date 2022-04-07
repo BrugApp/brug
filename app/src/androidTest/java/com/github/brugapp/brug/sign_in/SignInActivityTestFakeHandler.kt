@@ -17,12 +17,14 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.AuthDatabase
+import com.github.brugapp.brug.di.sign_in.SignInClient
 import com.github.brugapp.brug.di.sign_in.SignInCredentialGetter
 import com.github.brugapp.brug.di.sign_in.SignInResultHandler
 import com.github.brugapp.brug.di.sign_in.module.DatabaseAuthModule
 import com.github.brugapp.brug.di.sign_in.module.SignInCredentialGetterModule
 import com.github.brugapp.brug.di.sign_in.module.SignInResultHandlerModule
 import com.github.brugapp.brug.fake.FakeAuthDatabase
+import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.fake.FakeSignInCredentialGetter
 import com.github.brugapp.brug.fake.FakeSignInResultHandler
 import com.github.brugapp.brug.ui.ItemsMenuActivity
@@ -96,7 +98,6 @@ class SignInActivityTestFakeHandler {
 
     @Test
     fun signInActivityAsksUserToSignInForNotSignedInUser() {
-
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
 
         ActivityScenario.launch<SignInActivity>(intent).use {

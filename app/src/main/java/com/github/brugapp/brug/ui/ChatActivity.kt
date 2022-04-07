@@ -29,6 +29,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var messageList: RecyclerView
+    private lateinit var conversation: Conversation
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,26 +53,23 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(model: ChatViewModel) {
-        val conversation: Conversation =
-            intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
+        conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
 
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
-
         model.initViewModel(conversation.messages)
-
         messageList.layoutManager = LinearLayoutManager(this)
         messageList.adapter = model.getAdapter()
 
-        // Set the title bar name with informations related to the conversation
         inflateActionBar(
-            "${conversation.user.getFirstName()} ${conversation.user.getLastName()}",
-            conversation.lostItem.getName()
+            conversation.userFields.getFullName(), conversation.lostItemName
         )
+
+
     }
 
     private fun inflateActionBar(username: String, itemLost: String) {
         supportActionBar!!.title = username
-        supportActionBar!!.subtitle = "Related to your item \"$itemLost\""
+        supportActionBar!!.subtitle = "Related to the item \"$itemLost\""
     }
 
     private fun initSendMessageButton(model: ChatViewModel) {
@@ -82,7 +80,7 @@ class ChatActivity : AppCompatActivity() {
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
-            model.sendMessage(content)
+            model.sendMessage(content, conversation.convId, this)
         }
     }
 
