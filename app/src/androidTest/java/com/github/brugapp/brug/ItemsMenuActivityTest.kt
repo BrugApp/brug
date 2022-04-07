@@ -20,6 +20,8 @@ import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.view_model.ListViewHolder
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsEqual
 import org.junit.After
@@ -37,9 +39,13 @@ private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/list_item_title"
 private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 
 @RunWith(AndroidJUnit4::class)
+@HiltAndroidTest
 class ItemsMenuActivityTest {
     @get:Rule
     val testRule = ActivityScenarioRule(ItemsMenuActivity::class.java)
+
+    @get:Rule
+    var rule = HiltAndroidRule(this)
 
     @Before
     fun setUpIntents() {

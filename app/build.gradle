@@ -54,6 +54,7 @@ jacoco {
 }
 
 dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     def lifecycle_version = "2.5.0-alpha05"
     def arch_version = "2.1.0"
 
@@ -85,6 +86,14 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$arch_version"
     implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0'
     implementation "androidx.fragment:fragment-ktx:1.4.1"
+    //----------
+    def fragmentx_version = "1.4.0"
+    implementation "androidx.fragment:fragment:$fragmentx_version"
+    debugImplementation ("androidx.fragment:fragment-testing:$fragmentx_version"){
+        exclude group: 'androidx.test', module: 'core'
+    }
+    debugImplementation 'androidx.test:core-ktx:1.4.0'
+    //----------
 
 
     implementation 'androidx.core:core-ktx:1.7.0'
