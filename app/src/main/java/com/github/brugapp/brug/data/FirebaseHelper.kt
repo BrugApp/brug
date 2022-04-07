@@ -269,7 +269,7 @@ object FirebaseHelper {
             val file = createTempIconFileFromUserID(uid)
             // Wrapper is needed to retrieve image (due to authentication errors)
             //TODO: REPLACE ANONYMOUS AUTHENTICATION WITH CORRECT USER AUTHENTICATION
-            mAuth.signInAnonymously().await().also {
+            mAuth.signInWithEmailAndPassword("unlost.app@gmail.com", "brugsdpProject1").await().also {
                 Firebase.storage
                     .getReference(path)
                     .getFile(file)

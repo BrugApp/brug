@@ -44,8 +44,8 @@ class ChatActivity : AppCompatActivity() {
         initMessageList(model)
         initSendMessageButton(model)
         initSendLocationButton(model, locationManager, fusedLocationClient)
+        initSendImageCameraButton(model)
         initSendImageButton(model)
-        //initSendImageCameraButton() // TODO: Implement this
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -84,11 +84,19 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendImageButton(model: ChatViewModel) {
-        // SEND IMAGE BUTTON
+    private fun initSendImageCameraButton(model: ChatViewModel) {
+        // SEND IMAGE CAMERA BUTTON
         val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
         buttonSendMessage.setOnClickListener {
             viewModel.takeCameraImage(this)
+        }
+    }
+
+    private fun initSendImageButton(model: ChatViewModel) {
+        // SEND IMAGE BUTTON (from gallery)
+        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
+        buttonSendMessage.setOnClickListener {
+            viewModel.selectGalleryImage(this)
         }
     }
 
@@ -161,9 +169,18 @@ class ChatActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val TAKE_PICTURE_REQUEST_CODE = 1
+        val SELECT_PICTURE_REQUEST_CODE = 10
+
         if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image uploaded", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
             viewModel.uploadImage(this)
+        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
+            val imageUri = data?.data
+            if (imageUri != null) {
+                viewModel.setImageUri(imageUri)
+                viewModel.uploadImage(this)
+            }
         }
     }
 }

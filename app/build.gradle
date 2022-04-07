@@ -88,9 +88,8 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0'
     implementation "androidx.fragment:fragment-ktx:1.4.1"
     //----------
-    def fragmentx_version = "1.4.0"
-    implementation "androidx.fragment:fragment:$fragmentx_version"
-    debugImplementation ("androidx.fragment:fragment-testing:$fragmentx_version"){
+    implementation "androidx.fragment:fragment:1.4.1"
+    debugImplementation ("androidx.fragment:fragment-testing:1.4.1"){
         exclude group: 'androidx.test', module: 'core'
     }
     debugImplementation 'androidx.test:core-ktx:1.4.0'
