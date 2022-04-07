@@ -16,14 +16,18 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
 
     companion object {
-        private const val TYPE_MESSAGE = 0
-        private const val TYPE_IMAGE = 1
+        private const val TYPE_MESSAGE_RIGHT = 0
+        private const val TYPE_MESSAGE_LEFT = 1
+        private const val TYPE_IMAGE_RIGHT = 2
+        private const val TYPE_IMAGE_LEFT = 3
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layout = when (viewType) {
-            TYPE_MESSAGE -> R.layout.chat_item_layout
-            TYPE_IMAGE -> R.layout.chat_image_layout
+            TYPE_MESSAGE_RIGHT -> R.layout.chat_item_layout_right
+            TYPE_MESSAGE_LEFT -> R.layout.chat_item_layout_left
+            TYPE_IMAGE_RIGHT -> R.layout.chat_image_layout_right
+            TYPE_IMAGE_LEFT -> R.layout.chat_image_layout_left
             else -> throw IllegalArgumentException("Invalid type")
         }
 
@@ -41,11 +45,17 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (messageList[position]) {
-            is ChatMessage -> TYPE_MESSAGE
-            // is ChatImage -> TYPE_IMAGE // Is the template for other kinds of messages
-            else -> TYPE_IMAGE
-        }
+        val message: Message = messageList[position]
+        return if (message is ChatMessage && message.sender == "Me")
+            TYPE_MESSAGE_LEFT
+        else if (message is ChatMessage)
+            TYPE_MESSAGE_RIGHT
+        else if (message is ChatImage && message.sender == "Me")
+            TYPE_IMAGE_LEFT
+        else if (message is ChatImage)
+            TYPE_IMAGE_RIGHT
+        else
+            TYPE_MESSAGE_LEFT
     }
 
     fun setData(m: List<Message>) {
@@ -63,13 +73,17 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
 
         private fun bindChatMessage(message: ChatMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.sender
-            itemView.findViewById<TextView>(R.id.chat_item_datetime).text = formatDateTime(message.timestamp)
+            itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
+                formatDateTime(message.timestamp)
             itemView.findViewById<TextView>(R.id.chat_item_content).text = message.body
+            itemView.findViewById<ImageView>(R.id.picture)
+                .setImageResource(R.drawable.ic_launcher_background)
         }
 
         private fun bindChatImage(message: ChatImage) {
-            itemView.findViewById<TextView>(R.id.chat_image_sender).text = message.sender
-            itemView.findViewById<ImageView>(R.id.chat_image_imageView).setImageURI(Uri.parse(message.imageURI))
+            itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
+                formatDateTime(message.timestamp)
+            itemView.findViewById<ImageView>(R.id.picture).setImageURI(Uri.parse(message.imageURI))
         }
 
         fun bind(messageModel: Message) {
