@@ -58,5 +58,17 @@ class SettingsFragment(
         button.setOnClickListener {
             getContent.launch("image/*")
         }
+
+
+        view.findViewById<Button>(R.id.sign_out_button).setOnClickListener {
+            signOut()
+        }
+    }
+
+    private fun signOut() {
+        val myIntent = Intent(activity, SignInActivity::class.java).apply {
+            putExtra(EXTRA_SIGN_OUT, true)
+        }
+        startActivity(myIntent)
     }
 }

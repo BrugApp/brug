@@ -6,6 +6,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.ComponentNameMatchers
+import androidx.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName
+import androidx.test.espresso.intent.matcher.IntentMatchers
+import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.AuthDatabase
@@ -18,6 +24,7 @@ import com.github.brugapp.brug.fake.FakeAuthDatabase
 import com.github.brugapp.brug.fake.FakeDatabaseUser
 import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
+import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import dagger.Module
 import dagger.Provides
@@ -27,6 +34,8 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -69,38 +78,47 @@ class SignInActivityTestFake {
     @get:Rule
     val rule = HiltAndroidRule(this)
 
+    @Before
+    fun setUp() {
+        Intents.init()
+    }
+
+    @After
+    fun cleanUp() {
+        Intents.release()
+    }
+
     @Test
-    fun signInActivityWelcomesWithCorrectDisplayNameAndSignOutButtonForSignedInUser() {
+    fun signInActivityGoesToCorrectActivityForSignedInUser() {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
 
         ActivityScenario.launch<SignInActivity>(intent).use {
-            // check if displays correct display name
-            onView(withId(R.id.sign_in_main_text))
-                .check(
-                    matches(
-                        withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")
+            intended(
+                hasComponent(
+                    hasClassName(
+                        ItemsMenuActivity::class.java.name
                     )
                 )
-            // check if contains sign out button
-            onView(withId(R.id.sign_in_sign_out_button))
-                .check(matches(isDisplayed()))
+            )
         }
     }
 
     @Test
-    fun signInActivityAsksUserToSignInForNotSignedInUser() {
+    fun signInActivitySignsOutCorrectlyFromSettings() {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
 
         ActivityScenario.launch<SignInActivity>(intent).use {
-            // sign out
-            onView(withId(R.id.sign_in_sign_out_button))
-                .perform(click())
-            // check if displays correct message
-            onView(withId(R.id.sign_in_main_text))
-                .check(matches(withText("Sign in to Unlost")))
-            // check if contains sign in button
+
+            val settingsButton = onView(withId(R.id.my_settings))
+            settingsButton.perform(click())
+            onView(withId(R.id.sign_out_button)).perform(click())
+
+            // check if contains guest button
+            onView(withId(R.id.qr_found_btn))
+                .check(matches(isDisplayed()))
+            // check if contains sign out button
             onView(withId(R.id.sign_in_google_button))
                 .check(matches(isDisplayed()))
         }
