@@ -44,7 +44,6 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        viewModel.signOut()
         if (intent.extras != null) {
             val signOutNeeded: Boolean = intent.extras!!.get(EXTRA_SIGN_OUT) as Boolean
             if (signOutNeeded) viewModel.signOut()
@@ -58,7 +57,6 @@ class SignInActivity : AppCompatActivity() {
         if (user != null) {
             val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)
-
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
             findViewById<Button>(R.id.qr_found_btn).visibility = View.GONE
         } else {
@@ -89,6 +87,4 @@ class SignInActivity : AppCompatActivity() {
         println(user)
         updateUI(user)
     }
-
-
 }

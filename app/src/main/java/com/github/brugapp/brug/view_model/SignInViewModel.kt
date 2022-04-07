@@ -19,7 +19,7 @@ class SignInViewModel @Inject constructor(
     private val credentialGetter: SignInCredentialGetter
 ) : ViewModel() {
 
-    //private val helper: FirebaseHelper = FirebaseHelper()
+    private val helper: FirebaseHelper = FirebaseHelper()
 
     // Check for existing Sign In account, if the user is already signed in
     // the SignInAccount will be non-null.
@@ -44,8 +44,8 @@ class SignInViewModel @Inject constructor(
     // return new Brug User from SignInAccount
     private fun createNewBrugUser(account: SignInAccount?): User? {
         if (account == null) return null
-//        helper.createUserInFirestoreIfAbsent(account)
-//        return helper.getCurrentUser(account.idToken!!)
+        helper.createUserInFirestoreIfAbsent(account)
+        return helper.getCurrentUser(account.idToken!!)
         val firstName = account.firstName
         val lastName = account.lastName
         val email = account.email

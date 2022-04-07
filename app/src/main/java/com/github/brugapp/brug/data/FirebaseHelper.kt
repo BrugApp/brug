@@ -31,6 +31,7 @@ class FirebaseHelper {
         lateinit var lastname: String
         //lateinit var Conv_Refs: MutableList<String>
         //lateinit var Items: MutableList<Item>
+        var user: User? = null
 
         if (mAuth.currentUser != null) {
             val docRef = db.collection("Users").document(userID)
@@ -39,6 +40,15 @@ class FirebaseHelper {
                     if (document.data?.get("firstname") != null && document.data?.get("lastname") != null) {
                         firstname = document.data?.get("firstname") as String
                         lastname = document.data?.get("lastname") as String
+                        val email = mAuth.currentUser!!.email
+                        val id = mAuth.uid
+                        val uri = mAuth.currentUser!!.photoUrl
+                        var inputStream : Uri? = null
+                        var profilePicture: Drawable? = null
+
+                        if (email != null && id != null) {
+                            user = User(firstname, lastname, email, id, profilePicture)
+                        }
                     }
                     Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                 } else {
@@ -47,20 +57,9 @@ class FirebaseHelper {
             }?.addOnFailureListener { exception ->
                 Log.d(TAG, "get failed with ", exception)
             }
-            val email = mAuth.currentUser!!.email
-            val id = mAuth.uid
-            val uri = mAuth.currentUser!!.photoUrl
-            var inputStream : Uri? = null
-            var profilePicture: Drawable? = null
-
-            if (email == null || id == null) {
-                return null
-            } else {
-                return User(firstname, lastname, email, id, profilePicture)
-            }
             //items & conv_ref attributes will be added here later
         }
-        return null
+        return user
     }
 
     //returns item from a given user
@@ -134,32 +133,17 @@ class FirebaseHelper {
         firstnametxt: String,
         lastnametxt: String
     ): HashMap<String, Any> {
-        return createNewRegisterUser((mAuth.uid ?: String) as String, emailtxt, firstnametxt, lastnametxt)
-    }
-
-    /*
-Returns a User HashMap object that can be sent to FireBase
-@param  emailtxt  the email of the user that we are building
-@param  firstnametxt  the first name of the user that we are building
-@param  lastnametxt the last name of the user that we are building
-@return the User HashMap object with given parameters that can be sent to firebase
-*/
-    fun createNewRegisterUser(
-        uid: String,
-        emailtxt: String,
-        firstnametxt: String,
-        lastnametxt: String
-    ): HashMap<String, Any> {
         val list = listOf<String>()
         val userToAdd = hashMapOf(
             "ItemIDArray" to list,
-            "UserID" to (uid),
+            "UserID" to (mAuth.uid ?: String),
             "email" to emailtxt,
             "firstName" to firstnametxt,
             "lastName" to lastnametxt
         )
         return userToAdd
     }
+
 
     /*
     Returns void after executing a Task<DocumentReference> that tries to create a new FireBase User
@@ -196,19 +180,34 @@ Returns a User HashMap object that can be sent to FireBase
             }
     }
 
+    // SignIn
+    fun createUserInFirestoreIfAbsent(signInUser: SignInAccount): User? {
+        var user: User? = null
+        if (signInUser.idToken != null) {
+            user = getCurrentUser(signInUser.idToken!!)
+            if (user == null) {
+                createNewRegisterUser(signInUser.idToken!!,
+                    signInUser.email!!, signInUser.firstName!!,
+                    signInUser.lastName!!)
+                user = getCurrentUser(signInUser.idToken!!)
+            }
+        }
+        return user
+    }
 
-//    fun createUserInFirestoreIfAbsent(signInUser: SignInAccount): User? {
-//        var user: User? = null
-//        if (signInUser.idToken != null) {
-//            user = getCurrentUser(signInUser.idToken!!)
-//            if (user == null) {
-//                val userToAdd = createNewRegisterUser(signInUser.idToken!!,
-//                    signInUser.email!!, signInUser.firstName!!,
-//                    signInUser.lastName!!)
-//                addRegisterUser(userToAdd)
-//                user = getCurrentUser(signInUser.idToken!!)
-//            }
-//        }
-//        return user
-//    }
+    private fun createNewRegisterUser(
+        uid: String,
+        emailtxt: String,
+        firstnametxt: String,
+        lastnametxt: String
+    ) {
+        val list = listOf<String>()
+        val userToAdd = hashMapOf(
+            "ItemIDArray" to list,
+            "email" to emailtxt,
+            "firstName" to firstnametxt,
+            "lastName" to lastnametxt
+        )
+        db.collection("Users").document(uid).set(userToAdd)
+    }
 }
