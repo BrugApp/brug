@@ -44,20 +44,19 @@ class SignInViewModel @Inject constructor(
     // return new Brug User from SignInAccount
     private fun createNewBrugUser(account: SignInAccount?): User? {
         if (account == null) return null
-        helper.createUserInFirestoreIfAbsent(account)
-        return helper.getCurrentUser(account.idToken!!)
-        val firstName = account.firstName
-        val lastName = account.lastName
-        val email = account.email
-        val idToken = account.idToken
-        if (firstName == null || lastName == null || email == null || idToken == null) return null
-        return User(
-            firstName,
-            lastName,
-            email,
-            idToken,
-            null
-        )
+        return helper.createUserInFirestoreIfAbsent(account)
+//        val firstName = account.firstName
+//        val lastName = account.lastName
+//        val email = account.email
+//        val idToken = account.idToken
+//        if (firstName == null || lastName == null || email == null || idToken == null) return null
+//        return User(
+//            firstName,
+//            lastName,
+//            email,
+//            idToken,
+//            null
+//        )
     }
 
     fun getAuth(): AuthDatabase {
