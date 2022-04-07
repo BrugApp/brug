@@ -40,6 +40,5 @@ class BottomNavBar {
                 else -> false
             }
         }
-
     }
 }

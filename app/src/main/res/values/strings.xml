@@ -62,6 +62,7 @@
     <string name="unlost_logo_description">Unlost logo</string>
     <string name="send_image">Send image</string>
     <string name="send_image_via_camera">Send image via camera</string>
+    <string name="demo_text">DEMO</string>
     <string name="profile_picture">Profile picture</string>
     <string name="load_profile_picture">Load</string>
     <string name="imagesent">ImageSent</string>
@@ -69,5 +70,5 @@
     <string name="long_message">Hi, this is a very very long message that should be wrapped!</string>
     <string name="timestamp_example">220317133700</string>
     <string name="profile_picture_description">Profile picture</string>
-    >>>>>>> main
+
 </resources>

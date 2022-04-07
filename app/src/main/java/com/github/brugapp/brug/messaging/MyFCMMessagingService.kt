@@ -11,6 +11,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.github.brugapp.brug.MainActivity
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -45,7 +46,7 @@ class MyFCMMessagingService : FirebaseMessagingService() {
          * @param messageBody FCM message body received.
          */
         fun sendNotification(context: Context, messageTitle: String, messageBody: String) {
-            val intent = Intent(context, MainActivity::class.java)
+            val intent = Intent(context, SignInActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             val pendingIntent = PendingIntent.getActivity(context, 0, intent,
                 PendingIntent.FLAG_IMMUTABLE)

@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.model
 
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import java.io.Serializable
 import java.util.regex.Pattern
 
@@ -68,7 +69,7 @@ class User// later generate id
         return this
     }
 
-    fun getProfilePicture(): Drawable?{
+    fun getProfilePicture(): Drawable? {
         return this.profilePicture
     }
 
