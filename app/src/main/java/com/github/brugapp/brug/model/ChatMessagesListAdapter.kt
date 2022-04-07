@@ -1,6 +1,5 @@
 package com.github.brugapp.brug.model
 
-import android.media.Image
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View

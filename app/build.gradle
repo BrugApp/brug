@@ -56,6 +56,7 @@ jacoco {
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-testing:2.4.1'
+    implementation 'androidx.preference:preference:1.1.1'
     def lifecycle_version = "2.5.0-alpha05"
     def arch_version = "2.1.0"
 
@@ -130,7 +131,11 @@ dependencies {
     // UI Automator
     androidTestImplementation('androidx.test.uiautomator:uiautomator:2.2.0')
 
-    implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'//QRCode Scanner
+    // Round Picture
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    //QRCode Scanner
+    implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'
     // For Robolectric tests.
     testImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
     kaptTest 'com.google.dagger:hilt-android-compiler:2.38.1'
