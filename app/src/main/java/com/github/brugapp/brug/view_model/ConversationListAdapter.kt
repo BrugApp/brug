@@ -32,12 +32,11 @@ class ConversationListAdapter(
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = chatList[position]
 
-        // TODO: replace the hardcoded image ID by the ID of the profile-pic of user
         val lastMessage = listElement.messages.last()
         val pp = listElement.user.getProfilePicture()
 
         if(pp == null)
-            holder.icon.setImageResource(R.mipmap.ic_launcher)
+            holder.icon.setImageResource(R.drawable.ic_person_outline_black_24dp)
         else
             holder.icon.setImageDrawable(pp)
 
