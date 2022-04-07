@@ -48,18 +48,21 @@ class ChatViewModel : ViewModel() {
     // For the images
     private lateinit var imageUri: Uri
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
-    private val TAKE_PICTURE_REQUEST_CODE = 1
-    private val SELECT_PICTURE_REQUEST_CODE = 10
+    private val TAKE_PICTURE_REQUEST_CODE = 10
+    private val SELECT_PICTURE_REQUEST_CODE = 1
 
     fun initViewModel(messages: MutableList<Message>) {
         this.messages = messages
         this.adapter = ChatMessagesListAdapter(messages)
     }
 
+    // TODO: Currently not used as firebase helper is not implemented
+    /*
     fun initAdapter() {
         chatArrayList = arrayListOf()
         adapter = ChatMessagesListAdapter(chatArrayList)
     }
+     */
 
     fun getAdapter(): ChatMessagesListAdapter {
         return adapter

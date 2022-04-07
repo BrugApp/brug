@@ -170,8 +170,8 @@ class ChatActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val TAKE_PICTURE_REQUEST_CODE = 1
-        val SELECT_PICTURE_REQUEST_CODE = 10
+        val TAKE_PICTURE_REQUEST_CODE = 10
+        val SELECT_PICTURE_REQUEST_CODE = 1
 
         if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
             Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
