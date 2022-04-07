@@ -28,7 +28,4 @@ class AuthFirebase : AuthDatabase() {
                 }
             }
     }
-
-    override val uid: String?
-        get() = auth.uid
 }
