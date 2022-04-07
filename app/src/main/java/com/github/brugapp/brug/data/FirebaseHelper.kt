@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
+import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
@@ -51,6 +52,7 @@ object FirebaseHelper {
         lateinit var lastname: String
         //lateinit var Conv_Refs: MutableList<String>
         //lateinit var Items: MutableList<Item>
+        var user: User? = null
 
         if (mAuth.currentUser != null) {
             val docRef = Firebase.firestore.collection("Users").document(userID)
@@ -59,6 +61,15 @@ object FirebaseHelper {
                     if (document.data?.get("firstname") != null && document.data?.get("lastname") != null) {
                         firstname = document.data?.get("firstname") as String
                         lastname = document.data?.get("lastname") as String
+                        val email = mAuth.currentUser!!.email
+                        val id = mAuth.uid
+                        val uri = mAuth.currentUser!!.photoUrl
+                        var inputStream : Uri? = null
+                        var profilePicture: Drawable? = null
+
+                        if (email != null && id != null) {
+                            user = User(firstname, lastname, email, id, profilePicture)
+                        }
                     }
                     Log.d(TAG, "DocumentSnapshot data: ${document.data}")
                 } else {
@@ -67,21 +78,11 @@ object FirebaseHelper {
             }.addOnFailureListener { exception ->
                 Log.d(TAG, "get failed with ", exception)
             }
-            val email = mAuth.currentUser!!.email
-            val id = mAuth.uid
-            val uri = mAuth.currentUser!!.photoUrl
-            var inputStream : Uri? = null
-            var profilePicture: Drawable? = null
-
-            if (email == null || id == null || uri == null) {
-                return null
-            } else {
-                return User(firstname, lastname, email, id, profilePicture)
-            }
             //items & conv_ref attributes will be added here later
         }
-        return null
+        return user
     }
+
     //returns item from a given user
     fun getItemFromCurrentUser(userID: String, objectID: String): Item? {
         lateinit var name: String
@@ -121,6 +122,7 @@ object FirebaseHelper {
             return null
         }
     }
+
     //@TODO functionA for person1 to declare item1 lost
     //@TODO functionB for person2 to declare person1's item1 as found(unlost), creates chat (p1,p2)
 
@@ -361,6 +363,7 @@ object FirebaseHelper {
         return userToAdd
     }
 
+
     /*
     Returns void after executing a Task<DocumentReference> that tries to create a new FireBase User
     Toasts text corresponding to the task's success/failure
@@ -395,4 +398,71 @@ object FirebaseHelper {
                 }
             }
     }
+
+    // SignIn
+    fun createUserInFirestoreIfAbsent(userId: String?, signInUser: SignInAccount): User? {
+        var user: User? = null
+        if (userId != null) {
+            user = getCurrentUser(userId)
+            if (user == null) {
+                createNewRegisterUser(userId,
+                    signInUser.email!!, signInUser.firstName!!,
+                    signInUser.lastName!!)
+                user = getCurrentUser(userId)
+            }
+        }
+        return user
+    }
+
+    private fun createNewRegisterUser(
+        uid: String,
+        emailtxt: String,
+        firstnametxt: String,
+        lastnametxt: String
+    ) {
+        val list = listOf<String>()
+        val userToAdd = hashMapOf(
+            "ItemIDArray" to list,
+            "email" to emailtxt,
+            "firstName" to firstnametxt,
+            "lastName" to lastnametxt
+        )
+        Firebase.firestore.collection("Users").document(uid).set(userToAdd)
+    }
+
+//    //returns the current session's authenticated user
+//    fun getCurrentUserGoogle(userID: String): User? {
+//        lateinit var firstname: String
+//        lateinit var lastname: String
+//        //lateinit var Conv_Refs: MutableList<String>
+//        //lateinit var Items: MutableList<Item>
+//        var user: User? = null
+//
+//        if (mAuth.currentUser != null) {
+//            val docRef = db.collection("Users").document(userID)
+//            docRef.get().addOnSuccessListener { document ->
+//                if (document != null) {
+//                    if (document.data?.get("firstname") != null && document.data?.get("lastname") != null) {
+//                        firstname = document.data?.get("firstname") as String
+//                        lastname = document.data?.get("lastname") as String
+//                        val email = mAuth.currentUser!!.email
+//                        val uri = mAuth.currentUser!!.photoUrl
+//                        var inputStream : Uri? = null
+//                        var profilePicture: Drawable? = null
+//
+//                        if (email != null) {
+//                            user = User(firstname, lastname, email, userID, profilePicture)
+//                        }
+//                    }
+//                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+//                } else {
+//                    Log.d(TAG, "No such document")
+//                }
+//            }?.addOnFailureListener { exception ->
+//                Log.d(TAG, "get failed with ", exception)
+//            }
+//            //items & conv_ref attributes will be added here later
+//        }
+//        return user
+//    }
 }
