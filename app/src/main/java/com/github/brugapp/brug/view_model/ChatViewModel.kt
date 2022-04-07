@@ -14,8 +14,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.app.ActivityCompat.*
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
@@ -283,6 +282,7 @@ class ChatViewModel : ViewModel() {
     }
     */
 
+    /* Will be uncommented when we figure out how to allow permissions in tests
     fun isAudioPermissionOk(context : Context) : Boolean{
         return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
@@ -297,18 +297,12 @@ class ChatViewModel : ViewModel() {
 
     fun requestExtStorage(activity: Activity){
         requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
-    }
+    }*/
 
+    /* Will be uncommented when we figure out how to allow permissions in tests
     fun setupRecording(){
 
-        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/testiino.3gp"
-
-        /*val file = File(audioPath)
-
-        if (!file.exists()) {
-            file.mkdirs()
-        }*/
-        //audioPath = file.absolutePath + File.separator + System.currentTimeMillis() + ".3gp"
+        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/audio.3gp"
 
         try {
             mediaRecorder = MediaRecorder()
@@ -325,12 +319,13 @@ class ChatViewModel : ViewModel() {
             e.printStackTrace()
         }
 
-    }
+    }*/
 
     fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
         recordButton.isListenForRecord = bool
     }
 
+    /*Will be uncommented when we figure out how to allow permissions in tests
     fun deleteAudio(){
         mediaRecorder.reset()
         mediaRecorder.release()
@@ -343,7 +338,7 @@ class ChatViewModel : ViewModel() {
     fun sendAudio(){
         mediaRecorder.stop()
         mediaRecorder.release()
-    }
+    }*/
 
 
 }
