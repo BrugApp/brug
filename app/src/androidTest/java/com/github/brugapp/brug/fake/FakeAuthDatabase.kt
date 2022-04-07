@@ -18,4 +18,7 @@ class FakeAuthDatabase(lastUser: DatabaseUser?) : AuthDatabase() {
     override fun signInWithCredential(credential: AuthCredential?, activity: SignInActivity) {
         user = FakeDatabaseUser()
     }
+
+    override val uid: String?
+        get() = "0"
 }

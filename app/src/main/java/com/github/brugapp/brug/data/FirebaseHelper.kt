@@ -19,7 +19,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
-
 class FirebaseHelper {
 
     val db: FirebaseFirestore = Firebase.firestore
@@ -181,15 +180,15 @@ class FirebaseHelper {
     }
 
     // SignIn
-    fun createUserInFirestoreIfAbsent(signInUser: SignInAccount): User? {
+    fun createUserInFirestoreIfAbsent(userId: String?, signInUser: SignInAccount): User? {
         var user: User? = null
-        if (mAuth.uid != null) {
-            user = getCurrentUser(mAuth.uid!!)
+        if (userId != null) {
+            user = getCurrentUser(userId)
             if (user == null) {
-                createNewRegisterUser(mAuth.uid!!,
+                createNewRegisterUser(userId,
                     signInUser.email!!, signInUser.firstName!!,
                     signInUser.lastName!!)
-                user = getCurrentUser(mAuth.uid!!)
+                user = getCurrentUser(userId)
             }
         }
         return user

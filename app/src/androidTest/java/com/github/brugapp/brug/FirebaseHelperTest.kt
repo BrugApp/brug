@@ -7,6 +7,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.brugapp.brug.data.FirebaseHelper
+import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.RegisterUserActivity
@@ -96,6 +97,12 @@ class FirebaseHelperTest {
             helper.createNewRegisterUser("emailtxt", "firstnametxt", "lastnametxt"),
             `is`(userToAdd)
         )
+    }
+
+    @Test
+    fun createUserInFirestoreWithWrongUidTest() {
+        val user = helper.createUserInFirestoreIfAbsent("0", FakeSignInAccount())
+        assertThat(user, IsNull.nullValue())
     }
     //createAuthAccount is tested by registerUserActivityTest()
 }
