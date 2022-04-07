@@ -2,6 +2,7 @@ package com.github.brugapp.brug.view_model
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
+import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.AuthCredential
@@ -17,6 +18,8 @@ class SignInViewModel @Inject constructor(
     private val auth: AuthDatabase,
     private val credentialGetter: SignInCredentialGetter
 ) : ViewModel() {
+
+    //private val helper: FirebaseHelper = FirebaseHelper()
 
     // Check for existing Sign In account, if the user is already signed in
     // the SignInAccount will be non-null.
@@ -41,6 +44,8 @@ class SignInViewModel @Inject constructor(
     // return new Brug User from SignInAccount
     private fun createNewBrugUser(account: SignInAccount?): User? {
         if (account == null) return null
+//        helper.createUserInFirestoreIfAbsent(account)
+//        return helper.getCurrentUser(account.idToken!!)
         val firstName = account.firstName
         val lastName = account.lastName
         val email = account.email

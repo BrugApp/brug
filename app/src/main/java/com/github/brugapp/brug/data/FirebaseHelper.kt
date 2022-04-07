@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
+import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.FirebaseAuth
@@ -52,7 +53,7 @@ class FirebaseHelper {
             var inputStream : Uri? = null
             var profilePicture: Drawable? = null
 
-            if (email == null || id == null || uri == null) {
+            if (email == null || id == null) {
                 return null
             } else {
                 return User(firstname, lastname, email, id, profilePicture)
@@ -61,6 +62,7 @@ class FirebaseHelper {
         }
         return null
     }
+
     //returns item from a given user
     fun getItemFromCurrentUser(userID: String, objectID: String): Item? {
         lateinit var name: String
@@ -100,6 +102,7 @@ class FirebaseHelper {
             return null
         }
     }
+
     //@TODO functionA for person1 to declare item1 lost
     //@TODO functionB for person2 to declare person1's item1 as found(unlost), creates chat (p1,p2)
 
@@ -131,10 +134,26 @@ class FirebaseHelper {
         firstnametxt: String,
         lastnametxt: String
     ): HashMap<String, Any> {
+        return createNewRegisterUser((mAuth.uid ?: String) as String, emailtxt, firstnametxt, lastnametxt)
+    }
+
+    /*
+Returns a User HashMap object that can be sent to FireBase
+@param  emailtxt  the email of the user that we are building
+@param  firstnametxt  the first name of the user that we are building
+@param  lastnametxt the last name of the user that we are building
+@return the User HashMap object with given parameters that can be sent to firebase
+*/
+    fun createNewRegisterUser(
+        uid: String,
+        emailtxt: String,
+        firstnametxt: String,
+        lastnametxt: String
+    ): HashMap<String, Any> {
         val list = listOf<String>()
         val userToAdd = hashMapOf(
             "ItemIDArray" to list,
-            "UserID" to (mAuth.uid ?: String),
+            "UserID" to (uid),
             "email" to emailtxt,
             "firstName" to firstnametxt,
             "lastName" to lastnametxt
@@ -176,4 +195,20 @@ class FirebaseHelper {
                 }
             }
     }
+
+
+//    fun createUserInFirestoreIfAbsent(signInUser: SignInAccount): User? {
+//        var user: User? = null
+//        if (signInUser.idToken != null) {
+//            user = getCurrentUser(signInUser.idToken!!)
+//            if (user == null) {
+//                val userToAdd = createNewRegisterUser(signInUser.idToken!!,
+//                    signInUser.email!!, signInUser.firstName!!,
+//                    signInUser.lastName!!)
+//                addRegisterUser(userToAdd)
+//                user = getCurrentUser(signInUser.idToken!!)
+//            }
+//        }
+//        return user
+//    }
 }

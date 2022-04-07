@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -45,6 +44,7 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        viewModel.signOut()
         if (intent.extras != null) {
             val signOutNeeded: Boolean = intent.extras!!.get(EXTRA_SIGN_OUT) as Boolean
             if (signOutNeeded) viewModel.signOut()
@@ -71,7 +71,9 @@ class SignInActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
+                println("DEBUG:GETTING RESULT")
                 val credential: AuthCredential? = viewModel.handleSignInResult(it.data)
+                println(credential)
                 firebaseAuth(credential)
             }
         }
@@ -84,6 +86,7 @@ class SignInActivity : AppCompatActivity() {
     private fun firebaseAuth(credential: AuthCredential?) {
         viewModel.getAuth().signInWithCredential(credential, this)
         val user = viewModel.getAuth().currentUser
+        println(user)
         updateUI(user)
     }
 
