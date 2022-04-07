@@ -16,12 +16,14 @@ import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.ui.AddItemActivity
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.CoreMatchers.not
@@ -139,12 +141,11 @@ class ChatActivityTest {
         ActivityScenario.launch<Activity>(intent).use {
             onView(withId(R.id.recordButton)).perform(click())
             onView(withId(R.id.buttonSendLocalisation)).check(matches(not(isDisplayed())))
-            onView(withId(R.id.buttonSendAudio)).perform(click())
         }
     }
 
     @Test
-    fun SendMessageBackAfterDeleteAudio(){
+    fun imageButtonBackAfterDeleteAudio(){
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val conversation = Conversation(
@@ -158,7 +159,7 @@ class ChatActivityTest {
         ActivityScenario.launch<Activity>(intent).use {
             onView(withId(R.id.recordButton)).perform(click())
             onView(withId(R.id.deleteAudio)).perform(click())
-            onView(withId(R.id.buttonSendAudio)).check(matches(not(isDisplayed())))
+            onView(withId(R.id.buttonSendImage)).check(matches(isDisplayed()))
         }
     }
 
@@ -177,7 +178,6 @@ class ChatActivityTest {
         ActivityScenario.launch<Activity>(intent).use {
             onView(withId(R.id.recordButton)).perform(click())
             onView(withId(R.id.buttonSendImage)).check(matches(not(isDisplayed())))
-            onView(withId(R.id.buttonSendAudio)).perform(click())
         }
     }
 
@@ -198,7 +198,27 @@ class ChatActivityTest {
         ActivityScenario.launch<Activity>(intent).use {
             onView(withId(R.id.editMessage)).perform(typeText(message))
             onView(withId(R.id.recordButton)).check(matches(not(isDisplayed())))
-            onView(withId(R.id.editMessage)).perform(typeText(""))
+        }
+    }
+
+    @Test
+    fun recordButtonInAfterMessage(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val conversation = Conversation(
+            dummyUser, dummyItem, mutableListOf(dummyMessage)
+        )
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        val message = "Test text"
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.editMessage)).perform(typeText(message))
+            onView(withId(R.id.buttonSendMessage)).perform(click())
+            onView(withId(R.id.recordButton)).check(matches(isDisplayed()))
         }
     }
 

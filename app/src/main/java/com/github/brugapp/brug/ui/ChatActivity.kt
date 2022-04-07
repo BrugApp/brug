@@ -290,6 +290,8 @@ class ChatActivity : AppCompatActivity() {
             messageLayout.visibility = View.VISIBLE
             recordButton.visibility = View.VISIBLE
             model.setListenForRecord(recordButton, false)
+
+            model.sendMessage("Audio sent, will be able to listen soon ...!")
         }
     }
 
