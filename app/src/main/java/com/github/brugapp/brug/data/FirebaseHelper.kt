@@ -184,12 +184,12 @@ class FirebaseHelper {
     fun createUserInFirestoreIfAbsent(signInUser: SignInAccount): User? {
         var user: User? = null
         if (mAuth.uid != null) {
-            user = getCurrentUserGoogle(mAuth.uid!!)
+            user = getCurrentUser(mAuth.uid!!)
             if (user == null) {
                 createNewRegisterUser(mAuth.uid!!,
                     signInUser.email!!, signInUser.firstName!!,
                     signInUser.lastName!!)
-                user = getCurrentUserGoogle(mAuth.uid!!)
+                user = getCurrentUser(mAuth.uid!!)
             }
         }
         return user
@@ -211,39 +211,39 @@ class FirebaseHelper {
         db.collection("Users").document(uid).set(userToAdd)
     }
 
-    //returns the current session's authenticated user
-    fun getCurrentUserGoogle(userID: String): User? {
-        lateinit var firstname: String
-        lateinit var lastname: String
-        //lateinit var Conv_Refs: MutableList<String>
-        //lateinit var Items: MutableList<Item>
-        var user: User? = null
-
-        if (mAuth.currentUser != null) {
-            val docRef = db.collection("Users").document(userID)
-            docRef.get().addOnSuccessListener { document ->
-                if (document != null) {
-                    if (document.data?.get("firstname") != null && document.data?.get("lastname") != null) {
-                        firstname = document.data?.get("firstname") as String
-                        lastname = document.data?.get("lastname") as String
-                        val email = mAuth.currentUser!!.email
-                        val uri = mAuth.currentUser!!.photoUrl
-                        var inputStream : Uri? = null
-                        var profilePicture: Drawable? = null
-
-                        if (email != null) {
-                            user = User(firstname, lastname, email, userID, profilePicture)
-                        }
-                    }
-                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
-                } else {
-                    Log.d(TAG, "No such document")
-                }
-            }?.addOnFailureListener { exception ->
-                Log.d(TAG, "get failed with ", exception)
-            }
-            //items & conv_ref attributes will be added here later
-        }
-        return user
-    }
+//    //returns the current session's authenticated user
+//    fun getCurrentUserGoogle(userID: String): User? {
+//        lateinit var firstname: String
+//        lateinit var lastname: String
+//        //lateinit var Conv_Refs: MutableList<String>
+//        //lateinit var Items: MutableList<Item>
+//        var user: User? = null
+//
+//        if (mAuth.currentUser != null) {
+//            val docRef = db.collection("Users").document(userID)
+//            docRef.get().addOnSuccessListener { document ->
+//                if (document != null) {
+//                    if (document.data?.get("firstname") != null && document.data?.get("lastname") != null) {
+//                        firstname = document.data?.get("firstname") as String
+//                        lastname = document.data?.get("lastname") as String
+//                        val email = mAuth.currentUser!!.email
+//                        val uri = mAuth.currentUser!!.photoUrl
+//                        var inputStream : Uri? = null
+//                        var profilePicture: Drawable? = null
+//
+//                        if (email != null) {
+//                            user = User(firstname, lastname, email, userID, profilePicture)
+//                        }
+//                    }
+//                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
+//                } else {
+//                    Log.d(TAG, "No such document")
+//                }
+//            }?.addOnFailureListener { exception ->
+//                Log.d(TAG, "get failed with ", exception)
+//            }
+//            //items & conv_ref attributes will be added here later
+//        }
+//        return user
+//    }
 }
