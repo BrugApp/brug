@@ -275,9 +275,12 @@ object FirebaseHelper {
                     .getFile(file)
                     .await()
 
+                mAuth.signOut()
                 return file.path
             }
+
         } catch (e: Exception) {
+            mAuth.signOut()
             return null
         }
     }
