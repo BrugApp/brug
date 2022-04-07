@@ -8,6 +8,7 @@ import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
+
 @HiltViewModel
 class SignInViewModel @Inject constructor(
     private val signInClient: SignInClient,

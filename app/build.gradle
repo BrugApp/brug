@@ -144,7 +144,7 @@ dependencies {
     kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.38.1'
 
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:29.2.0')
+    implementation platform('com.google.firebase:firebase-bom:29.3.0')
 
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'

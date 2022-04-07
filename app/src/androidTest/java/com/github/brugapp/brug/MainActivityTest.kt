@@ -17,6 +17,8 @@ import com.github.brugapp.brug.ui.SignInActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.Matchers.allOf
+import org.junit.After
+import org.junit.Before
 
 import org.junit.Rule
 import org.junit.Test
@@ -38,6 +40,16 @@ class MainActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
+    @Before
+    fun setUp() {
+        Intents.init()
+    }
+
+    @After
+    fun cleanUp() {
+        Intents.release()
+    }
+
 
     @Test
     fun textViewDisplaysCorrectText() {
@@ -48,8 +60,6 @@ class MainActivityTest {
 
     @Test
     fun clickingOnCameraGoesToTheCorrectActivity() {
-        Intents.init()
-
         onView(withId(R.id.mainCamera)).perform(click())
 
         Intents.intended(
@@ -58,7 +68,6 @@ class MainActivityTest {
                 hasComponent(QrCodeScannerActivity::class.java.name)
             )
         )
-        Intents.release()
     }
 
 
@@ -72,8 +81,6 @@ class MainActivityTest {
 
     @Test
     fun clickingOnLogOnButtonGoesToCorrectActivity() {
-        Intents.init()
-
         onView(withId(R.id.log_on_button)).perform(click())
 
         Intents.intended(
@@ -82,8 +89,6 @@ class MainActivityTest {
                 hasComponent(SignInActivity::class.java.name)
             )
         )
-
-        Intents.release()
     }
 
 }

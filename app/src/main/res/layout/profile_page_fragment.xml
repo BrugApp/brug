@@ -32,7 +32,7 @@
                 android:layout_marginTop="9dp"
                 android:layout_marginEnd="9dp"
                 android:layout_marginBottom="9dp"
-                app:civ_border_color="#FF000000"
+                app:civ_border_color="#FFFFFF"
                 app:civ_border_width="2dp" />
 
         </RelativeLayout>
