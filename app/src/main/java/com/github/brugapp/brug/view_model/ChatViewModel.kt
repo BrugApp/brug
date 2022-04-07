@@ -301,7 +301,7 @@ class ChatViewModel : ViewModel() {
 
     fun setupRecording(){
 
-        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/myReco.3gp"
+        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/testiino.3gp"
 
         /*val file = File(audioPath)
 

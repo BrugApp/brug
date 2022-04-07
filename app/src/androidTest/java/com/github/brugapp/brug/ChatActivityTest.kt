@@ -9,8 +9,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewAssertion
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -22,6 +24,7 @@ import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.junit.Rule
@@ -118,6 +121,84 @@ class ChatActivityTest {
 //            messagesList.check(matches(
 //                atPosition(1, hasDescendant(withText("Location")))
 //            ))
+        }
+    }
+
+    @Test
+    fun localisationButtonGoneAfterRecord(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val conversation = Conversation(
+            dummyUser, dummyItem, mutableListOf(dummyMessage)
+        )
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.recordButton)).perform(click())
+            onView(withId(R.id.buttonSendLocalisation)).check(matches(not(isDisplayed())))
+            onView(withId(R.id.buttonSendAudio)).perform(click())
+        }
+    }
+
+    @Test
+    fun SendMessageBackAfterDeleteAudio(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val conversation = Conversation(
+            dummyUser, dummyItem, mutableListOf(dummyMessage)
+        )
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.recordButton)).perform(click())
+            onView(withId(R.id.deleteAudio)).perform(click())
+            onView(withId(R.id.buttonSendAudio)).check(matches(not(isDisplayed())))
+        }
+    }
+
+    @Test
+    fun galleryImageButtonGoneAfterRecord(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val conversation = Conversation(
+            dummyUser, dummyItem, mutableListOf(dummyMessage)
+        )
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.recordButton)).perform(click())
+            onView(withId(R.id.buttonSendImage)).check(matches(not(isDisplayed())))
+            onView(withId(R.id.buttonSendAudio)).perform(click())
+        }
+    }
+
+    @Test
+    fun recordButtonOffWhenMessage(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val conversation = Conversation(
+            dummyUser, dummyItem, mutableListOf(dummyMessage)
+        )
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        val message = "Test text"
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.editMessage)).perform(typeText(message))
+            onView(withId(R.id.recordButton)).check(matches(not(isDisplayed())))
+            onView(withId(R.id.editMessage)).perform(typeText(""))
         }
     }
 
@@ -221,3 +302,4 @@ class ChatActivityTest {
     //    onView(withId(R.id.buttonSendLocalisation)).perform(click())
     //}
 //}
+

@@ -201,11 +201,12 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    /* Function to test if device has a microphone,
     private fun hasMicrophone(): Boolean {
         val pmanager = this.packageManager
         return pmanager.hasSystemFeature(
             PackageManager.FEATURE_MICROPHONE)
-    }
+    }*/
 
     /*override fun onRequestPermissionsResult(
         requestCode: Int,
