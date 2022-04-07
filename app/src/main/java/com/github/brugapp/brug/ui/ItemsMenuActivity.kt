@@ -73,7 +73,9 @@ class ItemsMenuActivity : AppCompatActivity() {
             itemsListAdapter
         )
 
-        val listCallback = ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair)
+        val listCallback = ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair){
+
+        }
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
 
         listView.adapter = itemsListAdapter

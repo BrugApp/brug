@@ -11,8 +11,10 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.SignInAccount
+import com.github.brugapp.brug.di.sign_in.SignInClient
 import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
 import com.github.brugapp.brug.fake.FakeGoogleSignInAccount
+import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -45,6 +47,11 @@ class SignInActivityTestFakeGoogle {
 
     @get:Rule
     val rule = HiltAndroidRule(this)
+
+    @Before
+    fun setUp(){
+        SignInActivityTestFake.FakeSignInClientModule.provideFakeSignInClient().signOut()
+    }
 
     @Test
     fun signInActivityFailsForDefaultSignedInUser() {

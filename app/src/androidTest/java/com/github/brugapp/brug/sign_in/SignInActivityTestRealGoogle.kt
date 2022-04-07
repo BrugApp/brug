@@ -53,6 +53,7 @@ class SignInActivityTestRealGoogle {
     @Before
     fun setUp() {
         Intents.init()
+        SignInActivityTestFake.FakeSignInClientModule.provideFakeSignInClient().signOut()
     }
 
     @After

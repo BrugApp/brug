@@ -57,23 +57,23 @@ class ItemsMenuActivityTest {
         Intents.release()
     }
 
-    @Before
-    fun addItemsToUser() {
-        val phone = Item("Phone", "Samsung Galaxy S22", itemId)
-        val wallet = Item("Wallet","With all my belongings", itemId)
-        val carKeys = Item("BMW Key", "BMW M3 F80 Competition", itemId)
-        val keys = Item("Keys","House and everything else", itemId)
-
-        currentUser.addItem(phone)
-        currentUser.addItem(wallet)
-        currentUser.addItem(carKeys)
-        currentUser.addItem(keys)
-    }
-
-    @After
-    fun deleteAddedItems() {
-        currentUser.getItemList().clear()
-    }
+//    @Before
+//    fun addItemsToUser() {
+//        val phone = Item("Phone", "Samsung Galaxy S22", itemId)
+//        val wallet = Item("Wallet","With all my belongings", itemId)
+//        val carKeys = Item("BMW Key", "BMW M3 F80 Competition", itemId)
+//        val keys = Item("Keys","House and everything else", itemId)
+//
+//        currentUser.addItem(phone)
+//        currentUser.addItem(wallet)
+//        currentUser.addItem(carKeys)
+//        currentUser.addItem(keys)
+//    }
+//
+//    @After
+//    fun deleteAddedItems() {
+//        currentUser.getItemList().clear()
+//    }
 
 
     @Test

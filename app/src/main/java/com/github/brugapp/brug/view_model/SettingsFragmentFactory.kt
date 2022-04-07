@@ -3,7 +3,7 @@ package com.github.brugapp.brug.view_model
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentFactory
-import com.github.brugapp.brug.ui.SettingsFragment
+import com.github.brugapp.brug.ui.ProfileSettingsFragment
 import javax.inject.Inject
 
 
@@ -13,8 +13,8 @@ class SettingsFragmentFactory @Inject constructor(
 ): FragmentFactory(){
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         return when(className){
-            SettingsFragment::class.java.name -> {
-                SettingsFragment(registry)
+            ProfileSettingsFragment::class.java.name -> {
+                ProfileSettingsFragment(registry)
             }
             else -> {super.instantiate(classLoader, className)}
         }
