@@ -69,9 +69,7 @@ class SignInActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
-                println("DEBUG:GETTING RESULT")
                 val credential: AuthCredential? = viewModel.handleSignInResult(it.data)
-                println(credential)
                 firebaseAuth(credential)
             }
         }
@@ -84,7 +82,6 @@ class SignInActivity : AppCompatActivity() {
     private fun firebaseAuth(credential: AuthCredential?) {
         viewModel.getAuth().signInWithCredential(credential, this)
         val user = viewModel.getAuth().currentUser
-        println(user)
         updateUI(user)
     }
 }
