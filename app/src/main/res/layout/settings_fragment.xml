@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".ui.SettingsFragment">
 
+    <Button
+        android:id="@+id/sign_out_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="103dp"
+        android:text="@string/sign_out"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/conditions" />
+
     <TextView
         android:id="@+id/conditions"
         android:layout_width="215dp"
@@ -85,8 +97,8 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="165dp"
-        android:layout_height="44dp"
+        android:layout_width="164dp"
+        android:layout_height="45dp"
         android:text="@string/profile_picture"
         android:textColor="#000000"
         android:textSize="24sp"
