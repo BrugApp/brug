@@ -12,12 +12,12 @@
 
         <ImageView
             android:id="@+id/list_item_icon"
-            android:contentDescription="@string/Icon_for_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:padding="16dp"
-            android:layout_marginStart="16dp"/>
+            android:layout_marginStart="16dp"
+            android:contentDescription="@string/Icon_for_item"
+            android:padding="16dp" />
 
         <TextView
             android:id="@+id/list_item_title"

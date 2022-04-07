@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#EBE3FA"
     tools:context=".ui.ChatActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messagesList"
-        android:layout_width="416dp"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.6"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -20,6 +20,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
+        android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -28,6 +29,7 @@
             android:id="@+id/editMessage"
             android:layout_width="0dp"
             android:layout_height="50dp"
+            android:layout_weight="1"
             android:autofillHints=""
             android:ems="10"
             android:hint="@string/message"
@@ -35,7 +37,6 @@
             android:textColorHint="#757575"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonSendLocalisation"
-            android:layout_weight="1"
             app:layout_constraintStart_toStartOf="parent" />
 
         <ImageButton
@@ -43,41 +44,48 @@
             style="@android:style/Widget.Holo.ImageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:backgroundTint="#FFFFFF"
             android:contentDescription="@string/send_localisation"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
-            app:srcCompat="@drawable/ic_baseline_location_on_24" />
+            app:srcCompat="@drawable/ic_baseline_location_on_24"
+            app:tint="#616161" />
 
         <ImageButton
             android:id="@+id/buttonSendImage"
             style="@android:style/Widget.Holo.ImageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:backgroundTint="#FFFFFF"
             android:contentDescription="@string/send_image"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_image_24" />
+            app:srcCompat="@drawable/ic_baseline_image_24"
+            app:tint="#616161" />
 
         <ImageButton
             android:id="@+id/buttonSendImagePerCamera"
             style="@android:style/Widget.Holo.ImageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:backgroundTint="#FFFFFF"
             android:contentDescription="@string/send_image_via_camera"
-            app:tint="#FFFFFF"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_camera_24" />
+            app:srcCompat="@drawable/ic_baseline_camera_24"
+            app:tint="#616161" />
 
         <ImageButton
             android:id="@+id/buttonSendMessage"
             style="@android:style/Widget.Holo.ImageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:backgroundTint="#FFFFFF"
             android:contentDescription="@string/send"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_send_24" />
+            app:srcCompat="@drawable/ic_baseline_send_24"
+            app:tint="#616161" />
     </LinearLayout>
 
 

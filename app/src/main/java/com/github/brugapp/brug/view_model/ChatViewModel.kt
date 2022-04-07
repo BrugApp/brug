@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -11,7 +13,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
@@ -24,7 +25,10 @@ import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileDescriptor
+import java.net.URI
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -45,6 +49,7 @@ class ChatViewModel : ViewModel() {
     private lateinit var imageUri: Uri
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
     private val TAKE_PICTURE_REQUEST_CODE = 1
+    private val SELECT_PICTURE_REQUEST_CODE = 10
 
     fun initViewModel(messages: MutableList<Message>) {
         this.messages = messages
@@ -62,7 +67,7 @@ class ChatViewModel : ViewModel() {
 
     fun sendMessage(content: String) {
         // TODO: Change the sender text to something related to the actual user in the future
-        val newMessage = ChatMessage(content, 0, LocalDateTime.now(), "Me")
+        val newMessage = ChatMessage("Me", 0, LocalDateTime.now(), content)
         messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)
     }
@@ -141,7 +146,7 @@ class ChatViewModel : ViewModel() {
 
     private fun sendLocation(location: Location) {
         val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
-        val newMessage = ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
+        val newMessage = ChatMessage("Location", 0, LocalDateTime.now(), locationString)
         messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)
         // TODO: Removed from now (to prevent the use of Firebase)
@@ -207,6 +212,15 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    fun setImageUri(uri: Uri) {
+        imageUri = uri
+    }
+
+    fun selectGalleryImage(activity: ChatActivity) {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+        startActivityForResult(activity, intent, SELECT_PICTURE_REQUEST_CODE, null)
+    }
+
     // Create a File for saving the image (and the name)
     private fun createImageFile(activity: ChatActivity): File {
         val storageDir: File? = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -218,6 +232,31 @@ class ChatViewModel : ViewModel() {
     }
 
     // TODO: Finish this implementation when the firebase helper is implemented
+    private fun uriToBitmap(activity: ChatActivity, selectedFileUri: Uri): Bitmap {
+        val parcelFileDescriptor = activity.contentResolver.openFileDescriptor(selectedFileUri, "r")
+        val fileDescriptor: FileDescriptor = parcelFileDescriptor!!.fileDescriptor
+        val image = BitmapFactory.decodeFileDescriptor(fileDescriptor)
+        parcelFileDescriptor.close()
+        return image
+    }
+
+    private fun resize(activity: ChatActivity, uri: Uri): URI {
+        // open the image and resize it
+        val imageBM = uriToBitmap(activity, uri)
+        val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
+
+        // store to new file
+        val outputStream = ByteArrayOutputStream()
+        resized.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        val outputFile = createImageFile(activity)
+        outputFile.writeBytes(outputStream.toByteArray())
+        outputStream.flush()
+        outputStream.close()
+
+        // return uri of new file
+        return outputFile.toURI()
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun uploadImage(activity: Activity) {
         //val progressDialog = ProgressDialog(activity)
@@ -230,7 +269,9 @@ class ChatViewModel : ViewModel() {
 
         //storageRef.putFile(imageUri).addOnSuccessListener { ... }
 
-        val newMessage = ChatImage(imageUri.toString(), "Me", 0, LocalDateTime.now(), "An image")
+        // resize image and display the new created one
+        val resizedUri = resize(activity as ChatActivity, imageUri)
+        val newMessage = ChatImage(resizedUri.toString(), "Me", 0, LocalDateTime.now(), "An image")
         messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)
     }
