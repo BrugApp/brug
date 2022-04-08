@@ -57,7 +57,6 @@ class SignInActivity : AppCompatActivity() {
         if (user != null) {
             val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)
-
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
             findViewById<Button>(R.id.qr_found_btn).visibility = View.GONE
         } else {
@@ -85,6 +84,4 @@ class SignInActivity : AppCompatActivity() {
         val user = viewModel.getAuth().currentUser
         updateUI(user)
     }
-
-
 }

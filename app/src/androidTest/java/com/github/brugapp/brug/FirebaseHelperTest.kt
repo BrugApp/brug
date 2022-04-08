@@ -1,17 +1,12 @@
 package com.github.brugapp.brug
 
-import android.content.Context
-import androidx.test.InstrumentationRegistry.getTargetContext
-import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import com.github.brugapp.brug.data.FirebaseHelper
-import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.services.DateService
+import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.ui.RegisterUserActivity
+import com.github.brugapp.brug.model.services.DateService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -20,7 +15,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNull
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.LocalDateTime
@@ -30,7 +24,7 @@ class FirebaseHelperTest {
     private val uid = "7IsGzvjHKd0KeeKK722m"
     private val convID = "7IsGzvjHKd0KeeKK722mdFtGLE0x08pstMeP68TH"
 
-//    val helper = FirebaseHelper()
+    //    val helper = FirebaseHelper()
     val auth = Firebase.auth
     val firestore = Firebase.firestore
 
@@ -41,23 +35,27 @@ class FirebaseHelperTest {
     }
 
     @Test
-    fun getGoodCurrentUserTest(){
+    fun getGoodCurrentUserTest() {
         val user: User? = FirebaseHelper.getCurrentUser("7IsGzvjHKd0KeeKK722m")
         assertThat(user, IsNull.nullValue()) //maybe add uid param
     }
 
     @Test
     fun getBadItemFromCurrentUserTest() {
-        val item: Item? = FirebaseHelper.getItemFromCurrentUser("7IsGzvjHKd0KeeKK722m","badObjectID")
+        val item: Item? =
+            FirebaseHelper.getItemFromCurrentUser("7IsGzvjHKd0KeeKK722m", "badObjectID")
         assertThat(item, IsNull.nullValue())
     }
 
     @Test
     fun getGoodItemFromCurrentUserTest() {
-        val item = Item("name","description","id")
-        FirebaseHelper.getItemFromCurrentUser("7IsGzvjHKd0KeeKK722m","2kmiWr8jzQ37EDX5GAG5")
+        val item = Item("name", "description", "id")
+        FirebaseHelper.getItemFromCurrentUser("7IsGzvjHKd0KeeKK722m", "2kmiWr8jzQ37EDX5GAG5")
         //assertThat(helper.getItemFromCurrentUser("2kmiWr8jzQ37EDX5GAG5"), IsNull.notNullValue()) //maybe add uid param
-        assertThat(firestore.collection("Users").document("7IsGzvjHKd0KeeKK722m").collection("Items").document("2kmiWr8jzQ37EDX5GAG5"), IsNull.notNullValue())
+        assertThat(
+            firestore.collection("Users").document("7IsGzvjHKd0KeeKK722m").collection("Items")
+                .document("2kmiWr8jzQ37EDX5GAG5"), IsNull.notNullValue()
+        )
     }
 
     @Test
@@ -70,7 +68,7 @@ class FirebaseHelperTest {
 
     @Test
     fun addGoodRegisterUserTest() {
-        val userToAdd = hashMapOf<String,Any>(
+        val userToAdd = hashMapOf<String, Any>(
             "firstname" to "firstnametxt",
             "lastname" to "lastnametxt",
             "user_icon" to "uritxt"
@@ -105,6 +103,12 @@ class FirebaseHelperTest {
             FirebaseHelper.createNewRegisterUser("emailtxt", "firstnametxt", "lastnametxt"),
             `is`(userToAdd)
         )
+    }
+
+    @Test
+    fun createUserInFirestoreWithWrongUidTest() {
+        val user = FirebaseHelper.createUserInFirestoreIfAbsent("0", FakeSignInAccount())
+        assertThat(user, IsNull.nullValue())
     }
     //createAuthAccount is tested by registerUserActivityTest()
 

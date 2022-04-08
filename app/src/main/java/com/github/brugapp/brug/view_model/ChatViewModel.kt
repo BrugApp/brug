@@ -9,11 +9,14 @@ import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
+
+import com.devlomi.record_view.RecordButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
@@ -43,7 +46,10 @@ import java.util.*
 //TODO: NEEDS REFACTORING & DOCUMENTATION
 class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
-
+    private lateinit var mediaRecorder : MediaRecorder
+    private lateinit var audioPath : String
+    private val RECORDING_REQUEST_CODE = 3000
+    private val STORAGE_REQUEST_CODE = 2000
     // For the localisation
     private val locationRequestCode = 1
     private val locationListener = LocationListener { sendLocation(it) }
@@ -71,6 +77,7 @@ class ChatViewModel : ViewModel() {
     fun getAdapter(): ChatMessagesListAdapter {
         return adapter
     }
+
 
     fun sendMessage(content: String, convID: String, activity: AppCompatActivity) {
         val newMessage = Message("Me", DateService.fromLocalDateTime(LocalDateTime.now()), content)
@@ -265,4 +272,64 @@ class ChatViewModel : ViewModel() {
             })
     }
     */
+
+    /* Will be uncommented when we figure out how to allow permissions in tests
+    fun isAudioPermissionOk(context : Context) : Boolean{
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestRecording(activity: Activity){
+        requestPermissions(activity, Array(1){Manifest.permission.RECORD_AUDIO}, RECORDING_REQUEST_CODE)
+    }
+
+    fun isExtStorageOk(context : Context) : Boolean{
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestExtStorage(activity: Activity){
+        requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
+    }*/
+
+    /* Will be uncommented when we figure out how to allow permissions in tests
+    fun setupRecording(){
+
+        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/audio.3gp"
+
+        try {
+            mediaRecorder = MediaRecorder()
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+            //val file = File(Environment.getExternalStorageDirectory().absolutePath, "ChatMe/Media/Recording")
+
+            mediaRecorder.setOutputFile(audioPath)
+            mediaRecorder.prepare()
+            mediaRecorder.start()
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+
+    }*/
+
+    fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
+        recordButton.isListenForRecord = bool
+    }
+
+    /*Will be uncommented when we figure out how to allow permissions in tests
+    fun deleteAudio(){
+        mediaRecorder.reset()
+        mediaRecorder.release()
+        val file = File(audioPath)
+        if(file.exists()){
+            file.delete()
+        }
+    }
+
+    fun sendAudio(){
+        mediaRecorder.stop()
+        mediaRecorder.release()
+    }*/
+
+
 }
