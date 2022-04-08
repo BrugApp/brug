@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -16,7 +15,6 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devlomi.record_view.*
@@ -241,12 +239,10 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initRecordButton(model : ChatViewModel) {
         recordButton.setOnClickListener {
-            //recordButton.isEnabled = false
+
             model.setListenForRecord(recordButton, true)
 
-            /* Will be uncommented when we figure out how to allow permissions in tests
             if(model.isAudioPermissionOk(this) && model.isExtStorageOk(this)){
-
 
                 model.setupRecording()
 
@@ -265,20 +261,12 @@ class ChatActivity : AppCompatActivity() {
                 model.requestExtStorage(this)
             }
 
-            */
-
-            messageLayout.visibility = View.GONE
-            recordButton.visibility = View.GONE
-            buttonSendAudio.visibility = View.VISIBLE
-            deleteAudio.visibility = View.VISIBLE
-            audioRecMessage.visibility = View.VISIBLE
-
         }
     }
 
     private fun initDeleteAudioButton(model : ChatViewModel){
         deleteAudio.setOnClickListener {
-            //model.deleteAudio()
+            model.deleteAudio()
             buttonSendAudio.visibility = View.GONE
             deleteAudio.visibility = View.GONE
             audioRecMessage.visibility = View.GONE
@@ -290,7 +278,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initSendAudioButton(model : ChatViewModel){
         buttonSendAudio.setOnClickListener {
-            //model.sendAudio()
+            model.sendAudio()
             buttonSendAudio.visibility = View.GONE
             deleteAudio.visibility = View.GONE
             audioRecMessage.visibility = View.GONE
