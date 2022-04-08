@@ -274,7 +274,6 @@ class ChatViewModel : ViewModel() {
     }
     */
 
-
     fun isAudioPermissionOk(context : Context) : Boolean{
         return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
@@ -290,6 +289,7 @@ class ChatViewModel : ViewModel() {
     fun requestExtStorage(activity: Activity){
         requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
     }
+
 
     fun setupRecording(){
 
@@ -310,6 +310,7 @@ class ChatViewModel : ViewModel() {
             e.printStackTrace()
         }
 
+
     }
 
     fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
@@ -326,10 +327,10 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun sendAudio(){
+    fun sendAudio() {
         mediaRecorder.stop()
         mediaRecorder.release()
-    }
 
+    }
 
 }
