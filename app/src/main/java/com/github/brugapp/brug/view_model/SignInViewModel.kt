@@ -2,11 +2,13 @@ package com.github.brugapp.brug.view_model
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
+import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
@@ -40,17 +42,19 @@ class SignInViewModel @Inject constructor(
     // return new Brug User from SignInAccount
     private fun createNewBrugUser(account: SignInAccount?): User? {
         if (account == null) return null
-        val firstName = account.firstName
-        val lastName = account.lastName
-        val email = account.email
-        val idToken = account.idToken
-        if (firstName == null || lastName == null || email == null || idToken == null) return null
-        return User(
-            firstName,
-            lastName,
-            email,
-            idToken
-        )
+        return FirebaseHelper.createUserInFirestoreIfAbsent(auth.uid, account)
+//        val firstName = account.firstName
+//        val lastName = account.lastName
+//        val email = account.email
+//        val idToken = account.idToken
+//        if (firstName == null || lastName == null || email == null || idToken == null) return null
+//        return User(
+//            firstName,
+//            lastName,
+//            email,
+//            idToken,
+//            null
+//        )
     }
 
     fun getAuth(): AuthDatabase {

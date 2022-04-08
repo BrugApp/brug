@@ -9,20 +9,25 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.AuthDatabase
+import com.github.brugapp.brug.di.sign_in.SignInClient
 import com.github.brugapp.brug.di.sign_in.SignInCredentialGetter
 import com.github.brugapp.brug.di.sign_in.SignInResultHandler
 import com.github.brugapp.brug.di.sign_in.module.DatabaseAuthModule
 import com.github.brugapp.brug.di.sign_in.module.SignInCredentialGetterModule
 import com.github.brugapp.brug.di.sign_in.module.SignInResultHandlerModule
 import com.github.brugapp.brug.fake.FakeAuthDatabase
+import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.fake.FakeSignInCredentialGetter
 import com.github.brugapp.brug.fake.FakeSignInResultHandler
+import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import dagger.Module
 import dagger.Provides
@@ -93,13 +98,12 @@ class SignInActivityTestFakeHandler {
 
     @Test
     fun signInActivityAsksUserToSignInForNotSignedInUser() {
-
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
 
         ActivityScenario.launch<SignInActivity>(intent).use {
             // check if displays correct message
-            onView(withId(R.id.sign_in_main_text))
-                .check(matches(withText("Sign in to Unlost")))
+            onView(withId(R.id.qr_found_btn))
+                .check(matches(isDisplayed()))
             // check if contains sign in button
             onView(withId(R.id.sign_in_google_button))
                 .check(matches(isDisplayed()))
@@ -128,19 +132,12 @@ class SignInActivityTestFakeHandler {
                 activity.getSignInResult.launch(Intent(activity.intent))
             }
 
-            // check if displays correct display name
-            onView(withId(R.id.sign_in_main_text))
-                .check(
-                    matches(
-                        withText("Welcome Son Goku\nEmail: goku@capsulecorp.com")
+            intended(
+                hasComponent(
+                    ComponentNameMatchers.hasClassName(
+                        ItemsMenuActivity::class.java.name
                     )
-                )
-            // check if contains sign out button
-            onView(withId(R.id.sign_in_sign_out_button))
-                .check(matches(isDisplayed()))
-
-            // sign out
-            onView(withId(R.id.sign_in_sign_out_button)).perform(click())
+                ))
         }
 
     }
@@ -167,9 +164,9 @@ class SignInActivityTestFakeHandler {
                 activity.getSignInResult.launch(Intent(activity.intent))
             }
 
-            // check if displays correct message
-            onView(withId(R.id.sign_in_main_text))
-                .check(matches(withText("Sign in to Unlost")))
+            // check if contains guest button
+            onView(withId(R.id.qr_found_btn))
+                .check(matches(isDisplayed()))
             // check if contains sign in button
             onView(withId(R.id.sign_in_google_button))
                 .check(matches(isDisplayed()))

@@ -18,6 +18,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.view_model.ListViewHolder
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
@@ -27,10 +29,13 @@ import org.junit.runner.RunWith
 import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
+@HiltAndroidTest
 class ChatMenuActivityTest {
     @get:Rule
     val testRule = ActivityScenarioRule(ChatMenuActivity::class.java)
 
+    @get:Rule
+    var rule = HiltAndroidRule(this)
     @Before
     fun setUpIntents() {
         Intents.init()
@@ -64,16 +69,15 @@ class ChatMenuActivityTest {
     }
 
     @Test
-    fun clickingOnSettingsButtonTriggersSnackBar() {
+    fun clickingOnSettingsButtonGoesToActivity() {
         val settingsButton = onView(withId(R.id.my_settings))
-        val snackBar =
-            onView(withId(com.google.android.material.R.id.snackbar_text))
         settingsButton.perform(click())
-        snackBar.check(matches(withText(DUMMY_TEXT)))
+        intended(hasComponent(SettingsActivity::class.java.name))
     }
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
+        Thread.sleep(10000)
         val chatList = onView(withId(R.id.chat_listview))
         val snackBar =
             onView(withId(com.google.android.material.R.id.snackbar_text))
@@ -89,13 +93,14 @@ class ChatMenuActivityTest {
     }
 
     @Test
-    fun swipeRightOnItemDeletesItem() {
+    fun swipeRightOnItemDeletesItem() { //FAILING -> NEEDS ASYNCHRONY
+        Thread.sleep(10000)
         val chatList = onView(withId(R.id.chat_listview))
         val snackBar =
             onView(withId(com.google.android.material.R.id.snackbar_text))
         chatList.perform(
             RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-                1, GeneralSwipeAction(
+                0, GeneralSwipeAction(
                     Swipe.SLOW, GeneralLocation.BOTTOM_LEFT, GeneralLocation.BOTTOM_RIGHT,
                     Press.FINGER
                 )
@@ -106,10 +111,11 @@ class ChatMenuActivityTest {
 
     @Test
     fun clickOnItemGoesToChatActivity() {
+        Thread.sleep(10000)
         val chatList = onView(withId(R.id.chat_listview))
         chatList.perform(
             RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-                1, click()
+                0, click()
             )
         )
         intended(hasComponent(ChatActivity::class.java.name))

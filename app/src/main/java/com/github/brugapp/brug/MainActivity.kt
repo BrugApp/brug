@@ -8,7 +8,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.ui.*
 
-const val DUMMY_TEXT: String = "Actual behavior coming soon…"
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     // For Settings button
     override fun onOptionsItemSelected(item: MenuItem): Boolean = when (item.itemId) {
+
         R.id.action_settings -> {
             startActivity(Intent(this, SettingsActivity::class.java))
             true

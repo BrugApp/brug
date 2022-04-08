@@ -36,6 +36,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var messageList: RecyclerView
+
     private lateinit var buttonSendTextMessage : ImageButton
     private lateinit var recordButton : RecordButton
     private lateinit var messageLayout : LinearLayout
@@ -43,6 +44,8 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var buttonSendAudio : ImageButton
     private lateinit var deleteAudio : ImageButton
     private lateinit var textMessage : EditText
+
+    private lateinit var conversation: Conversation
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,7 +62,9 @@ class ChatActivity : AppCompatActivity() {
         initMessageList(model)
         initSendMessageButton(model)
         initSendLocationButton(model, locationManager, fusedLocationClient)
+        initSendImageCameraButton(model)
         initSendImageButton(model)
+
         //initSendImageCameraButton() // TODO: Implement this
 
         messageLayout = findViewById(R.id.messageLayout)
@@ -78,6 +83,7 @@ class ChatActivity : AppCompatActivity() {
 
         initSendAudioButton(model)
 
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -85,26 +91,23 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(model: ChatViewModel) {
-        val conversation: Conversation =
-            intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
+        conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
 
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
-
         model.initViewModel(conversation.messages)
-
         messageList.layoutManager = LinearLayoutManager(this)
         messageList.adapter = model.getAdapter()
 
-        // Set the title bar name with informations related to the conversation
         inflateActionBar(
-            "${conversation.user.getFirstName()} ${conversation.user.getLastName()}",
-            conversation.lostItem.getName()
+            conversation.userFields.getFullName(), conversation.lostItemName
         )
+
+
     }
 
     private fun inflateActionBar(username: String, itemLost: String) {
         supportActionBar!!.title = username
-        supportActionBar!!.subtitle = "Related to your item \"$itemLost\""
+        supportActionBar!!.subtitle = "Related to the item \"$itemLost\""
     }
 
     private fun initSendMessageButton(model: ChatViewModel) {
@@ -114,15 +117,23 @@ class ChatActivity : AppCompatActivity() {
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
-            model.sendMessage(content)
+            model.sendMessage(content, conversation.convId, this)
+        }
+    }
+
+    private fun initSendImageCameraButton(model: ChatViewModel) {
+        // SEND IMAGE CAMERA BUTTON
+        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
+        buttonSendMessage.setOnClickListener {
+            viewModel.takeCameraImage(this)
         }
     }
 
     private fun initSendImageButton(model: ChatViewModel) {
-        // SEND IMAGE BUTTON
-        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
+        // SEND IMAGE BUTTON (from gallery)
+        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
         buttonSendMessage.setOnClickListener {
-            viewModel.takeCameraImage(this)
+            viewModel.selectGalleryImage(this)
         }
     }
 
@@ -195,9 +206,18 @@ class ChatActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val TAKE_PICTURE_REQUEST_CODE = 1
+        val SELECT_PICTURE_REQUEST_CODE = 10
+
         if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image uploaded", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
             viewModel.uploadImage(this)
+        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
+            val imageUri = data?.data
+            if (imageUri != null) {
+                viewModel.setImageUri(imageUri)
+                viewModel.uploadImage(this)
+            }
         }
     }
 
@@ -278,7 +298,7 @@ class ChatActivity : AppCompatActivity() {
             recordButton.visibility = View.VISIBLE
             model.setListenForRecord(recordButton, false)
 
-            model.sendMessage("Audio sent, will be able to listen soon ...!")
+            model.sendMessage("Audio sent, will be able to listen soon ...!", conversation.convId,this)
         }
     }
 

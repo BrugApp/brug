@@ -7,8 +7,6 @@ import android.text.InputFilter.LengthFilter
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.AddItemViewModel
 

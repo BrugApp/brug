@@ -1,10 +1,15 @@
 package com.github.brugapp.brug.ui.components
 
+import android.app.Activity
+import android.content.Intent
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.ui.ChatMenuActivity
+import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.ui.SettingsActivity
 import com.google.android.material.snackbar.Snackbar
 
 class CustomTopBar {
@@ -18,11 +23,10 @@ class CustomTopBar {
         searchView.queryHint = searchHint
     }
 
-    fun defineTopBarActions(view: View, dummyText: String, item: MenuItem) {
+    fun defineTopBarActions(view: View, dummyText: String, item: MenuItem, currentActivity: Activity) {
         when(item.itemId){
             R.id.my_settings -> {
-                Snackbar.make(view, dummyText, Snackbar.LENGTH_LONG)
-                    .show()
+                currentActivity.startActivity(Intent(currentActivity, SettingsActivity::class.java))
             }
             else -> {}
         }

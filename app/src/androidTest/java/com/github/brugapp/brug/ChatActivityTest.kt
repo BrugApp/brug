@@ -19,11 +19,14 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.github.brugapp.brug.model.ChatMessage
+
+//import com.github.brugapp.brug.model.ChatMessage
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.ui.AddItemActivity
+
+import com.github.brugapp.brug.data.*
+import com.github.brugapp.brug.model.*
+import com.github.brugapp.brug.model.services.DateService
+
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.CoreMatchers.not
@@ -32,6 +35,7 @@ import org.hamcrest.Matcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
 import java.time.LocalDateTime
 import java.time.Month
 
@@ -43,25 +47,31 @@ class ChatActivityTest {
     @get:Rule
     val permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
-    private val dummyUser = User("John", "Doe", "john@doe.com", "310200")
-    private val dummyItem = Item("DummyItem", "Description", "0")
-    private val dummyDate = LocalDateTime.of(
+    private val convID = "0"
+    //TODO: CHANGE THIS TO ACTUAL USER
+    private val dummyUser = DummyUser("John", "Doe", File.createTempFile("tempIMG", ".jpg").path)
+    private val dummyItemName = "DummyItem"
+
+    private val dummyDate = DateService.fromLocalDateTime(
+        LocalDateTime.of(
         2022, Month.MARCH, 23, 15, 30
+        )
     )
-    private val dummyMessage = ChatMessage(
-        "${dummyUser.getFirstName()} ${dummyUser.getLastName()}",
-        0,
-        dummyDate,
-        "Dummy Test Message"
+
+    private val dummyMessage = Message(
+        dummyUser.getFullName(), dummyDate, "Dummy Test Message"
+    )
+
+    private val conversation = Conversation(
+        convID,
+        dummyUser,
+        dummyItemName,
+        mutableListOf(dummyMessage)
     )
 
     @Test
     fun chatViewCorrectlyGetsConversationInfos() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
@@ -79,10 +89,6 @@ class ChatActivityTest {
     @Test
     fun sendMessageCorrectlyAddsNewMessage(){
         val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
 
         val newMessageText = "Test sending new messages"
 
@@ -108,10 +114,6 @@ class ChatActivityTest {
     fun sendLocationCorrectlyAddsNewMessage(){
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
-
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
         }
@@ -130,10 +132,6 @@ class ChatActivityTest {
     fun localisationButtonGoneAfterRecord(){
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
-
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
         }
@@ -147,10 +145,6 @@ class ChatActivityTest {
     @Test
     fun imageButtonBackAfterDeleteAudio(){
         val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
@@ -167,10 +161,6 @@ class ChatActivityTest {
     fun galleryImageButtonGoneAfterRecord(){
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
-
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
         }
@@ -185,9 +175,6 @@ class ChatActivityTest {
     fun recordButtonOffWhenMessage(){
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
@@ -205,9 +192,6 @@ class ChatActivityTest {
     fun recordButtonInAfterMessage(){
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)

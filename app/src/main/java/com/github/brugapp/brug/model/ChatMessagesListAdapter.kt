@@ -8,6 +8,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.model.ChatMessagesListAdapter.MessageType.*
+import com.github.brugapp.brug.model.message_types.AudioMessage
+import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.message_types.PicMessage
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -15,15 +19,16 @@ import java.time.format.DateTimeFormatter
 class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
 
-    companion object {
-        private const val TYPE_MESSAGE = 0
-        private const val TYPE_IMAGE = 1
+    enum class MessageType {
+        TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layout = when (viewType) {
-            TYPE_MESSAGE -> R.layout.chat_item_layout
-            TYPE_IMAGE -> R.layout.chat_image_layout
+            TYPE_MESSAGE_RIGHT.ordinal -> R.layout.chat_item_layout_right
+            TYPE_MESSAGE_LEFT.ordinal -> R.layout.chat_item_layout_left
+            TYPE_IMAGE_RIGHT.ordinal -> R.layout.chat_image_layout_right
+            TYPE_IMAGE_LEFT.ordinal -> R.layout.chat_image_layout_left
             else -> throw IllegalArgumentException("Invalid type")
         }
 
@@ -41,19 +46,22 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (messageList[position]) {
-            is ChatMessage -> TYPE_MESSAGE
-            // is ChatImage -> TYPE_IMAGE // Is the template for other kinds of messages
-            else -> TYPE_IMAGE
+        val message: Message = messageList[position]
+        return if(message.senderName == "Me"){
+            if(message is PicMessage) TYPE_IMAGE_LEFT.ordinal
+            else TYPE_MESSAGE_LEFT.ordinal
+        } else {
+            if(message is PicMessage) TYPE_IMAGE_RIGHT.ordinal
+            else TYPE_MESSAGE_RIGHT.ordinal
         }
     }
 
-    fun setData(m: List<Message>) {
-        messageList.apply {
-            clear()
-            addAll(m)
-        }
-    }
+//    fun setData(m: List<Message>) {
+//        messageList.apply {
+//            clear()
+//            addAll(m)
+//        }
+//    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private fun formatDateTime(date: LocalDateTime): String {
@@ -61,21 +69,29 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
             return date.format(formatter)
         }
 
-        private fun bindChatMessage(message: ChatMessage) {
-            itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.sender
-            itemView.findViewById<TextView>(R.id.chat_item_datetime).text = formatDateTime(message.timestamp)
+        private fun bindTextMessage(message: Message) {
+            itemView.findViewById<ImageView>(R.id.picture).setImageResource(R.mipmap.ic_launcher)
+            itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.senderName
+            itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
+                formatDateTime(message.timestamp.toLocalDateTime())
             itemView.findViewById<TextView>(R.id.chat_item_content).text = message.body
         }
 
-        private fun bindChatImage(message: ChatImage) {
-            itemView.findViewById<TextView>(R.id.chat_image_sender).text = message.sender
-            itemView.findViewById<ImageView>(R.id.chat_image_imageView).setImageURI(Uri.parse(message.imageURI))
+        private fun bindPicMessage(message: PicMessage) {
+            itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
+                formatDateTime(message.timestamp.toLocalDateTime())
+            itemView.findViewById<ImageView>(R.id.picture).setImageURI(Uri.parse(message.imgUrl))
         }
 
+
+
+        //TODO: CHANGE BINDINGS WHEN LAYOUTS ARE IMPLEMENTED
         fun bind(messageModel: Message) {
             when (messageModel) {
-                is ChatMessage -> bindChatMessage(messageModel)
-                is ChatImage -> bindChatImage(messageModel)
+                is LocationMessage -> bindTextMessage(messageModel)
+                is PicMessage -> bindPicMessage(messageModel)
+                is AudioMessage -> bindTextMessage(messageModel)
+                else -> bindTextMessage(messageModel)
             }
         }
     }

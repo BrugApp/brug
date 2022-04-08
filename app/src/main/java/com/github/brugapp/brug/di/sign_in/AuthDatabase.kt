@@ -9,5 +9,6 @@ abstract class AuthDatabase {
     abstract val currentUser: DatabaseUser?
     abstract fun signOut()
     abstract fun signInWithCredential(credential: AuthCredential?, activity: SignInActivity)
+    abstract val uid: String?
 }
 
