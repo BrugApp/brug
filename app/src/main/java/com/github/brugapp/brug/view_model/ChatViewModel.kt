@@ -2,6 +2,7 @@ package com.github.brugapp.brug.view_model
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -273,7 +274,6 @@ class ChatViewModel : ViewModel() {
     }
     */
 
-    /* Will be uncommented when we figure out how to allow permissions in tests
     fun isAudioPermissionOk(context : Context) : Boolean{
         return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
@@ -288,9 +288,9 @@ class ChatViewModel : ViewModel() {
 
     fun requestExtStorage(activity: Activity){
         requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
-    }*/
+    }
 
-    /* Will be uncommented when we figure out how to allow permissions in tests
+
     fun setupRecording(){
 
         audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/audio.3gp"
@@ -310,13 +310,14 @@ class ChatViewModel : ViewModel() {
             e.printStackTrace()
         }
 
-    }*/
+
+    }
 
     fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
         recordButton.isListenForRecord = bool
     }
 
-    /*Will be uncommented when we figure out how to allow permissions in tests
+
     fun deleteAudio(){
         mediaRecorder.reset()
         mediaRecorder.release()
@@ -326,10 +327,10 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun sendAudio(){
+    fun sendAudio() {
         mediaRecorder.stop()
         mediaRecorder.release()
-    }*/
 
+    }
 
 }
