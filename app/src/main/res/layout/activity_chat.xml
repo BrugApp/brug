@@ -111,43 +111,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_baseline_delete_24"
             android:visibility="gone"/>
-      
-        <ImageButton
-            android:id="@+id/buttonSendLocalisation"
-            style="@android:style/Widget.Holo.ImageButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:backgroundTint="#FFFFFF"
-            android:contentDescription="@string/send_localisation"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
-            app:srcCompat="@drawable/ic_baseline_location_on_24"
-            app:tint="#616161" />
-
-
-        <ImageButton
-            android:id="@+id/buttonSendAudio"
-            style="@android:style/Widget.Holo.ImageButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:backgroundTint="#FFFFFF"
-            android:contentDescription="@string/send_image"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_image_24"
-            app:tint="#616161" />
-
-        <ImageButton
-            android:id="@+id/buttonSendImagePerCamera"
-            style="@android:style/Widget.Holo.ImageButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:backgroundTint="#FFFFFF"
-            android:contentDescription="@string/send_image_via_camera"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:srcCompat="@drawable/ic_baseline_camera_24"
-            app:tint="#616161" />
 
         <ImageButton
             android:id="@+id/buttonSendAudio"
@@ -174,8 +137,8 @@
             app:mic_icon="@drawable/ic_mic"
             android:visibility="visible"
             tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck">
-        </com.devlomi.record_view.RecordButton>
 
+        </com.devlomi.record_view.RecordButton>
 
         <ImageButton
             android:id="@+id/buttonSendMessage"
@@ -189,6 +152,8 @@
             app:srcCompat="@drawable/ic_baseline_send_24"
             app:tint="#616161"
             android:visibility="gone"/>
+
     </LinearLayout>
-  
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

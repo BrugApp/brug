@@ -67,7 +67,6 @@
     <string name="RecordingAudio">Recording ...</string>
     <string name="demo_text">DEMO</string>
     <string name="profile_picture">Profile picture</string>
-    <string name="load_profile_picture">Load</string>
     <string name="load_profile_picture">Load from gallery</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="messages_header">Messages</string>

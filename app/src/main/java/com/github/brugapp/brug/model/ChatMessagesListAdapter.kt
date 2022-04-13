@@ -56,13 +56,6 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
         }
     }
 
-//    fun setData(m: List<Message>) {
-//        messageList.apply {
-//            clear()
-//            addAll(m)
-//        }
-//    }
-
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private fun formatDateTime(date: LocalDateTime): String {
             val formatter = DateTimeFormatter.ofPattern("dd/MM/yy - HH:mm")
@@ -74,10 +67,7 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
             itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.senderName
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
-
             itemView.findViewById<TextView>(R.id.chat_item_content).text = message.body
-            itemView.findViewById<ImageView>(R.id.picture)
-                .setImageResource(R.drawable.ic_launcher_background)
         }
 
         private fun bindPicMessage(message: PicMessage) {
@@ -85,8 +75,6 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
                 formatDateTime(message.timestamp.toLocalDateTime())
             itemView.findViewById<ImageView>(R.id.picture).setImageURI(Uri.parse(message.imgUrl))
         }
-
-
 
         //TODO: CHANGE BINDINGS WHEN LAYOUTS ARE IMPLEMENTED
         fun bind(messageModel: Message) {
