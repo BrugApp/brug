@@ -26,12 +26,16 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.brugapp.brug.model.ChatMessage
+import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.User
+
+import com.github.brugapp.brug.data.*
+import com.github.brugapp.brug.model.*
+import com.github.brugapp.brug.model.services.DateService
+
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
+import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
@@ -47,26 +51,42 @@ import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class ChatActivityTest {
-    private val dummyUser = User("John", "Doe", "john@doe.com", "310200", null)
-    private val dummyItem = Item("DummyItem", "Description", "0")
-    private val dummyDate = LocalDateTime.of(
+    @get:Rule
+    val permissionRule1: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+    @get:Rule
+    val permissionRule2: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+
+    @get:Rule
+    val permissionRuleAudio: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO)
+    @get:Rule
+    val permissionRuleExtStorage: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+    private val convID = "0"
+    //TODO: CHANGE THIS TO ACTUAL USER
+    private val dummyUser = DummyUser("John", "Doe", File.createTempFile("tempIMG", ".jpg").path)
+    private val dummyItemName = "DummyItem"
+
+    private val dummyDate = DateService.fromLocalDateTime(
+        LocalDateTime.of(
         2022, Month.MARCH, 23, 15, 30
+        )
     )
-    private val dummyMessage = ChatMessage(
-        "${dummyUser.getFirstName()} ${dummyUser.getLastName()}",
-        0,
-        dummyDate,
-        "Dummy Test Message"
+
+    private val dummyMessage = Message(
+        dummyUser.getFullName(), dummyDate, "Dummy Test Message"
+    )
+
+    private val conversation = Conversation(
+        convID,
+        dummyUser,
+        dummyItemName,
+        mutableListOf(dummyMessage)
     )
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
     @Test
     fun chatViewCorrectlyGetsConversationInfos() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
@@ -88,10 +108,6 @@ class ChatActivityTest {
     @Test
     fun sendMessageCorrectlyAddsNewMessage() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val conversation = Conversation(
-            dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
 
         val newMessageText = "Test sending new messages"
 
@@ -117,9 +133,10 @@ class ChatActivityTest {
     @Test
     fun sendLocationCorrectlyAddsNewMessage() {
         val context = ApplicationProvider.getApplicationContext<Context>()
+
+        // Added for testing
         val conversation = Conversation(
             dummyUser, dummyItem, mutableListOf(dummyMessage)
-        )
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
@@ -134,6 +151,84 @@ class ChatActivityTest {
                     atPosition(1, hasDescendant(withText("Location")))
                 )
             )
+        }
+    }
+
+    @Test
+    fun localisationButtonGoneAfterRecord(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.recordButton)).perform(click())
+            onView(withId(R.id.buttonSendLocalisation)).check(matches(not(isDisplayed())))
+        }
+    }
+
+    @Test
+    fun imageButtonBackAfterDeleteAudio(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.recordButton)).perform(click())
+            onView(withId(R.id.deleteAudio)).perform(click())
+            onView(withId(R.id.buttonSendImage)).check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun galleryImageButtonGoneAfterRecord(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.recordButton)).perform(click())
+            onView(withId(R.id.buttonSendImage)).check(matches(not(isDisplayed())))
+        }
+    }
+
+    @Test
+    fun recordButtonOffWhenMessage(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        val message = "Test text"
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.editMessage)).perform(typeText(message))
+            onView(withId(R.id.recordButton)).check(matches(not(isDisplayed())))
+        }
+    }
+
+    @Test
+    fun recordButtonInAfterMessage(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        val message = "Test text"
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.editMessage)).perform(typeText(message))
+            onView(withId(R.id.buttonSendMessage)).perform(click())
+            onView(withId(R.id.recordButton)).check(matches(isDisplayed()))
         }
     }
 
@@ -391,9 +486,8 @@ class ChatActivityTest {
 }
 
 // TODO: See with the team if granting permissions only during tests is a good idea (better coverage)
-
-//@Test
-//fun localisationPermissionAsked() {
-//    onView(withId(R.id.buttonSendLocalisation)).perform(click())
-//}
+    //@Test
+    //fun localisationPermissionAsked() {
+    //    onView(withId(R.id.buttonSendLocalisation)).perform(click())
+    //}
 //}

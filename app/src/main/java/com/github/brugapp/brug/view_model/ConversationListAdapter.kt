@@ -1,6 +1,6 @@
 package com.github.brugapp.brug.view_model
 
-import android.annotation.SuppressLint
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -24,26 +24,18 @@ class ConversationListAdapter(
         }
     }
 
-    // Better way would be to have a format string in the strings.xml,
-    // but it seems too complicated (I wasn't able to use the proper methods
-    // to populate the slots + complicates the implementation for nothing)
-    @SuppressLint("SetTextI18n")
     // Binds the list items to a view
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = chatList[position]
-
-        // TODO: replace the hardcoded image ID by the ID of the profile-pic of user
-        val lastMessage = listElement.messages.last()
-        val pp = listElement.user.getProfilePicture()
-
-        if(pp == null)
+        holder.title.text = listElement.userFields.getFullName()
+        if(listElement.userFields.iconPath.isNullOrBlank()){
             holder.icon.setImageResource(R.mipmap.ic_launcher)
-        else
-            holder.icon.setImageDrawable(pp)
-
-        holder.title.text = "${listElement.user.getFirstName()} ${listElement.user.getLastName()}"
-        holder.desc.text = "${lastMessage.sender}: ${lastMessage.body}"
-
+        } else {
+            holder.icon.setImageURI(Uri.parse(listElement.userFields.iconPath))
+        }
+        val lastMessage = listElement.messages.last()
+        val lastMessageBody = "${lastMessage.senderName}: ${lastMessage.body}"
+        holder.desc.text = lastMessageBody
     }
 
    // private fun uriToDrawable(uriString: String?): Drawable {

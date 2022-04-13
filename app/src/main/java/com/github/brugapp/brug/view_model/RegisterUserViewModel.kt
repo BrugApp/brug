@@ -17,7 +17,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class RegisterUserViewModel : ViewModel() {
-    private val helper: FirebaseHelper = FirebaseHelper()
+//    private val helper: FirebaseHelper = FirebaseHelper()
     private lateinit var firstnametxt: String
     private lateinit var lastnametxt: String
     private lateinit var emailtxt: String
@@ -25,7 +25,7 @@ class RegisterUserViewModel : ViewModel() {
 
     // return new registerUser to add to FireBase
     fun createNewRegisterUser(): HashMap<String, Any> {
-        return helper.createNewRegisterUser(emailtxt, firstnametxt, lastnametxt)
+        return FirebaseHelper.createNewRegisterUser(emailtxt, firstnametxt, lastnametxt)
     }
 
     //stores user input data in the view model
@@ -75,11 +75,11 @@ class RegisterUserViewModel : ViewModel() {
         return true
     }
 
-    fun addRegisterUserTask(userToAdd: HashMap<String, Any>): Task<DocumentReference> {
-        return helper.addRegisterUserTask(userToAdd)
+    fun addRegisterUserTask(userToAdd: HashMap<String, Any>) {
+        return FirebaseHelper.addRegisterUser(userToAdd)
     }
 
     fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar) {
-        return helper.createAuthAccount(context,progressBar, emailtxt, passwordtxt, firstnametxt, lastnametxt)
+        return FirebaseHelper.createAuthAccount(context,progressBar, emailtxt, passwordtxt, firstnametxt, lastnametxt)
     }
 }

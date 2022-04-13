@@ -9,4 +9,12 @@ class SettingsViewModel: ViewModel() {
         MockDatabase.currentUser.setProfilePicture(drawable)
     }
 
+    fun getProfilePic(): Drawable? {
+        return MockDatabase.currentUser.getProfilePicture()
+    }
+
+    fun getUsername(): String {
+        return MockDatabase.currentUser.getFirstName() + " " + MockDatabase.currentUser.getLastName()
+    }
+
 }

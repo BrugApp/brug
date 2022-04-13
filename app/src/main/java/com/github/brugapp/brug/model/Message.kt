@@ -1,12 +1,10 @@
 package com.github.brugapp.brug.model
 
+import com.github.brugapp.brug.model.services.DateService
 import java.io.Serializable
-import java.time.LocalDateTime
 
 open class Message(
-    open val mid: Int,
-    open val timestamp: LocalDateTime,
-    open val body: String,
-    open val sender: String
-) :
-    Serializable
+    open val senderName: String,
+    open val timestamp: DateService,
+    open val body: String
+) : Serializable

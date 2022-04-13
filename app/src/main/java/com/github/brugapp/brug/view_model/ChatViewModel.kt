@@ -2,6 +2,7 @@ package com.github.brugapp.brug.view_model
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -9,23 +10,33 @@ import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
+
+import com.devlomi.record_view.RecordButton
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.model.ChatImage
-import com.github.brugapp.brug.model.ChatMessage
+import androidx.lifecycle.liveData
+import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.services.DateService
+import com.github.brugapp.brug.model.services.LocationService
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import java.io.ByteArrayOutputStream
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
 import java.io.File
 import java.io.FileDescriptor
 import java.net.URI
@@ -33,21 +44,25 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 
+//TODO: NEEDS REFACTORING & DOCUMENTATION
 class ChatViewModel : ViewModel() {
-    // For the message list
-    private lateinit var chatArrayList: ArrayList<Message>
     private lateinit var adapter: ChatMessagesListAdapter
-
+    private lateinit var mediaRecorder : MediaRecorder
+    private lateinit var audioPath : String
+    private val RECORDING_REQUEST_CODE = 3000
+    private val STORAGE_REQUEST_CODE = 2000
     // For the localisation
     private val locationRequestCode = 1
     private val locationListener = LocationListener { sendLocation(it) }
 
+    //TODO: REMOVE INITIAL INITIALIZATION AND REVERT TO LATEINIT VAR
     // For the list of messages
-    private lateinit var messages: MutableList<Message>
+    private var messages: MutableList<Message> = mutableListOf()
 
     // For the images
     private lateinit var imageUri: Uri
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
+
     private val TAKE_PICTURE_REQUEST_CODE = 10
     private val SELECT_PICTURE_REQUEST_CODE = 1
 
@@ -68,42 +83,24 @@ class ChatViewModel : ViewModel() {
         return adapter
     }
 
-    fun sendMessage(content: String) {
-        // TODO: Change the sender text to something related to the actual user in the future
-        val newMessage = ChatMessage("Me", 0, LocalDateTime.now(), content)
+    fun sendMessage(content: String, convID: String, activity: AppCompatActivity) {
+        val newMessage = Message("Me", DateService.fromLocalDateTime(LocalDateTime.now()), content)
         messages.add(newMessage)
+
+        liveData(Dispatchers.IO) {
+            //TODO: REPLACE WITH ACTUAL AUTHENTICATED USER ID
+            emit(FirebaseHelper.addMessageToConv(newMessage, "7IsGzvjHKd0KeeKK722m", convID))
+        }.observe(activity) { response ->
+            if(response.onError != null){
+                Snackbar.make(activity.findViewById(android.R.id.content),
+                    "ERROR: Unable to register the new message in the database",
+                    Snackbar.LENGTH_LONG)
+                    .show()
+            }
+        }
+
         adapter.notifyItemInserted(messages.size - 1)
     }
-
-    // TODO: Currently not used as firebase helper is not implemented
-    /*
-    @RequiresApi(Build.VERSION_CODES.O) // Required for datetime
-    fun sendMessage(sender: String, content: String) {
-        // TODO: Change the document when ChatListActivity is implemented
-        // TODO: Update code to use data.Database when implemented
-        // Compute timestamp
-        val datetime: String = computeDateTime()
-
-        // Create a new message
-        val message = hashMapOf(
-            "sender" to sender,
-            "content" to content,
-            "datetime" to datetime
-        )
-
-        // Add a new document i.e. message
-        db = Firebase.firestore
-        db.collection("Chat").document("User1User2")
-            .collection("Messages")
-            .add(message)
-            .addOnSuccessListener { documentReference ->
-                Log.d(ContentValues.TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
-            }
-            .addOnFailureListener { e ->
-                Log.w(ContentValues.TAG, "Error adding document", e)
-            }
-    }
-     */
 
     // LOCATION RELATED
     fun requestLocation(
@@ -148,55 +145,14 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun sendLocation(location: Location) {
-        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
-        val newMessage = ChatMessage("Location", 0, LocalDateTime.now(), locationString)
+        //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
+//        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
+        val newMessage = LocationMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), LocationService.fromAndroidLocation(location).toString(), LocationService.fromAndroidLocation(location))//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
         messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)
         // TODO: Removed from now (to prevent the use of Firebase)
         // sendMessage(locationString)
     }
-
-    // TODO: Currently not used as firebase helper is not implemented
-    /*
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun sendLocalisation(longitude: Double, latitude: Double) {
-        // TODO: Change the document when ChatListActivity is implemented
-        // TODO: Update code to use data.Database when implemented
-        // Get localisation of user
-        val localisation: String = "longitude: $longitude; latitude: $latitude"
-
-        // Compute datetime
-        val datetime: String = computeDateTime()
-
-        // Create a message
-        val message = hashMapOf(
-            "sender" to "Localisation service",
-            "content" to localisation,
-            "datetime" to datetime
-        )
-
-        // Add a new document i.e. localisation
-        db = Firebase.firestore
-        db.collection("Chat").document("User1User2")
-            .collection("Messages")
-            .add(message)
-            .addOnSuccessListener { documentReference ->
-                Log.d(
-                    ContentValues.TAG,
-                    "DocumentSnapshot added with ID: ${documentReference.id}"
-                )
-            }
-            .addOnFailureListener { e ->
-                Log.w(ContentValues.TAG, "Error adding document", e)
-            }
-    }
-
-    // Requests an update when location is available
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun foundLocation(location: Location) {
-        sendLocalisation(location.longitude, location.latitude)
-    }
-    */
 
     // IMAGE RELATED
     fun takeCameraImage(activity: ChatActivity) {
@@ -274,7 +230,7 @@ class ChatViewModel : ViewModel() {
 
         // resize image and display the new created one
         val resizedUri = resize(activity as ChatActivity, imageUri)
-        val newMessage = ChatImage(resizedUri.toString(), "Me", 0, LocalDateTime.now(), "An image")
+        val newMessage = PicMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), "An image", resizedUri.toString())
         messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)
     }
@@ -320,4 +276,64 @@ class ChatViewModel : ViewModel() {
             })
     }
     */
+
+    fun isAudioPermissionOk(context : Context) : Boolean{
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestRecording(activity: Activity){
+        requestPermissions(activity, Array(1){Manifest.permission.RECORD_AUDIO}, RECORDING_REQUEST_CODE)
+    }
+
+    fun isExtStorageOk(context : Context) : Boolean{
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestExtStorage(activity: Activity){
+        requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
+    }
+
+
+    fun setupRecording(){
+
+        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/audio.3gp"
+
+        try {
+            mediaRecorder = MediaRecorder()
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+            //val file = File(Environment.getExternalStorageDirectory().absolutePath, "ChatMe/Media/Recording")
+
+            mediaRecorder.setOutputFile(audioPath)
+            mediaRecorder.prepare()
+            mediaRecorder.start()
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+
+
+    }
+
+    fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
+        recordButton.isListenForRecord = bool
+    }
+
+
+    fun deleteAudio(){
+        mediaRecorder.reset()
+        mediaRecorder.release()
+        val file = File(audioPath)
+        if(file.exists()){
+            file.delete()
+        }
+    }
+
+    fun sendAudio() {
+        mediaRecorder.stop()
+        mediaRecorder.release()
+
+    }
+
 }

@@ -44,7 +44,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        customTopBar.defineTopBarActions(window.decorView, DUMMY_TEXT, item)
+        customTopBar.defineTopBarActions(window.decorView, DUMMY_TEXT, item, this)
         return super.onOptionsItemSelected(item)
     }
 
@@ -73,7 +73,9 @@ class ItemsMenuActivity : AppCompatActivity() {
             itemsListAdapter
         )
 
-        val listCallback = ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair)
+        val listCallback = ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair){
+
+        }
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
 
         listView.adapter = itemsListAdapter

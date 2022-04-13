@@ -55,8 +55,17 @@ jacoco {
 
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-testing:2.4.1'
+    implementation 'androidx.preference:preference:1.1.1'
     def lifecycle_version = "2.5.0-alpha05"
     def arch_version = "2.1.0"
+
+    //for AppCompat use:
+    //appcompat v26+ is highly recommended to support older APIs
+    //implementation 'com.devlomi.record-view:record-view:2.0.1'
+
+    //for AndroidX use:
+    implementation 'com.github.3llomi:RecordView:3.1.1'
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -87,9 +96,8 @@ dependencies {
     implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0'
     implementation "androidx.fragment:fragment-ktx:1.4.1"
     //----------
-    def fragmentx_version = "1.4.0"
-    implementation "androidx.fragment:fragment:$fragmentx_version"
-    debugImplementation ("androidx.fragment:fragment-testing:$fragmentx_version"){
+    implementation "androidx.fragment:fragment:1.4.1"
+    debugImplementation ("androidx.fragment:fragment-testing:1.4.1"){
         exclude group: 'androidx.test', module: 'core'
     }
     debugImplementation 'androidx.test:core-ktx:1.4.0'
@@ -130,7 +138,11 @@ dependencies {
     // UI Automator
     androidTestImplementation('androidx.test.uiautomator:uiautomator:2.2.0')
 
-    implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'//QRCode Scanner
+    // Round Picture
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    //QRCode Scanner
+    implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'
     // For Robolectric tests.
     testImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
     kaptTest 'com.google.dagger:hilt-android-compiler:2.38.1'
@@ -139,7 +151,7 @@ dependencies {
     kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.38.1'
 
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:29.2.0')
+    implementation platform('com.google.firebase:firebase-bom:29.3.0')
 
     //add dependency for Firebase SDK
     implementation 'com.google.firebase:firebase-analytics-ktx'
@@ -154,6 +166,8 @@ dependencies {
     // For firebase storage
     implementation 'com.google.firebase:firebase-storage-ktx'
 
+    // To use Kotlin coroutines with Firebase API
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0'
 }
 configurations.all{
     resolutionStrategy {
