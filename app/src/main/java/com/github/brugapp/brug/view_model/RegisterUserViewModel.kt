@@ -1,23 +1,12 @@
 package com.github.brugapp.brug.view_model
 
-import android.content.ContentValues
-import android.util.Log
-import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.data.FirebaseHelper
-import com.google.android.gms.tasks.Task
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.github.brugapp.brug.data.UserRepository
 
 class RegisterUserViewModel : ViewModel() {
-//    private val helper: FirebaseHelper = FirebaseHelper()
+
     private lateinit var firstnametxt: String
     private lateinit var lastnametxt: String
     private lateinit var emailtxt: String
@@ -25,7 +14,7 @@ class RegisterUserViewModel : ViewModel() {
 
     // return new registerUser to add to FireBase
     fun createNewRegisterUser(): HashMap<String, Any> {
-        return FirebaseHelper.createNewRegisterUser(emailtxt, firstnametxt, lastnametxt)
+        return UserRepository.createNewRegisterUser(emailtxt, firstnametxt, lastnametxt)
     }
 
     //stores user input data in the view model
@@ -76,10 +65,10 @@ class RegisterUserViewModel : ViewModel() {
     }
 
     fun addRegisterUserTask(userToAdd: HashMap<String, Any>) {
-        return FirebaseHelper.addRegisterUser(userToAdd)
+        return UserRepository.addRegisterUser(userToAdd)
     }
 
     fun createAuthAccount(context: android.content.Context, progressBar: ProgressBar) {
-        return FirebaseHelper.createAuthAccount(context,progressBar, emailtxt, passwordtxt, firstnametxt, lastnametxt)
+        return UserRepository.createAuthAccount(context,progressBar, emailtxt, passwordtxt, firstnametxt, lastnametxt)
     }
 }
