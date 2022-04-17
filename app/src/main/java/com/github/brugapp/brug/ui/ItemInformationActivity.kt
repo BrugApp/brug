@@ -1,7 +1,10 @@
 package com.github.brugapp.brug.ui
 
+import android.content.ClipData.newIntent
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -31,6 +34,15 @@ class ItemInformationActivity : AppCompatActivity() {
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
             viewModel.setLostValue(isChecked)
+        }
+
+        //if button is clicked, go to QrCodeShow
+        val button: Button = findViewById(R.id.qrGen)
+        button.setOnClickListener {
+            val intent = Intent(this, QrCodeShowActivity::class.java)
+            //give qrId to QrCodeShow
+            intent.putExtra("qrId", viewModel.getQrId())
+            startActivity(intent)
         }
 
 

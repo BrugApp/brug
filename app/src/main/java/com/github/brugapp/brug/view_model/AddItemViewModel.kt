@@ -3,14 +3,13 @@ package com.github.brugapp.brug.view_model
 import android.widget.*
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
-import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
 
 class AddItemViewModel : ViewModel() {
 
     fun addItem(itemNameView: EditText, description: EditText, itemType: Spinner){
-        val newItem = Item(itemNameView.text.toString(), description.text.toString(),itemId)
+        val newItem = Item(itemNameView.text.toString(), description.text.toString(),"23")
             .setType(stringToItemType(itemType.selectedItem.toString()))
         currentUser.addItem(newItem)
     }

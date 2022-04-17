@@ -194,6 +194,23 @@ class ItemsMenuActivityTest {
         )
     }
 
+    @Test
+    fun clickOnButtonTriggersQrCode() {
+        val itemsList = onView(withId(R.id.items_listview))
+        itemsList.perform(
+            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
+                1, click()
+            )
+        )
+        val button = onView(withId(R.id.qrGen))
+        button.perform(click())
+        intended(
+            allOf(
+                toPackage(APP_PACKAGE_NAME),
+                hasComponent(QrCodeShowActivity::class.java.name)
+            )
+        )
+    }
 
     @Test
     fun checkifKeyboardIsShownAfterPressingSearch() {
