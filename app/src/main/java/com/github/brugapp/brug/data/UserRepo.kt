@@ -1,9 +1,11 @@
 package com.github.brugapp.brug.data
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
+import androidx.core.graphics.drawable.toBitmap
 import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -86,14 +88,14 @@ object UserRepo {
         try {
             // Uploading to Firebase Storage requires a signed-in user !
             val currentUser = Firebase.auth.currentUser
-            if(currentUser == null || currentUser.uid != uid){
+            if(currentUser == null){ //|| currentUser.uid != uid NOT FOR THE MOMENT, SINCE USER ISN'T IN AUTH DATABASE
                 response.onError = Exception("User is not signed in")
                 return response
             }
 
-            val iconPath = "$USERS_ASSETS$uid.jpg"
+            val iconPath = "$USERS_ASSETS$uid/$uid.jpg"
 
-            val bitmap = (newIcon as BitmapDrawable).bitmap
+            val bitmap = newIcon.toBitmap(newIcon.intrinsicWidth, newIcon.intrinsicHeight, Bitmap.Config.ARGB_8888)
             val baos = ByteArrayOutputStream()
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
             val data = baos.toByteArray()
@@ -149,24 +151,25 @@ object UserRepo {
     suspend fun getMinimalUserFromUID(uid: String): MyUser? {
         try {
             val userDoc = Firebase.firestore.collection(USERS_DB).document(uid).get().await()
-            if(!userDoc.contains("firstname")
-                || userDoc.contains("lastname")){
+            if(!userDoc.contains("first_name")
+                || !userDoc.contains("last_name")){
                 Log.e("FIREBASE ERROR", "Invalid User Format")
                 return null
             }
 
             return if(userDoc.contains("user_icon")){
                 val userIcon: Drawable? = downloadUserIconInTemp(uid, userDoc["user_icon"] as String)
+                Log.e("FIREBASE CHECK", (userDoc["user_icon"] as String))
                 MyUser(
                     uid,
-                    userDoc["firstname"] as String,
-                    userDoc["lastname"] as String,
+                    userDoc["first_name"] as String,
+                    userDoc["last_name"] as String,
                     userIcon
                 )
             } else MyUser(
                 uid,
-                userDoc["firstname"] as String,
-                userDoc["lastname"] as String,
+                userDoc["first_name"] as String,
+                userDoc["last_name"] as String,
                 null
             )
 
@@ -200,7 +203,7 @@ object UserRepo {
             val file = File.createTempFile(uid, ".jpg")
             // Downloading from Firebase Storage requires a signed-in user !
             val currentUser = Firebase.auth.currentUser
-            if(currentUser == null || currentUser.uid != uid){
+            if(currentUser == null) { // || currentUser.uid != uid NOT FOR THE MOMENT, SINCE USER ISN'T IN AUTH DATABASE
                 Log.e("FIREBASE ERROR", "User is not signed in")
                 return null
             }

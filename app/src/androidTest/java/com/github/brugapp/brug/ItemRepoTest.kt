@@ -33,7 +33,13 @@ class ItemRepoTest {
 
     @Test
     fun addItemReturnsSuccessfully() = runBlocking {
-        assertThat(ItemsRepo.addItemToUser(ITEM, USER.uid).onSuccess, IsEqual(true))
+        val response = ItemsRepo.addItemToUser(ITEM, USER.uid)
+        val list = ItemsRepo.getUserItemsFromUID(USER.uid)
+
+        assertThat(response.onSuccess, IsEqual(true))
+        assertThat(list.isNullOrEmpty(), IsEqual(false))
+        assertThat(list!!.contains(ITEM), IsEqual(true))
+//        assertThat(ItemsRepo.getUserItemsFromUID(USER.uid)!!.contains(ITEM), IsEqual(true))
     }
 
     @Test
@@ -47,6 +53,10 @@ class ItemRepoTest {
         ItemsRepo.addItemToUser(ITEM, USER.uid)
         val updatedItem = MyItem(ITEM.itemID, "AirPods 3", 1, ITEM.getItemDesc(), ITEM.isLost())
         assertThat(ItemsRepo.updateItemFields(updatedItem, USER.uid).onSuccess, IsEqual(true))
+
+        val items = ItemsRepo.getUserItemsFromUID(USER.uid)
+        assertThat(items.isNullOrEmpty(), IsEqual(false))
+        assertThat(items!!.contains(updatedItem), IsEqual(true))
     }
 
     @Test
@@ -56,7 +66,11 @@ class ItemRepoTest {
 
     @Test
     fun deleteItemReturnsSuccessfully() = runBlocking {
+        ItemsRepo.addItemToUser(ITEM, USER.uid)
         assertThat(ItemsRepo.deleteItemFromUser(ITEM.itemID, USER.uid).onSuccess, IsEqual(true))
+        val items = ItemsRepo.getUserItemsFromUID(USER.uid)
+        assertThat(items, IsNot(IsNull.nullValue()))
+        assertThat(items!!.contains(ITEM), IsEqual(false))
     }
 
 }

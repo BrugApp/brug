@@ -3,6 +3,7 @@ package com.github.brugapp.brug
 import android.util.Log
 import com.github.brugapp.brug.data.ConvRepo
 import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.MyUser
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
@@ -14,6 +15,7 @@ import org.junit.Test
 
 private val USER1 = MyUser("USER1", "Rayan", "Kikou", null)
 private val USER2 = MyUser("USER2", "Hamza", "Hassoune", null)
+private val USERWITHWRONGCONV = MyUser("USERWITHWRONGCONV", "", "", null)
 private const val DUMMY_ITEM_NAME = "Airpods"
 
 class ConvRepoTest {
@@ -21,6 +23,7 @@ class ConvRepoTest {
     private fun addTestUsers() = runBlocking{
         UserRepo.addAuthUser(USER1)
         UserRepo.addAuthUser(USER2)
+        UserRepo.addAuthUser(USERWITHWRONGCONV)
     }
 
     @Before
@@ -32,15 +35,24 @@ class ConvRepoTest {
     @Test
     fun addNewConvCorrectlyReturns() = runBlocking {
         assertThat(ConvRepo.addNewConversation(USER1.uid, USER2.uid, DUMMY_ITEM_NAME).onSuccess, IsEqual(true))
+        val conversation = Conversation("${USER1.uid}${USER2.uid}", USER2, DUMMY_ITEM_NAME, mutableListOf())
+        val convList = ConvRepo.getUserConvFromUID(USER1.uid)
+        assertThat(convList.isNullOrEmpty(), IsEqual(false))
+        assertThat(convList!!.contains(conversation), IsEqual(true))
     }
 
     @Test
-    fun getWrongUserConvReturnsNull() = runBlocking {
+    fun getConvsFromNonexistentUserReturnsNull() = runBlocking {
         assertThat(ConvRepo.getUserConvFromUID("WRONGCONVID"), IsNull.nullValue())
     }
 
     @Test
-    fun getValidConvCorrectlyReturns() = runBlocking {
+    fun getBadlyFormattedConvsReturnsEmptyList() = runBlocking {
+        assertThat(ConvRepo.getUserConvFromUID(USERWITHWRONGCONV.uid), IsEqual(listOf()))
+    }
+
+    @Test
+    fun getConvsFromValidUserCorrectlyReturns() = runBlocking {
         assertThat(ConvRepo.getUserConvFromUID(USER1.uid), IsNot(IsNull.nullValue()))
     }
 

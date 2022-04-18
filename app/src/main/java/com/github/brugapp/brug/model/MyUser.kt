@@ -59,4 +59,11 @@ class MyUser(
     fun deleteConvAtPos(position: Int): Conversation {
         return this.convList.removeAt(position)
     }
+
+    override fun equals(other: Any?): Boolean {
+        val otherUser = other as MyUser
+        return this.uid == otherUser.uid
+                && this.firstName == otherUser.firstName
+                && this.lastName == otherUser.lastName
+    }
 }

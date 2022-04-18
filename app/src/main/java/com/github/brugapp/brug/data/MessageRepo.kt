@@ -46,13 +46,27 @@ object MessageRepo {
             )
             when(m){
                 is LocationMessage -> message["location"] = m.location.toFirebaseGeoPoint()
-                is AudioMessage -> message["audio_url"] = uploadFileToDatabase(m.audioUrl) ?: ""
-                is PicMessage -> message["image_url"] = uploadFileToDatabase(m.imgUrl) ?: ""
+                is AudioMessage -> {
+                    val uploadPath = uploadFileToDatabase(m.audioUrl, convID)
+                    if(uploadPath.isNullOrBlank()){
+                        addResponse.onError = Exception("Unable to upload file")
+                        return addResponse
+                    } else {
+                        message["audio_url"] = uploadPath
+                    }
+                }
+                is PicMessage -> {
+                    val uploadPath = uploadFileToDatabase(m.imgUrl, convID)
+                    if(uploadPath.isNullOrBlank()){
+                        addResponse.onError = Exception("Unable to upload file")
+                        return addResponse
+                    } else {
+                        message["image_url"] = uploadPath
+                    }
+                }
             }
 
-            Firebase.firestore.collection(CONV_DB)
-                .document(convID)
-                .collection(MSG_DB)
+            convRef.collection(MSG_DB)
                 .add(message)
                 .await()
             addResponse.onSuccess = true
@@ -63,7 +77,7 @@ object MessageRepo {
     }
 
 
-    private suspend fun uploadFileToDatabase(imgURI: String): String?{
+    private suspend fun uploadFileToDatabase(imgURI: String, convID: String): String?{
         return try {
             // Uploading to Firebase Storage requires a signed-in user !
             val currentUser = Firebase.auth.currentUser
@@ -73,14 +87,14 @@ object MessageRepo {
             }
 
             val tempSplit = imgURI.split("/")
-            val imgPath = "$CONV_ASSETS${tempSplit[tempSplit.size-1]}"
-            Log.d("FIREBASE CHECK", tempSplit[tempSplit.size-1])
+            val filePath = "$CONV_ASSETS$convID/${tempSplit[tempSplit.size-1]}"
+            Log.d("FIREBASE CHECK", filePath)
 
-            Firebase.storage.reference.child(imgPath)
+            Firebase.storage.reference.child(filePath)
                 .putFile(Uri.parse(imgURI))
                 .await()
 
-            imgPath
+            filePath
 
         } catch(e: Exception){
             Log.e("FIREBASE ERROR", e.message.toString())

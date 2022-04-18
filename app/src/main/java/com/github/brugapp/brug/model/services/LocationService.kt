@@ -32,4 +32,10 @@ class LocationService private constructor(private val latitude: Double, private 
     override fun toString(): String {
         return "Latitude: $latitude, Longitude: $longitude"
     }
+
+    override fun equals(other: Any?): Boolean {
+        val otherLoc = other as LocationService
+        return this.longitude == otherLoc.longitude
+                && this.latitude == otherLoc.latitude
+    }
 }

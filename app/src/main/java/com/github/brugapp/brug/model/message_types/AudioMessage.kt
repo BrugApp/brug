@@ -8,4 +8,18 @@ data class AudioMessage(
     override val timestamp: DateService,
     override val body: String,
     val audioUrl: String)
-    : Message(senderName, timestamp, body)
+    : Message(senderName, timestamp, body){
+
+    override fun equals(other: Any?): Boolean {
+        return super.equals(other) && this.audioUrl == (other as AudioMessage).audioUrl
+    }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + senderName.hashCode()
+        result = 31 * result + timestamp.hashCode()
+        result = 31 * result + body.hashCode()
+        result = 31 * result + audioUrl.hashCode()
+        return result
+    }
+}

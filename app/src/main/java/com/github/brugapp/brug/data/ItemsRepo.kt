@@ -135,7 +135,7 @@ object ItemsRepo {
                 return null
             }
 
-            Firebase.firestore.collection(USERS_DB).document(uid).collection(ITEMS_DB).get().await().mapNotNull { item ->
+            userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
                 getItemFromDoc(item)
             }
 
@@ -159,7 +159,7 @@ object ItemsRepo {
             return MyItem(
                 itemDoc.id,
                 itemDoc["item_name"] as String,
-                itemDoc["item_type"] as Int,
+                (itemDoc["item_type"] as Long).toInt(),
                 itemDoc["item_description"] as String,
                 itemDoc["is_lost"] as Boolean
             )

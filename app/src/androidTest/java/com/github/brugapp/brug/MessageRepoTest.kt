@@ -1,0 +1,202 @@
+package com.github.brugapp.brug
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.net.Uri
+import android.util.Log
+import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.data.ConvRepo
+import com.github.brugapp.brug.data.MessageRepo
+import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.message_types.AudioMessage
+import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.services.DateService
+import com.github.brugapp.brug.model.services.LocationService
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.core.IsEqual
+import org.hamcrest.core.IsNot
+import org.hamcrest.core.IsNull
+import org.junit.Before
+import org.junit.Test
+import java.io.File
+import java.io.FileOutputStream
+import java.time.LocalDateTime
+
+private val USER1 = MyUser("USER1", "Rayan", "Kikou", null)
+private val USER2 = MyUser("USER2", "Hamza", "Hassoune", null)
+private const val DUMMY_ITEM_NAME = "AirPods Pro Max"
+private const val CONV_ASSETS = "conversations_assets/"
+
+private val TEXTMSG = Message("Me",
+    DateService.fromLocalDateTime(LocalDateTime.now()),
+    "TextMessage")
+
+private val LOCATIONMSG = LocationMessage(
+    USER2.getFullName(),
+    DateService.fromLocalDateTime(LocalDateTime.now()),
+    "LocationMessage",
+    LocationService.fromGeoPoint(GeoPoint(24.5, 10.8)))
+
+
+//TODO: TEST AUDIOMESSAGE WHEN IMPLEMENTATION IS COMPLETE
+private val AUDIOMSG = AudioMessage(
+    USER2.getFullName(),
+    DateService.fromLocalDateTime(LocalDateTime.now()),
+    "LocationMessage",
+    "")
+
+
+class MessageRepoTest {
+    private fun addUsersAndConv() = runBlocking {
+        UserRepo.addAuthUser(USER1)
+        UserRepo.addAuthUser(USER2)
+        ConvRepo.addNewConversation(USER1.uid, USER2.uid, DUMMY_ITEM_NAME)
+    }
+
+    @Before
+    fun setUp(){
+        addUsersAndConv()
+    }
+
+    @Test
+    fun addMessageToWrongConvReturnsError() = runBlocking {
+        val response = MessageRepo.addMessageToConv(
+            TEXTMSG,
+            USER1.uid,
+            "WRONGCONVID")
+        assertThat(response.onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun addTextMessageCorrectlyAddsNewTextMessage() = runBlocking {
+        val response = MessageRepo.addMessageToConv(
+            TEXTMSG,
+            USER1.uid,
+            "${USER1.uid}${USER2.uid}")
+        assertThat(response.onSuccess, IsEqual(true))
+
+        val conv = ConvRepo.getUserConvFromUID(USER1.uid)!!.filter {
+            it.convId == "${USER1.uid}${USER2.uid}"
+        }
+        assertThat(conv.isNullOrEmpty(), IsEqual(false))
+        assertThat(conv[0].messages.contains(TEXTMSG), IsEqual(true))
+    }
+
+    @Test
+    fun addLocationMessageCorrectlyAddsNewLocationMessage() = runBlocking {
+        val response = MessageRepo.addMessageToConv(
+            LOCATIONMSG,
+            USER2.uid,
+            "${USER1.uid}${USER2.uid}")
+        assertThat(response.onSuccess, IsEqual(true))
+
+        val conv = ConvRepo.getUserConvFromUID(USER1.uid)!!.filter {
+            it.convId == "${USER1.uid}${USER2.uid}"
+        }
+        assertThat(conv.isNullOrEmpty(), IsEqual(false))
+
+        assertThat(conv[0].messages.contains(LOCATIONMSG), IsEqual(true))
+    }
+
+    @Test
+    fun addPicMessageWithoutLoginReturnsError() = runBlocking {
+        val PICMSG = PicMessage(
+            "Me",
+            DateService.fromLocalDateTime(LocalDateTime.now()),
+            "PicMessage",
+            "")
+
+        val response = MessageRepo.addMessageToConv(
+            PICMSG,
+            USER1.uid,
+            "${USER1.uid}${USER2.uid}")
+        assertThat(response.onError, IsNot(IsNull.nullValue()))
+        assertThat(response.onError!!.message, IsEqual("Unable to upload file"))
+    }
+
+    @Test
+    fun addPicMessageWithLoginCorrectlyAddsPicMessage() = runBlocking {
+        // CREATE IMAGE & MESSAGE
+        val filePath = getUriOfFileWithImg(R.drawable.ic_baseline_delete_24)
+        assertThat(filePath, IsNot(IsNull.nullValue()))
+
+        val picMsg = PicMessage(
+            "Me",
+            DateService.fromLocalDateTime(LocalDateTime.now()),
+            "PicMessage",
+            filePath.toString())
+
+
+        // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
+        val authUser = Firebase.auth
+            .signInWithEmailAndPassword("unlost.app@gmail.com", "brugsdpProject1")
+            .await()
+            .user
+        assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
+        assertThat(Firebase.auth.currentUser!!.uid, IsEqual(authUser!!.uid))
+
+        // ADD MESSAGE TO DATABASE & IMAGE TO STORAGE + SIGNOUT
+        val response = MessageRepo.addMessageToConv(
+            picMsg,
+            USER1.uid,
+            "${USER1.uid}${USER2.uid}")
+        Firebase.auth.signOut()
+        assertThat(response.onSuccess, IsEqual(true))
+
+        // CHECK IF MESSAGE HAS BEEN ADDED CORRECTLY
+        val conv = ConvRepo.getUserConvFromUID(USER1.uid)!!.filter {
+            it.convId == "${USER1.uid}${USER2.uid}"
+        }
+        assertThat(conv.isNullOrEmpty(), IsEqual(false))
+
+        val splitPath = filePath.toString().split("/")
+        val firebasePicMessage = PicMessage(picMsg.senderName,
+            picMsg.timestamp,
+            picMsg.body,
+            "${CONV_ASSETS}${conv[0].convId}/${splitPath[splitPath.size-1]}")
+        assertThat(conv[0].messages.contains(firebasePicMessage), IsEqual(true))
+    }
+
+
+    @Test
+    fun addAudioMessageWithoutLoginReturnsError() = runBlocking {
+        val response = MessageRepo.addMessageToConv(
+            AUDIOMSG,
+            USER2.uid,
+            "${USER1.uid}${USER2.uid}")
+
+        assertThat(response.onError, IsNot(IsNull.nullValue()))
+        assertThat(response.onError!!.message, IsEqual("Unable to upload file"))
+    }
+
+
+    private fun getUriOfFileWithImg(drawableID: Int): Uri? = try {
+        val drawable = ApplicationProvider.getApplicationContext<Context>().resources
+            .getDrawable(drawableID, null)
+        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+
+        val file = File.createTempFile("dummyIMG", ".jpg")
+        val fos = FileOutputStream(file)
+        bitmap!!.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+        fos.close()
+
+        Log.e("FILE CHECK", file.length().toString())
+
+        Uri.fromFile(file)
+    } catch (e: Exception) {
+        Log.e("BITMAP ERROR", e.message.toString())
+        null
+    }
+}

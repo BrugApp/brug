@@ -122,8 +122,7 @@ object ConvRepo {
                 return null
             }
 
-            Firebase.firestore.collection(USERS_DB).document(uid)
-                .collection(CONV_REFS_DB).get().await().mapNotNull { convRef ->
+            userRef.collection(CONV_REFS_DB).get().await().mapNotNull { convRef ->
                     getConvFromRefID(convRef.id, uid)
                 }
 

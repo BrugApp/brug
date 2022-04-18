@@ -63,4 +63,13 @@ class MyItem(val itemID: String,
         this.isLost = !this.isLost
     }
 
+    override fun equals(other: Any?): Boolean {
+        val otherItem = other as MyItem
+        return this.itemID == otherItem.itemID
+                && this.itemName == otherItem.itemName
+                && this.itemTypeID == otherItem.itemTypeID
+                && this.itemDesc == otherItem.itemDesc
+                && this.isLost == otherItem.isLost
+    }
+
 }
