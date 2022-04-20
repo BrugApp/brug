@@ -3,11 +3,21 @@ package com.github.brugapp.brug.model
 import com.github.brugapp.brug.R
 import java.io.Serializable
 
-class MyItem(val itemID: String,
-             private var itemName: String,
+class MyItem(private var itemName: String,
              private var itemTypeID: Int,
              private var itemDesc: String,
              private var isLost: Boolean): Serializable {
+
+    /* ITEM ID */
+    private lateinit var itemID: String
+
+    fun setItemID(itemID: String){
+        this.itemID = itemID
+    }
+
+    fun getItemID(): String {
+        return this.itemID
+    }
 
     /* ITEM NAME */
     fun getItemName(): String {
@@ -59,8 +69,8 @@ class MyItem(val itemID: String,
         return this.isLost
     }
 
-    fun changeLostStatus() {
-        this.isLost = !this.isLost
+    fun changeLostStatus(newStatus: Boolean) {
+        this.isLost = newStatus
     }
 
     override fun equals(other: Any?): Boolean {
@@ -70,6 +80,15 @@ class MyItem(val itemID: String,
                 && this.itemTypeID == otherItem.itemTypeID
                 && this.itemDesc == otherItem.itemDesc
                 && this.isLost == otherItem.isLost
+    }
+
+    override fun hashCode(): Int {
+        var result = itemID.hashCode()
+        result = 31 * result + itemName.hashCode()
+        result = 31 * result + itemTypeID
+        result = 31 * result + itemDesc.hashCode()
+        result = 31 * result + isLost.hashCode()
+        return result
     }
 
 }

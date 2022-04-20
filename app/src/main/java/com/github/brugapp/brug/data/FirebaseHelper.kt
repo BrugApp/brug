@@ -197,74 +197,74 @@ object FirebaseHelper {
      * A LIST OF MESSAGE IN A CONVERSATION CAN CONTAIN SOME INCOMPLETE MESSAGES, BUT IT CANNOT BE EMPTY
      */
 
-    suspend fun getConversationsFromUserID(authUserID: String): MutableList<Conversation>? {
-        return try {
-            Firebase.firestore.collection(USERS_DB).document(authUserID)
-                .collection(CONV_REFS_DB).get().await().mapNotNull { convRef ->
-                    getConvFromRefSnapshot(convRef, authUserID)
-                }.toMutableList()
-        } catch(e: Exception) {
-            Log.e("FIREBASE ERROR", e.message.toString())
-            null
-        }
-    }
+//    suspend fun getConversationsFromUserID(authUserID: String): MutableList<Conversation>? {
+//        return try {
+//            Firebase.firestore.collection(USERS_DB).document(authUserID)
+//                .collection(CONV_REFS_DB).get().await().mapNotNull { convRef ->
+//                    getConvFromRefSnapshot(convRef, authUserID)
+//                }.toMutableList()
+//        } catch(e: Exception) {
+//            Log.e("FIREBASE ERROR", e.message.toString())
+//            null
+//        }
+//    }
 
-    private suspend fun getConvFromRefSnapshot(refSnapshot: QueryDocumentSnapshot, authUserID: String): Conversation? {
-        try {
-            if(!refSnapshot.contains("reference")) return null
+//    private suspend fun getConvFromRefSnapshot(refSnapshot: QueryDocumentSnapshot, authUserID: String): Conversation? {
+//        try {
+//            if(!refSnapshot.contains("reference")) return null
+//
+//            //FETCH CONV_ID
+//            val convRef = refSnapshot["reference"] as DocumentReference
+//            val convID = convRef.id
+//            val convSnapshot = convRef.get().await()
+//
+//            // MAYBE TOO HARSH OF A CONDITION
+//            if(!convSnapshot.contains("lost_item_name")) return null
+//
+//            //FETCH USER FIELDS
+//            val userFields = getUserFieldsFromUID(
+//                parseConvUserNameFromID(convID, authUserID)) ?: return null
+//
+//            //FETCH LOSTITEMNAME
+//            val lostItemName = convSnapshot["lost_item_name"] as String
+//
+//            //FETCH MESSAGE
+//            val messageUserName = userFields.getFullName()
+//            val messages = convSnapshot.reference.collection(MSG_DB).get().await()
+//                .mapNotNull { message ->
+//                    getMessageFromSnapshot(message, messageUserName, authUserID)
+//                }.sortedBy { it.timestamp.getSeconds() }
+//            if(messages.isEmpty()) return null
+//
+//            return Conversation(convID, userFields, lostItemName, messages.toMutableList())
+//        } catch(e: Exception) {
+//            Log.e("FIREBASE CHECK", e.message.toString())
+//            return null
+//        }
+//    }
 
-            //FETCH CONV_ID
-            val convRef = refSnapshot["reference"] as DocumentReference
-            val convID = convRef.id
-            val convSnapshot = convRef.get().await()
 
-            // MAYBE TOO HARSH OF A CONDITION
-            if(!convSnapshot.contains("lost_item_name")) return null
-
-            //FETCH USER FIELDS
-            val userFields = getUserFieldsFromUID(
-                parseConvUserNameFromID(convID, authUserID)) ?: return null
-
-            //FETCH LOSTITEMNAME
-            val lostItemName = convSnapshot["lost_item_name"] as String
-
-            //FETCH MESSAGE
-            val messageUserName = userFields.getFullName()
-            val messages = convSnapshot.reference.collection(MSG_DB).get().await()
-                .mapNotNull { message ->
-                    getMessageFromSnapshot(message, messageUserName, authUserID)
-                }.sortedBy { it.timestamp.getSeconds() }
-            if(messages.isEmpty()) return null
-
-            return Conversation(convID, userFields, lostItemName, messages.toMutableList())
-        } catch(e: Exception) {
-            Log.e("FIREBASE CHECK", e.message.toString())
-            return null
-        }
-    }
-
-
-    private suspend fun getUserFieldsFromUID(uid: String): DummyUser? {
-        try {
-            val userDoc = Firebase.firestore.collection(USERS_DB).document(uid).get().await()
-            if(!userDoc.contains("firstname")
-                || !userDoc.contains("lastname")){
-                return null
-            }
-
-            val userIcon = if(userDoc.contains("user_icon")) getLocalPathToUserIcon(uid, userDoc["user_icon"] as String) else null
-
-            //TODO: REPLACE BY CORRECT USER FORMAT
-            return DummyUser(
-                userDoc["firstname"] as String,
-                userDoc["lastname"] as String,
-                userIcon
-            )
-
-        } catch (e: Exception) {
-            return DummyUser("Unknown", "Name", null)
-        }
-    }
+//    private suspend fun getUserFieldsFromUID(uid: String): DummyUser? {
+//        try {
+//            val userDoc = Firebase.firestore.collection(USERS_DB).document(uid).get().await()
+//            if(!userDoc.contains("firstname")
+//                || !userDoc.contains("lastname")){
+//                return null
+//            }
+//
+//            val userIcon = if(userDoc.contains("user_icon")) getLocalPathToUserIcon(uid, userDoc["user_icon"] as String) else null
+//
+//            //TODO: REPLACE BY CORRECT USER FORMAT
+//            return DummyUser(
+//                userDoc["firstname"] as String,
+//                userDoc["lastname"] as String,
+//                userIcon
+//            )
+//
+//        } catch (e: Exception) {
+//            return DummyUser("Unknown", "Name", null)
+//        }
+//    }
 
     private suspend fun getLocalPathToUserIcon(uid: String, path: String): String? {
         try {

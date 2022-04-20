@@ -5,13 +5,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.MyItem
 
 /**
  * Custom adapter class for the RecyclerView lists in ItemsMenuActivity
  */
 class ItemsListAdapter(
-    private val itemsList: MutableList<Item>,
-    private val onItemClicked: (Item) -> Unit
+    private val itemsList: MutableList<MyItem>,
+    private val onItemClicked: (MyItem) -> Unit
 ) : RecyclerView.Adapter<ListViewHolder>() {
 
     // Creates new views
@@ -26,9 +27,9 @@ class ItemsListAdapter(
     // Binds the list items to a view
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = itemsList[position]
-        holder.icon.setImageResource(listElement.getIcon())
-        holder.title.text = listElement.getName()
-        holder.desc.text = listElement.getDescription()
+        holder.icon.setImageResource(listElement.getRelatedIcon())
+        holder.title.text = listElement.getItemName()
+        holder.desc.text = listElement.getItemDesc()
 
     }
 

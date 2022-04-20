@@ -7,6 +7,12 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.USER_INTENT_KEY
+import com.github.brugapp.brug.data.UserRepo
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.runBlocking
 
 const val EXTRA_SIGN_OUT = "com.github.brugapp.brug.SIGN_OUT"
 
@@ -16,8 +22,15 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.settings_activity)
         val button: Button = findViewById(R.id.changeProfilePictureButton)
         button.setOnClickListener{
-            val intent = Intent(this, ProfilePictureSetActivity::class.java)
-            startActivity(intent)
+            val user = runBlocking{ UserRepo.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid) }
+            if(user == null){
+                Snackbar.make(findViewById(android.R.id.content), "ERROR: Unable to fetch user from database", Snackbar.LENGTH_LONG)
+                    .show()
+            } else {
+                val intent = Intent(this, ProfilePictureSetActivity::class.java)
+                intent.putExtra(USER_INTENT_KEY, user)
+                startActivity(intent)
+            }
         }
         findViewById<Button>(R.id.sign_out_button).setOnClickListener {
             signOut()

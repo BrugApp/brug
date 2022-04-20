@@ -43,6 +43,10 @@ class MyUser(
         return this.itemsList.removeAt(position)
     }
 
+    fun getItemList(): MutableList<MyItem> {
+        return this.itemsList
+    }
+
 
     /* CONVERSATION LIST */
     fun initConvList(list: List<Conversation>?){
@@ -60,10 +64,24 @@ class MyUser(
         return this.convList.removeAt(position)
     }
 
+    fun getConvList(): MutableList<Conversation> {
+        return this.convList
+    }
+
     override fun equals(other: Any?): Boolean {
         val otherUser = other as MyUser
         return this.uid == otherUser.uid
                 && this.firstName == otherUser.firstName
                 && this.lastName == otherUser.lastName
+    }
+
+    override fun hashCode(): Int {
+        var result = uid.hashCode()
+        result = 31 * result + firstName.hashCode()
+        result = 31 * result + lastName.hashCode()
+        result = 31 * result + (userIcon?.hashCode() ?: 0)
+        result = 31 * result + itemsList.hashCode()
+        result = 31 * result + convList.hashCode()
+        return result
     }
 }

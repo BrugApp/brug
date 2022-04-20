@@ -32,7 +32,7 @@ object ItemsRepo {
                 return response
             }
 
-            userRef.collection(ITEMS_DB).document(item.itemID).set(mapOf(
+            userRef.collection(ITEMS_DB).add(mapOf(
                     "item_name" to item.getItemName(),
                     "item_type" to item.getItemTypeID(),
                     "item_description" to item.getItemDesc(),
@@ -64,7 +64,7 @@ object ItemsRepo {
                 return response
             }
 
-            val itemRef = userRef.collection(ITEMS_DB).document(item.itemID)
+            val itemRef = userRef.collection(ITEMS_DB).document(item.getItemID())
             if(!itemRef.get().await().exists()){
                 response.onError = Exception("Item doesn't exist")
                 return response
@@ -156,13 +156,14 @@ object ItemsRepo {
                 return null
             }
 
-            return MyItem(
-                itemDoc.id,
+            val item = MyItem(
                 itemDoc["item_name"] as String,
                 (itemDoc["item_type"] as Long).toInt(),
                 itemDoc["item_description"] as String,
                 itemDoc["is_lost"] as Boolean
             )
+            item.setItemID(itemDoc.id)
+            return item
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             return null
