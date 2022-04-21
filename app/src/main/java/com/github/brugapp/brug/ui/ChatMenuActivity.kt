@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -58,6 +60,7 @@ class ChatMenuActivity : AppCompatActivity() {
     private fun initChatList() = liveData(Dispatchers.IO){
         emit(ConvRepo.getUserConvFromUID(Firebase.auth.currentUser!!.uid))
     }.observe(this) { list ->
+        findViewById<ProgressBar>(R.id.loadingConvs).visibility = View.GONE
         val conversations = if(list.isNullOrEmpty()) mutableListOf() else list.toMutableList()
 
         val listView = findViewById<RecyclerView>(R.id.chat_listview)

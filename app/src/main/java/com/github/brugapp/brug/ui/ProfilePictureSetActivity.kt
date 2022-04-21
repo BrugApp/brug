@@ -20,13 +20,12 @@ class ProfilePictureSetActivity : AppCompatActivity() {
 
         //FETCHES THE USER FROM SETTINGSACTIVITY & PASS IT TO THE FRAGMENT
         val user = intent.extras!!.get(USER_INTENT_KEY) as MyUser
-        val bundle = Bundle()
-        bundle.putSerializable(USER_INTENT_KEY, user)
 
         supportFragmentManager.fragmentFactory = fragmentFactory
         setContentView(R.layout.activity_profile_picture)
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment,ProfileSettingsFragment::class.java,bundle)
-            .commit()
+            .replace(R.id.fragment,
+                ProfileSettingsFragment.newInstance(fragmentFactory.registry, user)
+            ).commit()
         }
     }

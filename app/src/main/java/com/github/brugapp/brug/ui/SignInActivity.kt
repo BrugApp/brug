@@ -5,9 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.DatabaseUser
@@ -19,6 +22,7 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
@@ -42,30 +46,53 @@ class SignInActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.demo_button).setOnClickListener {
+            findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
             // ONLY FOR DEMO MODE
-            runBlocking { Firebase.auth.signInWithEmailAndPassword(
-                "unlost.app@gmail.com",
-                "brugsdpProject1").await() }
+            liveData(Dispatchers.IO){
+                emit(Firebase.auth.signInWithEmailAndPassword(
+                    "unlost.app@gmail.com",
+                    "brugsdpProject1").await())
+            }.observe(this) { result ->
+                if(result.user != null){
+                    if(runBlocking{UserRepo.getMinimalUserFromUID(result.user!!.uid)} == null){
+                        runBlocking{UserRepo.addAuthUserFromAccount(
+                            Firebase.auth.currentUser!!.uid,
+                            FakeSignInAccount(
+                                "Unlost",
+                                "DemoUser",
+                                "",
+                                ""
+                            )
+                        )}
+                    }
 
-            if(Firebase.auth.currentUser != null){
-                if(runBlocking{UserRepo.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid)} == null){
-                    runBlocking{UserRepo.addAuthUserFromAccount(
-                        Firebase.auth.currentUser!!.uid,
-                        FakeSignInAccount(
-                            "Unlost",
-                            "DemoUser",
-                            "",
-                            ""
-                        )
-                    )}
+                    startActivity(Intent(this, ItemsMenuActivity::class.java))
+                } else {
+                    Snackbar.make(findViewById(android.R.id.content),
+                        "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG)
+                        .show()
                 }
-
-                startActivity(Intent(this, ItemsMenuActivity::class.java))
-            } else {
-                Snackbar.make(findViewById(android.R.id.content),
-                    "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG)
-                    .show()
             }
+
+//            if(Firebase.auth.currentUser != null){
+//                if(runBlocking{UserRepo.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid)} == null){
+//                    runBlocking{UserRepo.addAuthUserFromAccount(
+//                        Firebase.auth.currentUser!!.uid,
+//                        FakeSignInAccount(
+//                            "Unlost",
+//                            "DemoUser",
+//                            "",
+//                            ""
+//                        )
+//                    )}
+//                }
+//
+//                startActivity(Intent(this, ItemsMenuActivity::class.java))
+//            } else {
+//                Snackbar.make(findViewById(android.R.id.content),
+//                    "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG)
+//                    .show()
+//            }
         }
     }
 

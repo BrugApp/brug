@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -58,6 +60,7 @@ class ItemsMenuActivity : AppCompatActivity() {
     private fun initItemsList() = liveData(Dispatchers.IO){
         emit(ItemsRepo.getUserItemsFromUID(Firebase.auth.currentUser!!.uid))
     }.observe(this) { itemsList ->
+        findViewById<ProgressBar>(R.id.loadingItems).visibility = View.GONE
         val list = if(itemsList.isNullOrEmpty()) mutableListOf() else itemsList.toMutableList()
 
         val listView = findViewById<RecyclerView>(R.id.items_listview)
