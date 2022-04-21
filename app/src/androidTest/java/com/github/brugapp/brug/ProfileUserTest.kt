@@ -23,10 +23,8 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
-import com.github.brugapp.brug.fake.MockDatabase
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.ui.ProfilePictureSetActivity
-import com.github.brugapp.brug.ui.SignInActivity
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -108,7 +106,7 @@ class ProfileUserTest {
     @Test
     fun canSelectPicture(){
         onView(withId(R.id.loadButton)).perform(click())
-        assertThat(MockDatabase.currentUser.getProfilePicture(), Is(nullValue()) )
+        assertThat(DUMMY_USER.getUserIcon(), Is(nullValue()) )
 
     }
 
