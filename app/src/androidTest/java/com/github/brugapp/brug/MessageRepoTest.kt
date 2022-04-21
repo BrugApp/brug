@@ -9,6 +9,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.ConvRepo
 import com.github.brugapp.brug.data.MessageRepo
 import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.AudioMessage
@@ -31,8 +32,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
 
-private val USER1 = MyUser("USER1", "Rayan", "Kikou", null)
-private val USER2 = MyUser("USER2", "Hamza", "Hassoune", null)
+private const val USER_ID1 = "USER1"
+private const val USER_ID2 = "USER2"
+private val ACCOUNT1 = FakeSignInAccount("Rayan", "Kikou", "", "")
+private val ACCOUNT2 = FakeSignInAccount("Hamza", "Hassoune", "", "")
+
+private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null)
 private const val DUMMY_ITEM_NAME = "AirPods Pro Max"
 private const val CONV_ASSETS = "conversations_assets/"
 
@@ -57,9 +62,9 @@ private val AUDIOMSG = AudioMessage(
 
 class MessageRepoTest {
     private fun addUsersAndConv() = runBlocking {
-        UserRepo.addAuthUser(USER1)
-        UserRepo.addAuthUser(USER2)
-        ConvRepo.addNewConversation(USER1.uid, USER2.uid, DUMMY_ITEM_NAME)
+        UserRepo.addAuthUserFromAccount(USER_ID1, ACCOUNT1)
+        UserRepo.addAuthUserFromAccount(USER_ID2, ACCOUNT2)
+        ConvRepo.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME)
     }
 
     @Before
@@ -71,7 +76,7 @@ class MessageRepoTest {
     fun addMessageToWrongConvReturnsError() = runBlocking {
         val response = MessageRepo.addMessageToConv(
             TEXTMSG,
-            USER1.uid,
+            USER_ID1,
             "WRONGCONVID")
         assertThat(response.onError, IsNot(IsNull.nullValue()))
     }
@@ -80,12 +85,12 @@ class MessageRepoTest {
     fun addTextMessageCorrectlyAddsNewTextMessage() = runBlocking {
         val response = MessageRepo.addMessageToConv(
             TEXTMSG,
-            USER1.uid,
-            "${USER1.uid}${USER2.uid}")
+            USER_ID1,
+            "${USER_ID1}${USER_ID2}")
         assertThat(response.onSuccess, IsEqual(true))
 
-        val conv = ConvRepo.getUserConvFromUID(USER1.uid)!!.filter {
-            it.convId == "${USER1.uid}${USER2.uid}"
+        val conv = ConvRepo.getUserConvFromUID(USER_ID1)!!.filter {
+            it.convId == "${USER_ID1}${USER_ID2}"
         }
         assertThat(conv.isNullOrEmpty(), IsEqual(false))
         assertThat(conv[0].messages.contains(TEXTMSG), IsEqual(true))
@@ -95,12 +100,12 @@ class MessageRepoTest {
     fun addLocationMessageCorrectlyAddsNewLocationMessage() = runBlocking {
         val response = MessageRepo.addMessageToConv(
             LOCATIONMSG,
-            USER2.uid,
-            "${USER1.uid}${USER2.uid}")
+            USER_ID2,
+            "${USER_ID1}${USER_ID2}")
         assertThat(response.onSuccess, IsEqual(true))
 
-        val conv = ConvRepo.getUserConvFromUID(USER1.uid)!!.filter {
-            it.convId == "${USER1.uid}${USER2.uid}"
+        val conv = ConvRepo.getUserConvFromUID(USER_ID1)!!.filter {
+            it.convId == "${USER_ID1}${USER_ID2}"
         }
         assertThat(conv.isNullOrEmpty(), IsEqual(false))
 
@@ -117,8 +122,8 @@ class MessageRepoTest {
 
         val response = MessageRepo.addMessageToConv(
             PICMSG,
-            USER1.uid,
-            "${USER1.uid}${USER2.uid}")
+            USER_ID1,
+            "${USER_ID1}${USER_ID2}")
         assertThat(response.onError, IsNot(IsNull.nullValue()))
         assertThat(response.onError!!.message, IsEqual("Unable to upload file"))
     }
@@ -147,14 +152,14 @@ class MessageRepoTest {
         // ADD MESSAGE TO DATABASE & IMAGE TO STORAGE + SIGNOUT
         val response = MessageRepo.addMessageToConv(
             picMsg,
-            USER1.uid,
-            "${USER1.uid}${USER2.uid}")
+            USER_ID1,
+            "${USER_ID1}${USER_ID2}")
         Firebase.auth.signOut()
         assertThat(response.onSuccess, IsEqual(true))
 
         // CHECK IF MESSAGE HAS BEEN ADDED CORRECTLY
-        val conv = ConvRepo.getUserConvFromUID(USER1.uid)!!.filter {
-            it.convId == "${USER1.uid}${USER2.uid}"
+        val conv = ConvRepo.getUserConvFromUID(USER_ID1)!!.filter {
+            it.convId == "${USER_ID1}${USER_ID2}"
         }
         assertThat(conv.isNullOrEmpty(), IsEqual(false))
 
@@ -172,7 +177,7 @@ class MessageRepoTest {
         val response = MessageRepo.addMessageToConv(
             AUDIOMSG,
             USER2.uid,
-            "${USER1.uid}${USER2.uid}")
+            "${USER_ID1}${USER_ID2}")
 
         assertThat(response.onError, IsNot(IsNull.nullValue()))
         assertThat(response.onError!!.message, IsEqual("Unable to upload file"))

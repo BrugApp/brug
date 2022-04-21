@@ -59,7 +59,7 @@ class SignInActivityTestFake {
         @ViewModelScoped
         @Provides
         fun provideFakeSignInAccount(): SignInAccount {
-            return FakeSignInAccount()
+            return FakeSignInAccount("Son Goku", "Vegeta", "0", "goku@capsulecorp.com")
         }
     }
 

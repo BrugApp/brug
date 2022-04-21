@@ -3,6 +3,7 @@ package com.github.brugapp.brug
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -14,7 +15,8 @@ import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
 import org.junit.Test
 
-private val DUMMY_USER = MyUser("AUTHUSERID", "Rayan", "Kikou", null)
+private const val DUMMY_UID = "AUTHUSERID"
+private val DUMMY_ACCOUNT = FakeSignInAccount("Rayan", "Kikou", "", "")
 
 class UserRepoTest {
     @Test
@@ -23,25 +25,20 @@ class UserRepoTest {
     }
 
     @Test
-    fun getFullUserWithWrongUIDReturnsNull() = runBlocking {
-        assertThat(UserRepo.getFullUserFromUID("WRONGUID"), IsNull.nullValue())
-    }
-
-    @Test
     fun addAuthUserCorrectlyAddsUser() = runBlocking {
-        assertThat(UserRepo.addAuthUser(DUMMY_USER).onSuccess, IsEqual(true))
-        val user = UserRepo.getMinimalUserFromUID(DUMMY_USER.uid)
+        assertThat(UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT).onSuccess, IsEqual(true))
+        val user = UserRepo.getMinimalUserFromUID(DUMMY_UID)
         assertThat(user, IsNot(IsNull.nullValue()))
-        assertThat(user, IsEqual(DUMMY_USER))
+        assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null)))
     }
 
     @Test
     fun updateUserCorrectlyUpdatesUserFields() = runBlocking {
-        UserRepo.addAuthUser(DUMMY_USER)
-        val updatedUser = MyUser(DUMMY_USER.uid, "Bryan", "Kikou", null)
+        UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+        val updatedUser = MyUser(DUMMY_UID, "Bryan", "Kikou", null)
         assertThat(UserRepo.updateUserFields(updatedUser).onSuccess, IsEqual(true))
 
-        val user = UserRepo.getMinimalUserFromUID(DUMMY_USER.uid)
+        val user = UserRepo.getMinimalUserFromUID(DUMMY_UID)
         assertThat(user, IsNot(IsNull.nullValue()))
         assertThat(user, IsEqual(updatedUser))
     }
@@ -60,10 +57,10 @@ class UserRepoTest {
         assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
         assertThat(Firebase.auth.currentUser!!.uid, IsEqual(authUser!!.uid))
 
-        val response = UserRepo.updateUserIcon(DUMMY_USER.uid, drawable!!)
+        val response = UserRepo.updateUserIcon(DUMMY_UID, drawable!!)
         assertThat(response.onError, IsNull.nullValue())
 
-        val updatedUser = UserRepo.getMinimalUserFromUID(DUMMY_USER.uid)
+        val updatedUser = UserRepo.getMinimalUserFromUID(DUMMY_UID)
         Firebase.auth.signOut()
 
         assertThat(updatedUser, IsNot(IsNull.nullValue()))
@@ -75,8 +72,9 @@ class UserRepoTest {
 
     @Test
     fun deleteUserReturnsSuccessfully() = runBlocking {
-        UserRepo.addAuthUser(DUMMY_USER)
-        assertThat(UserRepo.deleteUserFromID(DUMMY_USER.uid).onSuccess, IsEqual(true))
-        assertThat(UserRepo.getMinimalUserFromUID(DUMMY_USER.uid), IsNull.nullValue())
+        UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+//        UserRepo.addAuthUser(DUMMY_USER)
+        assertThat(UserRepo.deleteUserFromID(DUMMY_UID).onSuccess, IsEqual(true))
+        assertThat(UserRepo.getMinimalUserFromUID(DUMMY_UID), IsNull.nullValue())
     }
 }

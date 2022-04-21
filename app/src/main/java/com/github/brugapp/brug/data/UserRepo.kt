@@ -6,6 +6,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
+import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -23,7 +24,7 @@ private const val USERS_DB = "Users"
  */
 object UserRepo {
     /**
-     * Adds a new user, if the authenticated one is not already present in the database.
+     * Adds a new user after a new account has been created, if the authenticated one is not already present in the database.
      *
      * @param authUID the user ID of the authenticated user
      * @param firstName the "first name" parameter of the new user
@@ -31,17 +32,21 @@ object UserRepo {
      *
      * @return FirebaseResponse object, denoting if the new entry has correctly been added to the database
      */
-    suspend fun addAuthUser(user: MyUser): FirebaseResponse {
+    suspend fun addAuthUserFromAccount(authUID: String, account: SignInAccount): FirebaseResponse { //user: MyUser)
         val response = FirebaseResponse()
 
         try {
-            Firebase.firestore.collection(USERS_DB).document(user.uid).set(mapOf(
-                "first_name" to user.firstName,
-                "last_name" to user.lastName,
-                "user_icon" to "" //TODO: CHANGE AFTER WE IMPLEMENT USER CREATION HANDLING ADDING PROFILE PIC (MAYBE)
-            )).await()
+            val userDoc = Firebase.firestore.collection(USERS_DB).document(authUID)
+            if(!userDoc.get().await().exists()){
+                Firebase.firestore.collection(USERS_DB).document(authUID).set(mapOf(
+                    "first_name" to account.firstName,
+                    "last_name" to account.lastName,
+                    "user_icon" to "" //TODO: CHANGE AFTER WE IMPLEMENT USER CREATION HANDLING ADDING PROFILE PIC (MAYBE)
+                )).await()
+            }
 
             response.onSuccess = true
+
         } catch (e: Exception) {
             response.onError = e
         }
@@ -175,25 +180,6 @@ object UserRepo {
 
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
-            return null
-        }
-    }
-
-    /**
-     * Fetches a user with all its Items and Conversation objects, given a user ID
-     *
-     * @param thisUID the user ID
-     *
-     * @return MyUser object instantiated with the parameters held in Firebase, or a null value in case of error
-     */
-    suspend fun getFullUserFromUID(uid: String): MyUser? {
-        try {
-            val user: MyUser = getMinimalUserFromUID(uid) ?: return null
-            user.initItemsList(ItemsRepo.getUserItemsFromUID(uid))
-            user.initConvList(ConvRepo.getUserConvFromUID(uid))
-
-            return user
-        } catch(e: Exception) {
             return null
         }
     }

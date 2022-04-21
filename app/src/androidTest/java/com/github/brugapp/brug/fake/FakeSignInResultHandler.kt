@@ -6,6 +6,6 @@ import com.github.brugapp.brug.di.sign_in.SignInResultHandler
 
 class FakeSignInResultHandler : SignInResultHandler() {
     override fun handleSignInResult(result: Intent?): SignInAccount {
-        return FakeSignInAccount()
+        return FakeSignInAccount("Son Goku", "Vegeta", "0", "goku@capsulecorp.com")
     }
 }

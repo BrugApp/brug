@@ -3,10 +3,13 @@ package com.github.brugapp.brug.view_model
 import android.content.Intent
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.data.FirebaseHelper
+import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.*
+import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 
@@ -21,12 +24,12 @@ class SignInViewModel @Inject constructor(
 
     // Check for existing Sign In account, if the user is already signed in
     // the SignInAccount will be non-null.
-    private var currentUser: User? = createNewBrugUser(lastSignedInAccount)
+    private var currentUser: MyUser? = createNewBrugUser(lastSignedInAccount) //= createNewBrugUser(lastSignedInAccount)
 
     fun handleSignInResult(it: Intent?): AuthCredential? {
         val currentAccount = signInResultHandler.handleSignInResult(it)
-        currentUser = createNewBrugUser(currentAccount)
         return credentialGetter.getCredential(currentAccount?.idToken)
+//        currentUser = createNewBrugUser(currentAccount)
     }
 
     fun getSignInIntent(): Intent {
@@ -40,9 +43,17 @@ class SignInViewModel @Inject constructor(
     }
 
     // return new Brug User from SignInAccount
-    private fun createNewBrugUser(account: SignInAccount?): User? {
+    private fun createNewBrugUser(account: SignInAccount?): MyUser? {
         if (account == null) return null
-        return FirebaseHelper.createUserInFirestoreIfAbsent(auth.uid, account)
+        return runBlocking {
+            val response = UserRepo.addAuthUserFromAccount(auth.uid!!, account)
+            if(response.onSuccess){
+                UserRepo.getMinimalUserFromUID(auth.uid!!)
+            }
+            null
+        }
+
+//        return FirebaseHelper.createUserInFirestoreIfAbsent(auth.uid, account)
 //        val firstName = account.firstName
 //        val lastName = account.lastName
 //        val email = account.email

@@ -3,29 +3,22 @@ package com.github.brugapp.brug.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.liveData
-import com.github.brugapp.brug.MainActivity
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.USER_INTENT_KEY
-import com.github.brugapp.brug.data.ItemsRepo
 import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.DatabaseUser
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 
@@ -56,12 +49,13 @@ class SignInActivity : AppCompatActivity() {
 
             if(Firebase.auth.currentUser != null){
                 if(runBlocking{UserRepo.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid)} == null){
-                    runBlocking{UserRepo.addAuthUser(
-                        MyUser(
-                            Firebase.auth.currentUser!!.uid,
+                    runBlocking{UserRepo.addAuthUserFromAccount(
+                        Firebase.auth.currentUser!!.uid,
+                        FakeSignInAccount(
                             "Unlost",
                             "DemoUser",
-                            null
+                            "",
+                            ""
                         )
                     )}
                 }
