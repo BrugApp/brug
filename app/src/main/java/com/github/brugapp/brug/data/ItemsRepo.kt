@@ -119,6 +119,29 @@ object ItemsRepo {
         return response
     }
 
+    /* RESERVED FOR TESTS */
+    suspend fun deleteAllUserItems(uid: String): FirebaseResponse {
+        val response = FirebaseResponse()
+
+        try {
+            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            if(!userRef.get().await().exists()){
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
+                deleteItemFromUser(item.id, uid)
+            }
+
+            response.onSuccess = true
+        } catch(e: Exception) {
+            response.onError = e
+        }
+
+        return response
+    }
+
 
     /**
      * Retrieves the list of items belonging to a user, given its user ID.

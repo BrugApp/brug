@@ -3,6 +3,7 @@ package com.github.brugapp.brug
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
@@ -48,26 +49,20 @@ class ChatActivityTest {
     @get:Rule
     val permissionRuleExtStorage: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-    private val convID = "0"
-    //TODO: CHANGE THIS TO ACTUAL USER
-    private val dummyUser = DummyUser("John", "Doe", File.createTempFile("tempIMG", ".jpg").path)
-    private val dummyItemName = "DummyItem"
+    private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null)
 
     private val dummyDate = DateService.fromLocalDateTime(
         LocalDateTime.of(
-        2022, Month.MARCH, 23, 15, 30
+            2022, Month.MARCH, 23, 15, 30
         )
     )
-
-    private val dummyMessage = Message(
-        dummyUser.getFullName(), dummyDate, "Dummy Test Message"
-    )
-
     private val conversation = Conversation(
-        convID,
+        "USER1USER2",
         dummyUser,
-        dummyItemName,
-        mutableListOf(dummyMessage)
+        "DummyItem",
+        mutableListOf(Message(
+            dummyUser.getFullName(), dummyDate, "TestMessage"
+        ))
     )
 
     @Test
@@ -82,7 +77,7 @@ class ChatActivityTest {
             val messagesList = onView(withId(R.id.messagesList))
             messagesList.check(matches(
                 atPosition(0,
-                hasDescendant(withText("Dummy Test Message"))
+                hasDescendant(withText("TestMessage"))
                 )))
         }
     }

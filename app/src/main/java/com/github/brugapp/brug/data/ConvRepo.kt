@@ -107,6 +107,29 @@ object ConvRepo {
         return response
     }
 
+    /* ONLY FOR TESTS */
+    suspend fun deleteAllUserConversations(uid: String): FirebaseResponse {
+        val response = FirebaseResponse()
+
+        try {
+            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            if(!userRef.get().await().exists()){
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            userRef.collection(CONV_DB).get().await().mapNotNull { conv ->
+                deleteConversationFromID(conv.id, uid)
+            }
+
+            response.onSuccess = true
+        } catch(e: Exception) {
+            response.onError = e
+        }
+
+        return response
+    }
+
     /**
      * Retrieves the list of Conversation of a user, given its user ID.
      *
