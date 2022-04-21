@@ -92,7 +92,7 @@ class ChatMenuActivity : AppCompatActivity() {
                     listViewAdapter.notifyItemRemoved(position)
 
                     Snackbar.make(listView,
-                        "Conversation has successfully been marked as resolved.",
+                        CHAT_CHECK_TEXT,
                         Snackbar.LENGTH_LONG).setAction("Undo") {
                         liveData(Dispatchers.IO){
                             emit(

@@ -1,6 +1,5 @@
 package com.github.brugapp.brug
 
-import android.util.Log
 import com.github.brugapp.brug.data.ConvRepo
 import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.model.Conversation

@@ -96,7 +96,7 @@ class ItemsMenuActivity : AppCompatActivity() {
                     itemsListAdapter.notifyItemRemoved(position)
 
                     Snackbar.make(listView,
-                        "Item has successfully been removed.",
+                        ITEMS_DELETE_TEXT,
                         Snackbar.LENGTH_LONG).setAction("Undo") {
                             liveData(Dispatchers.IO){
                                 emit(ItemsRepo.addItemToUser(deletedItem,

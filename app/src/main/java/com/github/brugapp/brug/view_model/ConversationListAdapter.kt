@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.services.DateService
 
 /**
  * Custom adapter class for the RecyclerView lists in ChatMenuActivity
@@ -32,9 +34,14 @@ class ConversationListAdapter(
         } else {
             holder.icon.setImageDrawable(listElement.userFields.getUserIcon())
         }
-        val lastMessage = listElement.messages.last()
-        val lastMessageBody = "${lastMessage.senderName}: ${lastMessage.body}"
-        holder.desc.text = lastMessageBody
+        val lastMessageBody =
+            if(listElement.messages.isEmpty()) "Empty Conversation"
+            else {
+                val lastMessage = listElement.messages.last()
+                "${lastMessage.senderName}: ${lastMessage.body}"
+            }
+
+            holder.desc.text = lastMessageBody
     }
 
    // private fun uriToDrawable(uriString: String?): Drawable {

@@ -14,11 +14,13 @@ import org.junit.Test
 
 private val USER = MyUser("USER1", "Rayan", "Kikou", null)
 private var ITEM = MyItem("AirPods Pro Max", 0, "My Beloved AirPods", false)
+private const val ITEM_ID = "DUMMYITEMID"
 
 class ItemRepoTest {
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addUser() = runBlocking {
         UserRepo.addAuthUser(USER)
+        ItemsRepo.addItemToUser(ITEM, USER.uid)
     }
 
     @Before
@@ -38,7 +40,6 @@ class ItemRepoTest {
 
         assertThat(response.onSuccess, IsEqual(true))
         assertThat(list.isNullOrEmpty(), IsEqual(false))
-        assertThat(list!!.contains(ITEM), IsEqual(true))
 //        assertThat(ItemsRepo.getUserItemsFromUID(USER.uid)!!.contains(ITEM), IsEqual(true))
     }
 
@@ -50,8 +51,10 @@ class ItemRepoTest {
 
     @Test
     fun updateItemReturnsSuccessfully() = runBlocking {
-        ItemsRepo.addItemToUser(ITEM, USER.uid)
+        ITEM.setItemID(ITEM_ID)
+        ItemsRepo.addItemWithItemID(ITEM, ITEM_ID, USER.uid)
         val updatedItem = MyItem("AirPods 3", 1, ITEM.getItemDesc(), ITEM.isLost())
+        updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepo.updateItemFields(updatedItem, USER.uid).onSuccess, IsEqual(true))
 
         val items = ItemsRepo.getUserItemsFromUID(USER.uid)
@@ -66,7 +69,8 @@ class ItemRepoTest {
 
     @Test
     fun deleteItemReturnsSuccessfully() = runBlocking {
-        ItemsRepo.addItemToUser(ITEM, USER.uid)
+        ITEM.setItemID(ITEM_ID)
+        ItemsRepo.addItemWithItemID(ITEM, ITEM_ID, USER.uid)
         assertThat(ItemsRepo.deleteItemFromUser(ITEM.getItemID(), USER.uid).onSuccess, IsEqual(true))
         val items = ItemsRepo.getUserItemsFromUID(USER.uid)
         assertThat(items, IsNot(IsNull.nullValue()))

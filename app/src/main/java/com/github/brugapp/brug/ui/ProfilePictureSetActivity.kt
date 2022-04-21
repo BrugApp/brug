@@ -18,6 +18,7 @@ class ProfilePictureSetActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //FETCHES THE USER FROM SETTINGSACTIVITY & PASS IT TO THE FRAGMENT
         val user = intent.extras!!.get(USER_INTENT_KEY) as MyUser
         val bundle = Bundle()
         bundle.putSerializable(USER_INTENT_KEY, user)

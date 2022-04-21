@@ -21,8 +21,10 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
 import com.github.brugapp.brug.fake.MockDatabase
+import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.ui.ProfilePictureSetActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import dagger.Module
@@ -33,10 +35,12 @@ import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.Description
 import org.hamcrest.Matchers.nullValue
 import org.hamcrest.TypeSafeMatcher
 import org.hamcrest.core.Is
+import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -48,6 +52,9 @@ import org.junit.runner.RunWith
  * Settings Activity Tests
  *
  */
+
+private val DUMMY_USER = MyUser("USER1", "Rayan", "Kikou", null)
+
 @HiltAndroidTest
 @UninstallModules(ActivityResultModule::class)
 @RunWith(AndroidJUnit4::class)
@@ -88,6 +95,9 @@ class ProfileUserTest {
     @Before
     fun setUp() {
         Intents.init()
+        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
+        intent.putExtra(USER_INTENT_KEY, DUMMY_USER)
+        ActivityScenario.launch<ProfilePictureSetActivity>(intent)
     }
 
     @After
@@ -97,22 +107,15 @@ class ProfileUserTest {
 
     @Test
     fun canSelectPicture(){
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
+        onView(withId(R.id.loadButton)).perform(click())
+        assertThat(MockDatabase.currentUser.getProfilePicture(), Is(nullValue()) )
 
-        ActivityScenario.launch<SignInActivity>(intent).use {
-            onView(withId(R.id.loadButton)).perform(click())
-            assertThat(MockDatabase.currentUser.getProfilePicture(), Is(nullValue()) )
-        }
     }
 
     @Test
     fun correctNameIsDisplayed(){
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
-
-        val name: String = MockDatabase.currentUser.getFirstName() + " " + MockDatabase.currentUser.getLastName()
-        ActivityScenario.launch<SignInActivity>(intent).use {
-            onView(withId(R.id.username)).check(matches(withText(name)))
-        }
+        val name: String = DUMMY_USER.getFullName()//MockDatabase.currentUser.getFirstName() + " " + MockDatabase.currentUser.getLastName()
+        onView(withId(R.id.username)).check(matches(withText(name)))
     }
 
     @Test
@@ -126,23 +129,22 @@ class ProfileUserTest {
 
 
     private fun correctProfilePictureDisplayed(){
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
-
-        ActivityScenario.launch<SignInActivity>(intent).use {
-            onView(withId(R.id.imgProfile)).check(matches(withDrawable(R.drawable.ic_person_outline_black_24dp)))
-        }
+        onView(withId(R.id.imgProfile)).check(matches(withDrawable(R.drawable.ic_person_outline_black_24dp)))
     }
 
     private fun profilePictureCanBeChanged(){
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
+//        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
         val drawableRes = R.mipmap.ic_launcher
         val drawable  = ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), drawableRes)
 
-        MockDatabase.currentUser.setProfilePicture(drawable)
+        DUMMY_USER.setUserIcon(drawable)
+        val response = runBlocking { UserRepo.updateUserFields(DUMMY_USER) }
+        assertThat(response.onSuccess, IsEqual(true))
+//        MockDatabase.currentUser.setProfilePicture(drawable)
 
-        ActivityScenario.launch<SignInActivity>(intent).use {
-            onView(withId(R.id.imgProfile)).check(matches(withDrawable(drawableRes)))
-        }
+//        ActivityScenario.launch<SignInActivity>(intent).use {
+        onView(withId(R.id.imgProfile)).check(matches(withDrawable(drawableRes)))
+//        }
     }
 
     private fun withDrawable(@DrawableRes id: Int) = object : TypeSafeMatcher<View>() {

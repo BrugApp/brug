@@ -120,6 +120,31 @@ object ItemsRepo {
     }
 
     /* RESERVED FOR TESTS */
+    suspend fun addItemWithItemID(item: MyItem, itemID: String, uid: String): FirebaseResponse {
+        val response = FirebaseResponse()
+
+        try {
+            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            if(!userRef.get().await().exists()){
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            userRef.collection(ITEMS_DB).document(itemID).set(mapOf(
+                "item_name" to item.getItemName(),
+                "item_type" to item.getItemTypeID(),
+                "item_description" to item.getItemDesc(),
+                "is_lost" to item.isLost()
+            )).await()
+
+            response.onSuccess = true
+        } catch (e: Exception) {
+            response.onError = e
+        }
+
+        return response
+    }
+
     suspend fun deleteAllUserItems(uid: String): FirebaseResponse {
         val response = FirebaseResponse()
 
