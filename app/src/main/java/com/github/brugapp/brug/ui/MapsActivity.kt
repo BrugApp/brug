@@ -12,6 +12,10 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
+const val EXTRA_LATITUDE = "com.github.brugapp.brug.LATITUDE"
+const val EXTRA_LONGITUDE = "com.github.brugapp.brug.LONGITUDE"
+const val EXTRA_BRUG_ITEM_NAME = "com.github.brugapp.brug.BRUG_ITEM_NAME"
+
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
@@ -29,6 +33,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
     }
 
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -41,9 +46,24 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        var initialLatitude = -34.0
+        var initialLongitude = 151.0
+        var name = "Sydney"
+        if (intent.extras != null) {
+             (intent.extras!!.get(EXTRA_LATITUDE) as Double?)?.apply {
+                initialLatitude = this
+            }
+            (intent.extras!!.get(EXTRA_LONGITUDE) as Double?)?.apply {
+                initialLongitude = this
+            }
+            (intent.extras!!.get(EXTRA_BRUG_ITEM_NAME) as String?)?.apply {
+                name = this
+            }
+        }
+
         // Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
+        val marker = LatLng(initialLatitude, initialLongitude)
+        mMap.addMarker(MarkerOptions().position(marker).title(name))
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(marker))
     }
 }
