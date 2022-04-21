@@ -66,4 +66,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.addMarker(MarkerOptions().position(marker).title(name))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(marker))
     }
+
+
 }

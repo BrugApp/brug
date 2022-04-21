@@ -35,13 +35,13 @@ class QrCodeScannerActivityTest {
             .check(matches((withHint("Report item…"))))
     }
 
-    @Test
-    fun reportButtonDisplaysNotificationWithoutCrashing(){
-        onView(withId(R.id.buttonReportItem))
-            .perform(ViewActions.click())
-        NotificationManagerCompat.from(ApplicationProvider.getApplicationContext()).cancelAll()
-        Thread.sleep(1000)
-    }
+//    @Test
+//    fun reportButtonDisplaysNotificationWithoutCrashing(){
+//        onView(withId(R.id.buttonReportItem))
+//            .perform(ViewActions.click())
+//        NotificationManagerCompat.from(ApplicationProvider.getApplicationContext()).cancelAll()
+//        Thread.sleep(1000)
+//    }
 }
 
 @RunWith(AndroidJUnit4::class)

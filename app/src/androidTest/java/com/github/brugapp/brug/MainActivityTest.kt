@@ -83,12 +83,12 @@ class MainActivityTest {
     }
 
 
-    @Test
-    fun canSeeHintWhenCameraIsClicked(){
-        onView(withId(R.id.mainCamera)).perform(click())
-        onView(withId(R.id.editTextReportItem))
-            .check(matches((withHint("Report item…"))))
-    }
+//    @Test
+//    fun canSeeHintWhenCameraIsClicked(){
+//        onView(withId(R.id.mainCamera)).perform(click())
+//        onView(withId(R.id.editTextReportItem))
+//            .check(matches((withHint("Report item…"))))
+//    }
 
 
     @Test
