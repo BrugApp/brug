@@ -61,7 +61,7 @@ class ChatMenuActivityTest {
         }
     }
 
-    private fun wipeItemsAndSignOut() {
+    private fun wipeConversationsAndSignOut() {
         runBlocking {
             ConvRepo.deleteAllUserConversations(TEST_USER_UID)
         }
@@ -77,7 +77,7 @@ class ChatMenuActivityTest {
     @After
     fun cleanUp() {
         Intents.release()
-        wipeItemsAndSignOut()
+        wipeConversationsAndSignOut()
     }
 
     @Test

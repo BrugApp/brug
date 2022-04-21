@@ -18,13 +18,18 @@ import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.viewModels
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.USER_INTENT_KEY
+import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.view_model.SettingsViewModel
+import kotlinx.coroutines.runBlocking
 
 class ProfileSettingsFragment(
     private val registry: ActivityResultRegistry
 ) : Fragment() {
 
     private val viewModel: SettingsViewModel by viewModels()
+    private lateinit var user: MyUser
 
     private fun resize(image: Drawable?): Drawable? {
         if(image == null) return null
@@ -38,7 +43,8 @@ class ProfileSettingsFragment(
             val inputStream = activity?.contentResolver?.openInputStream(uri)
             val drawable = Drawable.createFromStream(inputStream, uri.toString())
             activity?.let {
-                viewModel.setProfilePic(resize(drawable))
+                user.setUserIcon(resize(drawable))
+                runBlocking{UserRepo.updateUserFields(user)}
             }
         }
         val myIntent = Intent(activity, ProfilePictureSetActivity::class.java)
@@ -53,8 +59,10 @@ class ProfileSettingsFragment(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        user = requireArguments().get(USER_INTENT_KEY) as MyUser
+
         val profilePic = view.findViewById<ImageView>(R.id.imgProfile)
-        val profilePicDrawable = viewModel.getProfilePic()
+        val profilePicDrawable = user.getUserIcon()
 
         if(profilePicDrawable != null){
             profilePic.setImageDrawable(profilePicDrawable)
@@ -63,7 +71,7 @@ class ProfileSettingsFragment(
         }
 
         val username = view.findViewById<TextView>(R.id.username)
-        username.text = viewModel.getUsername()
+        username.text = user.getFullName()
 
         val button = view.findViewById<Button>(R.id.loadButton)
         button.setOnClickListener {
