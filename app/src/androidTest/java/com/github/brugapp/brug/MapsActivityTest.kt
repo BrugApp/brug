@@ -8,9 +8,8 @@ import org.junit.Test
 
 class MapsActivityTest {
 
-
     @Test
-    fun mapsActivityDisplays(){
+    fun mapsActivityDoesNotCrashWithExtras(){
         val intent = Intent(ApplicationProvider.getApplicationContext(), MapsActivity::class.java).apply {
             putExtra(EXTRA_LATITUDE, 6.57)
             putExtra(EXTRA_LONGITUDE, 46.52)
