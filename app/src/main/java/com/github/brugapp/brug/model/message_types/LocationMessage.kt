@@ -11,6 +11,17 @@ data class LocationMessage(
     val location: LocationService
 ) : Message(senderName, timestamp, body) {
 
+    companion object {
+        fun fromTextMessage(m: Message, location: LocationService): LocationMessage {
+            return LocationMessage(
+                m.senderName,
+                m.timestamp,
+                m.body,
+                location
+            )
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         return super.equals(other)
                 && this.location == (other as LocationMessage).location

@@ -48,51 +48,7 @@ class SignInActivity : AppCompatActivity() {
         findViewById<Button>(R.id.demo_button).setOnClickListener {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
             // ONLY FOR DEMO MODE
-            liveData(Dispatchers.IO){
-                emit(Firebase.auth.signInWithEmailAndPassword(
-                    "unlost.app@gmail.com",
-                    "brugsdpProject1").await())
-            }.observe(this) { result ->
-                if(result.user != null){
-                    if(runBlocking{UserRepo.getMinimalUserFromUID(result.user!!.uid)} == null){
-                        runBlocking{UserRepo.addAuthUserFromAccount(
-                            Firebase.auth.currentUser!!.uid,
-                            FakeSignInAccount(
-                                "Unlost",
-                                "DemoUser",
-                                "",
-                                ""
-                            )
-                        )}
-                    }
-
-                    startActivity(Intent(this, ItemsMenuActivity::class.java))
-                } else {
-                    Snackbar.make(findViewById(android.R.id.content),
-                        "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG)
-                        .show()
-                }
-            }
-
-//            if(Firebase.auth.currentUser != null){
-//                if(runBlocking{UserRepo.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid)} == null){
-//                    runBlocking{UserRepo.addAuthUserFromAccount(
-//                        Firebase.auth.currentUser!!.uid,
-//                        FakeSignInAccount(
-//                            "Unlost",
-//                            "DemoUser",
-//                            "",
-//                            ""
-//                        )
-//                    )}
-//                }
-//
-//                startActivity(Intent(this, ItemsMenuActivity::class.java))
-//            } else {
-//                Snackbar.make(findViewById(android.R.id.content),
-//                    "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG)
-//                    .show()
-//            }
+            viewModel.goToDemoMode(this)
         }
     }
 

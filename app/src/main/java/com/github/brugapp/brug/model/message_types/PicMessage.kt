@@ -10,6 +10,17 @@ data class PicMessage(
     val imgUrl: String)
     : Message(senderName, timestamp, body){
 
+    companion object {
+        fun fromTextMessage(m: Message, imgUrl: String): PicMessage {
+            return PicMessage(
+                m.senderName,
+                m.timestamp,
+                m.body,
+                imgUrl
+            )
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         return super.equals(other) && this.imgUrl == (other as PicMessage).imgUrl
     }

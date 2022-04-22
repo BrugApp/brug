@@ -26,21 +26,6 @@ class MyUserTest {
     }
 
     @Test
-    fun initUserWithIconCorrectlyInitializesUser() {
-        val userID = "DUMMYID"
-        val firstName = "Rayan"
-        val lastName = "Kikou"
-        val userIcon: Drawable? = ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), R.mipmap.ic_launcher)
-
-        val user = MyUser(userID, firstName, lastName, userIcon)
-        assertThat(user.uid, IsEqual(userID))
-        assertThat(user.firstName, IsEqual(firstName))
-        assertThat(user.lastName, IsEqual(lastName))
-        assertThat(user.getUserIcon(), IsNot(IsNull.nullValue()))
-        assertThat(user.getUserIcon().toString(), IsEqual(userIcon.toString()))
-    }
-
-    @Test
     fun comparingTwoIdenticalUsersReturnsEquality() {
         val user1 = MyUser("DUMMYID", "Rayan", "Kikou", null)
         val user2 = MyUser("DUMMYID", "Rayan", "Kikou", null)

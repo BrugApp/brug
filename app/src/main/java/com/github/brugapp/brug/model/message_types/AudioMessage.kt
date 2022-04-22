@@ -10,6 +10,17 @@ data class AudioMessage(
     val audioUrl: String)
     : Message(senderName, timestamp, body){
 
+    companion object {
+        fun fromTextMessage(m: Message, audioUrl: String): AudioMessage {
+            return AudioMessage(
+                m.senderName,
+                m.timestamp,
+                m.body,
+                audioUrl
+            )
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         return super.equals(other) && this.audioUrl == (other as AudioMessage).audioUrl
     }

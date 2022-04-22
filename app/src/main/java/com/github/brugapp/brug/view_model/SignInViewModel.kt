@@ -1,15 +1,25 @@
 package com.github.brugapp.brug.view_model
 
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.*
+import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 
@@ -41,6 +51,36 @@ class SignInViewModel @Inject constructor(
         auth.signOut()
         currentUser = null
     }
+
+    fun goToDemoMode(activity: AppCompatActivity){
+        liveData(Dispatchers.IO){
+            emit(
+                Firebase.auth.signInWithEmailAndPassword(
+                "unlost.app@gmail.com",
+                "brugsdpProject1").await())
+        }.observe(activity) { result ->
+            if(result.user != null){
+                if(runBlocking{UserRepo.getMinimalUserFromUID(result.user!!.uid)} == null){
+                    runBlocking{UserRepo.addAuthUserFromAccount(
+                        Firebase.auth.currentUser!!.uid,
+                        FakeSignInAccount(
+                            "Unlost",
+                            "DemoUser",
+                            "",
+                            ""
+                        )
+                    )}
+                }
+
+                activity.startActivity(Intent(activity.applicationContext, ItemsMenuActivity::class.java))
+            } else {
+                Snackbar.make(activity.findViewById(android.R.id.content),
+                    "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG)
+                    .show()
+            }
+        }
+    }
+
 
     // return new Brug User from SignInAccount
     private fun createNewBrugUser(account: SignInAccount?): MyUser? {

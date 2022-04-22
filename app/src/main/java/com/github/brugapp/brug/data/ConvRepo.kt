@@ -211,26 +211,17 @@ object ConvRepo {
         )
 
         //TODO: CLEANUP CODE A BIT MORE TO AVOID COPIES OF ATTRIBUTES
-        when {
-            snapshot.contains("location") -> return LocationMessage(
-                message.senderName,
-                message.timestamp,
-                message.body,
-                LocationService.fromGeoPoint(snapshot["location"] as GeoPoint)
-            )
-            snapshot.contains("image_url") -> return PicMessage(
-                message.senderName,
-                message.timestamp,
-                message.body,
-                snapshot["image_url"] as String
-            )
-            snapshot.contains("audio_url") -> return AudioMessage(
-                message.senderName,
-                message.timestamp,
-                message.body,
-                snapshot["audio_url"] as String
-            )
-            else -> return message
+        return when {
+            snapshot.contains("location") ->
+                LocationMessage.fromTextMessage(message,
+                    LocationService.fromGeoPoint(snapshot["location"] as GeoPoint))
+
+            snapshot.contains("image_url") ->
+                PicMessage.fromTextMessage(message, snapshot["image_url"] as String)
+
+            snapshot.contains("audio_url") ->
+                AudioMessage.fromTextMessage(message, snapshot["audio_url"] as String)
+            else -> message
         }
     }
 
