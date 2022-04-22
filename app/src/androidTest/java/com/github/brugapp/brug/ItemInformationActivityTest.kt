@@ -5,9 +5,12 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.ItemInformationActivity
@@ -16,9 +19,13 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.core.IsEqual
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+
+private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
+private const val TOGGLE_SWITCH_ID: String = "$APP_PACKAGE_NAME:id/isLostSwitch"
 
 @RunWith(AndroidJUnit4::class)
 class ItemInformationActivityTest{
@@ -34,19 +41,19 @@ class ItemInformationActivityTest{
 
     @Test
     fun correctTypeDisplayed(){
-        onView(ViewMatchers.withId(R.id.item_name)).check(matches(withText("Phone")))
-        onView(ViewMatchers.withId(R.id.tv_name)).check(matches(withText("Phone")))
+        onView(withId(R.id.item_name)).check(matches(withText("Phone")))
+        onView(withId(R.id.tv_name)).check(matches(withText("Phone")))
     }
 
     @Test
     fun correctDescriptionDisplayed(){
-        onView(ViewMatchers.withId(R.id.item_description)).check(matches(withText("Samsung Galaxy S22")))
+        onView(withId(R.id.item_description)).check(matches(withText("Samsung Galaxy S22")))
     }
 
     @Test
     fun noLocationAndOwnerAndDateYet(){
-        onView(ViewMatchers.withId(R.id.item_last_location)).check(matches(withText(str)))
-        onView(ViewMatchers.withId(R.id.item_owner)).check(matches(withText(str)))
+        onView(withId(R.id.item_last_location)).check(matches(withText(str)))
+        onView(withId(R.id.item_owner)).check(matches(withText(str)))
     }
 
     @Test
@@ -60,14 +67,10 @@ class ItemInformationActivityTest{
             CoreMatchers.`is`(false)
         )
 
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
+        val switchVal = device.findObject(UiSelector().resourceId(TOGGLE_SWITCH_ID)).click()
+        assertThat(switchVal, IsEqual(true))
         Firebase.auth.signOut()
-
-//        onView(ViewMatchers.withId(R.id.isLostSwitch)).perform(click())
-//        assertThat(
-//            item.isLost(),
-//            CoreMatchers.`is`(true)
-//        )
-//
     }
 }

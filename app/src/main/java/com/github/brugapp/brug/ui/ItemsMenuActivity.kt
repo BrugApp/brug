@@ -34,6 +34,8 @@ const val ITEMS_DELETE_TEXT: String = "Item has been deleted."
 
 class ItemsMenuActivity : AppCompatActivity() {
 
+    private val viewModel: ItemsMenuViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_items_menu)
@@ -87,43 +89,8 @@ class ItemsMenuActivity : AppCompatActivity() {
             itemsListAdapter
         )
 
-        val listCallback = ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair){ deletedItem ->
-            liveData(Dispatchers.IO){
-                emit(ItemsRepo.deleteItemFromUser(deletedItem.getItemID()
-                    , Firebase.auth.currentUser!!.uid))
-            }.observe(this){ response ->
-
-                if(response.onSuccess){
-                    val position = list.indexOf(deletedItem)
-                    list.removeAt(position)
-                    itemsListAdapter.notifyItemRemoved(position)
-
-                    Snackbar.make(listView,
-                        ITEMS_DELETE_TEXT,
-                        Snackbar.LENGTH_LONG).setAction("Undo") {
-                            liveData(Dispatchers.IO){
-                                emit(ItemsRepo.addItemToUser(deletedItem,
-                                    Firebase.auth.currentUser!!.uid))
-                            }.observe(this){
-                                if(!response.onSuccess){
-                                    Snackbar.make(listView,
-                                        "ERROR: Unable to re-add requested item to database",
-                                        Snackbar.LENGTH_LONG).show()
-                                }
-                            }
-
-                            list.add(position, deletedItem)
-                            listAdapterPair.second.notifyItemInserted(position)
-                        }.show()
-                } else {
-                    Snackbar.make(listView,
-                        "ERROR: Unable to delete requested item from database",
-                        Snackbar.LENGTH_LONG).show()
-                }
-            }
-        }
+        val listCallback = viewModel.setCallback(this, dragPair, swipePair, listAdapterPair)
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
-
         listView.adapter = itemsListAdapter
     }
 

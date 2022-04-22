@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,23 +16,18 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.UserRepo
-import com.github.brugapp.brug.model.MyUser
-import com.github.brugapp.brug.view_model.SettingsViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 class ProfileSettingsFragment(
     private val registry: ActivityResultRegistry
 ) : Fragment() {
-
-    private val viewModel: SettingsViewModel by viewModels()
 
     private fun resize(image: Drawable?): Drawable? {
         if(image == null) return null

@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.MyItem
 
 /**
@@ -28,8 +27,8 @@ class ItemsListAdapter(
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = itemsList[position]
         holder.icon.setImageResource(listElement.getRelatedIcon())
-        holder.title.text = listElement.getItemName()
-        holder.desc.text = listElement.getItemDesc()
+        holder.title.text = listElement.itemName
+        holder.desc.text = listElement.itemDesc
 
     }
 

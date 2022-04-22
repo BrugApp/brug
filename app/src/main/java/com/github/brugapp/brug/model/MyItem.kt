@@ -3,13 +3,13 @@ package com.github.brugapp.brug.model
 import com.github.brugapp.brug.R
 import java.io.Serializable
 
-class MyItem(private var itemName: String,
-             private var itemTypeID: Int,
-             private var itemDesc: String,
+class MyItem(val itemName: String,
+             val itemTypeID: Int,
+             val itemDesc: String,
              private var isLost: Boolean): Serializable {
 
     /* ITEM ID */
-    private lateinit var itemID: String
+    private var itemID: String = ""
 
     fun setItemID(itemID: String){
         this.itemID = itemID
@@ -19,31 +19,7 @@ class MyItem(private var itemName: String,
         return this.itemID
     }
 
-    /* ITEM NAME */
-    fun getItemName(): String {
-        return this.itemName
-    }
-
-    fun setItemName(newName: String) {
-        this.itemName = newName
-    }
-
-
     /* ITEM TYPE */
-    fun getRelatedItemType(): ItemType {
-        return if(0 <= itemTypeID && itemTypeID < ItemType.values().size)
-            ItemType.values()[itemTypeID]
-        else ItemType.Other
-    }
-
-    fun getItemTypeID(): Int {
-        return this.itemTypeID
-    }
-
-    fun setItemTypeID(typeID: Int) {
-        this.itemTypeID = typeID
-    }
-
     fun getRelatedIcon(): Int {
         return when(getRelatedItemType()){
             ItemType.Wallet -> R.drawable.ic_baseline_account_balance_wallet_24
@@ -54,15 +30,11 @@ class MyItem(private var itemName: String,
         }
     }
 
-    /* ITEM DESC */
-    fun getItemDesc(): String {
-        return this.itemDesc
+    private fun getRelatedItemType(): ItemType {
+        return if(0 <= itemTypeID && itemTypeID < ItemType.values().size)
+            ItemType.values()[itemTypeID]
+        else ItemType.Other
     }
-
-    fun setItemDesc(newDesc: String) {
-        this.itemDesc = newDesc
-    }
-
 
     /* ITEM STATE */
     fun isLost(): Boolean{

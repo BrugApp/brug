@@ -33,9 +33,9 @@ object ItemsRepo {
             }
 
             userRef.collection(ITEMS_DB).add(mapOf(
-                    "item_name" to item.getItemName(),
-                    "item_type" to item.getItemTypeID(),
-                    "item_description" to item.getItemDesc(),
+                    "item_name" to item.itemName,
+                    "item_type" to item.itemTypeID,
+                    "item_description" to item.itemDesc,
                     "is_lost" to item.isLost()
                 )).await()
 
@@ -71,9 +71,9 @@ object ItemsRepo {
             }
 
             itemRef.update(mapOf(
-                "item_name" to item.getItemName(),
-                "item_type" to item.getItemTypeID(),
-                "item_description" to item.getItemDesc(),
+                "item_name" to item.itemName,
+                "item_type" to item.itemTypeID,
+                "item_description" to item.itemDesc,
                 "is_lost" to item.isLost()
             )).await()
             response.onSuccess = true
@@ -131,9 +131,9 @@ object ItemsRepo {
             }
 
             userRef.collection(ITEMS_DB).document(itemID).set(mapOf(
-                "item_name" to item.getItemName(),
-                "item_type" to item.getItemTypeID(),
-                "item_description" to item.getItemDesc(),
+                "item_name" to item.itemName,
+                "item_type" to item.itemTypeID,
+                "item_description" to item.itemDesc,
                 "is_lost" to item.isLost()
             )).await()
 

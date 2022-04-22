@@ -22,8 +22,6 @@ import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
 import com.github.brugapp.brug.view_model.ConversationListAdapter
-import com.github.brugapp.brug.view_model.ListCallback
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +33,8 @@ const val CHAT_INTENT_KEY = "conversation"
 
 
 class ChatMenuActivity : AppCompatActivity() {
+
+    private val viewModel: ChatMenuViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,41 +84,9 @@ class ChatMenuActivity : AppCompatActivity() {
             listViewAdapter
         )
 
-        val listCallback = ListCallback(CHAT_CHECK_TEXT, dragPair, swipePair, listAdapterPair){ delConv ->
-            liveData(Dispatchers.IO){
-                emit(
-                    ConvRepo.deleteConversationFromID(delConv.convId, Firebase.auth.currentUser!!.uid))
-            }.observe(this){ response ->
-                if(response.onSuccess){
-                    val position = conversations.indexOf(delConv)
-                    conversations.removeAt(position)
-                    listViewAdapter.notifyItemRemoved(position)
-
-                    Snackbar.make(listView,
-                        CHAT_CHECK_TEXT,
-                        Snackbar.LENGTH_LONG).setAction("Undo") {
-                        liveData(Dispatchers.IO){
-                            emit(
-                                ConvRepo.addNewConversation(Firebase.auth.currentUser!!.uid, delConv.userFields.uid, delConv.lostItemName)
-                            )}.observe(this){
-                            if(!response.onSuccess){
-                                Snackbar.make(listView,
-                                    "ERROR: Unable to re-add requested conversation to database",
-                                    Snackbar.LENGTH_LONG).show()
-                            }
-                        }
-
-                        conversations.add(position, delConv)
-                        listViewAdapter.notifyItemInserted(position)
-                    }.show()
-                } else {
-                    Snackbar.make(listView,
-                        "ERROR: Unable to delete requested item from database",
-                        Snackbar.LENGTH_LONG).show()
-                }
-            }
-        }
+        val listCallback = viewModel.setCallback(this, dragPair, swipePair, listAdapterPair)
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
+
         listView.adapter = listViewAdapter
         listView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
     }

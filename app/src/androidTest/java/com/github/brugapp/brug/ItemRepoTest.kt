@@ -47,7 +47,7 @@ class ItemRepoTest {
 
     @Test
     fun updateNonExistentItemReturnsError() = runBlocking {
-        val updatedItem = MyItem("AirPods 3", 1, ITEM.getItemDesc(), ITEM.isLost())
+        val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         assertThat(ItemsRepo.updateItemFields(updatedItem, DUMMY_UID).onError, IsNot(IsNull.nullValue()))
     }
 
@@ -55,7 +55,7 @@ class ItemRepoTest {
     fun updateItemReturnsSuccessfully() = runBlocking {
         ITEM.setItemID(ITEM_ID)
         ItemsRepo.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID)
-        val updatedItem = MyItem("AirPods 3", 1, ITEM.getItemDesc(), ITEM.isLost())
+        val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepo.updateItemFields(updatedItem, DUMMY_UID).onSuccess, IsEqual(true))
 
