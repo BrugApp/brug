@@ -29,7 +29,7 @@ object UserRepo {
      *
      * @return FirebaseResponse object, denoting if the new entry has correctly been added to the database
      */
-    suspend fun addAuthUserFromAccount(authUID: String, account: SignInAccount): FirebaseResponse { //user: MyUser)
+    suspend fun addAuthUserFromAccount(authUID: String, account: SignInAccount): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
@@ -37,8 +37,7 @@ object UserRepo {
             if(!userDoc.get().await().exists()){
                 Firebase.firestore.collection(USERS_DB).document(authUID).set(mapOf(
                     "first_name" to account.firstName,
-                    "last_name" to account.lastName,
-                    "user_icon" to "" //TODO: CHANGE AFTER WE IMPLEMENT USER CREATION HANDLING ADDING PROFILE PIC (MAYBE)
+                    "last_name" to account.lastName
                 )).await()
             }
 

@@ -9,6 +9,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -20,14 +21,28 @@ private var ITEM = MyItem("AirPods Pro Max", 0, "My Beloved AirPods", false)
 
 class ItemRepoTest {
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
-    private fun addUser() = runBlocking {
+    private fun addUserAndItem() = runBlocking {
         UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
         ItemsRepo.addItemToUser(ITEM, DUMMY_UID)
     }
 
+    private fun wipeAllItems() = runBlocking {
+        ItemsRepo.deleteAllUserItems(DUMMY_UID)
+    }
+
     @Before
     fun setUp() {
-        addUser()
+        addUserAndItem()
+    }
+
+    @After
+    fun cleanUp() {
+        wipeAllItems()
+    }
+
+    @Test
+    fun addItemWithIDToWrongUserReturnsError() = runBlocking {
+        assertThat(ItemsRepo.addItemWithItemID(ITEM, ITEM_ID, "WRONGUID").onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
@@ -46,8 +61,18 @@ class ItemRepoTest {
     }
 
     @Test
-    fun updateNonExistentItemReturnsError() = runBlocking {
+    fun updateItemOfNonExistentUserReturnsError() = runBlocking {
+        ItemsRepo.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID)
         val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        updatedItem.setItemID(ITEM_ID)
+        assertThat(ItemsRepo.updateItemFields(updatedItem, "WRONGUID").onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun updateNonExistentItemReturnsError() = runBlocking {
+        ItemsRepo.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID)
+        val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        updatedItem.setItemID("WRONGITEMID")
         assertThat(ItemsRepo.updateItemFields(updatedItem, DUMMY_UID).onError, IsNot(IsNull.nullValue()))
     }
 
@@ -65,6 +90,11 @@ class ItemRepoTest {
     }
 
     @Test
+    fun deleteItemFromWrongUserReturnsError() = runBlocking {
+        assertThat(ItemsRepo.deleteItemFromUser(ITEM_ID, "WRONGUID").onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
     fun deleteWrongItemReturnsError() = runBlocking {
         assertThat(ItemsRepo.deleteItemFromUser("WRONGITEMID", DUMMY_UID).onError, IsNot(IsNull.nullValue()))
     }
@@ -77,6 +107,16 @@ class ItemRepoTest {
         val items = ItemsRepo.getUserItemsFromUID(DUMMY_UID)
         assertThat(items, IsNot(IsNull.nullValue()))
         assertThat(items!!.contains(ITEM), IsEqual(false))
+    }
+
+    @Test
+    fun deleteAllItemsOfWrongUserReturnsError() = runBlocking {
+        assertThat(ItemsRepo.deleteAllUserItems("WRONGUID").onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun getItemsFromWrongUserReturnsNull() = runBlocking {
+        assertThat(ItemsRepo.getUserItemsFromUID("WRONGUID"), IsNull.nullValue())
     }
 
 }

@@ -143,7 +143,7 @@ class MessageRepoTest {
 
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
         val authUser = Firebase.auth
-            .signInWithEmailAndPassword("unlost.app@gmail.com", "brugsdpProject1")
+            .signInWithEmailAndPassword("test@unlost.com", "123456")
             .await()
             .user
         assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
@@ -154,15 +154,14 @@ class MessageRepoTest {
             picMsg,
             USER_ID1,
             "${USER_ID1}${USER_ID2}")
-        Firebase.auth.signOut()
         assertThat(response.onSuccess, IsEqual(true))
 
         // CHECK IF MESSAGE HAS BEEN ADDED CORRECTLY
         val conv = ConvRepo.getUserConvFromUID(USER_ID1)!!.filter {
             it.convId == "${USER_ID1}${USER_ID2}"
         }
+        Firebase.auth.signOut()
         assertThat(conv.isNullOrEmpty(), IsEqual(false))
-
         val splitPath = filePath.toString().split("/")
         val firebasePicMessage = PicMessage(picMsg.senderName,
             picMsg.timestamp,

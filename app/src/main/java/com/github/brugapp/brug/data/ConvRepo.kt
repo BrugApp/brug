@@ -2,15 +2,6 @@ package com.github.brugapp.brug.data
 
 import android.util.Log
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.message_types.AudioMessage
-import com.github.brugapp.brug.model.message_types.LocationMessage
-import com.github.brugapp.brug.model.message_types.PicMessage
-import com.github.brugapp.brug.model.services.DateService
-import com.github.brugapp.brug.model.services.LocationService
-import com.google.firebase.Timestamp
-import com.google.firebase.firestore.GeoPoint
-import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -37,10 +28,16 @@ object ConvRepo {
         val response = FirebaseResponse()
 
         try {
-            //FIRST CHECK IF THE OTHER USER EXISTS OR NOT
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            //FIRST CHECK IF THE USERS EXIST OR NOT
+            val userRef = Firebase.firestore.collection(USERS_DB).document(thisUID)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            val otherUserRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            if(!otherUserRef.get().await().exists()){
+                response.onError = Exception("Interlocutor user doesn't exist")
                 return response
             }
 
@@ -52,8 +49,8 @@ object ConvRepo {
             )).await()
 
             // THEN ADD NEW CONV_REF ENTRY IN EACH USER'S CONV_REFS COLLECTION
-            Firebase.firestore.collection(USERS_DB).document(thisUID).collection(CONV_REFS_DB).document(convID).set({}).await()
-            Firebase.firestore.collection(USERS_DB).document(uid).collection(CONV_REFS_DB).document(convID).set({}).await()
+            userRef.collection(CONV_REFS_DB).document(convID).set({}).await()
+            otherUserRef.collection(CONV_REFS_DB).document(convID).set({}).await()
 
             response.onSuccess = true
         } catch (e: Exception){
@@ -155,7 +152,6 @@ object ConvRepo {
         }
     }
 
-    //TODO: ADD ERROR MESSAGES IN LOG
     private suspend fun getConvFromRefID(convID: String, authUserID: String): Conversation? {
         try {
             //FETCH CONV_DOC FROM ID
@@ -179,7 +175,7 @@ object ConvRepo {
             val messageUserName = userFields.getFullName()
             val messages = convSnapshot.reference.collection(MSG_DB).get().await()
                 .mapNotNull { message ->
-                    getMessageFromSnapshot(message, messageUserName, authUserID)
+                    MessageRepo.getMessageFromSnapshot(message, messageUserName, authUserID)
                 }.sortedBy { it.timestamp.getSeconds() }
             if(messages.isEmpty()) {
                 Log.e("FIREBASE ERROR", "Empty Message List")
@@ -190,38 +186,6 @@ object ConvRepo {
         } catch(e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             return null
-        }
-    }
-
-    private fun getMessageFromSnapshot(snapshot: QueryDocumentSnapshot, userName: String, authUserID: String): Message? {
-        if(!snapshot.contains("sender")
-            || !snapshot.contains("timestamp")
-            || !snapshot.contains("body")){
-            Log.e("FIREBASE ERROR", "Invalid Message Format")
-            return null
-        }
-
-        //TODO: CHECK IF SENDERNAME IS NOT EMPTY
-        val senderName = if((snapshot["sender"] as String) != authUserID) userName else "Me"
-
-        val message = Message(
-            senderName,
-            DateService.fromFirebaseTimestamp(snapshot["timestamp"] as Timestamp),
-            snapshot["body"] as String,
-        )
-
-        //TODO: CLEANUP CODE A BIT MORE TO AVOID COPIES OF ATTRIBUTES
-        return when {
-            snapshot.contains("location") ->
-                LocationMessage.fromTextMessage(message,
-                    LocationService.fromGeoPoint(snapshot["location"] as GeoPoint))
-
-            snapshot.contains("image_url") ->
-                PicMessage.fromTextMessage(message, snapshot["image_url"] as String)
-
-            snapshot.contains("audio_url") ->
-                AudioMessage.fromTextMessage(message, snapshot["audio_url"] as String)
-            else -> message
         }
     }
 

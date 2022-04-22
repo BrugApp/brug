@@ -25,11 +25,22 @@ class UserRepoTest {
     }
 
     @Test
+    fun getMinimalUserWithGoodUIDReturnsUser() = runBlocking {
+        assertThat(UserRepo.getMinimalUserFromUID(DUMMY_UID), IsNot(IsNull.nullValue()))
+    }
+
+    @Test
     fun addAuthUserCorrectlyAddsUser() = runBlocking {
         assertThat(UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT).onSuccess, IsEqual(true))
         val user = UserRepo.getMinimalUserFromUID(DUMMY_UID)
         assertThat(user, IsNot(IsNull.nullValue()))
         assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null)))
+    }
+
+    @Test
+    fun updateUserFieldsOfInexistentUserReturnsError() = runBlocking {
+        val wrongUser = MyUser("WRONGUID", "BAD", "USER", null)
+        assertThat(UserRepo.updateUserFields(wrongUser).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
@@ -44,6 +55,33 @@ class UserRepoTest {
     }
 
     @Test
+    fun updateUserIconWithoutAuthReturnsError() = runBlocking {
+        // CREATE DRAWABLE
+        val drawable = ApplicationProvider.getApplicationContext<Context>().getDrawable(R.drawable.ic_baseline_person_24)
+        assertThat(drawable, IsNot(IsNull.nullValue()))
+
+        assertThat(UserRepo.updateUserIcon(DUMMY_UID, drawable!!).onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun updateUserIconToInexistentUserReturnsError() = runBlocking {
+        // CREATE DRAWABLE
+        val drawable = ApplicationProvider.getApplicationContext<Context>().getDrawable(R.drawable.ic_baseline_person_24)
+        assertThat(drawable, IsNot(IsNull.nullValue()))
+
+        // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
+        val authUser = Firebase.auth
+            .signInWithEmailAndPassword("test@unlost.com", "123456")
+            .await()
+            .user
+        assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
+        assertThat(Firebase.auth.currentUser!!.uid, IsEqual(authUser!!.uid))
+
+        assertThat(UserRepo.updateUserIcon("WRONGUID", drawable!!).onError, IsNot(IsNull.nullValue()))
+        Firebase.auth.signOut()
+    }
+
+    @Test
     fun updateUserIconWithAuthCorrectlyUpdatesIcon() = runBlocking {
         // CREATE DRAWABLE
         val drawable = ApplicationProvider.getApplicationContext<Context>().getDrawable(R.drawable.ic_baseline_person_24)
@@ -51,7 +89,7 @@ class UserRepoTest {
 
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
         val authUser = Firebase.auth
-            .signInWithEmailAndPassword("unlost.app@gmail.com", "brugsdpProject1")
+            .signInWithEmailAndPassword("test@unlost.com", "123456")
             .await()
             .user
         assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
@@ -71,10 +109,26 @@ class UserRepoTest {
     }
 
     @Test
+    fun resetUserIconOfInexistentUserReturnsError() = runBlocking {
+        assertThat(UserRepo.resetUserIcon("WRONGUID").onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun resetUserIconOfExistingUserReturnsSuccessfully() = runBlocking {
+        assertThat(UserRepo.resetUserIcon(DUMMY_UID).onSuccess, IsEqual(true))
+    }
+
+
+    @Test
     fun deleteUserReturnsSuccessfully() = runBlocking {
         UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
 //        UserRepo.addAuthUser(DUMMY_USER)
         assertThat(UserRepo.deleteUserFromID(DUMMY_UID).onSuccess, IsEqual(true))
         assertThat(UserRepo.getMinimalUserFromUID(DUMMY_UID), IsNull.nullValue())
+    }
+
+    @Test
+    fun deleteInexistentUserReturnsError() = runBlocking {
+        assertThat(UserRepo.deleteUserFromID("WRONGUID").onError, IsNot(IsNull.nullValue()))
     }
 }

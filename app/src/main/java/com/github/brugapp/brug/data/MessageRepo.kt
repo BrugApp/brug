@@ -6,7 +6,12 @@ import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.services.DateService
+import com.github.brugapp.brug.model.services.LocationService
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.GeoPoint
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -74,6 +79,41 @@ object MessageRepo {
             addResponse.onError = e
         }
         return addResponse
+    }
+
+    suspend fun getMessageFromSnapshot(snapshot: QueryDocumentSnapshot, userName: String, authUserID: String): Message? {
+        if(!snapshot.contains("sender")
+            || !snapshot.contains("timestamp")
+            || !snapshot.contains("body")){
+            Log.e("FIREBASE ERROR", "Invalid Message Format")
+            return null
+        }
+
+        //TODO: CHECK IF SENDERNAME IS NOT EMPTY
+        val senderName = if((snapshot["sender"] as String) != authUserID) userName else "Me"
+
+        val message = Message(
+            senderName,
+            DateService.fromFirebaseTimestamp(snapshot["timestamp"] as Timestamp),
+            snapshot["body"] as String,
+        )
+
+        return when {
+            snapshot.contains("location") ->
+                LocationMessage.fromTextMessage(message,
+                    LocationService.fromGeoPoint(snapshot["location"] as GeoPoint))
+
+            snapshot.contains("image_url") ->
+                PicMessage.fromTextMessage(message,
+                    downloadFileToTemp(snapshot["image_url"] as String).toString()
+                )
+
+            snapshot.contains("audio_url") ->
+                AudioMessage.fromTextMessage(message,
+                    downloadFileToTemp(snapshot["audio_url"] as String).toString()
+                )
+            else -> message
+        }
     }
 
 
