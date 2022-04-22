@@ -141,6 +141,7 @@ class ProfileUserTest {
 
     @Test
     fun initProfilePictureAndChange(){
+        Thread.sleep(30000)
         correctProfilePictureDisplayed()
         cleanUp()
         setUp()

@@ -28,8 +28,8 @@ class SignInViewModel @Inject constructor(
 
     fun handleSignInResult(it: Intent?): AuthCredential? {
         val currentAccount = signInResultHandler.handleSignInResult(it)
+        currentUser = createNewBrugUser(currentAccount)
         return credentialGetter.getCredential(currentAccount?.idToken)
-//        currentUser = createNewBrugUser(currentAccount)
     }
 
     fun getSignInIntent(): Intent {
@@ -44,7 +44,7 @@ class SignInViewModel @Inject constructor(
 
     // return new Brug User from SignInAccount
     private fun createNewBrugUser(account: SignInAccount?): MyUser? {
-        if (account == null) return null
+        if (account == null || auth.uid == null) return null
         return runBlocking {
             val response = UserRepo.addAuthUserFromAccount(auth.uid!!, account)
             if(response.onSuccess){
