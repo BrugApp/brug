@@ -1,8 +1,6 @@
 package com.github.brugapp.brug.data
 
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
@@ -27,8 +25,7 @@ object UserRepo {
      * Adds a new user after a new account has been created, if the authenticated one is not already present in the database.
      *
      * @param authUID the user ID of the authenticated user
-     * @param firstName the "first name" parameter of the new user
-     * @param lastName the "last name" parameter of the new user
+     * @param account the account with informations to populate the new user entry
      *
      * @return FirebaseResponse object, denoting if the new entry has correctly been added to the database
      */
@@ -83,7 +80,7 @@ object UserRepo {
     /**
      * Uploads & updates the userIcon parameter of a given user to Firebase, just after it was updated in local.
      *
-     * @param thisUID the user ID for which the image will be modified
+     * @param uid the user ID for which the image will be modified
      * @param newIcon the image to upload
      *
      * @return FirebaseResponse object, denoting if the upload + update to Firebase was successful
@@ -121,10 +118,31 @@ object UserRepo {
         return response
     }
 
+    /* ONLY FOR TEST PURPOSES */
+    suspend fun resetUserIcon(uid: String): FirebaseResponse {
+        val response = FirebaseResponse()
+        try {
+            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            if(!userRef.get().await().exists()){
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            Firebase.firestore.collection(USERS_DB).document(uid).update(mapOf(
+                "user_icon" to ""
+            )).await()
+            response.onSuccess = true
+        } catch(e: Exception) {
+            response.onError = e
+        }
+
+        return response
+    }
+
     /**
      * Deletes a user from the database, given a user ID.
      *
-     * @param thisUID the user ID
+     * @param uid the user ID
      *
      * @return FirebaseResponse object, denoting if the deletion was successful
      */
@@ -149,7 +167,7 @@ object UserRepo {
     /**
      * Fetches a user without its Items nor its Conversation objects, given a user ID.
      *
-     * @param thisUID the user ID
+     * @param uid the user ID
      *
      * @return MyUser object instantiated with the parameters held in Firebase, or a null value in case of error
      */
