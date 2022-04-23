@@ -16,14 +16,12 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
-import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.ui.ProfilePictureSetActivity
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -38,9 +36,7 @@ import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.hamcrest.Description
-import org.hamcrest.Matchers.nullValue
 import org.hamcrest.TypeSafeMatcher
-import org.hamcrest.core.Is
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
