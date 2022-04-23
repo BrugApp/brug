@@ -65,7 +65,10 @@ class ConvRepoTest {
         val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM_NAME, mutableListOf())
         val convList = ConvRepo.getUserConvFromUID(USER_ID1)
         assertThat(convList.isNullOrEmpty(), IsEqual(false))
-        assertThat(convList!!.contains(conversation), IsEqual(true))
+        val conv = convList!!.last()
+        assertThat(conv.convId, IsEqual(conversation.convId))
+        assertThat(conv.lostItemName, IsEqual(conversation.lostItemName))
+        assertThat(conv.userFields, IsEqual(conversation.userFields))
     }
 
     @Test
