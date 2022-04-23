@@ -40,6 +40,7 @@ class MapsActivityTest {
         }
 
         ActivityScenario.launch<MapsActivity>(intent)
+        TODO("test marker")
     }
 
     @Test
