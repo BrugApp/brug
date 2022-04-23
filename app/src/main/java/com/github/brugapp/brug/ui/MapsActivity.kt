@@ -48,9 +48,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         if (intent.extras != null) {
-            var destinationLatitude: Double? = null
-            var destinationLongitude: Double? = null
-            var destinationName: String? = null
+            var destinationLatitude: Double?
+            var destinationLongitude: Double?
+            var destinationName: String?
 
             (intent.extras!!.get(EXTRA_LATITUDE) as Double?).apply {
                 destinationLatitude = this
