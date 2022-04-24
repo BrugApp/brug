@@ -41,12 +41,6 @@ class User// later generate id
             throw IllegalArgumentException("Invalid email !")
 
         }
-        //items = mutableListOf(
-        //    Item("Phone", "Samsung Galaxy S22", generateId()).setType(ItemType.Phone),
-        //    Item("Wallet", "With all my belongings", generateId()).setType(ItemType.Wallet),
-        //    Item("BMW Key", "BMW M3 F80 Competition", (1..100).random().toString()).setType(ItemType.CarKeys),
-        //    Item("Keys","House and everything else", (1..100).random().toString()).setType(ItemType.Keys)
-        //)
         items = tripleList.map { generateItem(it.first,it.second,it.third) }.toMutableList()
     }
 
