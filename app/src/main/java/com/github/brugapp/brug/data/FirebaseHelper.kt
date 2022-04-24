@@ -319,7 +319,8 @@ object FirebaseHelper {
                 message.senderName,
                 message.timestamp,
                 message.body,
-                LocationService.fromGeoPoint(snapshot["location"] as GeoPoint)
+                LocationService.fromGeoPoint(snapshot["location"] as GeoPoint),
+                ""
             )
             snapshot.contains("image_url") -> return PicMessage(
                 message.senderName,

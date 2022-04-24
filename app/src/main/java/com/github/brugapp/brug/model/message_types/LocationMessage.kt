@@ -8,5 +8,6 @@ data class LocationMessage(
     override val senderName: String,
     override val timestamp: DateService,
     override val body: String,
-    val location: LocationService
+    val location: LocationService,
+    val mapUrl: String
 ) : Message(senderName, timestamp, body)

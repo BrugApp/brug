@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.view_model
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -45,7 +46,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 //TODO: NEEDS REFACTORING & DOCUMENTATION
-class ChatViewModel : ViewModel() {
+class ChatViewModel(context: Context) : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
     private lateinit var audioPath : String
@@ -53,7 +54,7 @@ class ChatViewModel : ViewModel() {
     private val STORAGE_REQUEST_CODE = 2000
     // For the localisation
     private val locationRequestCode = 1
-    private val locationListener = LocationListener { sendLocation(it) }
+    private val locationListener = LocationListener { sendLocation(it, context) }
 
     //TODO: REMOVE INITIAL INITIALIZATION AND REVERT TO LATEINIT VAR
     // For the list of messages
@@ -125,7 +126,7 @@ class ChatViewModel : ViewModel() {
 
         fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
             if (lastKnownLocation != null) {
-                sendLocation(lastKnownLocation)
+                sendLocation(lastKnownLocation, activity)
             } else {
                 // Launch the locationListener (updates every 1000 ms)
                 val locationGpsProvider = LocationManager.GPS_PROVIDER
@@ -133,7 +134,7 @@ class ChatViewModel : ViewModel() {
                     locationGpsProvider,
                     50,
                     0.1f
-                ) { sendLocation(it) }
+                ) { sendLocation(it, activity) }
 
                 // Stop the update as we only want it once (at least for now)
                 locationManager.removeUpdates(locationListener)
@@ -141,10 +142,37 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    private fun sendLocation(location: Location) {
+    @SuppressLint("NewApi")
+    private fun sendLocation(location: Location, context: Context) {
         //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
 //        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
-        val newMessage = LocationMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), LocationService.fromAndroidLocation(location).toString(), LocationService.fromAndroidLocation(location))//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
+
+        // create bitmap before implementation with API
+        // ====
+        val encodedImage =
+            "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
+        val decodedImage = Base64.getDecoder().decode(encodedImage)
+        val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
+
+        // store to outputstream
+        val outputStream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+        // create uri for file
+        val imageFile = createImageFile(context)
+        val uri = FileProvider.getUriForFile(
+            context,
+            "com.github.brugapp.brug.fileprovider",
+            imageFile
+        )
+
+        // store bitmap to file
+        imageFile.writeBytes(outputStream.toByteArray())
+        outputStream.flush()
+        outputStream.close()
+        // ==== remove previous code once we use the api
+
+        val newMessage = LocationMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), LocationService.fromAndroidLocation(location).toString(), LocationService.fromAndroidLocation(location), uri.toString())//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
         messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)
         // TODO: Removed from now (to prevent the use of Firebase)
@@ -178,8 +206,8 @@ class ChatViewModel : ViewModel() {
     }
 
     // Create a File for saving the image (and the name)
-    private fun createImageFile(activity: ChatActivity): File {
-        val storageDir: File? = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    private fun createImageFile(cont: Context): File {
+        val storageDir: File? = cont.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
             "JPEG_${simpleDateFormat.format(Date())}_",
             ".jpg",
