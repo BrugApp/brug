@@ -74,8 +74,8 @@
         android:layout_below="@+id/rellay1">
 
         <LinearLayout
-            android:layout_width="175dp"
-            android:layout_height="321dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -92,6 +92,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
                     android:text="@string/device_name"
                     android:textColor="@color/headings"
                     android:textSize="13sp" />
@@ -100,6 +101,7 @@
                     android:id="@+id/item_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
                     android:fontFamily="sans-serif-light"
                     android:text=""
                     android:textColor="#000000"
@@ -122,6 +124,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
                     android:text="@string/owner"
                     android:textColor="@color/headings"
                     android:textSize="13sp" />
@@ -130,6 +133,7 @@
                     android:id="@+id/item_owner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
                     android:fontFamily="sans-serif-light"
                     android:text=""
                     android:textColor="#000000"
@@ -152,6 +156,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
                     android:text="@string/last_location"
                     android:textColor="@color/headings"
                     android:textSize="13sp" />
@@ -160,6 +165,7 @@
                     android:id="@+id/item_last_location"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
                     android:fontFamily="sans-serif-light"
                     android:text=""
                     android:textColor="#000000"
@@ -184,6 +190,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/is_lost"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
                     android:textColor="@color/headings" />
             </LinearLayout>
 
@@ -197,8 +205,8 @@
                     android:id="@+id/qrGen"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/qr_code"
                     android:layout_gravity="center"
+                    android:text="@string/qr_code"
                     tools:layout_editor_absoluteX="156dp"
                     tools:layout_editor_absoluteY="445dp" />
             </LinearLayout>
