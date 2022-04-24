@@ -36,9 +36,6 @@ import java.io.File
 object FirebaseHelper {
 
     private val mAuth: FirebaseAuth = Firebase.auth
-
-
-
-
+    //we keep this class for future temporary functions before their repository is created
 
 }

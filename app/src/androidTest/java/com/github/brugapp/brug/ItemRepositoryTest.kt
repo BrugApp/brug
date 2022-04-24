@@ -6,6 +6,7 @@ import com.github.brugapp.brug.model.Item
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.`is`
 import org.hamcrest.core.IsNull
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -15,6 +16,21 @@ class ItemRepositoryTest {
     private val uid = "7IsGzvjHKd0KeeKK722m"
     private val convID = "7IsGzvjHKd0KeeKK722mdFtGLE0x08pstMeP68TH"
     val firestore = Firebase.firestore
+
+    @Test
+    fun getEveryItemFromGoodUser(){
+        val check = mutableListOf<Item?>()
+        val itemList: List<Item?> =
+            ItemRepository.getEveryItemFromUser(uid) //good uid
+        assertThat(itemList, `is`(check))
+    }
+
+    @Test
+    fun getEveryItemFromBadUser(){
+        val itemList: List<Item?> =
+            ItemRepository.getEveryItemFromUser("baduidthiscantwork!!") //bad uid
+        assert(itemList.isEmpty())
+    }
 
     @Test
     fun getBadItemFromCurrentUserTest() {

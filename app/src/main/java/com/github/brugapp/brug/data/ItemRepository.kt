@@ -58,4 +58,17 @@ object ItemRepository {
             return null
         }
     }
+
+    //returns all items owned by a User in a list if this User exists
+    fun getEveryItemFromUser(userID: String): List<Item?> {
+        var itemDocuments = mutableListOf<Item?>()
+        val itemsTask = Firebase.firestore.collection("Users").document(userID).collection("Items").get().addOnSuccessListener { result ->
+            for(document in result){
+                itemDocuments.add(getItemFromCurrentUser(userID,document.id))
+            }
+        }.addOnFailureListener { exceptionType ->
+            Log.d(TAG, "Error getting item documents for this User: ", exceptionType)
+        }
+        return itemDocuments;
+    }
 }
