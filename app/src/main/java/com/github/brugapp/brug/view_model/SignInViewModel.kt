@@ -61,5 +61,4 @@ class SignInViewModel @Inject constructor(
     fun getAuth(): AuthDatabase {
         return auth
     }
-
 }
