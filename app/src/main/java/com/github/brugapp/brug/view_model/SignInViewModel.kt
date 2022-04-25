@@ -2,15 +2,12 @@ package com.github.brugapp.brug.view_model
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.model.MyUser
-import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
@@ -86,9 +83,12 @@ class SignInViewModel @Inject constructor(
     private fun createNewBrugUser(account: SignInAccount?): MyUser? {
         if (account == null || auth.uid == null) return null
         return runBlocking {
-            val response = UserRepo.addAuthUserFromAccount(auth.uid!!, account)
-            if(response.onSuccess){
-                UserRepo.getMinimalUserFromUID(auth.uid!!)
+            val user = UserRepo.getMinimalUserFromUID(auth.uid!!)
+            if(user == null){
+                val response = UserRepo.addAuthUserFromAccount(auth.uid!!, account)
+                if(response.onSuccess){
+                    UserRepo.getMinimalUserFromUID(auth.uid!!)
+                }
             }
             null
         }
