@@ -49,7 +49,6 @@ class MapsActivityTest {
         ActivityScenario.launch<MapsActivity>(intent).use {
             val navigateButton = Espresso.onView(ViewMatchers.withId(R.id.navigateButton))
             navigateButton.perform(ViewActions.click())
-
             Intents.intended(toPackage("com.google.android.apps.maps"))
         }
     }

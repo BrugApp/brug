@@ -75,51 +75,51 @@ class ChatMenuActivityTest {
         intended(hasComponent(SettingsActivity::class.java.name))
     }
 
-//    @Test
-//    fun swipeLeftOnItemTriggersSnackBar() {
-//        Thread.sleep(10000)
-//        val chatList = onView(withId(R.id.chat_listview))
-//        val snackBar =
-//            onView(withId(com.google.android.material.R.id.snackbar_text))
-//        chatList.perform(
-//            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-//                0, GeneralSwipeAction(
-//                    Swipe.SLOW, GeneralLocation.BOTTOM_RIGHT, GeneralLocation.BOTTOM_LEFT,
-//                    Press.FINGER
-//                )
-//            )
-//        )
-//        snackBar.check(matches(withText(CHAT_CHECK_TEXT)))
-//    }
+    @Test
+    fun swipeLeftOnItemTriggersSnackBar() {
+        Thread.sleep(10000)
+        val chatList = onView(withId(R.id.chat_listview))
+        val snackBar =
+            onView(withId(com.google.android.material.R.id.snackbar_text))
+        chatList.perform(
+            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
+                0, GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.BOTTOM_RIGHT, GeneralLocation.BOTTOM_LEFT,
+                    Press.FINGER
+                )
+            )
+        )
+        snackBar.check(matches(withText(CHAT_CHECK_TEXT)))
+    }
 
-//    @Test
-//    fun swipeRightOnItemDeletesItem() { //FAILING -> NEEDS ASYNCHRONY
-//        Thread.sleep(10000)
-//        val chatList = onView(withId(R.id.chat_listview))
-//        val snackBar =
-//            onView(withId(com.google.android.material.R.id.snackbar_text))
-//        chatList.perform(
-//            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-//                0, GeneralSwipeAction(
-//                    Swipe.SLOW, GeneralLocation.BOTTOM_LEFT, GeneralLocation.BOTTOM_RIGHT,
-//                    Press.FINGER
-//                )
-//            )
-//        )
-//        snackBar.check(matches(withText(CHAT_CHECK_TEXT)))
-//    }
+    @Test
+    fun swipeRightOnItemDeletesItem() { //FAILING -> NEEDS ASYNCHRONY
+        Thread.sleep(10000)
+        val chatList = onView(withId(R.id.chat_listview))
+        val snackBar =
+            onView(withId(com.google.android.material.R.id.snackbar_text))
+        chatList.perform(
+            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
+                0, GeneralSwipeAction(
+                    Swipe.SLOW, GeneralLocation.BOTTOM_LEFT, GeneralLocation.BOTTOM_RIGHT,
+                    Press.FINGER
+                )
+            )
+        )
+        snackBar.check(matches(withText(CHAT_CHECK_TEXT)))
+    }
 
-//    @Test
-//    fun clickOnItemGoesToChatActivity() {
-//        Thread.sleep(10000)
-//        val chatList = onView(withId(R.id.chat_listview))
-//        chatList.perform(
-//            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-//                0, click()
-//            )
-//        )
-//        intended(hasComponent(ChatActivity::class.java.name))
-//    }
+    @Test
+    fun clickOnItemGoesToChatActivity() {
+        Thread.sleep(10000)
+        val chatList = onView(withId(R.id.chat_listview))
+        chatList.perform(
+            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
+                0, click()
+            )
+        )
+        intended(hasComponent(ChatActivity::class.java.name))
+    }
 
 
     @Test
