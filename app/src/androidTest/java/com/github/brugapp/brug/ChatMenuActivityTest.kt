@@ -6,12 +6,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
@@ -19,7 +17,6 @@ import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.data.ConvRepo
 import com.github.brugapp.brug.ui.*
-import com.github.brugapp.brug.view_model.ListViewHolder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -108,7 +105,6 @@ class ChatMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-//        Thread.sleep(10000)
 
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
@@ -126,9 +122,7 @@ class ChatMenuActivityTest {
     }
 
     @Test
-    fun swipeRightOnItemDeletesItem() { //FAILING -> NEEDS ASYNCHRONY
-//        Thread.sleep(10000)
-
+    fun swipeRightOnItemDeletesItem() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
@@ -145,8 +139,6 @@ class ChatMenuActivityTest {
 
     @Test
     fun clickOnItemGoesToChatActivity() {
-//        Thread.sleep(10000)
-
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))

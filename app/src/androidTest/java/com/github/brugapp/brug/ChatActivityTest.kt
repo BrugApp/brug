@@ -3,7 +3,6 @@ package com.github.brugapp.brug
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Drawable
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
@@ -17,13 +16,10 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-
 import com.github.brugapp.brug.model.Conversation
-
-import com.github.brugapp.brug.data.*
-import com.github.brugapp.brug.model.*
-import com.github.brugapp.brug.model.services.DateService
-
+import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.CoreMatchers.not
@@ -32,7 +28,6 @@ import org.hamcrest.Matcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 import java.time.LocalDateTime
 import java.time.Month
 
@@ -51,7 +46,7 @@ class ChatActivityTest {
 
     private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null)
 
-    private val dummyDate = DateService.fromLocalDateTime(
+    private val dummyDate = fromLocalDateTime(
         LocalDateTime.of(
             2022, Month.MARCH, 23, 15, 30
         )
