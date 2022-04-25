@@ -47,11 +47,11 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
 
     override fun getItemViewType(position: Int): Int {
         val message: Message = messageList[position]
-        return if(message.senderName == "Me"){
-            if(message is PicMessage) TYPE_IMAGE_LEFT.ordinal
+        return if (message.senderName == "Me") {
+            if (message is PicMessage) TYPE_IMAGE_LEFT.ordinal
             else TYPE_MESSAGE_LEFT.ordinal
         } else {
-            if(message is PicMessage) TYPE_IMAGE_RIGHT.ordinal
+            if (message is PicMessage) TYPE_IMAGE_RIGHT.ordinal
             else TYPE_MESSAGE_RIGHT.ordinal
         }
     }

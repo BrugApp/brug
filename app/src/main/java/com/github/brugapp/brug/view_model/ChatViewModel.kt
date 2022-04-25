@@ -154,9 +154,6 @@ class ChatViewModel : ViewModel() {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
             startActivityForResult(activity, intent, TAKE_PICTURE_REQUEST_CODE, null)
         }
-        else {
-            println("==== AAAAAA ==== ")
-        }
     }
 
     fun setImageUri(uri: Uri) {
