@@ -24,7 +24,7 @@ class AuthFirebase : AuthDatabase() {
             .addOnCompleteListener(activity) { task ->
                 if (task.isSuccessful) {
                     // Sign in success, update UI with the signed-in user's information
-                    activity.updateUI(task.result.user?.let { DatabaseUserFirebase(it) })
+                    activity.updateUI(currentUser)
                 }
             }
     }
