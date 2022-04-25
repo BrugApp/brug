@@ -96,6 +96,7 @@ class SignInActivityTestFakeHandler {
     }
 
 
+    /*
     @Test
     fun signInActivityAsksUserToSignInForNotSignedInUser() {
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
@@ -109,6 +110,7 @@ class SignInActivityTestFakeHandler {
                 .check(matches(isDisplayed()))
         }
     }
+    */
 
     @Test
     fun activityResultOKTest() {
