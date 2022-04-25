@@ -222,7 +222,6 @@ class ChatActivityTest {
     fun recordButtonInAfterMessage() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
         }
