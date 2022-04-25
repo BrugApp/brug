@@ -116,17 +116,11 @@ class ChatActivity : AppCompatActivity() {
         val adapter = model.getAdapter()
         messageList.adapter = adapter
 
-        val locationItems = mutableListOf<Int>()
-        for (m in conversation.messages){
-            if(m is LocationMessage){
-                locationItems.add(conversation.messages.indexOf(m))
-            }
-        }
         adapter.setOnItemClickListener(object: ChatMessagesListAdapter.onItemClickListener{
             override fun onItemClick(position: Int) {
-                if(position in locationItems){
+                if(adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
+                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal)
                     Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_LONG).show()
-                }
             }
         })
 
