@@ -46,15 +46,15 @@ import java.time.LocalDateTime
 import java.util.*
 
 //TODO: NEEDS REFACTORING & DOCUMENTATION
-class ChatViewModel(context: Context) : ViewModel() {
+class ChatViewModel() : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
     private lateinit var audioPath : String
     private val RECORDING_REQUEST_CODE = 3000
     private val STORAGE_REQUEST_CODE = 2000
-    // For the localisation
     private val locationRequestCode = 1
-    private val locationListener = LocationListener { sendLocation(it, context) }
+    private val locationListener = LocationListener { sendLocation(it) }
+    private lateinit var activity: ChatActivity
 
     //TODO: REMOVE INITIAL INITIALIZATION AND REVERT TO LATEINIT VAR
     // For the list of messages
@@ -106,6 +106,7 @@ class ChatViewModel(context: Context) : ViewModel() {
         fusedLocationClient: FusedLocationProviderClient,
         locationManager: LocationManager
     ) {
+        this.activity = activity as ChatActivity
         if (ContextCompat.checkSelfPermission(
                 activity.applicationContext,
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -126,7 +127,7 @@ class ChatViewModel(context: Context) : ViewModel() {
 
         fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
             if (lastKnownLocation != null) {
-                sendLocation(lastKnownLocation, activity)
+                sendLocation(lastKnownLocation)
             } else {
                 // Launch the locationListener (updates every 1000 ms)
                 val locationGpsProvider = LocationManager.GPS_PROVIDER
@@ -134,7 +135,7 @@ class ChatViewModel(context: Context) : ViewModel() {
                     locationGpsProvider,
                     50,
                     0.1f
-                ) { sendLocation(it, activity) }
+                ) { sendLocation(it) }
 
                 // Stop the update as we only want it once (at least for now)
                 locationManager.removeUpdates(locationListener)
@@ -143,35 +144,12 @@ class ChatViewModel(context: Context) : ViewModel() {
     }
 
     @SuppressLint("NewApi")
-    private fun sendLocation(location: Location, context: Context) {
+    private fun sendLocation(location: Location) {
         //TODO: PROPERLY INITIALIZE NEW MESSAGE IN MESSAGERESPONSE WRAPPER
 //        val locationString = "longitude: ${location.longitude}; latitude: ${location.latitude}"
 
         // create bitmap before implementation with API
-        // ====
-        val encodedImage =
-            "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
-        val decodedImage = Base64.getDecoder().decode(encodedImage)
-        val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
-
-        // store to outputstream
-        val outputStream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-
-        // create uri for file
-        val imageFile = createImageFile(context)
-        val uri = FileProvider.getUriForFile(
-            context,
-            "com.github.brugapp.brug.fileprovider",
-            imageFile
-        )
-
-        // store bitmap to file
-        imageFile.writeBytes(outputStream.toByteArray())
-        outputStream.flush()
-        outputStream.close()
-        // ==== remove previous code once we use the api
-
+        val uri = activity.createFakeImage()
         val newMessage = LocationMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()), LocationService.fromAndroidLocation(location).toString(), LocationService.fromAndroidLocation(location), uri.toString())//ChatMessage(locationString, 0, LocalDateTime.now(), "Location")
         messages.add(newMessage)
         adapter.notifyItemInserted(messages.size - 1)

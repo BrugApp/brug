@@ -18,6 +18,15 @@ import java.time.format.DateTimeFormatter
 // Adapter that binds the list of messages to the instances of ChatItemModel
 class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
+    // for onclick on the items of the recycler
+    private lateinit var mListener: onItemClickListener
+    interface onItemClickListener {
+        fun onItemClick(position: Int)
+    }
+
+    fun setOnItemClickListener(listener: onItemClickListener){
+        mListener = listener
+    }
 
     enum class MessageType {
         TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT, TYPE_LOCATION_RIGHT, TYPE_LOCATION_LEFT
@@ -35,7 +44,7 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
         }
 
         val itemView = LayoutInflater.from(parent.context).inflate(layout, parent, false)
-        return ViewHolder(itemView)
+        return ViewHolder(itemView, mListener)
     }
 
     // Bind view with data models
@@ -67,7 +76,13 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
 //        }
 //    }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View, listener: onItemClickListener) : RecyclerView.ViewHolder(itemView) {
+        init {
+            itemView.setOnClickListener{
+                listener.onItemClick(adapterPosition)
+            }
+        }
+
         private fun formatDateTime(date: LocalDateTime): String {
             val formatter = DateTimeFormatter.ofPattern("dd/MM/yy - HH:mm")
             return date.format(formatter)
@@ -93,7 +108,6 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
             itemView.findViewById<ImageView>(R.id.map).setImageURI(Uri.parse(message.mapUrl))
         }
 
-        //TODO: CHANGE BINDINGS WHEN LAYOUTS ARE IMPLEMENTED
         fun bind(messageModel: Message) {
             when (messageModel) {
                 is LocationMessage -> bindLocationMessage(messageModel)

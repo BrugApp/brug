@@ -4,10 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.location.Location
 import android.location.LocationManager
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
@@ -16,15 +21,24 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
+import androidx.core.view.iterator
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devlomi.record_view.*
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ChatActivity : AppCompatActivity() {
 
@@ -46,6 +60,8 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var textMessage : EditText
 
     private lateinit var conversation: Conversation
+
+    private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,7 +112,23 @@ class ChatActivity : AppCompatActivity() {
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
         model.initViewModel(conversation.messages)
         messageList.layoutManager = LinearLayoutManager(this)
-        messageList.adapter = model.getAdapter()
+
+        val adapter = model.getAdapter()
+        messageList.adapter = adapter
+
+        val locationItems = mutableListOf<Int>()
+        for (m in conversation.messages){
+            if(m is LocationMessage){
+                locationItems.add(conversation.messages.indexOf(m))
+            }
+        }
+        adapter.setOnItemClickListener(object: ChatMessagesListAdapter.onItemClickListener{
+            override fun onItemClick(position: Int) {
+                if(position in locationItems){
+                    Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_LONG).show()
+                }
+            }
+        })
 
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItemName
@@ -314,5 +346,40 @@ class ChatActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
             }
         })
+    }
+
+    @SuppressLint("NewApi")
+    fun createFakeImage(): Uri? {
+        val encodedImage =
+            "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
+        val decodedImage = Base64.getDecoder().decode(encodedImage)
+        val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
+
+        // store to outputstream
+        val outputStream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+        // create file name
+        val storageDir: File? = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val imageFile = File.createTempFile(
+            "JPEG_${simpleDateFormat.format(Date())}_",
+            ".jpg",
+            storageDir
+        )
+
+        // get URI
+        val uri = FileProvider.getUriForFile(
+            this,
+            "com.github.brugapp.brug.fileprovider",
+            imageFile
+        )
+
+        // store bitmap to file
+        imageFile.writeBytes(outputStream.toByteArray())
+        outputStream.flush()
+        outputStream.close()
+
+        // return uri
+        return uri
     }
 }
