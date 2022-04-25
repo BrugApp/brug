@@ -67,6 +67,10 @@ class ChatActivityTest {
     val permissionRuleExtStorage: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
+    @get:Rule
+    val permissionRuleCamera: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+
     private val convID = "0"
 
     //TODO: CHANGE THIS TO ACTUAL USER
