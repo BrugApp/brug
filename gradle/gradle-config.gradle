@@ -21,14 +21,13 @@ task accessToken {
 
 task secretToken {
     def tokenFile = new File("gradle.properties")
-    if (!tokenFile.exists()) {
-        String mapboxDownloadsToken = "$System.env.MAPBOX_DOWNLOADS_TOKEN"
-        if (mapboxDownloadsToken == "null") {
-            mapboxDownloadsToken = "token"
-        }
-        String tokenFileContents = "MAPBOX_DOWNLOADS_TOKEN="+mapboxDownloadsToken
-        tokenFile.write(tokenFileContents)
+    String mapboxDownloadsToken = "$System.env.MAPBOX_DOWNLOADS_TOKEN"
+    if (mapboxDownloadsToken == "null") {
+        mapboxDownloadsToken = "token"
     }
+    String tokenFileContents = "MAPBOX_DOWNLOADS_TOKEN="+mapboxDownloadsToken
+    tokenFile.write(tokenFileContents)
+
 }
 
 gradle.projectsEvaluated {
