@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
         <activity
+            android:name=".ui.NavigationViewActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.LocationTrackingActivity"
             android:exported="false" />
         <activity

@@ -79,7 +79,7 @@ class MapBoxActivity : AppCompatActivity() {
                 // Specify the bitmap you assigned to the point annotation
                 // The bitmap will be added to map style automatically.
                 .withIconImage(it)
-                .withIconSize(0.9)
+                .withIconSize(0.8)
 //                .withTextField(name)
 //                .withTextOffset(listOf(0.0, 3.0))
 //                .withTextColor(Color.RED)
