@@ -6,12 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.data.FirebaseHelper
 
 class RegisterUserViewModel : ViewModel() {
-//    private val helper: FirebaseHelper = FirebaseHelper()
-//    private lateinit var firstnametxt: String
-//    private lateinit var lastnametxt: String
-//    private lateinit var emailtxt: String
-//    private lateinit var passwordtxt: String
-
     //checks if input data is valid
     fun anyEmpty(firstName: EditText, lastName: EditText, email: EditText, password: EditText): Boolean {
         when {

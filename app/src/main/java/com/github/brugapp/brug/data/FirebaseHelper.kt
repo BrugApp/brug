@@ -83,33 +83,39 @@ object FirebaseHelper {
     @param  lastnametxt the last name of the user that we are building
     @return void after execution of the Task<DocumentReference> that tries to create a new FireBase User
     */
-    fun createAuthAccount(
-        context: Context,
+    suspend fun createAuthAccount(
         account: SignInAccount,
         passwd: String,
-    ) {
-        mAuth.createUserWithEmailAndPassword(account.email!!, passwd)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "createUserWithEmail:success")
-                    val response = runBlocking { UserRepo.addUserFromAccount(task.result.user!!.uid, account) }
-                    if(response.onSuccess){
-                        Log.d("FIREBASE CHECK", "createUserWithEmail:success")
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Account creation failed.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                } else { // If sign in fails, display a message to the user.
-                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
-                    Toast.makeText(
-                        context,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+    ): FirebaseResponse {
+        val response = FirebaseResponse()
+        try {
+            val newAuthEntry = mAuth.createUserWithEmailAndPassword(account.email!!, passwd).await()
+            if (newAuthEntry.user == null) {
+                response.onError = Exception("Authentication failed.")
+                return response
             }
+
+            return UserRepo.addUserFromAccount(newAuthEntry.user!!.uid, account)
+        } catch (e: Exception) {
+            response.onError = e
+        }
+        return response
     }
+//        if(newAuthEntry.user == null){
+//
+//        }
+//            addOnCompleteListener { task ->
+//                if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
+//                    Log.d(TAG, "createUserWithEmail:success")
+//                    val response = runBlocking { UserRepo.addUserFromAccount(task.result.user!!.uid, account) }
+//                    if(response.onSuccess){
+//                        Log.d("FIREBASE CHECK", "createUserWithEmail:success")
+//                    } else {
+//
+//                    }
+//                } else { // If sign in fails, display a message to the user.
+//                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
+
+//                }
+//            }
 }
