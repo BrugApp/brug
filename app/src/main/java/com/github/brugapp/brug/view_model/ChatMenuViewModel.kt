@@ -3,7 +3,7 @@ package com.github.brugapp.brug.view_model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import com.github.brugapp.brug.data.FirebaseHelper
+import com.github.brugapp.brug.data.ConversationRepository
 import com.github.brugapp.brug.model.Conversation
 import kotlinx.coroutines.Dispatchers
 
@@ -15,7 +15,7 @@ class ChatMenuViewModel : ViewModel() {
 
     //TODO: CHANGE WITH PROPER CALL WHEN BINDINGS WITH FIREBASE ARE FINALIZED
     private val conversationsLiveData = liveData(Dispatchers.IO) {
-        emit(FirebaseHelper.getConversationsFromUserID("7IsGzvjHKd0KeeKK722m"))
+        emit(ConversationRepository.getConversationsFromUserID("7IsGzvjHKd0KeeKK722m"))
     }
 
     /**
