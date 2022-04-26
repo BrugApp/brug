@@ -2,7 +2,7 @@ package com.github.brugapp.brug
 
 import com.github.brugapp.brug.data.ItemsRepo
 import com.github.brugapp.brug.data.UserRepo
-import com.github.brugapp.brug.fake.FakeSignInAccount
+import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.model.MyItem
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
@@ -14,7 +14,7 @@ import org.junit.Before
 import org.junit.Test
 
 private const val DUMMY_UID = "USER1"
-private val DUMMY_ACCOUNT = FakeSignInAccount("Rayan", "Kikou", "", "")
+private val DUMMY_ACCOUNT = BrugSignInAccount("Rayan", "Kikou", "", "")
 
 private const val ITEM_ID = "DUMMYITEMID"
 private var ITEM = MyItem("AirPods Pro Max", 0, "My Beloved AirPods", false)
@@ -22,7 +22,7 @@ private var ITEM = MyItem("AirPods Pro Max", 0, "My Beloved AirPods", false)
 class ItemRepoTest {
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addUserAndItem() = runBlocking {
-        UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+        UserRepo.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
         ItemsRepo.addItemToUser(ITEM, DUMMY_UID)
     }
 

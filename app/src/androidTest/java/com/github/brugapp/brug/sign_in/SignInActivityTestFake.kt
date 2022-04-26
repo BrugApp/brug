@@ -20,9 +20,7 @@ import com.github.brugapp.brug.di.sign_in.firebase.AuthFirebase
 import com.github.brugapp.brug.di.sign_in.module.DatabaseAuthModule
 import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
 import com.github.brugapp.brug.di.sign_in.module.SignInClientModule
-import com.github.brugapp.brug.fake.FakeAuthDatabase
-import com.github.brugapp.brug.fake.FakeDatabaseUser
-import com.github.brugapp.brug.fake.FakeSignInAccount
+import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
@@ -64,7 +62,7 @@ class SignInActivityTestFake {
         @ViewModelScoped
         @Provides
         fun provideFakeSignInAccount(): SignInAccount {
-            return FakeSignInAccount("Son Goku", "Vegeta", "0", "goku@capsulecorp.com")
+            return BrugSignInAccount("Son Goku", "Vegeta", "0", "goku@capsulecorp.com")
         }
     }
 

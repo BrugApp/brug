@@ -6,25 +6,15 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
-import android.widget.RelativeLayout
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.DatabaseUser
-import com.github.brugapp.brug.fake.FakeSignInAccount
 import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
 
 @AndroidEntryPoint
 class SignInActivity : AppCompatActivity() {

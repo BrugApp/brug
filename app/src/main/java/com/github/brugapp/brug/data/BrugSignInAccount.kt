@@ -1,8 +1,11 @@
-package com.github.brugapp.brug.fake
+package com.github.brugapp.brug.data
 
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 
-class FakeSignInAccount(val fname: String, val lname: String, val token: String, val mail: String) : SignInAccount() {
+class BrugSignInAccount(private val fname: String,
+                        private val lname: String,
+                        private val token: String,
+                        private val mail: String) : SignInAccount() {
     override val firstName: String
         get() = fname
     override val lastName: String

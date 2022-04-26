@@ -8,7 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.ConvRepo
 import com.github.brugapp.brug.data.MessageRepo
 import com.github.brugapp.brug.data.UserRepo
-import com.github.brugapp.brug.fake.FakeSignInAccount
+import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.PicMessage
@@ -31,9 +31,9 @@ import java.time.LocalDateTime
 private const val USER_ID1 = "USER1"
 private const val USER_ID2 = "USER2"
 private const val USERWRONGCONV_ID = "USERWITHWRONGCONV"
-private val ACCOUNT1 = FakeSignInAccount("Rayan", "Kikou", "", "")
-private val ACCOUNT2 = FakeSignInAccount("Hamza", "Hassoune", "", "")
-private val ACCOUNTWRONGCONV = FakeSignInAccount("", "", "", "")
+private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
+private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
+private val ACCOUNTWRONGCONV = BrugSignInAccount("", "", "", "")
 
 private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null)
 private const val DUMMY_ITEM_NAME = "Airpods"
@@ -41,9 +41,9 @@ private const val DUMMY_ITEM_NAME = "Airpods"
 class ConvRepoTest {
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addTestUsers() = runBlocking{
-        UserRepo.addAuthUserFromAccount(USER_ID1, ACCOUNT1)
-        UserRepo.addAuthUserFromAccount(USER_ID2, ACCOUNT2)
-        UserRepo.addAuthUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV)
+        UserRepo.addUserFromAccount(USER_ID1, ACCOUNT1)
+        UserRepo.addUserFromAccount(USER_ID2, ACCOUNT2)
+        UserRepo.addUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV)
 
 //        UserRepo.addAuthUser(USER2)
 //        UserRepo.addAuthUser(USERWITHWRONGCONV)

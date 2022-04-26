@@ -3,7 +3,7 @@ package com.github.brugapp.brug
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.UserRepo
-import com.github.brugapp.brug.fake.FakeSignInAccount
+import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -16,7 +16,7 @@ import org.hamcrest.core.IsNull
 import org.junit.Test
 
 private const val DUMMY_UID = "AUTHUSERID"
-private val DUMMY_ACCOUNT = FakeSignInAccount("Rayan", "Kikou", "", "")
+private val DUMMY_ACCOUNT = BrugSignInAccount("Rayan", "Kikou", "", "")
 
 class UserRepoTest {
     @Test
@@ -31,7 +31,7 @@ class UserRepoTest {
 
     @Test
     fun addAuthUserCorrectlyAddsUser() = runBlocking {
-        assertThat(UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT).onSuccess, IsEqual(true))
+        assertThat(UserRepo.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT).onSuccess, IsEqual(true))
         val user = UserRepo.getMinimalUserFromUID(DUMMY_UID)
         assertThat(user, IsNot(IsNull.nullValue()))
         assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null)))
@@ -45,7 +45,7 @@ class UserRepoTest {
 
     @Test
     fun updateUserCorrectlyUpdatesUserFields() = runBlocking {
-        UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+        UserRepo.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
         val updatedUser = MyUser(DUMMY_UID, "Bryan", "Kikou", null)
         assertThat(UserRepo.updateUserFields(updatedUser).onSuccess, IsEqual(true))
 
@@ -121,7 +121,7 @@ class UserRepoTest {
 
     @Test
     fun deleteUserReturnsSuccessfully() = runBlocking {
-        UserRepo.addAuthUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+        UserRepo.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
 //        UserRepo.addAuthUser(DUMMY_USER)
         assertThat(UserRepo.deleteUserFromID(DUMMY_UID).onSuccess, IsEqual(true))
         assertThat(UserRepo.getMinimalUserFromUID(DUMMY_UID), IsNull.nullValue())

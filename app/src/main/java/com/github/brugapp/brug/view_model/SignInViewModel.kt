@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.data.UserRepo
 import com.github.brugapp.brug.di.sign_in.*
-import com.github.brugapp.brug.fake.FakeSignInAccount
+import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.google.android.material.snackbar.Snackbar
@@ -58,9 +58,9 @@ class SignInViewModel @Inject constructor(
         }.observe(activity) { result ->
             if(result.user != null){
                 if(runBlocking{UserRepo.getMinimalUserFromUID(result.user!!.uid)} == null){
-                    runBlocking{UserRepo.addAuthUserFromAccount(
+                    runBlocking{UserRepo.addUserFromAccount(
                         Firebase.auth.currentUser!!.uid,
-                        FakeSignInAccount(
+                        BrugSignInAccount(
                             "Unlost",
                             "DemoUser",
                             "",
@@ -85,7 +85,7 @@ class SignInViewModel @Inject constructor(
         return runBlocking {
             val user = UserRepo.getMinimalUserFromUID(auth.uid!!)
             if(user == null){
-                val response = UserRepo.addAuthUserFromAccount(auth.uid!!, account)
+                val response = UserRepo.addUserFromAccount(auth.uid!!, account)
                 if(response.onSuccess){
                     UserRepo.getMinimalUserFromUID(auth.uid!!)
                 }

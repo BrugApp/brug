@@ -29,7 +29,7 @@ object UserRepo {
      *
      * @return FirebaseResponse object, denoting if the new entry has correctly been added to the database
      */
-    suspend fun addAuthUserFromAccount(authUID: String, account: SignInAccount): FirebaseResponse {
+    suspend fun addUserFromAccount(authUID: String, account: SignInAccount): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {

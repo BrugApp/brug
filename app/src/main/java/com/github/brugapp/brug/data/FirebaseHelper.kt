@@ -28,6 +28,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.io.File
 
@@ -84,18 +85,23 @@ object FirebaseHelper {
     */
     fun createAuthAccount(
         context: Context,
-        progressBar: ProgressBar,
-        emailtxt: String,
-        passwordtxt: String,
-        firstnametxt: String,
-        lastnametxt: String
+        account: SignInAccount,
+        passwd: String,
     ) {
-        mAuth.createUserWithEmailAndPassword(emailtxt, passwordtxt)
+        mAuth.createUserWithEmailAndPassword(account.email!!, passwd)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) { // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success")
-                    addRegisterUser(createNewRegisterUser(emailtxt, firstnametxt, lastnametxt))
-                    progressBar.visibility = View.GONE
+                    val response = runBlocking { UserRepo.addUserFromAccount(task.result.user!!.uid, account) }
+                    if(response.onSuccess){
+                        Log.d("FIREBASE CHECK", "createUserWithEmail:success")
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "Account creation failed.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 } else { // If sign in fails, display a message to the user.
                     Log.w(TAG, "createUserWithEmail:failure", task.exception)
                     Toast.makeText(
@@ -103,44 +109,7 @@ object FirebaseHelper {
                         "Authentication failed.",
                         Toast.LENGTH_SHORT
                     ).show()
-                    progressBar.visibility = View.GONE
                 }
             }
     }
-
-    //    //returns the current session's authenticated user
-//    fun getCurrentUserGoogle(userID: String): User? {
-//        lateinit var firstname: String
-//        lateinit var lastname: String
-//        //lateinit var Conv_Refs: MutableList<String>
-//        //lateinit var Items: MutableList<Item>
-//        var user: User? = null
-//
-//        if (mAuth.currentUser != null) {
-//            val docRef = db.collection("Users").document(userID)
-//            docRef.get().addOnSuccessListener { document ->
-//                if (document != null) {
-//                    if (document.data?.get("firstname") != null && document.data?.get("lastname") != null) {
-//                        firstname = document.data?.get("firstname") as String
-//                        lastname = document.data?.get("lastname") as String
-//                        val email = mAuth.currentUser!!.email
-//                        val uri = mAuth.currentUser!!.photoUrl
-//                        var inputStream : Uri? = null
-//                        var profilePicture: Drawable? = null
-//
-//                        if (email != null) {
-//                            user = User(firstname, lastname, email, userID, profilePicture)
-//                        }
-//                    }
-//                    Log.d(TAG, "DocumentSnapshot data: ${document.data}")
-//                } else {
-//                    Log.d(TAG, "No such document")
-//                }
-//            }?.addOnFailureListener { exception ->
-//                Log.d(TAG, "get failed with ", exception)
-//            }
-//            //items & conv_ref attributes will be added here later
-//        }
-//        return user
-//    }
 }
