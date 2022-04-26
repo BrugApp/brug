@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
         <activity
+            android:name=".ui.LocationTrackingActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.MapBoxActivity"
             android:exported="false" />
         <activity
@@ -49,7 +52,7 @@
         <activity
             android:name=".ui.AddItemActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity"></activity>
+            android:parentActivityName=".ui.ItemsMenuActivity" />
         <activity
             android:name=".ui.ChatActivity"
             android:exported="false"

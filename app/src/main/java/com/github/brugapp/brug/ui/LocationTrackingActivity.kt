@@ -1,33 +1,57 @@
 package com.github.brugapp.brug.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorBearingChangedListener
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import java.lang.ref.WeakReference
 
-//var mapView: MapView? = null
 
-class MapBoxActivity : AppCompatActivity() {
+/**
+ * Tracks the user location on screen, simulates a navigation session.
+ */
+class LocationTrackingActivity : AppCompatActivity() {
 
     private lateinit var locationPermissionHelper: LocationPermissionHelper
+
+    private val onIndicatorBearingChangedListener = OnIndicatorBearingChangedListener {
+        mapView.getMapboxMap().setCamera(CameraOptions.Builder().bearing(it).build())
+    }
+
+    private val onIndicatorPositionChangedListener = OnIndicatorPositionChangedListener {
+        mapView.getMapboxMap().setCamera(CameraOptions.Builder().center(it).build())
+        mapView.gestures.focalPoint = mapView.getMapboxMap().pixelForCoordinate(it)
+    }
+
+    private val onMoveListener = object : OnMoveListener {
+        override fun onMoveBegin(detector: MoveGestureDetector) {
+            onCameraTrackingDismissed()
+        }
+
+        override fun onMove(detector: MoveGestureDetector): Boolean {
+            return false
+        }
+
+        override fun onMoveEnd(detector: MoveGestureDetector) {}
+    }
     private lateinit var mapView: MapView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mapView = MapView(this)
         setContentView(mapView)
-//        setContentView(R.layout.activity_map_box)
-//        mapView = findViewById(R.id.mapView)
-//        mapView.getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS)
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
         locationPermissionHelper.checkPermissions {
             onMapReady()
@@ -44,8 +68,12 @@ class MapBoxActivity : AppCompatActivity() {
             Style.MAPBOX_STREETS
         ) {
             initLocationComponent()
-//            setupGesturesListener()
+            setupGesturesListener()
         }
+    }
+
+    private fun setupGesturesListener() {
+        mapView.gestures.addOnMoveListener(onMoveListener)
     }
 
     private fun initLocationComponent() {
@@ -54,11 +82,11 @@ class MapBoxActivity : AppCompatActivity() {
             this.enabled = true
             this.locationPuck = LocationPuck2D(
                 bearingImage = AppCompatResources.getDrawable(
-                    this@MapBoxActivity,
+                    this@LocationTrackingActivity,
                     com.mapbox.maps.R.drawable.mapbox_user_puck_icon,
                 ),
                 shadowImage = AppCompatResources.getDrawable(
-                    this@MapBoxActivity,
+                    this@LocationTrackingActivity,
                     com.mapbox.maps.R.drawable.mapbox_user_icon_shadow,
                 ),
                 scaleExpression = interpolate {
@@ -75,33 +103,26 @@ class MapBoxActivity : AppCompatActivity() {
                 }.toJson()
             )
         }
-//        locationComponentPlugin.addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
-//        locationComponentPlugin.addOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
+        locationComponentPlugin.addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        locationComponentPlugin.addOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
     }
 
-    override fun onStart() {
-        super.onStart()
-        mapView?.onStart()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        mapView?.onStop()
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView?.onLowMemory()
+    private fun onCameraTrackingDismissed() {
+        Toast.makeText(this, "onCameraTrackingDismissed", Toast.LENGTH_SHORT).show()
+        mapView.location
+            .removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        mapView.location
+            .removeOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
+        mapView.gestures.removeOnMoveListener(onMoveListener)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapView?.onDestroy()
-//        mapView.location
-//            .removeOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
-//        mapView.location
-//            .removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
-//        mapView.gestures.removeOnMoveListener(onMoveListener)
+        mapView.location
+            .removeOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
+        mapView.location
+            .removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
+        mapView.gestures.removeOnMoveListener(onMoveListener)
     }
 
     override fun onRequestPermissionsResult(
