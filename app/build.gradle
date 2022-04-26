@@ -244,16 +244,14 @@ task accessToken {
 }
 
 task secretToken {
-    def tokenFile = new File("local.properties")
-    if (!tokenFile.exists()) {
-        String mapboxDownloadsToken = "$System.env.MAPBOX_DOWNLOADS_TOKEN"
-        if (mapboxDownloadsToken == "null") {
-            System.out.println("You should set the MAPBOX_DOWNLOADS_TOKEN environment variable.")
-            mapboxDownloadsToken = "token"
-        }
-        String tokenFileContents = "MAPBOX_DOWNLOADS_TOKEN="+mapboxDownloadsToken
-        tokenFile.write(tokenFileContents)
+    def tokenFile = new File("gradle.properties")
+    String mapboxDownloadsToken = "$System.env.MAPBOX_DOWNLOADS_TOKEN"
+    if (mapboxDownloadsToken == "null") {
+        System.out.println("You should set the MAPBOX_DOWNLOADS_TOKEN environment variable.")
+        mapboxDownloadsToken = "token"
     }
+    String tokenFileContents = "\nMAPBOX_DOWNLOADS_TOKEN=" + mapboxDownloadsToken
+    tokenFile.append(tokenFileContents)
 }
 
 gradle.projectsEvaluated {
