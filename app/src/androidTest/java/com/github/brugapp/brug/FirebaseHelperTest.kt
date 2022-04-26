@@ -12,6 +12,8 @@ import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.core.IsEqual
+import org.hamcrest.core.IsNot
+import org.hamcrest.core.IsNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -60,8 +62,14 @@ class FirebaseHelperTest {
     //createAuthAccount is tested by registerUserActivityTest()
 
     @Test
-    fun createAuthAccountCorrectlyAddsNewEntry() = runBlocking {
+    fun createAuthAccountThrowsErrorOnAlreadyExistingAccount() = runBlocking {
         val dummyAccount = BrugSignInAccount("DUMMYFNAME", "DUMMYLNAME", "", "dummy@mail.com")
-        assertThat(FirebaseHelper.createAuthAccount(dummyAccount, "DUMMYPASSWD").onSuccess, IsEqual(true))
+        assertThat(FirebaseHelper.createAuthAccount(dummyAccount, "DUMMYPASSWD").onError, IsNot(IsNull.nullValue()))
     }
+
+//    @Test
+//    fun createAuthAccountCorrectlyReturnsOnNonExistingAccount() = runBlocking {
+//        val dummyAccount = BrugSignInAccount("DUMMYFNAME", "DUMMYLNAME", "", "dummy@mail.com")
+//        assertThat(FirebaseHelper.createAuthAccount(dummyAccount, "DUMMYPASSWD").onSuccess, IsEqual(true))
+//    }
 }

@@ -48,13 +48,13 @@ class RegisterUserActivity : AppCompatActivity() {
                 if(response.onSuccess){
                     Toast.makeText(
                         this,
-                        "Account creation failed.",
+                        "Authentication was successful.",
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
                     Toast.makeText(
                         this,
-                        "Authentication failed.",
+                        "ERROR: Unable to register a new account. Your email address might have already been used for another one",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
