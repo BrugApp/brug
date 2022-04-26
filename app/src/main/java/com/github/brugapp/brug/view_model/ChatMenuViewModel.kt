@@ -2,13 +2,11 @@ package com.github.brugapp.brug.view_model
 
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ConvRepo
-import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.ui.CHAT_CHECK_TEXT
 import com.google.android.material.snackbar.Snackbar

@@ -1,9 +1,7 @@
 package com.github.brugapp.brug.view_model
 
 import android.widget.EditText
-import android.widget.ProgressBar
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.data.FirebaseHelper
 
 class RegisterUserViewModel : ViewModel() {
     //checks if input data is valid
