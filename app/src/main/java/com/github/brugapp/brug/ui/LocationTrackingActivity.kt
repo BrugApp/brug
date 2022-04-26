@@ -1,16 +1,14 @@
 package com.github.brugapp.brug.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
-import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
-import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorBearingChangedListener
@@ -80,28 +78,8 @@ class LocationTrackingActivity : AppCompatActivity() {
         val locationComponentPlugin = mapView.location
         locationComponentPlugin.updateSettings {
             this.enabled = true
-            this.locationPuck = LocationPuck2D(
-                bearingImage = AppCompatResources.getDrawable(
-                    this@LocationTrackingActivity,
-                    com.mapbox.maps.R.drawable.mapbox_user_puck_icon,
-                ),
-                shadowImage = AppCompatResources.getDrawable(
-                    this@LocationTrackingActivity,
-                    com.mapbox.maps.R.drawable.mapbox_user_icon_shadow,
-                ),
-                scaleExpression = interpolate {
-                    linear()
-                    zoom()
-                    stop {
-                        literal(0.0)
-                        literal(0.6)
-                    }
-                    stop {
-                        literal(20.0)
-                        literal(1.0)
-                    }
-                }.toJson()
-            )
+            this.pulsingEnabled = true
+            this.pulsingColor = Color.WHITE
         }
         locationComponentPlugin.addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
         locationComponentPlugin.addOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)

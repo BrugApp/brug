@@ -1,32 +1,50 @@
 package com.github.brugapp.brug.ui
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
+import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
+import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
 import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
+import com.mapbox.maps.extension.style.layers.properties.generated.TextAnchor
 import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
+import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.location
 import java.lang.ref.WeakReference
 
-//var mapView: MapView? = null
+var mapView: MapView? = null
 
 class MapBoxActivity : AppCompatActivity() {
 
+    private val items: ArrayList<Item> = ArrayList()
+    private val lon = 18.06
+    private val lat = 59.31
+    private val name = "iPhone"
+
     private lateinit var locationPermissionHelper: LocationPermissionHelper
-    private lateinit var mapView: MapView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mapView = MapView(this)
-        setContentView(mapView)
-//        setContentView(R.layout.activity_map_box)
-//        mapView = findViewById(R.id.mapView)
+//        mapView = MapView(this)
+//        setContentView(mapView)
+        setContentView(R.layout.activity_map_box)
+        mapView = findViewById(R.id.mapView)
 //        mapView.getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS)
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
         locationPermissionHelper.checkPermissions {
@@ -35,48 +53,63 @@ class MapBoxActivity : AppCompatActivity() {
     }
 
     private fun onMapReady() {
-        mapView.getMapboxMap().setCamera(
-            CameraOptions.Builder()
-                .zoom(14.0)
+        mapView?.getMapboxMap()?.setCamera(
+            CameraOptions.Builder().center(Point.fromLngLat(lon, lat))
                 .build()
         )
-        mapView.getMapboxMap().loadStyleUri(
-            Style.MAPBOX_STREETS
+        mapView?.getMapboxMap()?.loadStyleUri(
+            Style.MAPBOX_STREETS,
         ) {
-            initLocationComponent()
-//            setupGesturesListener()
+            addAnnotationToMap()
         }
     }
 
-    private fun initLocationComponent() {
-        val locationComponentPlugin = mapView.location
-        locationComponentPlugin.updateSettings {
-            this.enabled = true
-            this.locationPuck = LocationPuck2D(
-                bearingImage = AppCompatResources.getDrawable(
-                    this@MapBoxActivity,
-                    com.mapbox.maps.R.drawable.mapbox_user_puck_icon,
-                ),
-                shadowImage = AppCompatResources.getDrawable(
-                    this@MapBoxActivity,
-                    com.mapbox.maps.R.drawable.mapbox_user_icon_shadow,
-                ),
-                scaleExpression = interpolate {
-                    linear()
-                    zoom()
-                    stop {
-                        literal(0.0)
-                        literal(0.6)
-                    }
-                    stop {
-                        literal(20.0)
-                        literal(1.0)
-                    }
-                }.toJson()
-            )
+    private fun addAnnotationToMap() {
+        // Create an instance of the Annotation API and get the PointAnnotationManager.
+        bitmapFromDrawableRes(
+            this@MapBoxActivity,
+            R.drawable.phone_png
+        )?.let {
+            val annotationApi = mapView?.annotations
+            val pointAnnotationManager = annotationApi?.createPointAnnotationManager()
+            // Set options for the resulting symbol layer.
+            val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
+                // Define a geographic coordinate.
+                .withPoint(Point.fromLngLat(lon, lat))
+                // Specify the bitmap you assigned to the point annotation
+                // The bitmap will be added to map style automatically.
+                .withIconImage(it)
+                .withIconSize(0.9)
+//                .withTextField(name)
+//                .withTextOffset(listOf(0.0, 3.0))
+//                .withTextColor(Color.RED)
+            // Add the resulting pointAnnotation to the map.
+            pointAnnotationManager?.create(pointAnnotationOptions)
         }
-//        locationComponentPlugin.addOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
-//        locationComponentPlugin.addOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
+    }
+
+    private fun bitmapFromDrawableRes(context: Context, @DrawableRes resourceId: Int) =
+        convertDrawableToBitmap(AppCompatResources.getDrawable(context, resourceId))
+
+    private fun convertDrawableToBitmap(sourceDrawable: Drawable?): Bitmap? {
+        if (sourceDrawable == null) {
+            return null
+        }
+        return if (sourceDrawable is BitmapDrawable) {
+            sourceDrawable.bitmap
+        } else {
+            // copying drawable object to not manipulate on the same reference
+            val constantState = sourceDrawable.constantState ?: return null
+            val drawable = constantState.newDrawable().mutate()
+            val bitmap: Bitmap = Bitmap.createBitmap(
+                drawable.intrinsicWidth, drawable.intrinsicHeight,
+                Bitmap.Config.ARGB_8888
+            )
+            val canvas = Canvas(bitmap)
+            drawable.setBounds(0, 0, canvas.width, canvas.height)
+            drawable.draw(canvas)
+            bitmap
+        }
     }
 
     override fun onStart() {
@@ -97,11 +130,6 @@ class MapBoxActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         mapView?.onDestroy()
-//        mapView.location
-//            .removeOnIndicatorBearingChangedListener(onIndicatorBearingChangedListener)
-//        mapView.location
-//            .removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener)
-//        mapView.gestures.removeOnMoveListener(onMoveListener)
     }
 
     override fun onRequestPermissionsResult(
