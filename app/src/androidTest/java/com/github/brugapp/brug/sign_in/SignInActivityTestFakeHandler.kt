@@ -96,6 +96,7 @@ class SignInActivityTestFakeHandler {
     }
 
 
+
     @Test
     fun signInActivityAsksUserToSignInForNotSignedInUser() {
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)

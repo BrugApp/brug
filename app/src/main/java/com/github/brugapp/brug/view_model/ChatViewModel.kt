@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
+import com.github.brugapp.brug.data.ConversationRepository
 import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Message
@@ -86,7 +87,7 @@ class ChatViewModel : ViewModel() {
 
         liveData(Dispatchers.IO) {
             //TODO: REPLACE WITH ACTUAL AUTHENTICATED USER ID
-            emit(FirebaseHelper.addMessageToConv(newMessage, "7IsGzvjHKd0KeeKK722m", convID))
+            emit(ConversationRepository.addMessageToConv(newMessage, "7IsGzvjHKd0KeeKK722m", convID))
         }.observe(activity) { response ->
             if(response.onError != null){
                 Snackbar.make(activity.findViewById(android.R.id.content),
