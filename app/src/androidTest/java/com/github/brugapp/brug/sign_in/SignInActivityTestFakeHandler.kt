@@ -96,9 +96,7 @@ class SignInActivityTestFakeHandler {
     }
 
 
-    /*
-    Our team has encountered failures of this test, team members are actively working on fixing the Google Sign In issues.
-    @TODO fix the following test from failing due to Google Sign In
+
     @Test
     fun signInActivityAsksUserToSignInForNotSignedInUser() {
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
@@ -112,7 +110,6 @@ class SignInActivityTestFakeHandler {
                 .check(matches(isDisplayed()))
         }
     }
-    */
 
     @Test
     fun activityResultOKTest() {
