@@ -12,7 +12,6 @@ import kotlinx.coroutines.Dispatchers
  * ViewModel of the Chat Menu UI, handling its UI logic.
  */
 class ChatMenuViewModel : ViewModel() {
-
     //TODO: CHANGE WITH PROPER CALL WHEN BINDINGS WITH FIREBASE ARE FINALIZED
     private val conversationsLiveData = liveData(Dispatchers.IO) {
         emit(ConversationRepository.getConversationsFromUserID("7IsGzvjHKd0KeeKK722m"))
@@ -24,9 +23,4 @@ class ChatMenuViewModel : ViewModel() {
     fun getConversationsLiveData(): LiveData<MutableList<Conversation>?> {
         return conversationsLiveData
     }
-
-    //DON'T KNOW WHAT IS THIS FOR
-//        println("===========================================================")
-//        println(Uri.parse("content://com.github.brugapp.brug.fileprovider/images/JPEG_20220329_165630_1949197185066641075.jpg"))
-//        println("===========================================================")
 }
