@@ -16,14 +16,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.DUMMY_TEXT
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ItemsRepo
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ItemsListAdapter
 import com.github.brugapp.brug.view_model.ItemsMenuViewModel
-import com.github.brugapp.brug.view_model.ListCallback
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -60,7 +58,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // ONLY GETS THE LIST OF ITEMS RELATED TO THE USER, NOT THE FULL USER PROFILE !
     private fun initItemsList() = liveData(Dispatchers.IO){
-        emit(ItemsRepo.getUserItemsFromUID(Firebase.auth.currentUser!!.uid))
+        emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid))
     }.observe(this) { itemsList ->
         findViewById<ProgressBar>(R.id.loadingItems).visibility = View.GONE
         val list = if(itemsList.isNullOrEmpty()) mutableListOf() else itemsList.toMutableList()

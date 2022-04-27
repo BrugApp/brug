@@ -13,7 +13,7 @@ private const val ITEMS_DB = "Items"
 /**
  * Repository class handling bindings between the Item objects in Firebase & in local.
  */
-object ItemsRepo {
+object ItemsRepository {
     /**
      * Adds a new item to a Firebase user, given a user ID.
      *

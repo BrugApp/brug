@@ -16,7 +16,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.data.ItemsRepo
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
@@ -67,14 +67,14 @@ class ItemsMenuActivityTest {
                 "123456").await()
 
             for(item in ITEMS){
-                ItemsRepo.addItemToUser(item, TEST_USER_UID)
+                ItemsRepository.addItemToUser(item, TEST_USER_UID)
             }
         }
     }
 
     private fun wipeAllItemsAndSignOut() {
         runBlocking {
-            ItemsRepo.deleteAllUserItems(TEST_USER_UID)
+            ItemsRepository.deleteAllUserItems(TEST_USER_UID)
         }
         Firebase.auth.signOut()
     }

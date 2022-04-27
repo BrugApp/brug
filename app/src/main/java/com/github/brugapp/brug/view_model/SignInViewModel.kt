@@ -4,7 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.model.MyUser
@@ -57,8 +57,8 @@ class SignInViewModel @Inject constructor(
                 "brugsdpProject1").await())
         }.observe(activity) { result ->
             if(result.user != null){
-                if(runBlocking{UserRepo.getMinimalUserFromUID(result.user!!.uid)} == null){
-                    runBlocking{UserRepo.addUserFromAccount(
+                if(runBlocking{UserRepository.getMinimalUserFromUID(result.user!!.uid)} == null){
+                    runBlocking{UserRepository.addUserFromAccount(
                         Firebase.auth.currentUser!!.uid,
                         BrugSignInAccount(
                             "Unlost",
@@ -83,11 +83,11 @@ class SignInViewModel @Inject constructor(
     private fun createNewBrugUser(account: SignInAccount?): MyUser? {
         if (account == null || auth.uid == null) return null
         return runBlocking {
-            val user = UserRepo.getMinimalUserFromUID(auth.uid!!)
+            val user = UserRepository.getMinimalUserFromUID(auth.uid!!)
             if(user == null){
-                val response = UserRepo.addUserFromAccount(auth.uid!!, account)
+                val response = UserRepository.addUserFromAccount(auth.uid!!, account)
                 if(response.onSuccess){
-                    UserRepo.getMinimalUserFromUID(auth.uid!!)
+                    UserRepository.getMinimalUserFromUID(auth.uid!!)
                 }
             }
             null

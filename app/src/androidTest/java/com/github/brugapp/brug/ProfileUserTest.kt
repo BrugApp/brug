@@ -20,7 +20,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
 import com.github.brugapp.brug.ui.ProfilePictureSetActivity
 import com.google.firebase.auth.ktx.auth
@@ -100,7 +100,7 @@ class ProfileUserTest {
 
     private fun removeIconAndSignOut() {
         runBlocking {
-            UserRepo.resetUserIcon(Firebase.auth.currentUser!!.uid)
+            UserRepository.resetUserIcon(Firebase.auth.currentUser!!.uid)
         }
         Firebase.auth.signOut()
     }
@@ -157,7 +157,7 @@ class ProfileUserTest {
         val drawable  = ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), drawableRes)
 
 //        DUMMY_USER.setUserIcon(drawable)
-        val response = runBlocking { UserRepo.updateUserIcon(
+        val response = runBlocking { UserRepository.updateUserIcon(
             Firebase.auth.currentUser!!.uid, drawable!!) }
         assertThat(response.onSuccess, IsEqual(true))
 //        MockDatabase.currentUser.setProfilePicture(drawable)

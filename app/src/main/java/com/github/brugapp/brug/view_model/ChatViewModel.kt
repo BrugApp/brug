@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.*
-import com.github.brugapp.brug.data.MessageRepo
+import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.LocationMessage
@@ -81,7 +81,7 @@ class ChatViewModel : ViewModel() {
                 .show()
         } else {
             liveData(Dispatchers.IO) {
-                emit(MessageRepo.addMessageToConv(message, Firebase.auth.currentUser!!.uid, convID))
+                emit(MessageRepository.addMessageToConv(message, Firebase.auth.currentUser!!.uid, convID))
             }.observe(activity) { response ->
                 if(response.onError != null){
                     Log.e("FIREBASE ERROR", response.onError!!.message.toString())

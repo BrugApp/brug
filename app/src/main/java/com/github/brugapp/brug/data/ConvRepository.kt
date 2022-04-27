@@ -14,7 +14,7 @@ private const val CONV_DB = "Conversations"
 /**
  * Repository class handling bindings between the Conversation objects in Firebase & in local.
  */
-object ConvRepo {
+object ConvRepository {
     /**
      * Adds a new Conversation between two users in Firebase, related to a given lost item.
      *
@@ -164,7 +164,7 @@ object ConvRepo {
             }
 
             //FETCH USER FIELDS
-            val userFields = UserRepo.getMinimalUserFromUID(
+            val userFields = UserRepository.getMinimalUserFromUID(
                 parseConvUserNameFromID(convID, authUserID)
             ) ?: return null
 
@@ -175,7 +175,7 @@ object ConvRepo {
             val messageUserName = userFields.getFullName()
             val messages = convSnapshot.reference.collection(MSG_DB).get().await()
                 .mapNotNull { message ->
-                    MessageRepo.getMessageFromSnapshot(message, messageUserName, authUserID)
+                    MessageRepository.getMessageFromSnapshot(message, messageUserName, authUserID)
                 }.sortedBy { it.timestamp.getSeconds() }
             if(messages.isEmpty()) {
                 Log.e("FIREBASE ERROR", "Empty Message List")

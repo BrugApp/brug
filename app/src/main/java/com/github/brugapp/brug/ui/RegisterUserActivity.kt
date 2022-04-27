@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.FirebaseHelper
+import com.github.brugapp.brug.data.FirebaseAuthRepository
 import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.view_model.RegisterUserViewModel
 import kotlinx.coroutines.runBlocking
@@ -44,7 +44,7 @@ class RegisterUserActivity : AppCompatActivity() {
                     emailField.text.toString()
                 )
 
-                val response = runBlocking { FirebaseHelper.createAuthAccount(newAccount, passwdField.text.toString()) }
+                val response = runBlocking { FirebaseAuthRepository.createAuthAccount(newAccount, passwdField.text.toString()) }
                 if(response.onSuccess){
                     Toast.makeText(
                         this,

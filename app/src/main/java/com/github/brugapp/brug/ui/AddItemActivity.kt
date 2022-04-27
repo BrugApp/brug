@@ -7,7 +7,7 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ItemsRepo
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.AddItemViewModel
@@ -58,7 +58,7 @@ class AddItemActivity : AppCompatActivity() {
                 itemDesc.text.toString(),
                 false)
 
-            runBlocking {ItemsRepo.addItemToUser(newItem, Firebase.auth.currentUser!!.uid)}
+            runBlocking {ItemsRepository.addItemToUser(newItem, Firebase.auth.currentUser!!.uid)}
 
             val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)

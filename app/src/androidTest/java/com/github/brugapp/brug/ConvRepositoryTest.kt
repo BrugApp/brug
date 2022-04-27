@@ -5,9 +5,9 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
 import androidx.test.core.app.ApplicationProvider
-import com.github.brugapp.brug.data.ConvRepo
-import com.github.brugapp.brug.data.MessageRepo
-import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.data.MessageRepository
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.MyUser
@@ -38,12 +38,12 @@ private val ACCOUNTWRONGCONV = BrugSignInAccount("", "", "", "")
 private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null)
 private const val DUMMY_ITEM_NAME = "Airpods"
 
-class ConvRepoTest {
+class ConvRepositoryTest {
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addTestUsers() = runBlocking{
-        UserRepo.addUserFromAccount(USER_ID1, ACCOUNT1)
-        UserRepo.addUserFromAccount(USER_ID2, ACCOUNT2)
-        UserRepo.addUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV)
+        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1)
+        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2)
+        UserRepository.addUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV)
 
 //        UserRepo.addAuthUser(USER2)
 //        UserRepo.addAuthUser(USERWITHWRONGCONV)
@@ -56,14 +56,14 @@ class ConvRepoTest {
 
     @Test
     fun addConvToInexistentUsersReturnsError() = runBlocking {
-        assertThat(ConvRepo.addNewConversation("WRONGUID", USER_ID2, DUMMY_ITEM_NAME).onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.addNewConversation("WRONGUID", USER_ID2, DUMMY_ITEM_NAME).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun addNewConvCorrectlyReturns() = runBlocking {
-        assertThat(ConvRepo.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME).onSuccess, IsEqual(true))
+        assertThat(ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME).onSuccess, IsEqual(true))
         val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM_NAME, mutableListOf())
-        val convList = ConvRepo.getUserConvFromUID(USER_ID1)
+        val convList = ConvRepository.getUserConvFromUID(USER_ID1)
         assertThat(convList.isNullOrEmpty(), IsEqual(false))
         val conv = convList!!.last()
         assertThat(conv.convId, IsEqual(conversation.convId))
@@ -73,17 +73,17 @@ class ConvRepoTest {
 
     @Test
     fun getConvsFromNonexistentUserReturnsNull() = runBlocking {
-        assertThat(ConvRepo.getUserConvFromUID("WRONGCONVID"), IsNull.nullValue())
+        assertThat(ConvRepository.getUserConvFromUID("WRONGCONVID"), IsNull.nullValue())
     }
 
     @Test
     fun getBadlyFormattedConvsReturnsEmptyList() = runBlocking {
-        assertThat(ConvRepo.getUserConvFromUID(USERWRONGCONV_ID), IsEqual(listOf()))
+        assertThat(ConvRepository.getUserConvFromUID(USERWRONGCONV_ID), IsEqual(listOf()))
     }
 
     @Test
     fun getConvsFromValidUserCorrectlyReturnsSuccessfully() = runBlocking {
-        assertThat(ConvRepo.getUserConvFromUID(USER_ID1), IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.getUserConvFromUID(USER_ID1), IsNot(IsNull.nullValue()))
     }
 
     @Test
@@ -114,35 +114,35 @@ class ConvRepoTest {
         )
         fos.close()
 
-        assertThat(MessageRepo.addMessageToConv(picMessage, USER_ID1,"${USER_ID1}${USER_ID2}").onSuccess, IsEqual(true))
+        assertThat(MessageRepository.addMessageToConv(picMessage, USER_ID1,"${USER_ID1}${USER_ID2}").onSuccess, IsEqual(true))
 
-        assertThat(ConvRepo.getUserConvFromUID(USER_ID1), IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.getUserConvFromUID(USER_ID1), IsNot(IsNull.nullValue()))
         Firebase.auth.signOut()
     }
 
     @Test
     fun deleteNonexistentConvReturnsError() = runBlocking {
-        assertThat(ConvRepo.deleteConversationFromID("WRONGCONVID", USER_ID1).onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.deleteConversationFromID("WRONGCONVID", USER_ID1).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun deleteConvNotBelongingToUserReturnsError() = runBlocking {
-        assertThat(ConvRepo.deleteConversationFromID("${USER_ID1}${USER_ID2}", "WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.deleteConversationFromID("${USER_ID1}${USER_ID2}", "WRONGUID").onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun deleteValidConvReturnsSuccessfully() = runBlocking {
-        ConvRepo.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME)
-        assertThat(ConvRepo.deleteConversationFromID("${USER_ID1}${USER_ID2}", USER_ID1).onSuccess, IsEqual(true))
+        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME)
+        assertThat(ConvRepository.deleteConversationFromID("${USER_ID1}${USER_ID2}", USER_ID1).onSuccess, IsEqual(true))
     }
 
     @Test
     fun deleteAllConvsFromInexistentUserReturnsError() = runBlocking {
-        assertThat(ConvRepo.deleteAllUserConversations("WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.deleteAllUserConversations("WRONGUID").onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun deleteAllConvsFromValidUserReturnsSuccessfully() = runBlocking {
-        assertThat(ConvRepo.deleteAllUserConversations(USER_ID1).onSuccess, IsEqual(true))
+        assertThat(ConvRepository.deleteAllUserConversations(USER_ID1).onSuccess, IsEqual(true))
     }
 }

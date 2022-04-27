@@ -16,7 +16,7 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.brugapp.brug.data.ItemsRepo
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.ui.AddItemActivity
 import com.github.brugapp.brug.ui.DESCRIPTION_LIMIT
@@ -54,7 +54,7 @@ class AddItemTest {
 
     private fun wipeItemsAndSignOut() {
         runBlocking {
-            ItemsRepo.deleteAllUserItems(TEST_USER_UID)
+            ItemsRepository.deleteAllUserItems(TEST_USER_UID)
         }
         Firebase.auth.signOut()
     }

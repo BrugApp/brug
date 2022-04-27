@@ -6,9 +6,9 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
-import com.github.brugapp.brug.data.ConvRepo
-import com.github.brugapp.brug.data.MessageRepo
-import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.data.MessageRepository
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyUser
@@ -60,11 +60,11 @@ private val AUDIOMSG = AudioMessage(
     "")
 
 
-class MessageRepoTest {
+class MessageRepositoryTest {
     private fun addUsersAndConv() = runBlocking {
-        UserRepo.addUserFromAccount(USER_ID1, ACCOUNT1)
-        UserRepo.addUserFromAccount(USER_ID2, ACCOUNT2)
-        ConvRepo.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME)
+        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1)
+        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2)
+        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME)
     }
 
     @Before
@@ -74,7 +74,7 @@ class MessageRepoTest {
 
     @Test
     fun addMessageToWrongConvReturnsError() = runBlocking {
-        val response = MessageRepo.addMessageToConv(
+        val response = MessageRepository.addMessageToConv(
             TEXTMSG,
             USER_ID1,
             "WRONGCONVID")
@@ -83,13 +83,13 @@ class MessageRepoTest {
 
     @Test
     fun addTextMessageCorrectlyAddsNewTextMessage() = runBlocking {
-        val response = MessageRepo.addMessageToConv(
+        val response = MessageRepository.addMessageToConv(
             TEXTMSG,
             USER_ID1,
             "${USER_ID1}${USER_ID2}")
         assertThat(response.onSuccess, IsEqual(true))
 
-        val conv = ConvRepo.getUserConvFromUID(USER_ID1)!!.filter {
+        val conv = ConvRepository.getUserConvFromUID(USER_ID1)!!.filter {
             it.convId == "${USER_ID1}${USER_ID2}"
         }
         assertThat(conv.isNullOrEmpty(), IsEqual(false))
@@ -98,13 +98,13 @@ class MessageRepoTest {
 
     @Test
     fun addLocationMessageCorrectlyAddsNewLocationMessage() = runBlocking {
-        val response = MessageRepo.addMessageToConv(
+        val response = MessageRepository.addMessageToConv(
             LOCATIONMSG,
             USER_ID2,
             "${USER_ID1}${USER_ID2}")
         assertThat(response.onSuccess, IsEqual(true))
 
-        val conv = ConvRepo.getUserConvFromUID(USER_ID1)!!.filter {
+        val conv = ConvRepository.getUserConvFromUID(USER_ID1)!!.filter {
             it.convId == "${USER_ID1}${USER_ID2}"
         }
         assertThat(conv.isNullOrEmpty(), IsEqual(false))
@@ -120,7 +120,7 @@ class MessageRepoTest {
             "PicMessage",
             "")
 
-        val response = MessageRepo.addMessageToConv(
+        val response = MessageRepository.addMessageToConv(
             PICMSG,
             USER_ID1,
             "${USER_ID1}${USER_ID2}")
@@ -150,14 +150,14 @@ class MessageRepoTest {
         assertThat(Firebase.auth.currentUser!!.uid, IsEqual(authUser!!.uid))
 
         // ADD MESSAGE TO DATABASE & IMAGE TO STORAGE + SIGNOUT
-        val response = MessageRepo.addMessageToConv(
+        val response = MessageRepository.addMessageToConv(
             picMsg,
             USER_ID1,
             "${USER_ID1}${USER_ID2}")
         assertThat(response.onSuccess, IsEqual(true))
 
         // CHECK IF MESSAGE HAS BEEN ADDED CORRECTLY
-        val conv = ConvRepo.getUserConvFromUID(USER_ID1)!!.filter {
+        val conv = ConvRepository.getUserConvFromUID(USER_ID1)!!.filter {
             it.convId == "${USER_ID1}${USER_ID2}"
         }
         assertThat(conv.isNullOrEmpty(), IsEqual(false))
@@ -173,7 +173,7 @@ class MessageRepoTest {
 
     @Test
     fun addAudioMessageWithoutLoginReturnsError() = runBlocking {
-        val response = MessageRepo.addMessageToConv(
+        val response = MessageRepository.addMessageToConv(
             AUDIOMSG,
             USER2.uid,
             "${USER_ID1}${USER_ID2}")

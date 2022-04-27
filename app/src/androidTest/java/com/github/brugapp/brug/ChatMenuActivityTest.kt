@@ -15,7 +15,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.data.ConvRepo
+import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.ui.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -54,7 +54,7 @@ class ChatMenuActivityTest {
                 "test@unlost.com",
                 "123456").await()
 
-            ConvRepo.addNewConversation(TEST_USER_UID, INTERLOCUTOR_USER_UID, DUMMY_LOST_ITEM)
+            ConvRepository.addNewConversation(TEST_USER_UID, INTERLOCUTOR_USER_UID, DUMMY_LOST_ITEM)
         }
     }
 

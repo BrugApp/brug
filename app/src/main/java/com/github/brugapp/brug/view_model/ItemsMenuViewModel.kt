@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ItemsRepo
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.ITEMS_DELETE_TEXT
 import com.google.android.material.snackbar.Snackbar
@@ -30,7 +30,7 @@ class ItemsMenuViewModel : ViewModel() {
         return ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair) { deletedItem, position ->
             liveData(Dispatchers.IO){
                 emit(
-                    ItemsRepo.deleteItemFromUser(deletedItem.getItemID()
+                    ItemsRepository.deleteItemFromUser(deletedItem.getItemID()
                         , Firebase.auth.currentUser!!.uid))
             }.observe(activity){ response ->
 
@@ -43,7 +43,7 @@ class ItemsMenuViewModel : ViewModel() {
                         Snackbar.LENGTH_LONG).setAction("Undo") {
                         liveData(Dispatchers.IO){
                             emit(
-                                ItemsRepo.addItemToUser(deletedItem,
+                                ItemsRepository.addItemToUser(deletedItem,
                                     Firebase.auth.currentUser!!.uid))
                         }.observe(activity){
                             if(!response.onSuccess){

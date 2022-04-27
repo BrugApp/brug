@@ -9,7 +9,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ItemsRepo
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -37,7 +37,7 @@ class ItemInformationActivity : AppCompatActivity() {
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
             liveData(Dispatchers.IO){
-                emit(ItemsRepo.updateItemFields(item, Firebase.auth.currentUser!!.uid))
+                emit(ItemsRepository.updateItemFields(item, Firebase.auth.currentUser!!.uid))
             }.observe(this){ response ->
 
                 val feedbackStr = if(response.onSuccess){

@@ -7,12 +7,6 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.USER_INTENT_KEY
-import com.github.brugapp.brug.data.UserRepo
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.runBlocking
 
 const val EXTRA_SIGN_OUT = "com.github.brugapp.brug.SIGN_OUT"
 

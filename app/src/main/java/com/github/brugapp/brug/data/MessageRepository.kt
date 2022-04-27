@@ -25,7 +25,7 @@ private const val CONV_ASSETS = "conversations_assets/"
 /**
  * Repository class handling bindings between the Message objects in Firebase & in local.
  */
-object MessageRepo {
+object MessageRepository {
     /**
      * Adds a new Message to a Conversation, given its Conversation ID.
      *

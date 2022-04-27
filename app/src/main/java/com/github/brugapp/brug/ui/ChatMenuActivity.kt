@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.DUMMY_TEXT
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ConvRepo
+import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
@@ -58,7 +58,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
     // ONLY GETS THE LIST OF CONVERSATIONS RELATED TO THE USER, NOT THE FULL USER PROFILE !
     private fun initChatList() = liveData(Dispatchers.IO){
-        emit(ConvRepo.getUserConvFromUID(Firebase.auth.currentUser!!.uid))
+        emit(ConvRepository.getUserConvFromUID(Firebase.auth.currentUser!!.uid))
     }.observe(this) { list ->
         findViewById<ProgressBar>(R.id.loadingConvs).visibility = View.GONE
         val conversations = if(list.isNullOrEmpty()) mutableListOf() else list.toMutableList()

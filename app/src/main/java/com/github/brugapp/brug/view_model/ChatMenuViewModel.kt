@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ConvRepo
+import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.ui.CHAT_CHECK_TEXT
 import com.google.android.material.snackbar.Snackbar
@@ -30,7 +30,7 @@ class ChatMenuViewModel : ViewModel() {
         return ListCallback(CHAT_CHECK_TEXT, dragPair, swipePair, listAdapterPair){ delConv, position ->
             liveData(Dispatchers.IO){
                 emit(
-                    ConvRepo.deleteConversationFromID(delConv.convId, Firebase.auth.currentUser!!.uid))
+                    ConvRepository.deleteConversationFromID(delConv.convId, Firebase.auth.currentUser!!.uid))
             }.observe(activity){ response ->
                 if(response.onSuccess){
                     listAdapterPair.first.removeAt(position)
@@ -41,7 +41,7 @@ class ChatMenuViewModel : ViewModel() {
                         Snackbar.LENGTH_LONG).setAction("Undo") {
                         liveData(Dispatchers.IO){
                             emit(
-                                ConvRepo.addNewConversation(Firebase.auth.currentUser!!.uid, delConv.userFields.uid, delConv.lostItemName)
+                                ConvRepository.addNewConversation(Firebase.auth.currentUser!!.uid, delConv.userFields.uid, delConv.lostItemName)
                             )}.observe(activity){
                             if(!response.onSuccess){
                                 Snackbar.make(listView,

@@ -19,7 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.UserRepo
+import com.github.brugapp.brug.data.UserRepository
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -42,7 +42,7 @@ class ProfileSettingsFragment(
             val drawable = Drawable.createFromStream(inputStream, uri.toString())
             activity?.let {
                 liveData(Dispatchers.IO){
-                    emit(UserRepo.updateUserIcon(Firebase.auth.currentUser!!.uid, drawable))
+                    emit(UserRepository.updateUserIcon(Firebase.auth.currentUser!!.uid, drawable))
                 }.observe(this){
                     val myIntent = Intent(activity, ProfilePictureSetActivity::class.java)
                     startActivity(myIntent)
@@ -60,7 +60,7 @@ class ProfileSettingsFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         liveData(Dispatchers.IO){
-            emit(UserRepo.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid))
+            emit(UserRepository.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid))
         }.observe(viewLifecycleOwner){ user ->
             view.findViewById<ProgressBar>(R.id.loadingUserProfile).visibility = View.GONE
 
