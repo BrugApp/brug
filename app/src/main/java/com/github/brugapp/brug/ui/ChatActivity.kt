@@ -34,13 +34,13 @@ class ChatActivity : AppCompatActivity() {
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var convID: String
 
-    private lateinit var buttonSendTextMessage : ImageButton
-    private lateinit var recordButton : RecordButton
-    private lateinit var messageLayout : LinearLayout
-    private lateinit var audioRecMessage : TextView
-    private lateinit var buttonSendAudio : ImageButton
-    private lateinit var deleteAudio : ImageButton
-    private lateinit var textMessage : EditText
+    private lateinit var buttonSendTextMessage: ImageButton
+    private lateinit var recordButton: RecordButton
+    private lateinit var messageLayout: LinearLayout
+    private lateinit var audioRecMessage: TextView
+    private lateinit var buttonSendAudio: ImageButton
+    private lateinit var deleteAudio: ImageButton
+    private lateinit var textMessage: EditText
 
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
@@ -61,8 +61,6 @@ class ChatActivity : AppCompatActivity() {
         initSendLocationButton(locationManager, fusedLocationClient)
         initSendImageCameraButton()
         initSendImageButton()
-
-        //initSendImageCameraButton() // TODO: Implement this
 
         messageLayout = findViewById(R.id.messageLayout)
         audioRecMessage = findViewById(R.id.audioRecording)
@@ -92,6 +90,8 @@ class ChatActivity : AppCompatActivity() {
         viewModel.initViewModel(conversation.messages)
         messageList.layoutManager = LinearLayoutManager(this)
         messageList.adapter = viewModel.getAdapter()
+
+        scrollToBottom((viewModel.getAdapter().itemCount) - 1)
 
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItemName
@@ -146,26 +146,6 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
-            val imageUri = data?.data
-            if(imageUri != null){
-                viewModel.sendPicMessage(this, convID, imageUri)
-            }
-        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
-            val imageUri = data?.data
-            if (imageUri != null) {
-                viewModel.sendPicMessage(this, convID, imageUri)
-            }
-        }
-    }
-
     /* Function to test if device has a microphone,
     private fun hasMicrophone(): Boolean {
         val pmanager = this.packageManager
@@ -173,7 +153,7 @@ class ChatActivity : AppCompatActivity() {
             PackageManager.FEATURE_MICROPHONE)
     }*/
 
-    /*override fun onRequestPermissionsResult(
+    /*override fun onRequestPermissionsResult( // This should go to the bottom with the same function
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
@@ -184,12 +164,12 @@ class ChatActivity : AppCompatActivity() {
         }
     }*/
 
-    private fun initRecordButton(model : ChatViewModel) {
+    private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
 
             model.setListenForRecord(recordButton, true)
 
-            if(model.isAudioPermissionOk(this) && model.isExtStorageOk(this)){
+            if (model.isAudioPermissionOk(this) && model.isExtStorageOk(this)) {
 
                 model.setupRecording()
 
@@ -199,18 +179,18 @@ class ChatActivity : AppCompatActivity() {
                 deleteAudio.visibility = View.VISIBLE
                 audioRecMessage.visibility = View.VISIBLE
 
-            }else if(model.isAudioPermissionOk(this)){
+            } else if (model.isAudioPermissionOk(this)) {
                 model.requestExtStorage(this)
-            }else if(model.isExtStorageOk(this)){
+            } else if (model.isExtStorageOk(this)) {
                 model.requestRecording(this)
-            }else{
+            } else {
                 model.requestRecording(this)
                 model.requestExtStorage(this)
             }
         }
     }
 
-    private fun initDeleteAudioButton(model : ChatViewModel){
+    private fun initDeleteAudioButton(model: ChatViewModel) {
         deleteAudio.setOnClickListener {
             model.deleteAudio()
 
@@ -223,7 +203,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendAudioButton(model : ChatViewModel){
+    private fun initSendAudioButton(model: ChatViewModel) {
         buttonSendAudio.setOnClickListener {
             model.sendAudio()
 
@@ -245,7 +225,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initTextInputField(){
+    private fun initTextInputField() {
         textMessage.addTextChangedListener(object : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -256,15 +236,38 @@ class ChatActivity : AppCompatActivity() {
                 if (s.toString().trim().isEmpty()) {
                     buttonSendTextMessage.visibility = View.GONE
                     recordButton.visibility = View.VISIBLE
-                }else{
+                } else {
                     recordButton.visibility = View.GONE
                     buttonSendTextMessage.visibility = View.VISIBLE
                 }
-
             }
 
             override fun afterTextChanged(s: Editable?) {
             }
         })
+    }
+
+    fun scrollToBottom(position: Int) {
+        val rv = findViewById<View>(R.id.messagesList) as RecyclerView
+        rv.smoothScrollToPosition(position)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
+            val imageUri = data?.data
+            if(imageUri != null){
+                viewModel.sendPicMessage(this, convID, imageUri)
+            }
+        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
+            val imageUri = data?.data
+            if (imageUri != null) {
+                viewModel.sendPicMessage(this, convID, imageUri)
+            }
+        }
     }
 }

@@ -15,7 +15,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
@@ -51,8 +51,7 @@ class ChatViewModel : ViewModel() {
     private lateinit var mediaRecorder : MediaRecorder
     private lateinit var audioPath : String
 
-    //TODO: REMOVE INITIAL INITIALIZATION AND REVERT TO LATEINIT VAR
-    // For the list of messages
+    //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
 
     // For the images
@@ -64,19 +63,16 @@ class ChatViewModel : ViewModel() {
         this.adapter = ChatMessagesListAdapter(messages)
     }
 
-//    fun initAdapter() {
-//        chatArrayList = arrayListOf()
-//        adapter = ChatMessagesListAdapter(chatArrayList)
-//    }
-
     fun getAdapter(): ChatMessagesListAdapter {
         return adapter
     }
 
-    fun sendMessage(message: Message, convID: String, activity: AppCompatActivity) {
+    fun sendMessage(message: Message, convID: String, activity: ChatActivity) {
 //        val newMessage = Message("Me", DateService.fromLocalDateTime(LocalDateTime.now()), content)
         messages.add(message)
         adapter.notifyItemInserted(messages.size - 1)
+        // scroll to bottom automatically
+        activity.scrollToBottom(adapter.itemCount - 1)
 
         if(Firebase.auth.currentUser == null){
             Snackbar.make(activity.findViewById(android.R.id.content),
@@ -98,7 +94,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    private fun sendLocationMessage(activity: AppCompatActivity, location: Location, convID: String){
+    private fun sendLocationMessage(activity: ChatActivity, location: Location, convID: String){
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val newMessage = LocationMessage(
             "Me",
@@ -113,7 +109,7 @@ class ChatViewModel : ViewModel() {
         textBox.text = ""
     }
 
-    fun sendPicMessage(activity: AppCompatActivity, convID: String, picURI: Uri) {
+    fun sendPicMessage(activity: ChatActivity, convID: String, picURI: Uri) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val newMessage = PicMessage(
             "Me",
@@ -128,7 +124,7 @@ class ChatViewModel : ViewModel() {
         textBox.text = ""
     }
 
-    // IMAGE RELATED
+    // IMAGE RELATED =======================================================
     fun takeCameraImage(activity: ChatActivity) {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (intent.resolveActivity(activity.packageManager) != null) {
@@ -140,7 +136,6 @@ class ChatViewModel : ViewModel() {
                 imageFile
             )
             intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
-            // Launch the intent (launch the camera)
             startActivityForResult(activity, intent, TAKE_PICTURE_REQUEST_CODE, null)
         }
     }
@@ -160,7 +155,6 @@ class ChatViewModel : ViewModel() {
         )
     }
 
-    // TODO: Finish this implementation when the firebase helper is implemented
     private fun uriToBitmap(activity: ChatActivity, selectedFileUri: Uri): Bitmap {
         val parcelFileDescriptor = activity.contentResolver.openFileDescriptor(selectedFileUri, "r")
         val fileDescriptor: FileDescriptor = parcelFileDescriptor!!.fileDescriptor
@@ -188,26 +182,19 @@ class ChatViewModel : ViewModel() {
 
     fun requestLocation(
         convID: String,
-        activity: AppCompatActivity,
+        activity: ChatActivity,
         fusedLocationClient: FusedLocationProviderClient,
         locationManager: LocationManager
     ) {
-        if (ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                activity.applicationContext,
+        if (ActivityCompat.checkSelfPermission(
+                activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            requestPermissions(
-                activity,
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                LOCATION_REQUEST_CODE
-            )
+            requestLocationPermissions(activity)
         }
 
         fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
@@ -228,24 +215,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-
-    fun isAudioPermissionOk(context : Context) : Boolean{
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun requestRecording(activity: Activity){
-        requestPermissions(activity, Array(1){Manifest.permission.RECORD_AUDIO}, RECORDING_REQUEST_CODE)
-    }
-
-    fun isExtStorageOk(context : Context) : Boolean{
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun requestExtStorage(activity: Activity){
-        requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
-    }
-
-
     fun setupRecording(){
 
         audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/audio.3gp"
@@ -261,23 +230,21 @@ class ChatViewModel : ViewModel() {
             mediaRecorder.setOutputFile(audioPath)
             mediaRecorder.prepare()
             mediaRecorder.start()
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
-
-
     }
 
-    fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
+    fun setListenForRecord(recordButton: RecordButton, bool: Boolean) {
         recordButton.isListenForRecord = bool
     }
 
 
-    fun deleteAudio(){
+    fun deleteAudio() {
         mediaRecorder.reset()
         mediaRecorder.release()
         val file = File(audioPath)
-        if(file.exists()){
+        if (file.exists()) {
             file.delete()
         }
     }
@@ -285,7 +252,46 @@ class ChatViewModel : ViewModel() {
     fun sendAudio() {
         mediaRecorder.stop()
         mediaRecorder.release()
-
     }
 
+    // PERMISSIONS RELATED =======================================================
+    //TODO: Check permissions for Camera?
+    fun isAudioPermissionOk(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestRecording(activity: Activity) {
+        requestPermissions(
+            activity,
+            Array(1) { Manifest.permission.RECORD_AUDIO },
+            RECORDING_REQUEST_CODE
+        )
+    }
+
+    fun isExtStorageOk(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestExtStorage(activity: Activity) {
+        requestPermissions(
+            activity,
+            Array(1) { Manifest.permission.WRITE_EXTERNAL_STORAGE },
+            STORAGE_REQUEST_CODE
+        )
+    }
+
+    private fun requestLocationPermissions(activity: Activity) {
+        requestPermissions(
+            activity, arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ), LOCATION_REQUEST_CODE
+        )
+    }
 }

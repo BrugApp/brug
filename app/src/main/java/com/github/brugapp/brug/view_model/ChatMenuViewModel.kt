@@ -61,9 +61,4 @@ class ChatMenuViewModel : ViewModel() {
             }
         }
     }
-
-    //DON'T KNOW WHAT IS THIS FOR
-//        println("===========================================================")
-//        println(Uri.parse("content://com.github.brugapp.brug.fileprovider/images/JPEG_20220329_165630_1949197185066641075.jpg"))
-//        println("===========================================================")
 }
