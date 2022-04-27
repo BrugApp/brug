@@ -5,10 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.github.brugapp.brug.MainActivity
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.DatabaseUser
 import com.github.brugapp.brug.view_model.SignInViewModel
@@ -36,10 +36,10 @@ class SignInActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.demo_button).setOnClickListener {
-            val myIntent = Intent(this, MainActivity::class.java)
-            startActivity(myIntent)
+            findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
+            // ONLY FOR DEMO MODE
+            viewModel.goToDemoMode(this)
         }
-
     }
 
     override fun onStart() {

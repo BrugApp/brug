@@ -1,83 +1,134 @@
 package com.github.brugapp.brug
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.brugapp.brug.data.FirebaseHelper
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.fake.FakeSignInAccount
-import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.model.services.DateService
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.`is`
 import org.hamcrest.core.IsEqual
+import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
 import org.junit.Test
-import org.junit.runner.RunWith
-import java.time.LocalDateTime
 
-@RunWith(AndroidJUnit4::class)
+private const val DUMMY_UID = "AUTHUSERID"
+private val DUMMY_ACCOUNT = BrugSignInAccount("Rayan", "Kikou", "", "")
+
 class UserRepositoryTest {
-    private val uid = "7IsGzvjHKd0KeeKK722m"
-    private val convID = "7IsGzvjHKd0KeeKK722mdFtGLE0x08pstMeP68TH"
-    val auth = Firebase.auth
-
     @Test
-    fun getBadCurrentUserTest() {
-        val user: User? = UserRepository.getCurrentUser("baduserID")
-        assertThat(user, IsNull.nullValue())
+    fun getMinimalUserWithWrongUIDReturnsNull() = runBlocking {
+        assertThat(UserRepository.getMinimalUserFromUID("WRONGUID"), IsNull.nullValue())
     }
 
     @Test
-    fun getGoodCurrentUserTest() {
-        val user: User? = UserRepository.getCurrentUser(uid)
-        assertThat(user, IsNull.nullValue()) //maybe add uid param
-    }
-
-    //only call addRegisterUser once authenticated
-    @Test
-    fun addBadRegisterUserTest() {
-        val empty = HashMap<String, Any>()
-        val task1 = UserRepository.addRegisterUser(empty)
-        val task2 = Firebase.firestore.collection("Users").add(empty)
-        assertThat(task2.isSuccessful, `is`(false))
+    fun getMinimalUserWithGoodUIDReturnsUser() = runBlocking {
+        assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID), IsNot(IsNull.nullValue()))
     }
 
     @Test
-    fun addGoodRegisterUserTest() {
-        val userToAdd = hashMapOf<String, Any>(
-            "firstname" to "firstnametxt",
-            "lastname" to "lastnametxt",
-            "user_icon" to "uritxt"
-        )
-        //conv_refs & items not handled here as they are collections
-        UserRepository.addRegisterUser(userToAdd)
-        val task2 = Firebase.firestore.collection("Users").add(userToAdd)
-        assertThat(task2.isSuccessful, `is`(false))
+    fun addAuthUserCorrectlyAddsUser() = runBlocking {
+        assertThat(UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT).onSuccess, IsEqual(true))
+        val user = UserRepository.getMinimalUserFromUID(DUMMY_UID)
+        assertThat(user, IsNot(IsNull.nullValue()))
+        assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null)))
     }
 
     @Test
-    fun createNewRegisterUserTest() {
-        val list = listOf<String>()
-        val userToAdd = hashMapOf(
-            "ItemIDArray" to list,
-            "UserID" to (auth.uid ?: String),
-            "email" to "emailtxt",
-            "firstName" to "firstnametxt",
-            "lastName" to "lastnametxt"
-        )
-        assertThat(UserRepository.createNewRegisterUser("emailtxt", "firstnametxt", "lastnametxt"), `is`(userToAdd))
+    fun updateUserFieldsOfInexistentUserReturnsError() = runBlocking {
+        val wrongUser = MyUser("WRONGUID", "BAD", "USER", null)
+        assertThat(UserRepository.updateUserFields(wrongUser).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
-    fun createUserInFirestoreWithWrongUidTest() {
-        val user = UserRepository.createUserInFirestoreIfAbsent("0", FakeSignInAccount())
-        assertThat(user, IsNull.nullValue())
+    fun updateUserCorrectlyUpdatesUserFields() = runBlocking {
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+        val updatedUser = MyUser(DUMMY_UID, "Bryan", "Kikou", null)
+        assertThat(UserRepository.updateUserFields(updatedUser).onSuccess, IsEqual(true))
+
+        val user = UserRepository.getMinimalUserFromUID(DUMMY_UID)
+        assertThat(user, IsNot(IsNull.nullValue()))
+        assertThat(user, IsEqual(updatedUser))
     }
 
-    //createAuthAccount is tested by registerUserActivityTest()
+    @Test
+    fun updateUserIconWithoutAuthReturnsError() = runBlocking {
+        // CREATE DRAWABLE
+        val drawable = ApplicationProvider.getApplicationContext<Context>().getDrawable(R.drawable.ic_baseline_person_24)
+        assertThat(drawable, IsNot(IsNull.nullValue()))
+
+        assertThat(UserRepository.updateUserIcon(DUMMY_UID, drawable!!).onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun updateUserIconToInexistentUserReturnsError() = runBlocking {
+        // CREATE DRAWABLE
+        val drawable = ApplicationProvider.getApplicationContext<Context>().getDrawable(R.drawable.ic_baseline_person_24)
+        assertThat(drawable, IsNot(IsNull.nullValue()))
+
+        // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
+        val authUser = Firebase.auth
+            .signInWithEmailAndPassword("test@unlost.com", "123456")
+            .await()
+            .user
+        assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
+        assertThat(Firebase.auth.currentUser!!.uid, IsEqual(authUser!!.uid))
+
+        assertThat(UserRepository.updateUserIcon("WRONGUID", drawable!!).onError, IsNot(IsNull.nullValue()))
+        Firebase.auth.signOut()
+    }
+
+    @Test
+    fun updateUserIconWithAuthCorrectlyUpdatesIcon() = runBlocking {
+        // CREATE DRAWABLE
+        val drawable = ApplicationProvider.getApplicationContext<Context>().getDrawable(R.drawable.ic_baseline_person_24)
+        assertThat(drawable, IsNot(IsNull.nullValue()))
+
+        // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
+        val authUser = Firebase.auth
+            .signInWithEmailAndPassword("test@unlost.com", "123456")
+            .await()
+            .user
+        assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
+        assertThat(Firebase.auth.currentUser!!.uid, IsEqual(authUser!!.uid))
+
+        val response = UserRepository.updateUserIcon(DUMMY_UID, drawable!!)
+        assertThat(response.onError, IsNull.nullValue())
+
+        val updatedUser = UserRepository.getMinimalUserFromUID(DUMMY_UID)
+        Firebase.auth.signOut()
+
+        assertThat(updatedUser, IsNot(IsNull.nullValue()))
+        assertThat(updatedUser!!.getUserIcon(), IsNot(IsNull.nullValue()))
+        assertThat(
+            updatedUser.getUserIcon()!!.intrinsicWidth / updatedUser.getUserIcon()!!.intrinsicHeight,
+            IsEqual(drawable.intrinsicWidth / drawable.intrinsicHeight))
+    }
+
+    @Test
+    fun resetUserIconOfInexistentUserReturnsError() = runBlocking {
+        assertThat(UserRepository.resetUserIcon("WRONGUID").onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun resetUserIconOfExistingUserReturnsSuccessfully() = runBlocking {
+        assertThat(UserRepository.resetUserIcon(DUMMY_UID).onSuccess, IsEqual(true))
+    }
+
+
+    @Test
+    fun deleteUserReturnsSuccessfully() = runBlocking {
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+//        UserRepo.addAuthUser(DUMMY_USER)
+        assertThat(UserRepository.deleteUserFromID(DUMMY_UID).onSuccess, IsEqual(true))
+        assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID), IsNull.nullValue())
+    }
+
+    @Test
+    fun deleteInexistentUserReturnsError() = runBlocking {
+        assertThat(UserRepository.deleteUserFromID("WRONGUID").onError, IsNot(IsNull.nullValue()))
+    }
 }

@@ -33,4 +33,12 @@ class DateService private constructor(private val seconds: Long): Serializable {
         return seconds
     }
 
+    override fun equals(other: Any?): Boolean {
+        return this.seconds == (other as DateService).seconds
+    }
+
+    override fun hashCode(): Int {
+        return seconds.hashCode()
+    }
+
 }

@@ -23,7 +23,7 @@ class CustomTopBar {
         searchView.queryHint = searchHint
     }
 
-    fun defineTopBarActions(view: View, dummyText: String, item: MenuItem, currentActivity: Activity) {
+    fun defineTopBarActions(item: MenuItem, currentActivity: Activity) {
         when(item.itemId){
             R.id.my_settings -> {
                 currentActivity.startActivity(Intent(currentActivity, SettingsActivity::class.java))

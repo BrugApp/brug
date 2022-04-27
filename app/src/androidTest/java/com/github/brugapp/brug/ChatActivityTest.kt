@@ -7,12 +7,9 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
-import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.InstrumentationRegistry
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.closeSoftKeyboard
@@ -28,22 +25,23 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-import com.github.brugapp.brug.data.DummyUser
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.services.DateService
+import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.text.SimpleDateFormat
+import java.io.FileOutputStream
 import java.time.LocalDateTime
 import java.time.Month
 import java.util.*
@@ -71,30 +69,31 @@ class ChatActivityTest {
     val permissionRuleCamera: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
-    private val convID = "0"
+    private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null)
 
-    //TODO: CHANGE THIS TO ACTUAL USER
-    private val dummyUser = DummyUser("John", "Doe", File.createTempFile("tempIMG", ".jpg").path)
-    private val dummyItemName = "DummyItem"
-
-    private val dummyDate = DateService.fromLocalDateTime(
+    private val dummyDate = fromLocalDateTime(
         LocalDateTime.of(
             2022, Month.MARCH, 23, 15, 30
         )
     )
-
-    private val dummyMessage = Message(
-        dummyUser.getFullName(), dummyDate, "Dummy Test Message"
-    )
-
     private val conversation = Conversation(
-        convID,
+        "USER1USER2",
         dummyUser,
-        dummyItemName,
-        mutableListOf(dummyMessage)
+        "DummyItem",
+        mutableListOf(Message(
+            dummyUser.getFullName(), dummyDate, "TestMessage"
+        ))
     )
-    private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
-    private lateinit var testUri: Uri
+
+    @Before
+    fun setUp(){
+        Intents.init()
+    }
+
+    @After
+    fun cleanUp(){
+        Intents.release()
+    }
 
     @Test
     fun chatViewCorrectlyGetsConversationInfos() {
@@ -106,14 +105,10 @@ class ChatActivityTest {
 
         ActivityScenario.launch<Activity>(intent).use {
             val messagesList = onView(withId(R.id.messagesList))
-            messagesList.check(
-                matches(
-                    atPosition(
-                        0,
-                        hasDescendant(withText("Dummy Test Message"))
-                    )
-                )
-            )
+            messagesList.check(matches(
+                atPosition(0,
+                hasDescendant(withText("TestMessage"))
+                )))
         }
     }
 
@@ -142,9 +137,9 @@ class ChatActivityTest {
         }
     }
 
-    /*@Test
-    // Should be uncommented on the next merge (with the new location feature)
-    fun sendLocationCorrectlyAddsNewMessage() {
+    //TODO: FIX THIS TEST WHEN DOING LOCATION PART
+    @Test
+    fun sendLocationCorrectlyAddsNewMessage(){
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -155,13 +150,11 @@ class ChatActivityTest {
             val messagesList = onView(withId(R.id.messagesList))
             onView(withId(R.id.buttonSendLocalisation)).perform(click())
 
-            messagesList.check(
-                matches(
-                    atPosition(1, withContentDescription("Message"))
-                )
-            )
+//            messagesList.check(matches(
+//                atPosition(1, hasDescendant(withText("Location")))
+//            ))
         }
-    }*/
+    }
 
     @Test
     fun localisationButtonGoneAfterRecord() {
@@ -240,6 +233,84 @@ class ChatActivityTest {
         }
     }
 
+    @Test
+    fun sendCameraMessageOpensCamera() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            val expectedIntent: Matcher<Intent> = allOf(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
+            onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
+            intended(expectedIntent)
+        }
+    }
+
+    @Test
+    fun sendGalleryMessageOpensGallery() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            val expectedIntent: Matcher<Intent> = allOf(hasAction(Intent.ACTION_PICK))
+            onView(withId(R.id.buttonSendImage)).perform(click())
+            intended(expectedIntent)
+        }
+    }
+
+    @Test
+    fun sendCameraMessageCorrectlyAddsNewMessage() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            val messagesList = onView(withId(R.id.messagesList))
+
+            val expectedIntent: Matcher<Intent> = hasAction(MediaStore.ACTION_IMAGE_CAPTURE)
+            intending(expectedIntent).respondWith(storeImageAndSetResultStub())
+
+            onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
+
+            messagesList.check(
+                matches(
+                    atPosition(1, withContentDescription("ImageSent"))
+                )
+            )
+        }
+    }
+
+    @Test
+    fun sendGalleryMessageCorrectlyAddsNewMessage() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            val messagesList = onView(withId(R.id.messagesList))
+
+            val expectedIntent: Matcher<Intent> = hasAction(Intent.ACTION_PICK)
+            intending(expectedIntent).respondWith(storeImageAndSetResultStub())
+
+            onView(withId(R.id.buttonSendImage)).perform(click())
+
+            messagesList.check(
+                matches(
+                    atPosition(1, withContentDescription("ImageSent"))
+                )
+            )
+        }
+    }
+
     // Helper function to match inside a RecyclerView (from StackOverflow)
     private fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?> {
         return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
@@ -257,16 +328,7 @@ class ChatActivityTest {
         }
     }
 
-    private fun createImageFile(cont: Context): File {
-        val storageDir: File? = cont.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${simpleDateFormat.format(Date())}_",
-            ".jpg",
-            storageDir
-        )
-    }
-
-    private fun storeImageAndSetResultStub(cont: Context): Instrumentation.ActivityResult {
+    private fun storeImageAndSetResultStub(): Instrumentation.ActivityResult {
         // create bitmap
         // below is a base64 blue image
         val encodedImage =
@@ -274,124 +336,18 @@ class ChatActivityTest {
         val decodedImage = Base64.getDecoder().decode(encodedImage)
         val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
 
+        // create file
+        val imageFile = File.createTempFile("dummyIMG",".jpg")
+
         // store to outputstream
-        val outputStream = ByteArrayOutputStream()
+        val outputStream = FileOutputStream(imageFile)
         image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-
-        // create uri for file
-        val imageFile = createImageFile(cont)
-        val uri = FileProvider.getUriForFile(
-            cont,
-            "com.github.brugapp.brug.fileprovider",
-            imageFile
-        )
-        testUri = uri
-
-        // store bitmap to file
-        imageFile.writeBytes(outputStream.toByteArray())
-        outputStream.flush()
         outputStream.close()
 
         // return with uri as data
         val resultData = Intent()
-        resultData.putExtra("imageUri", uri.toString())
+        resultData.putExtra(PIC_ATTACHMENT_INTENT_KEY, Uri.fromFile(imageFile).toString())
         return Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
-    }
-
-    @Test
-    fun sendCameraMessageOpensCamera() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        Intents.init()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-        }
-
-        ActivityScenario.launch<Activity>(intent).use {
-            val expectedIntent: Matcher<Intent> = allOf(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
-            onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
-            intended(expectedIntent)
-        }
-
-        Intents.release()
-    }
-
-    @Test
-    fun sendGalleryMessageOpensGallery() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        Intents.init()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-        }
-
-        ActivityScenario.launch<Activity>(intent).use {
-            val expectedIntent: Matcher<Intent> = allOf(hasAction(Intent.ACTION_PICK))
-            onView(withId(R.id.buttonSendImage)).perform(click())
-            intended(expectedIntent)
-        }
-
-        Intents.release()
-    }
-
-    @Test
-    fun sendCameraMessageCorrectlyAddsNewMessage() {
-        val instrumentationContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        Intents.init()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-        }
-
-        ActivityScenario.launch<Activity>(intent).use {
-            val messagesList = onView(withId(R.id.messagesList))
-
-            val expectedIntent: Matcher<Intent> = allOf(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
-            intending(expectedIntent).respondWith(storeImageAndSetResultStub(instrumentationContext))
-
-            onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
-
-            messagesList.check(
-                matches(
-                    atPosition(1, withContentDescription("ImageSent"))
-                )
-            )
-        }
-
-        Intents.release()
-    }
-
-    @Test
-    fun sendGalleryMessageCorrectlyAddsNewMessage() {
-        val instrumentationContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        Intents.init()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-        }
-
-        ActivityScenario.launch<Activity>(intent).use {
-            val messagesList = onView(withId(R.id.messagesList))
-
-            val expectedIntent: Matcher<Intent> = allOf(hasAction(Intent.ACTION_PICK))
-            intending(expectedIntent).respondWith(storeImageAndSetResultStub(instrumentationContext))
-
-            onView(withId(R.id.buttonSendImage)).perform(click())
-
-            messagesList.check(
-                matches(
-                    atPosition(1, withContentDescription("ImageSent"))
-                )
-            )
-        }
-
-        Intents.release()
     }
 }
 

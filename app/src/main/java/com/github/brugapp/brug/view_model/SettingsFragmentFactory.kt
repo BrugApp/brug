@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 
 class SettingsFragmentFactory @Inject constructor(
-    private val registry: ActivityResultRegistry
+    val registry: ActivityResultRegistry
 ): FragmentFactory(){
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         return when(className){
