@@ -54,8 +54,6 @@ class ChatViewModel : ViewModel() {
     //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
 
-    // For the images
-    private lateinit var imageUri: Uri
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
     fun initViewModel(messages: MutableList<Message>) {
@@ -130,7 +128,7 @@ class ChatViewModel : ViewModel() {
         if (intent.resolveActivity(activity.packageManager) != null) {
             val imageFile = createImageFile(activity)
             // Create a file Uri for saving the image
-            imageUri = FileProvider.getUriForFile(
+            val imageUri = FileProvider.getUriForFile(
                 activity,
                 "com.github.brugapp.brug.fileprovider",
                 imageFile

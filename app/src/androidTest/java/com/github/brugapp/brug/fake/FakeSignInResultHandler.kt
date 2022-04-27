@@ -1,7 +1,7 @@
 package com.github.brugapp.brug.fake
 
 import android.content.Intent
-import com.github.brugapp.brug.data.BrugSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.di.sign_in.SignInResultHandler
 

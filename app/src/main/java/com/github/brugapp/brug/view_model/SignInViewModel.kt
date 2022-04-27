@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.*
-import com.github.brugapp.brug.data.BrugSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.google.android.material.snackbar.Snackbar

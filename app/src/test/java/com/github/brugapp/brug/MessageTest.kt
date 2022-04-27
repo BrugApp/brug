@@ -4,6 +4,7 @@ import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.firestore.GeoPoint
@@ -23,11 +24,27 @@ class MessageTest {
         ))
         val body = "TESTMESSAGE"
 
-        val m = Message(senderName, timestamp, body)
+        val m = TextMessage(senderName, timestamp, body)
 
         assertThat(m.senderName, IsEqual(senderName))
         assertThat(m.timestamp, IsEqual(timestamp))
         assertThat(m.body, IsEqual(body))
+    }
+
+    @Test
+    fun initTextMessageFromMessageCorrectlyInitializesTextMessage() {
+        val msg = Message(
+            "SENDERNAME",
+            DateService.fromLocalDateTime(LocalDateTime.of(
+                2022, Month.APRIL, 22, 17, 55
+            )),
+            "TESTMESSAGE"
+        )
+
+        val txtMsg = TextMessage.fromMessage(msg)
+        assertThat(txtMsg.senderName, IsEqual(msg.senderName))
+        assertThat(txtMsg.timestamp, IsEqual(msg.timestamp))
+        assertThat(txtMsg.body, IsEqual(msg.body))
     }
 
     @Test
@@ -38,8 +55,8 @@ class MessageTest {
         ))
         val body = "TESTMESSAGE"
 
-        val m1 = Message(senderName, timestamp, body)
-        val m2 = Message(senderName, timestamp, body)
+        val m1 = TextMessage(senderName, timestamp, body)
+        val m2 = TextMessage(senderName, timestamp, body)
 
         assertThat(m1, IsEqual(m2))
     }
@@ -79,8 +96,8 @@ class MessageTest {
     }
 
     @Test
-    fun initLocationMessageFromTextMessageCorrectlyInitializesLocationMessage() {
-        val txtMsg = Message(
+    fun initLocationMessageFromMessageCorrectlyInitializesLocationMessage() {
+        val msg = Message(
             "SENDERNAME",
             DateService.fromLocalDateTime(LocalDateTime.of(
                 2022, Month.APRIL, 22, 17, 55
@@ -90,11 +107,11 @@ class MessageTest {
 
         val location = LocationService.fromGeoPoint(GeoPoint(0.0, 0.0))
 
-        val m = LocationMessage.fromTextMessage(txtMsg, location)
+        val m = LocationMessage.fromMessage(msg, location)
 
-        assertThat(m.senderName, IsEqual(txtMsg.senderName))
-        assertThat(m.timestamp, IsEqual(txtMsg.timestamp))
-        assertThat(m.body, IsEqual(txtMsg.body))
+        assertThat(m.senderName, IsEqual(msg.senderName))
+        assertThat(m.timestamp, IsEqual(msg.timestamp))
+        assertThat(m.body, IsEqual(msg.body))
         assertThat(m.location, IsEqual(location))
     }
 
@@ -149,8 +166,8 @@ class MessageTest {
     }
 
     @Test
-    fun initPicMessageFromTextMessageCorrectlyInitializesPicMessage() {
-        val txtMsg = Message(
+    fun initPicMessageFromMessageCorrectlyInitializesPicMessage() {
+        val msg = Message(
             "SENDERNAME",
             DateService.fromLocalDateTime(LocalDateTime.of(
                 2022, Month.APRIL, 22, 17, 55
@@ -160,11 +177,11 @@ class MessageTest {
 
         val imgUrl = "/path/to/dummy/img.jpg"
 
-        val m = PicMessage.fromTextMessage(txtMsg, imgUrl)
+        val m = PicMessage.fromMessage(msg, imgUrl)
 
-        assertThat(m.senderName, IsEqual(txtMsg.senderName))
-        assertThat(m.timestamp, IsEqual(txtMsg.timestamp))
-        assertThat(m.body, IsEqual(txtMsg.body))
+        assertThat(m.senderName, IsEqual(msg.senderName))
+        assertThat(m.timestamp, IsEqual(msg.timestamp))
+        assertThat(m.body, IsEqual(msg.body))
         assertThat(m.imgUrl, IsEqual(imgUrl))
     }
 
@@ -219,8 +236,8 @@ class MessageTest {
     }
 
     @Test
-    fun initAudioMessageFromTextMessageCorrectlyInitializesAudioMessage() {
-        val txtMsg = Message(
+    fun initAudioMessageFromMessageCorrectlyInitializesAudioMessage() {
+        val msg = Message(
             "SENDERNAME",
             DateService.fromLocalDateTime(LocalDateTime.of(
                 2022, Month.APRIL, 22, 17, 55
@@ -230,11 +247,11 @@ class MessageTest {
 
         val audioUrl = "/path/to/dummy/audio.mp3"
 
-        val m = AudioMessage.fromTextMessage(txtMsg, audioUrl)
+        val m = AudioMessage.fromMessage(msg, audioUrl)
 
-        assertThat(m.senderName, IsEqual(txtMsg.senderName))
-        assertThat(m.timestamp, IsEqual(txtMsg.timestamp))
-        assertThat(m.body, IsEqual(txtMsg.body))
+        assertThat(m.senderName, IsEqual(msg.senderName))
+        assertThat(m.timestamp, IsEqual(msg.timestamp))
+        assertThat(m.body, IsEqual(msg.body))
         assertThat(m.audioUrl, IsEqual(audioUrl))
     }
 

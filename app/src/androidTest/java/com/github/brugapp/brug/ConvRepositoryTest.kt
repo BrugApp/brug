@@ -8,7 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.data.BrugSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.PicMessage

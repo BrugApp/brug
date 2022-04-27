@@ -13,7 +13,6 @@ import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.DUMMY_TEXT
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
@@ -51,7 +50,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        customTopBar.defineTopBarActions(window.decorView, DUMMY_TEXT, item, this)
+        customTopBar.defineTopBarActions(item, this)
         return super.onOptionsItemSelected(item)
     }
 

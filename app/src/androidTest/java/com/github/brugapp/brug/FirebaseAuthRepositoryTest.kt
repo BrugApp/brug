@@ -1,7 +1,7 @@
 package com.github.brugapp.brug
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.brugapp.brug.data.BrugSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.data.FirebaseAuthRepository
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase

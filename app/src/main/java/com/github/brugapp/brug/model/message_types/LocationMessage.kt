@@ -12,7 +12,7 @@ data class LocationMessage(
 ) : Message(senderName, timestamp, body) {
 
     companion object {
-        fun fromTextMessage(m: Message, location: LocationService): LocationMessage {
+        fun fromMessage(m: Message, location: LocationService): LocationMessage {
             return LocationMessage(
                 m.senderName,
                 m.timestamp,

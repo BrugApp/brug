@@ -11,7 +11,7 @@ data class AudioMessage(
     : Message(senderName, timestamp, body){
 
     companion object {
-        fun fromTextMessage(m: Message, audioUrl: String): AudioMessage {
+        fun fromMessage(m: Message, audioUrl: String): AudioMessage {
             return AudioMessage(
                 m.senderName,
                 m.timestamp,

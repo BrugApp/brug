@@ -11,7 +11,7 @@ data class PicMessage(
     : Message(senderName, timestamp, body){
 
     companion object {
-        fun fromTextMessage(m: Message, imgUrl: String): PicMessage {
+        fun fromMessage(m: Message, imgUrl: String): PicMessage {
             return PicMessage(
                 m.senderName,
                 m.timestamp,

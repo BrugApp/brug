@@ -10,7 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.FirebaseAuthRepository
-import com.github.brugapp.brug.data.BrugSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.view_model.RegisterUserViewModel
 import kotlinx.coroutines.runBlocking
 

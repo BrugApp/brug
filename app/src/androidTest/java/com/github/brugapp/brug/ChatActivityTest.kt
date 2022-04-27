@@ -7,12 +7,9 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
-import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.InstrumentationRegistry
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.closeSoftKeyboard
@@ -43,9 +40,8 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.text.SimpleDateFormat
+import java.io.FileOutputStream
 import java.time.LocalDateTime
 import java.time.Month
 import java.util.*
@@ -88,8 +84,6 @@ class ChatActivityTest {
             dummyUser.getFullName(), dummyDate, "TestMessage"
         ))
     )
-    private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
-    private lateinit var testUri: Uri
 
     @Before
     fun setUp(){
@@ -143,6 +137,7 @@ class ChatActivityTest {
         }
     }
 
+    //TODO: FIX THIS TEST WHEN DOING LOCATION PART
     @Test
     fun sendLocationCorrectlyAddsNewMessage(){
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -268,10 +263,8 @@ class ChatActivityTest {
         }
     }
 
-    //TODO: FIX TEST
     @Test
     fun sendCameraMessageCorrectlyAddsNewMessage() {
-        val instrumentationContext = InstrumentationRegistry.getInstrumentation().targetContext
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -281,8 +274,8 @@ class ChatActivityTest {
         ActivityScenario.launch<Activity>(intent).use {
             val messagesList = onView(withId(R.id.messagesList))
 
-            val expectedIntent: Matcher<Intent> = allOf(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
-            intending(expectedIntent).respondWith(storeImageAndSetResultStub(instrumentationContext))
+            val expectedIntent: Matcher<Intent> = hasAction(MediaStore.ACTION_IMAGE_CAPTURE)
+            intending(expectedIntent).respondWith(storeImageAndSetResultStub())
 
             onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
 
@@ -294,10 +287,8 @@ class ChatActivityTest {
         }
     }
 
-    //TODO: FIX TEST
     @Test
     fun sendGalleryMessageCorrectlyAddsNewMessage() {
-        val instrumentationContext = InstrumentationRegistry.getInstrumentation().targetContext
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -307,15 +298,14 @@ class ChatActivityTest {
         ActivityScenario.launch<Activity>(intent).use {
             val messagesList = onView(withId(R.id.messagesList))
 
-            val expectedIntent: Matcher<Intent> = allOf(hasAction(Intent.ACTION_PICK))
-            intending(expectedIntent).respondWith(storeImageAndSetResultStub(instrumentationContext))
+            val expectedIntent: Matcher<Intent> = hasAction(Intent.ACTION_PICK)
+            intending(expectedIntent).respondWith(storeImageAndSetResultStub())
 
             onView(withId(R.id.buttonSendImage)).perform(click())
-            Thread.sleep(10000)
 
             messagesList.check(
                 matches(
-                    atPosition(1, withContentDescription(""))
+                    atPosition(1, withContentDescription("ImageSent"))
                 )
             )
         }
@@ -338,16 +328,7 @@ class ChatActivityTest {
         }
     }
 
-    private fun createImageFile(cont: Context): File {
-        val storageDir: File? = cont.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${simpleDateFormat.format(Date())}_",
-            ".jpg",
-            storageDir
-        )
-    }
-
-    private fun storeImageAndSetResultStub(cont: Context): Instrumentation.ActivityResult {
+    private fun storeImageAndSetResultStub(): Instrumentation.ActivityResult {
         // create bitmap
         // below is a base64 blue image
         val encodedImage =
@@ -355,27 +336,17 @@ class ChatActivityTest {
         val decodedImage = Base64.getDecoder().decode(encodedImage)
         val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
 
+        // create file
+        val imageFile = File.createTempFile("dummyIMG",".jpg")
+
         // store to outputstream
-        val outputStream = ByteArrayOutputStream()
+        val outputStream = FileOutputStream(imageFile)
         image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-
-        // create uri for file
-        val imageFile = createImageFile(cont)
-        val uri = FileProvider.getUriForFile(
-            cont,
-            "com.github.brugapp.brug.fileprovider",
-            imageFile
-        )
-        testUri = uri
-
-        // store bitmap to file
-        imageFile.writeBytes(outputStream.toByteArray())
-        outputStream.flush()
         outputStream.close()
 
         // return with uri as data
         val resultData = Intent()
-        resultData.putExtra("imageUri", uri.toString())
+        resultData.putExtra(PIC_ATTACHMENT_INTENT_KEY, Uri.fromFile(imageFile).toString())
         return Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
     }
 }

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -17,12 +18,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devlomi.record_view.RecordButton
+import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
+import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -57,7 +60,7 @@ class ChatActivity : AppCompatActivity() {
         buttonSendTextMessage = findViewById(R.id.buttonSendMessage)
 
         initMessageList(conversation)
-        initSendMessageButton()
+        initSendTextMessageButton()
         initSendLocationButton(locationManager, fusedLocationClient)
         initSendImageCameraButton()
         initSendImageButton()
@@ -103,12 +106,12 @@ class ChatActivity : AppCompatActivity() {
         supportActionBar!!.subtitle = "Related to the item \"$itemLost\""
     }
 
-    private fun initSendMessageButton() {
+    private fun initSendTextMessageButton() {
         val buttonSendTextMsg = findViewById<ImageButton>(R.id.buttonSendMessage)
         buttonSendTextMsg.setOnClickListener {
             // Get elements from UI
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
-            val newMessage = Message("Me",
+            val newMessage = TextMessage("Me",
                 DateService.fromLocalDateTime(LocalDateTime.now()),
                 content
             )
@@ -258,16 +261,16 @@ class ChatActivity : AppCompatActivity() {
 
         if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
             Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
-            val imageUri = data?.data
-            if(imageUri != null){
-                viewModel.sendPicMessage(this, convID, imageUri)
-            }
         } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
             Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
-            val imageUri = data?.data
-            if (imageUri != null) {
-                viewModel.sendPicMessage(this, convID, imageUri)
-            }
+        }
+
+        val imageUri = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
+        if (imageUri != null) {
+            // this will be the case for the gallery image
+            // camera images returns null as extras
+            println("=== URI set ===")
+            viewModel.sendPicMessage(this, convID, Uri.parse(imageUri))
         }
     }
 }

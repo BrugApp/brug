@@ -6,6 +6,7 @@ import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.Timestamp
@@ -100,19 +101,19 @@ object MessageRepository {
 
         return when {
             snapshot.contains("location") ->
-                LocationMessage.fromTextMessage(message,
+                LocationMessage.fromMessage(message,
                     LocationService.fromGeoPoint(snapshot["location"] as GeoPoint))
 
             snapshot.contains("image_url") ->
-                PicMessage.fromTextMessage(message,
+                PicMessage.fromMessage(message,
                     downloadFileToTemp(snapshot["image_url"] as String).toString()
                 )
 
             snapshot.contains("audio_url") ->
-                AudioMessage.fromTextMessage(message,
+                AudioMessage.fromMessage(message,
                     downloadFileToTemp(snapshot["audio_url"] as String).toString()
                 )
-            else -> message
+            else -> TextMessage.fromMessage(message)
         }
     }
 

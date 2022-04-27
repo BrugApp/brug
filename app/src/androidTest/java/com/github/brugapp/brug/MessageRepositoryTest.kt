@@ -9,12 +9,12 @@ import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.data.BrugSignInAccount
-import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.ktx.auth
@@ -39,9 +39,8 @@ private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
 
 private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null)
 private const val DUMMY_ITEM_NAME = "AirPods Pro Max"
-private const val CONV_ASSETS = "conversations_assets/"
 
-private val TEXTMSG = Message("Me",
+private val TEXTMSG = TextMessage("Me",
     DateService.fromLocalDateTime(LocalDateTime.now()),
     "TextMessage")
 
@@ -81,6 +80,7 @@ class MessageRepositoryTest {
         assertThat(response.onError, IsNot(IsNull.nullValue()))
     }
 
+    //TODO: FIX TEST
     @Test
     fun addTextMessageCorrectlyAddsNewTextMessage() = runBlocking {
         val response = MessageRepository.addMessageToConv(
@@ -114,14 +114,14 @@ class MessageRepositoryTest {
 
     @Test
     fun addPicMessageWithoutLoginReturnsError() = runBlocking {
-        val PICMSG = PicMessage(
+        val picMsg = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             "PicMessage",
             "")
 
         val response = MessageRepository.addMessageToConv(
-            PICMSG,
+            picMsg,
             USER_ID1,
             "${USER_ID1}${USER_ID2}")
         assertThat(response.onError, IsNot(IsNull.nullValue()))

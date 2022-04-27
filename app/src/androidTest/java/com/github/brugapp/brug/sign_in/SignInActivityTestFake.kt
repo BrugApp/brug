@@ -20,7 +20,7 @@ import com.github.brugapp.brug.di.sign_in.firebase.AuthFirebase
 import com.github.brugapp.brug.di.sign_in.module.DatabaseAuthModule
 import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
 import com.github.brugapp.brug.di.sign_in.module.SignInClientModule
-import com.github.brugapp.brug.data.BrugSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity

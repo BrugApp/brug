@@ -3,7 +3,7 @@ package com.github.brugapp.brug
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.data.BrugSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase

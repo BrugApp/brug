@@ -2,7 +2,7 @@ package com.github.brugapp.brug
 
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.data.BrugSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.model.MyItem
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat

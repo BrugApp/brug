@@ -1,4 +1,4 @@
-package com.github.brugapp.brug.data
+package com.github.brugapp.brug.di.sign_in.brug_account
 
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 

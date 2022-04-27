@@ -3,8 +3,6 @@ package com.github.brugapp.brug.ui
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.USER_INTENT_KEY
-import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.view_model.SettingsFragmentFactory
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
