@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.Bundle
@@ -25,6 +26,7 @@ import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import me.jagar.chatvoiceplayerlibrary.VoicePlayerView
 
 class ChatActivity : AppCompatActivity() {
 
@@ -45,6 +47,10 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var deleteAudio : ImageButton
     private lateinit var textMessage : EditText
 
+    private lateinit var playAudioButton : ImageButton
+    private lateinit var pauseAudioButton : ImageButton
+    private lateinit var voicePlayer : VoicePlayerView
+
     private lateinit var conversation: Conversation
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
@@ -62,8 +68,8 @@ class ChatActivity : AppCompatActivity() {
         initMessageList(model)
         initSendMessageButton(model)
         initSendLocationButton(model, locationManager, fusedLocationClient)
-        initSendImageCameraButton(model)
-        initSendImageButton(model)
+        initSendImageCameraButton()
+        initSendImageButton()
 
         //initSendImageCameraButton() // TODO: Implement this
 
@@ -83,7 +89,6 @@ class ChatActivity : AppCompatActivity() {
 
         initSendAudioButton(model)
 
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -101,7 +106,6 @@ class ChatActivity : AppCompatActivity() {
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItemName
         )
-
 
     }
 
@@ -121,7 +125,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendImageCameraButton(model: ChatViewModel) {
+    private fun initSendImageCameraButton() {
         // SEND IMAGE CAMERA BUTTON
         val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
         buttonSendMessage.setOnClickListener {
@@ -129,7 +133,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendImageButton(model: ChatViewModel) {
+    private fun initSendImageButton() {
         // SEND IMAGE BUTTON (from gallery)
         val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
         buttonSendMessage.setOnClickListener {
@@ -280,7 +284,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initSendAudioButton(model : ChatViewModel){
         buttonSendAudio.setOnClickListener {
-            model.sendAudio()
+            model.stopAudio()
 
             buttonSendAudio.visibility = View.GONE
             deleteAudio.visibility = View.GONE
@@ -289,7 +293,7 @@ class ChatActivity : AppCompatActivity() {
             recordButton.visibility = View.VISIBLE
             model.setListenForRecord(recordButton, false)
 
-            model.sendMessage("Audio sent, will be able to listen soon ...!", conversation.convId,this)
+            model.sendAudio()
         }
     }
 
@@ -308,11 +312,35 @@ class ChatActivity : AppCompatActivity() {
                     recordButton.visibility = View.GONE
                     buttonSendTextMessage.visibility = View.VISIBLE
                 }
-
             }
 
             override fun afterTextChanged(s: Editable?) {
             }
         })
+    }
+
+    private fun initPlayAudioButton(){
+        // TODO : do the same for the in play/pause button
+        playAudioButton = findViewById(R.id.play_audio_button_out)
+
+        playAudioButton.setOnClickListener {
+            playAudioButton.visibility = View.GONE
+            pauseAudioButton.visibility = View.VISIBLE
+
+            //viewModel.setUpPlayingAudio()
+            //viewModel.playAudio()
+        }
+    }
+
+    private fun initPauseAudioButton(){
+        // TODO : do the same for the in play/pause button
+        pauseAudioButton = findViewById(R.id.pause_audio_button_out)
+
+        pauseAudioButton.setOnClickListener {
+            playAudioButton.visibility = View.VISIBLE
+            pauseAudioButton.visibility = View.GONE
+
+            //viewModel.pauseAudio()
+        }
     }
 }

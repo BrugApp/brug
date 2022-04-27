@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="7dp"
+    android:layout_marginBottom="3dp"
+    >
+
+    <RelativeLayout
+        android:id="@+id/message_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp">
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="?android:attr/actionBarSize"
+            app:cardBackgroundColor="#5089fa"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center_vertical">
+
+                <FrameLayout
+                    android:id="@+id/play_audio_lay"
+                    android:layout_width="30dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="10dp">
+
+                    <ImageView
+                        android:id="@+id/play_audio_button_in"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_play"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:paddingBottom="5dp"
+                        app:tint="#FFFFFF"/>
+
+                    <ImageView
+                        android:id="@+id/pause_audio_button_in"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_gravity="center"
+                        android:paddingLeft="5dp"
+                        android:paddingRight="5dp"
+                        android:paddingBottom="5dp"
+                        android:src="@drawable/ic_pause"
+                        android:visibility="gone"
+                        android:clickable="true"
+                        android:focusable="true"
+                        app:tint="#FFFFFF" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
+                        android:visibility="gone"
+                        />
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    android:layout_marginTop="15dp"
+                    android:orientation="vertical">
+
+                    <SeekBar
+                        android:id="@+id/progressBar2"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:minHeight="2dip"
+                        android:progressTint="#5089fa"
+                        android:thumbTint="#FFFFFF" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:orientation="horizontal"
+                        android:padding="2dp">
+
+                        <TextView
+                            android:id="@+id/txt_audio_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="15dp"
+                            android:layout_gravity="left|bottom"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center|left"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textSize="10.00sp"
+                            android:textColor="#FFFFFF"
+                            android:text="01:05" />
+
+                        <TextView
+                            android:id="@+id/date_text"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginRight="8dp"
+                            android:text="03:50 am"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            android:textColor="#FFFFFF"
+                            android:textSize="10sp" />
+
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </RelativeLayout>
+</RelativeLayout>

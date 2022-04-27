@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
@@ -28,6 +29,7 @@ import androidx.lifecycle.liveData
 import com.github.brugapp.brug.data.FirebaseHelper
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -48,6 +50,7 @@ import java.util.*
 class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
+    private lateinit var mediaPlayer : MediaPlayer
     private lateinit var audioPath : String
     private val RECORDING_REQUEST_CODE = 3000
     private val STORAGE_REQUEST_CODE = 2000
@@ -274,6 +277,16 @@ class ChatViewModel : ViewModel() {
     }
     */
 
+    fun sendAudio(){
+
+        // TODO: modify this implementation to adapt it for Firestore
+        val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
+            "Audio", audioPath)
+
+        messages.add(audioMessage)
+        adapter.notifyItemInserted(messages.size - 1)
+    }
+
     fun isAudioPermissionOk(context : Context) : Boolean{
         return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
     }
@@ -290,7 +303,6 @@ class ChatViewModel : ViewModel() {
         requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
     }
 
-
     fun setupRecording(){
 
         audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/audio.3gp"
@@ -301,22 +313,17 @@ class ChatViewModel : ViewModel() {
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
-            //val file = File(Environment.getExternalStorageDirectory().absolutePath, "ChatMe/Media/Recording")
-
             mediaRecorder.setOutputFile(audioPath)
             mediaRecorder.prepare()
             mediaRecorder.start()
         }catch (e:Exception){
             e.printStackTrace()
         }
-
-
     }
 
     fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
         recordButton.isListenForRecord = bool
     }
-
 
     fun deleteAudio(){
         mediaRecorder.reset()
@@ -327,10 +334,28 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun sendAudio() {
+    fun stopAudio() {
         mediaRecorder.stop()
         mediaRecorder.release()
+    }
 
+    fun setUpPlayingAudio(){
+        // check this option : mediaPlayer.setDataSource(context, uri)
+        mediaPlayer = MediaPlayer()
+        mediaPlayer.setDataSource(audioPath)
+
+        mediaPlayer.setOnCompletionListener {
+            mediaPlayer.stop()
+        }
+    }
+
+    fun playAudio() {
+        mediaPlayer.prepare()
+        mediaPlayer.start()
+    }
+
+    fun pauseAudio() {
+        mediaPlayer.pause()
     }
 
 }
