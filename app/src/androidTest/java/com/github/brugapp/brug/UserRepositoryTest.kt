@@ -1,24 +1,17 @@
 package com.github.brugapp.brug
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.brugapp.brug.data.FirebaseHelper
+import com.github.brugapp.brug.data.BrugSignInAccount
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.fake.FakeSignInAccount
-import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.model.services.DateService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
-import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.LocalDateTime
 
 @RunWith(AndroidJUnit4::class)
 class UserRepositoryTest {
@@ -75,7 +68,11 @@ class UserRepositoryTest {
 
     @Test
     fun createUserInFirestoreWithWrongUidTest() {
-        val user = UserRepository.createUserInFirestoreIfAbsent("0", FakeSignInAccount())
+        val user = UserRepository.createUserInFirestoreIfAbsent("0",
+            BrugSignInAccount("Son Goku",
+                "Vegeta",
+                "0",
+                "goku@capsulecorp.com"))
         assertThat(user, IsNull.nullValue())
     }
 

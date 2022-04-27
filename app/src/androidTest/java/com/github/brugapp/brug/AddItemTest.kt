@@ -36,9 +36,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 //TODO: TRY TO PUT IMAGE ASSERTIONS NOW
-//private val DUMMY_USER = MyUser("USER1", "Rayan", "Kikou", null)
-//private const val ITEM_ID = "DUMMY_ID" //TODO: REMOVE THIS WHEN ID GENERATION IS PROPERLY IMPLEMENTED
-
 private const val TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
 
 @RunWith(AndroidJUnit4::class)
@@ -163,18 +160,6 @@ class AddItemTest {
 
         onView(withId(R.id.add_item_button)).perform(click())
 
-        val itemDescription = onView(withId(R.id.itemDescription))
-
-//        val newItem = Item(itemName.toString(), itemDescription.toString(), ITEM_ID)
-
-//        val newItem = MyItem(itemName.toString(),
-//            ItemType.Other.ordinal,
-//            itemDescription.toString(),
-//            false)
-
-        /* verify that the added item will always pass for now,
-        as all items have the same id, it will become a "real" test when ids are generated with the database
-         */
         onView(withId(R.id.items_listview)).check(matches(
             hasItemAtPosition(0, hasDescendant(
                 withText(validName)
