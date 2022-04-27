@@ -251,6 +251,9 @@ class ChatActivity : AppCompatActivity() {
 
         val imageUri = data?.extras?.getString("imageUri")
         if (imageUri != null) {
+            // this will be the case for the gallery image
+            // camera images returns null as extras
+            println("=== URI set ===")
             viewModel.setImageUri(Uri.parse(imageUri))
         }
         viewModel.uploadImage(this)
