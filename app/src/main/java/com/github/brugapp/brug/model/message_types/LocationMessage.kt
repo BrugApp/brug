@@ -8,17 +8,16 @@ data class LocationMessage(
     override val senderName: String,
     override val timestamp: DateService,
     override val body: String,
-    val location: LocationService,
-    val mapUrl: String
+    val location: LocationService
 ) : Message(senderName, timestamp, body) {
+    lateinit var mapUrl: String
     companion object {
         fun fromMessage(m: Message, location: LocationService): LocationMessage {
             return LocationMessage(
                 m.senderName,
                 m.timestamp,
                 m.body,
-                location,
-                "mapUrl" //Needs to update for firebase
+                location
             )
         }
     }

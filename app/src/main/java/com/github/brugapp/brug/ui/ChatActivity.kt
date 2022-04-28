@@ -3,12 +3,9 @@ package com.github.brugapp.brug.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.Location
 import android.location.LocationManager
-import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -22,31 +19,26 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.core.view.iterator
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
+import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.message_types.LocationMessage
-import com.github.brugapp.brug.model.message_types.PicMessage
+import com.github.brugapp.brug.model.message_types.AudioMessage
+import com.github.brugapp.brug.model.message_types.TextMessage
+import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.*
-import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
-import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
-import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.message_types.AudioMessage
-import com.github.brugapp.brug.model.message_types.TextMessage
-import com.github.brugapp.brug.model.services.DateService
 import java.time.LocalDateTime
+import java.util.*
 
 class ChatActivity : AppCompatActivity() {
 
@@ -60,7 +52,6 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var buttonSendAudio: ImageButton
     private lateinit var deleteAudio: ImageButton
     private lateinit var textMessage: EditText
-
 
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
@@ -106,7 +97,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initMessageList(conversation: Conversation) {
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
-        viewModel.initViewModel(conversation.messages)
+        viewModel.initViewModel(conversation.messages, this)
         messageList.layoutManager = LinearLayoutManager(this)
 
         val adapter = viewModel.getAdapter()
@@ -116,7 +107,7 @@ class ChatActivity : AppCompatActivity() {
             override fun onItemClick(position: Int) {
                 if(adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
                     adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal)
-                    Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_SHORT).show()
             }
         })
 
@@ -319,19 +310,15 @@ class ChatActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
-        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
-        }
-
-        val imageUri = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
-        if (imageUri != null) {
-            // this will be the case for the gallery image
-            // camera images returns null as extras
-            println("=== URI set ===")
-            viewModel.sendPicMessage(this, convID, Uri.parse(imageUri))
+        if (resultCode == RESULT_OK){
+            if (requestCode == SELECT_PICTURE_REQUEST_CODE){
+                val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                viewModel.setImageUri(imageUri)
+                viewModel.sendPicMessage(this, convID)
+            }
+            else if (requestCode == TAKE_PICTURE_REQUEST_CODE){
+                viewModel.sendPicMessage(this, convID)
+            }
         }
     }
 }

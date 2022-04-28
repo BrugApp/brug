@@ -69,13 +69,6 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
         }
     }
 
-//    fun setData(m: List<Message>) {
-//        messageList.apply {
-//            clear()
-//            addAll(m)
-//        }
-//    }
-
     class ViewHolder(itemView: View, listener: onItemClickListener) :
         RecyclerView.ViewHolder(itemView) {
         init {

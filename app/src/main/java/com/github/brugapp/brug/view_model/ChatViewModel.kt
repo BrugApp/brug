@@ -1,7 +1,6 @@
 package com.github.brugapp.brug.view_model
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -52,20 +51,25 @@ class ChatViewModel() : ViewModel() {
     private lateinit var mediaRecorder : MediaRecorder
     private lateinit var audioPath : String
 
-    //NEEDED?
-    //private val RECORDING_REQUEST_CODE = 3000
-    //private val STORAGE_REQUEST_CODE = 2000
-    private val locationRequestCode = 1
     //private val locationListener = LocationListener { sendLocation(it) }
     private lateinit var activity: ChatActivity
+    private lateinit var imageUri: Uri
 
     //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
 
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
-    fun initViewModel(messages: MutableList<Message>) {
+    fun initViewModel(messages: MutableList<Message>, activity: ChatActivity) {
         this.messages = messages
+
+        // initiate arguments values for location messages
+        for (message in messages){
+            if(message is LocationMessage){
+                message.mapUrl = activity.createFakeImage().toString()
+            }
+        }
+
         this.adapter = ChatMessagesListAdapter(messages)
     }
 
@@ -119,7 +123,7 @@ class ChatViewModel() : ViewModel() {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ),
-                locationRequestCode
+                LOCATION_REQUEST_CODE
             )
         }
     }
@@ -131,10 +135,10 @@ class ChatViewModel() : ViewModel() {
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             textBox.text.toString(),
-            LocationService.fromAndroidLocation(location),
-            uri.toString()
+            LocationService.fromAndroidLocation(location)
         )
 
+        newMessage.mapUrl = activity.createFakeImage().toString()
         sendMessage(newMessage, convID, activity)
 
         // Clear the message field
@@ -143,13 +147,14 @@ class ChatViewModel() : ViewModel() {
         adapter.notifyItemInserted(messages.size - 1)
     }
 
-    fun sendPicMessage(activity: ChatActivity, convID: String, picURI: Uri) {
+    fun sendPicMessage(activity: ChatActivity, convID: String) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
+        val resizedUri = resize(activity, imageUri)
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             textBox.text.toString(),
-            picURI.toString()
+            resizedUri.toString()
         )
 
         sendMessage(newMessage, convID, activity)
@@ -157,6 +162,7 @@ class ChatViewModel() : ViewModel() {
         // Clear the message field
         textBox.text = ""
 
+        activity.scrollToBottom(adapter.itemCount - 1)
     }
 
     // IMAGE RELATED =======================================================
@@ -165,7 +171,7 @@ class ChatViewModel() : ViewModel() {
         if (intent.resolveActivity(activity.packageManager) != null) {
             val imageFile = createImageFile(activity)
             // Create a file Uri for saving the image
-            val imageUri = FileProvider.getUriForFile(
+            imageUri = FileProvider.getUriForFile(
                 activity,
                 "com.github.brugapp.brug.fileprovider",
                 imageFile
@@ -173,6 +179,10 @@ class ChatViewModel() : ViewModel() {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
             startActivityForResult(activity, intent, TAKE_PICTURE_REQUEST_CODE, null)
         }
+    }
+
+    fun setImageUri(uri: Uri){
+        imageUri = uri
     }
 
     fun selectGalleryImage(activity: ChatActivity) {
