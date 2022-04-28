@@ -44,7 +44,7 @@ class PaymentRepository : AppCompatActivity() {
         return IsReadyToPayRequest.fromJson(jsonDerulo.toString())
     }
 
-    private fun updateOnSuccess(){
+    fun updateOnSuccess(){ //this method should be private but we need to test it
         val paymentRequest = paymentRequest()
         paymentsClient.isReadyToPay(paymentRequest)
 

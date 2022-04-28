@@ -18,5 +18,11 @@ class PaymentRepositoryTest {
         MatcherAssert.assertThat(item, IsNull.notNullValue())
     }
 
+    @Test
+    fun updateOnSuccessTest(){
+        val update = PaymentRepository().updateOnSuccess()
+        MatcherAssert.assertThat(update, IsNull.notNullValue())
+    }
+
 
 }
