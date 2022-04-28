@@ -50,6 +50,7 @@ class ChatViewModel() : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
     private lateinit var audioPath : String
+    private lateinit var imageUri: Uri // NEEDED TO RETRIEVE THE IMAGE FROM THE CAMERA AFTER SNAPPING A PICTURE
 
     //private val locationListener = LocationListener { sendLocation(it) }
     private lateinit var activity: ChatActivity
@@ -70,7 +71,7 @@ class ChatViewModel() : ViewModel() {
             }
         }
 
-        this.adapter = ChatMessagesListAdapter(messages)
+        this.adapter = ChatMessagesListAdapter(this, messages)
     }
 
     fun getAdapter(): ChatMessagesListAdapter {
@@ -149,12 +150,12 @@ class ChatViewModel() : ViewModel() {
 
     fun sendPicMessage(activity: ChatActivity, convID: String) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
-        val resizedUri = resize(activity, imageUri)
+        val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             textBox.text.toString(),
-            resizedUri.toString()
+            compressImage(activity, picURI).toString()
         )
 
         sendMessage(newMessage, convID, activity)
@@ -208,7 +209,7 @@ class ChatViewModel() : ViewModel() {
         return image
     }
 
-    private fun resize(activity: ChatActivity, uri: Uri): URI {
+    private fun compressImage(activity: ChatActivity, uri: Uri): URI {
         // open the image and resize it
         val imageBM = uriToBitmap(activity, uri)
         val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
