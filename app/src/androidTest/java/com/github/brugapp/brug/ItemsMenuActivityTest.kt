@@ -212,9 +212,25 @@ class ItemsMenuActivityTest {
         intended(hasComponent(ItemInformationActivity::class.java.name))
     }
 
+    @Test
+    fun clickOnButtonTriggersQrCode() {
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToClick = chatList.getChild(UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToClick.click()
+
+        val button = onView(withId(R.id.qrGen))
+        button.perform(click())
+        intended(hasComponent(QrCodeShowActivity::class.java.name))
+    }
 
     @Test
-    fun checkifKeyboardIsShownAfterPressingSearch() {
+    fun checkIfKeyboardIsShownAfterPressingSearch() {
         val searchButton = onView(withId(R.id.search_box))
         searchButton.perform(click())
         assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))

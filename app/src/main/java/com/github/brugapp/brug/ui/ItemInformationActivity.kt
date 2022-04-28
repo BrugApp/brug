@@ -1,6 +1,8 @@
 package com.github.brugapp.brug.ui
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -9,6 +11,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.USER_ID_INTENT_KEY
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
@@ -26,31 +29,45 @@ class ItemInformationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
-
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
 
         val textSet: HashMap<String,String> = viewModel.getText(item)
         setTextAllView(textSet)
 
+        setSwitch(item)
+        qrCodeButton()
+    }
+
+    private fun setSwitch(item: MyItem) {
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
-            liveData(Dispatchers.IO){
+            liveData(Dispatchers.IO) {
                 emit(ItemsRepository.updateItemFields(item, Firebase.auth.currentUser!!.uid))
-            }.observe(this){ response ->
-
-                val feedbackStr = if(response.onSuccess){
+            }.observe(this) { response ->
+                val feedbackStr = if (response.onSuccess) {
                     "Item state has been successfully changed"
                 } else {
                     "ERROR: Item state couldn't be saved"
                 }
-
                 Snackbar.make(
                     findViewById(android.R.id.content),
                     feedbackStr,
-                    Snackbar.LENGTH_LONG).show()
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
+        }
+    }
+
+    private fun qrCodeButton() {
+        //if button is clicked, go to QrCodeShow
+        val button: Button = findViewById(R.id.qrGen)
+        button.setOnClickListener {
+            val intent = Intent(this, QrCodeShowActivity::class.java)
+            //give qrId to QrCodeShow
+            intent.putExtra("qrId", viewModel.getQrId())
+            startActivity(intent)
         }
     }
 

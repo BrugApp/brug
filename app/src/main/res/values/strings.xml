@@ -84,4 +84,6 @@
     <string name="timestamp_example">220317133700</string>
     <string name="profile_picture_description">Profile picture</string>
     <string name="location">location</string>
+    <string name="qr_code">Qr Code</string>
+    <string name="title_activity_maps">MapsActivity</string>
 </resources>

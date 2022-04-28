@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.model
 
+import android.util.Log
 import com.github.brugapp.brug.R
 import java.io.Serializable
 import java.lang.IllegalArgumentException
