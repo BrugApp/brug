@@ -23,7 +23,6 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -259,18 +258,21 @@ class ChatActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
-        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
-        }
-
-        val imageUri = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
-        if (imageUri != null) {
-            // this will be the case for the gallery image
-            // camera images returns null as extras
-            println("=== URI set ===")
-            viewModel.sendPicMessage(this, convID, Uri.parse(imageUri))
+        if (resultCode == RESULT_OK){
+            if (requestCode == SELECT_PICTURE_REQUEST_CODE){
+                Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
+                val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                viewModel.setImageUri(imageUri)
+                viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
+            }
+            else if (requestCode == TAKE_PICTURE_REQUEST_CODE){
+                Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
+                if(data!!.extras != null){
+                    val imageUri = Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                    viewModel.setImageUri(imageUri)
+                }
+                viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
+            }
         }
     }
 }
