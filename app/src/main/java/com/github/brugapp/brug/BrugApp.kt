@@ -6,6 +6,7 @@ import dagger.hilt.android.HiltAndroidApp
 const val DUMMY_TEXT: String = "Actual behavior coming soon…"
 const val PIC_ATTACHMENT_INTENT_KEY = "imageUri"
 const val ITEM_INTENT_KEY = "itemkey"
+const val USER_ID_INTENT_KEY = "userID"
 const val LOCATION_REQUEST_CODE = 1
 const val TAKE_PICTURE_REQUEST_CODE = 1
 const val SELECT_PICTURE_REQUEST_CODE = 10

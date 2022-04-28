@@ -29,6 +29,10 @@
             android:value="${MAPS_API_KEY}" />
 
         <activity
+            android:name=".ui.QrCodeShowActivity"
+            android:parentActivityName=".ui.ItemsMenuActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_settings" />
