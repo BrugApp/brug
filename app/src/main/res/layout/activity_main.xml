@@ -97,8 +97,13 @@
         android:id="@+id/mapButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="44dp"
+        android:layout_marginBottom="40dp"
         android:text="Map"
-        tools:layout_editor_absoluteX="279dp"
-        tools:layout_editor_absoluteY="631dp" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/chat" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
