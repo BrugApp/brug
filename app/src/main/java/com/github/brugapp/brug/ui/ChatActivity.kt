@@ -317,6 +317,11 @@ class ChatActivity : AppCompatActivity() {
                 viewModel.sendPicMessage(this, convID)
             }
             else if (requestCode == TAKE_PICTURE_REQUEST_CODE){
+                // for the tests (use of stubs that store uri as extra)
+                val uriString = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
+                if(uriString != null){
+                    viewModel.setImageUri(Uri.parse(uriString))
+                }
                 viewModel.sendPicMessage(this, convID)
             }
         }
