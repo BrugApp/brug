@@ -16,6 +16,16 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.settings_activity)
         val button: Button = findViewById(R.id.changeProfilePictureButton)
         button.setOnClickListener{
+//            val user = runBlocking{ UserRepo.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid) }
+//            if(user == null){
+//                Snackbar.make(findViewById(android.R.id.content), "ERROR: Unable to fetch user from database", Snackbar.LENGTH_LONG)
+//                    .show()
+//            } else {
+//                val intent = Intent(this, ProfilePictureSetActivity::class.java)
+////                intent.putExtra(USER_INTENT_KEY, user)
+//                startActivity(intent)
+//            }
+
             val intent = Intent(this, ProfilePictureSetActivity::class.java)
             startActivity(intent)
         }

@@ -1,25 +1,28 @@
 package com.github.brugapp.brug
 
+import android.content.Intent
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.GeneralLocation
-import androidx.test.espresso.action.GeneralSwipeAction
-import androidx.test.espresso.action.Press
-import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiScrollable
+import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.ui.*
-import com.github.brugapp.brug.view_model.ListViewHolder
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
@@ -28,22 +31,49 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
+private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
+
+private const val LIST_VIEW_ID: String = "$APP_PACKAGE_NAME:id/chat_listview"
+private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/chat_entry_title"
+private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
+
+private const val TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
+private const val INTERLOCUTOR_USER_UID = "qnUozimLdsYaSZXPW1mfGdxkUcR2"
+private const val DUMMY_LOST_ITEM = "DummyItemName"
+
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 class ChatMenuActivityTest {
     @get:Rule
-    val testRule = ActivityScenarioRule(ChatMenuActivity::class.java)
-
-    @get:Rule
     var rule = HiltAndroidRule(this)
+
+
+    private fun signInTestUser() {
+        runBlocking {
+            Firebase.auth.signInWithEmailAndPassword(
+                "test@unlost.com",
+                "123456").await()
+
+            ConvRepository.addNewConversation(TEST_USER_UID, INTERLOCUTOR_USER_UID, DUMMY_LOST_ITEM)
+        }
+    }
+
+    private fun signOut() {
+        Firebase.auth.signOut()
+    }
+
     @Before
-    fun setUpIntents() {
+    fun setUp() {
         Intents.init()
+        signInTestUser()
+        val intent = Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
     }
 
     @After
-    fun releaseIntents() {
+    fun cleanUp() {
         Intents.release()
+        signOut()
     }
 
     @Test
@@ -51,7 +81,6 @@ class ChatMenuActivityTest {
         val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
         itemsListMenuButton.perform(click())
         intended(hasComponent(ItemsMenuActivity::class.java.name))
-
     }
 
     @Test
@@ -59,7 +88,6 @@ class ChatMenuActivityTest {
         val scanQRMenuButton = onView(withId(R.id.qr_scan_menu_button))
         scanQRMenuButton.perform(click())
         intended(hasComponent(QrCodeScannerActivity::class.java.name))
-
     }
 
     @Test
@@ -77,47 +105,53 @@ class ChatMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-        Thread.sleep(10000)
-        val chatList = onView(withId(R.id.chat_listview))
-        val snackBar =
-            onView(withId(com.google.android.material.R.id.snackbar_text))
-        chatList.perform(
-            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-                0, GeneralSwipeAction(
-                    Swipe.SLOW, GeneralLocation.BOTTOM_RIGHT, GeneralLocation.BOTTOM_LEFT,
-                    Press.FINGER
-                )
-            )
-        )
-        snackBar.check(matches(withText(CHAT_CHECK_TEXT)))
+
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToSwipe = itemsList.getChild(
+            UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToSwipe.swipeLeft(50)
+
+        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
+        assertThat(snackBarTextView.text, IsEqual(CHAT_CHECK_TEXT))
     }
+
+
 
     @Test
-    fun swipeRightOnItemDeletesItem() { //FAILING -> NEEDS ASYNCHRONY
-        Thread.sleep(10000)
-        val chatList = onView(withId(R.id.chat_listview))
-        val snackBar =
-            onView(withId(com.google.android.material.R.id.snackbar_text))
-        chatList.perform(
-            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-                0, GeneralSwipeAction(
-                    Swipe.SLOW, GeneralLocation.BOTTOM_LEFT, GeneralLocation.BOTTOM_RIGHT,
-                    Press.FINGER
-                )
-            )
-        )
-        snackBar.check(matches(withText(CHAT_CHECK_TEXT)))
+    fun swipeRightOnItemDeletesItem() {
+        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToSwipe = itemsList.getChild(UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToSwipe.swipeRight(50)
+
+        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
+        assertThat(snackBarTextView.text, IsEqual(CHAT_CHECK_TEXT))
     }
 
+    //TODO: Test clicking on item goes to chat
     @Test
     fun clickOnItemGoesToChatActivity() {
-        Thread.sleep(10000)
-        val chatList = onView(withId(R.id.chat_listview))
-        chatList.perform(
-            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-                0, click()
-            )
-        )
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToClick = chatList.getChild(UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToClick.click()
+
         intended(hasComponent(ChatActivity::class.java.name))
     }
 

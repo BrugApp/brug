@@ -3,10 +3,8 @@ package com.github.brugapp.brug.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.media.MediaPlayer
-import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -17,16 +15,21 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.devlomi.record_view.*
+import com.devlomi.record_view.RecordButton
+import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
+import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.message_types.TextMessage
+import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import me.jagar.chatvoiceplayerlibrary.VoicePlayerView
+import java.time.LocalDateTime
+
 
 class ChatActivity : AppCompatActivity() {
 
@@ -34,54 +37,51 @@ class ChatActivity : AppCompatActivity() {
     private var LOCATION_REQUEST = 1
     private lateinit var locationManager: LocationManager
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var convID: String
 
-    private lateinit var messageList: RecyclerView
+    private lateinit var buttonSendTextMessage: ImageButton
+    private lateinit var recordButton: RecordButton
+    private lateinit var messageLayout: LinearLayout
+    private lateinit var audioRecMessage: TextView
+    private lateinit var buttonSendAudio: ImageButton
+    private lateinit var deleteAudio: ImageButton
+    private lateinit var textMessage: EditText
 
-    private lateinit var buttonSendTextMessage : ImageButton
-    private lateinit var recordButton : RecordButton
-    private lateinit var messageLayout : LinearLayout
-    private lateinit var audioRecMessage : TextView
-    private lateinit var buttonSendAudio : ImageButton
-    private lateinit var deleteAudio : ImageButton
-    private lateinit var textMessage : EditText
-
-    private lateinit var conversation: Conversation
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        val model: ChatViewModel by viewModels()
+        val conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
+        convID = conversation.convId
 
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         buttonSendTextMessage = findViewById(R.id.buttonSendMessage)
 
-        initMessageList(model)
-        initSendMessageButton(model)
-        initSendLocationButton(model, locationManager, fusedLocationClient)
+        initMessageList(conversation)
+        initSendTextMessageButton()
+        initSendLocationButton(locationManager, fusedLocationClient)
         initSendImageCameraButton()
         initSendImageButton()
-
-        //initSendImageCameraButton() // TODO: Implement this
 
         messageLayout = findViewById(R.id.messageLayout)
         audioRecMessage = findViewById(R.id.audioRecording)
         buttonSendAudio = findViewById(R.id.buttonSendAudio)
 
         recordButton = findViewById(R.id.recordButton)
-        model.setListenForRecord(recordButton, false)
-        initRecordButton(model)
+        viewModel.setListenForRecord(recordButton, false)
+        initRecordButton(viewModel)
 
         deleteAudio = findViewById(R.id.deleteAudio)
-        initDeleteAudioButton(model)
+        initDeleteAudioButton(viewModel)
 
         textMessage = findViewById(R.id.editMessage)
         initTextInputField()
 
-        initSendAudioButton(model)
+        initSendAudioButton(viewModel)
 
     }
 
@@ -89,18 +89,17 @@ class ChatActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    private fun initMessageList(model: ChatViewModel) {
-        conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
-
+    private fun initMessageList(conversation: Conversation) {
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
-        model.initViewModel(conversation.messages)
+        viewModel.initViewModel(conversation.messages)
         messageList.layoutManager = LinearLayoutManager(this)
-        messageList.adapter = model.getAdapter()
+        messageList.adapter = viewModel.getAdapter()
+
+        scrollToBottom((viewModel.getAdapter().itemCount) - 1)
 
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItemName
         )
-
     }
 
     private fun inflateActionBar(username: String, itemLost: String) {
@@ -108,14 +107,20 @@ class ChatActivity : AppCompatActivity() {
         supportActionBar!!.subtitle = "Related to the item \"$itemLost\""
     }
 
-    private fun initSendMessageButton(model: ChatViewModel) {
-        // SEND MESSAGE BUTTON
-        buttonSendTextMessage.setOnClickListener {
+    private fun initSendTextMessageButton() {
+        val buttonSendTextMsg = findViewById<ImageButton>(R.id.buttonSendMessage)
+        buttonSendTextMsg.setOnClickListener {
             // Get elements from UI
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
+            val newMessage = TextMessage("Me",
+                DateService.fromLocalDateTime(LocalDateTime.now()),
+                content
+            )
+            viewModel.sendMessage(newMessage, convID, this)
+
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
-            model.sendMessage(content, conversation.convId, this)
+
         }
     }
 
@@ -132,90 +137,18 @@ class ChatActivity : AppCompatActivity() {
         val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
         buttonSendMessage.setOnClickListener {
             viewModel.selectGalleryImage(this)
+
         }
     }
 
-    private fun initSendLocationButton(
-        model: ChatViewModel,
-        locationManager: LocationManager,
-        fusedLocationClient: FusedLocationProviderClient
-    ) {
-        val buttonSendLocalisation = findViewById<ImageButton>(R.id.buttonSendLocalisation)
-        buttonSendLocalisation.setOnClickListener {
-            model.requestLocation(this, fusedLocationClient, locationManager)
-        }
-    }
-
-    // LOCALISATION METHODS (inspired by https://github.com/punit9l/)
-    // TODO: Refactor when the firebase helper is implemented
-    /*
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun requestLocation() {
-        // Check if permissions are given
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions( arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_REQUEST)}
-        else {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { lastKnownLocation: Location? ->
-                    if (lastKnownLocation != null) foundLocation(lastKnownLocation)
-                }
-
-            // Launch the locationListener (updates every 1000 ms)
-            val locationGpsProvider = LocationManager.GPS_PROVIDER
-            locationManager.requestLocationUpdates(
-                locationGpsProvider,
-                1000,
-                0.1f,
-                locationListener
-            )
-            // Stop the update as we only want it once (at least for now)
-            locationManager.removeUpdates(locationListener)
-        }
-    }
-
-    // Ask ViewModel to compute UI updates
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun foundLocation(location: Location) {
-        viewModel.sendLocalisation(location.longitude, location.latitude)
-    }
-
-    // Implementation of the LocationListener
-    @RequiresApi(Build.VERSION_CODES.O)
-    private val locationListener: LocationListener =
-        LocationListener { location -> foundLocation(location) }
-
-
-    // HELPER METHODS TO DISPLAY LIST OF MESSAGES
-    private fun initMessageList() {
-        messageList = findViewById(R.id.messagesList)
-        val linearManager = LinearLayoutManager(this)
-        linearManager.stackFromEnd = true
-        messageList.layoutManager = linearManager
-        messageList.setHasFixedSize(true)
-
-        viewModel.initAdapter()
-        messageList.adapter = viewModel.getAdapter()
-    }
-    */
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        val TAKE_PICTURE_REQUEST_CODE = 1
-        val SELECT_PICTURE_REQUEST_CODE = 10
-
-        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
-            viewModel.uploadImage(this)
-        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
-            val imageUri = data?.data
-            if (imageUri != null) {
-                viewModel.setImageUri(imageUri)
-                viewModel.uploadImage(this)
-            }
+    private fun initSendLocationButton(locationManager: LocationManager,
+                                       fusedLocationClient: FusedLocationProviderClient) {
+        val buttonSendLocationMsg = findViewById<ImageButton>(R.id.buttonSendLocalisation)
+        buttonSendLocationMsg.setOnClickListener {
+            viewModel.requestLocation(convID,
+                this,
+                fusedLocationClient,
+                locationManager)
         }
     }
 
@@ -226,12 +159,24 @@ class ChatActivity : AppCompatActivity() {
             PackageManager.FEATURE_MICROPHONE)
     }*/
 
-    private fun initRecordButton(model : ChatViewModel) {
+
+    /*override fun onRequestPermissionsResult( // This should go to the bottom with the same function
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if(requestCode == RECORDING_REQUEST_CODE){
+            recordButton.isEnabled = true
+        }
+    }*/
+
+    private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
 
             model.setListenForRecord(recordButton, true)
 
-            if(model.isAudioPermissionOk(this) && model.isExtStorageOk(this)){
+            if (model.isAudioPermissionOk(this) && model.isExtStorageOk(this)) {
 
                 model.setupRecording()
 
@@ -241,18 +186,18 @@ class ChatActivity : AppCompatActivity() {
                 deleteAudio.visibility = View.VISIBLE
                 audioRecMessage.visibility = View.VISIBLE
 
-            }else if(model.isAudioPermissionOk(this)){
+            } else if (model.isAudioPermissionOk(this)) {
                 model.requestExtStorage(this)
-            }else if(model.isExtStorageOk(this)){
+            } else if (model.isExtStorageOk(this)) {
                 model.requestRecording(this)
-            }else{
+            } else {
                 model.requestRecording(this)
                 model.requestExtStorage(this)
             }
         }
     }
 
-    private fun initDeleteAudioButton(model : ChatViewModel){
+    private fun initDeleteAudioButton(model: ChatViewModel) {
         deleteAudio.setOnClickListener {
             model.deleteAudio()
 
@@ -280,7 +225,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initTextInputField(){
+    private fun initTextInputField() {
         textMessage.addTextChangedListener(object : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -291,7 +236,7 @@ class ChatActivity : AppCompatActivity() {
                 if (s.toString().trim().isEmpty()) {
                     buttonSendTextMessage.visibility = View.GONE
                     recordButton.visibility = View.VISIBLE
-                }else{
+                } else {
                     recordButton.visibility = View.GONE
                     buttonSendTextMessage.visibility = View.VISIBLE
                 }
@@ -300,5 +245,32 @@ class ChatActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
             }
         })
+    }
+
+    fun scrollToBottom(position: Int) {
+        val rv = findViewById<View>(R.id.messagesList) as RecyclerView
+        rv.smoothScrollToPosition(position)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == RESULT_OK){
+            if (requestCode == SELECT_PICTURE_REQUEST_CODE){
+                Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
+                val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                viewModel.setImageUri(imageUri)
+                viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
+            }
+            else if (requestCode == TAKE_PICTURE_REQUEST_CODE){
+                Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
+                if(data!!.extras != null){
+                    val imageUri = Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                    viewModel.setImageUri(imageUri)
+                }
+                viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
+            }
+        }
     }
 }

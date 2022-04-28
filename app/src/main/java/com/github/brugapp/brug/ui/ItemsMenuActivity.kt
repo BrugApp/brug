@@ -4,20 +4,28 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.DUMMY_TEXT
+import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.USER_ID_INTENT_KEY
+import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ItemsListAdapter
 import com.github.brugapp.brug.view_model.ItemsMenuViewModel
-import com.github.brugapp.brug.view_model.ListCallback
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 
 private const val ITEMS_SEARCH_HINT: String = "Search items here…"
 const val ITEMS_MOVE_TEXT: String = "Item has been moved."
@@ -25,16 +33,21 @@ const val ITEMS_DELETE_TEXT: String = "Item has been deleted."
 
 class ItemsMenuActivity : AppCompatActivity() {
 
+    private val viewModel: ItemsMenuViewModel by viewModels()
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_items_menu)
 
-        val model: ItemsMenuViewModel by viewModels()
-
-        initItemsList(model)
+        initItemsList()
         initFloatingAddButton()
         BottomNavBar().initBottomBar(this)
     }
+
+
+
 
     // For the searchbar when pressing on the top bar's search icon
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -44,16 +57,23 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // For the settings icon on top bar
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        customTopBar.defineTopBarActions(window.decorView, DUMMY_TEXT, item, this)
+        customTopBar.defineTopBarActions(item, this)
         return super.onOptionsItemSelected(item)
     }
 
-    private fun initItemsList(model: ItemsMenuViewModel){
+
+    // ONLY GETS THE LIST OF ITEMS RELATED TO THE USER, NOT THE FULL USER PROFILE !
+    private fun initItemsList() = liveData(Dispatchers.IO){
+        emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid))
+    }.observe(this) { itemsList ->
+        findViewById<ProgressBar>(R.id.loadingItems).visibility = View.GONE
+        val list = if(itemsList.isNullOrEmpty()) mutableListOf() else itemsList.toMutableList()
+
         val listView = findViewById<RecyclerView>(R.id.items_listview)
-        val itemsListAdapter = ItemsListAdapter(model.getItemsList())
+        val itemsListAdapter = ItemsListAdapter(list)
         { clickedItem ->
-            val intent = Intent(this,ItemInformationActivity::class.java )
-            intent.putExtra("index",model.getItemsList().indexOf(clickedItem))
+            val intent = Intent(this, ItemInformationActivity::class.java)
+            intent.putExtra(ITEM_INTENT_KEY, clickedItem)
             startActivity(intent)
         }
 
@@ -69,15 +89,12 @@ class ItemsMenuActivity : AppCompatActivity() {
             ContextCompat.getColor(this, R.color.list_item_del_BG))
 
         val listAdapterPair = Pair(
-            model.getItemsList(),
+            list,
             itemsListAdapter
         )
 
-        val listCallback = ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair){
-
-        }
+        val listCallback = viewModel.setCallback(this, dragPair, swipePair, listAdapterPair)
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
-
         listView.adapter = itemsListAdapter
     }
 

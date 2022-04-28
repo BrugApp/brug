@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_margin="1dp"
     android:paddingStart="10dp"
-    android:paddingEnd="10dp">
+    android:paddingEnd="10dp"
+    android:contentDescription="@string/message">
 
     <LinearLayout
         android:layout_width="wrap_content"

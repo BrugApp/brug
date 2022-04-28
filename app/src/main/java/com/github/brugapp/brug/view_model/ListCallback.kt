@@ -16,7 +16,7 @@ class ListCallback<T>(
     private val dragSwipePair: Pair<Int, Int>,
     private val swipePair: Pair<Drawable, Int>,
     private val listAdapterPair: Pair<MutableList<T>, RecyclerView.Adapter<ListViewHolder>>,
-    private val onSwipeActions: (T) -> Unit
+    private val onSwipeActions: (T, Int) -> Unit
     ): ItemTouchHelper.SimpleCallback(dragSwipePair.first, dragSwipePair.second)
 {
     /* DRAG TO REORDER (UP AND DOWN THE LIST) */
@@ -46,15 +46,8 @@ class ListCallback<T>(
         if(dragSwipePair.second != 0){
             val position = viewHolder.adapterPosition
             val list = listAdapterPair.first
-            val deletedElt = list.removeAt(position)
-            onSwipeActions(deletedElt)
-            listAdapterPair.second.notifyItemRemoved(position)
-
-            Snackbar.make(viewHolder.itemView, snackBarText, Snackbar.LENGTH_LONG)
-                .setAction(UNDO_TEXT) {
-                    list.add(position, deletedElt)
-                    listAdapterPair.second.notifyItemInserted(position)
-                }.show()
+            val eltToDelete = list[position]
+            onSwipeActions(eltToDelete, position)
         }
     }
 
