@@ -220,3 +220,4 @@ task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'crea
 connectedCheck {
     finalizedBy jacocoTestReport
 }
+
