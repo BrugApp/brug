@@ -25,6 +25,7 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
+
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyUser
@@ -58,16 +59,16 @@ class ChatActivityTest {
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     @get:Rule
-    val permissionRuleAudio: GrantPermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO)
-
+    val permissionRuleAudio: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO)
     @get:Rule
-    val permissionRuleExtStorage: GrantPermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val permissionRuleExtStorage: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     @get:Rule
     val permissionRuleCamera: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+
+    private val convID = "0"
+    private val dummyItemName = "DummyItem"
 
     private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null)
 
@@ -233,6 +234,47 @@ class ChatActivityTest {
         }
     }
 
+
+//<<<<<<< HEAD
+
+    @Test
+    fun initialChatSetupAfterAudio(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        val message = "Test text"
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.recordButton)).perform(click())
+            Thread.sleep(2000)
+            onView(withId(R.id.buttonSendAudio)).perform(click())
+            onView(withId(R.id.recordButton)).check(matches(isDisplayed()))
+        }
+    }
+
+/*=======
+    fun sendCameraMessageOpensCamera() {
+>>>>>>> main
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+<<<<<<< HEAD
+        val message = "Test text"
+
+=======
+        ActivityScenario.launch<Activity>(intent).use {
+            val expectedIntent: Matcher<Intent> = allOf(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
+            onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
+            intended(expectedIntent)
+        }
+    }*/
+
     @Test
     fun sendCameraMessageOpensCamera() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -308,8 +350,10 @@ class ChatActivityTest {
                     atPosition(1, withContentDescription("ImageSent"))
                 )
             )
+
         }
     }
+
 
     // Helper function to match inside a RecyclerView (from StackOverflow)
     private fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?> {
