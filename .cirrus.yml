@@ -5,6 +5,7 @@ check_android_task:
     TARGET: google_apis
     ARCH: x86
     CC_TEST_REPORTER_ID: ENCRYPTED[!857be41d18fb18e2075930ad631d44da7bd45bc5e8dc8b76d7e849b42029770b2ec932e7bf0f2aa82ac0c709d83a61e3!]
+    MAPBOX_DOWNLOADS_TOKEN: ENCRYPTED[!00c0062e8ea015ddf9c72087132f075c8f372f229d5b6e4a712077c8f6260d318a54cb0aea910716efc1d45afd07c77e!]
   container:
     image: reactivecircus/android-emulator-$API_LEVEL:latest
     kvm: true
