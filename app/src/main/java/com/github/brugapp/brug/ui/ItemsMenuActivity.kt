@@ -15,7 +15,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.USER_ID_INTENT_KEY
 import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ItemsListAdapter
@@ -33,6 +35,8 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     private val viewModel: ItemsMenuViewModel by viewModels()
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_items_menu)
@@ -41,6 +45,9 @@ class ItemsMenuActivity : AppCompatActivity() {
         initFloatingAddButton()
         BottomNavBar().initBottomBar(this)
     }
+
+
+
 
     // For the searchbar when pressing on the top bar's search icon
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

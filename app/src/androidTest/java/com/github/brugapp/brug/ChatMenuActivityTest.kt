@@ -121,6 +121,8 @@ class ChatMenuActivityTest {
         assertThat(snackBarTextView.text, IsEqual(CHAT_CHECK_TEXT))
     }
 
+
+
     @Test
     fun swipeRightOnItemDeletesItem() {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -137,6 +139,7 @@ class ChatMenuActivityTest {
         assertThat(snackBarTextView.text, IsEqual(CHAT_CHECK_TEXT))
     }
 
+    //TODO: Test clicking on item goes to chat
     @Test
     fun clickOnItemGoesToChatActivity() {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
