@@ -86,6 +86,12 @@
                 android:value=".ui.SignInActivity" />
         </activity>
         <activity
+            android:name=".data.PaymentRepository"
+            android:exported="false"
+            android:parentActivityName=".ui.ChatActivity">
+        </activity>
+
+        <activity
             android:name=".ui.QrCodeScannerActivity"
             android:exported="false"
             android:parentActivityName=".ui.SignInActivity">
