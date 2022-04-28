@@ -24,6 +24,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
@@ -44,6 +48,11 @@
             android:resource="@color/colorAccent" />
 
         <activity
+            android:name=".ui.MapsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_maps" />
+
+        <activity
             android:name=".ui.ReportItemActivity"
             android:exported="false" />
         <activity
@@ -52,8 +61,7 @@
         <activity
             android:name=".ui.AddItemActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity">
-        </activity>
+            android:parentActivityName=".ui.ItemsMenuActivity" />
         <activity
             android:name=".ui.ChatActivity"
             android:exported="false"
