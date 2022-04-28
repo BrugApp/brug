@@ -24,6 +24,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".ui.QrCodeShowActivity"
             android:parentActivityName=".ui.ItemsMenuActivity"
@@ -46,6 +50,11 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
+
+        <activity
+            android:name=".ui.MapsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_maps" />
 
         <activity
             android:name=".ui.ReportItemActivity"

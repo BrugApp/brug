@@ -32,7 +32,9 @@
         android:id="@+id/imageView3"
         android:layout_width="264dp"
         android:layout_height="249dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="92dp"
+        android:layout_marginBottom="71dp"
+        app:layout_constraintBottom_toTopOf="@+id/qr_found_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,13 +45,12 @@
         android:id="@+id/demo_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="92dp"
-        android:layout_marginBottom="38dp"
+        android:layout_marginBottom="72dp"
         android:text="@string/demo_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sign_in_google_button" />
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
 
         <ProgressBar
             android:id="@+id/loadingUser"

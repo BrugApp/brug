@@ -12,6 +12,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import com.github.brugapp.brug.ui.MapsActivity
 import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -66,6 +67,17 @@ class MainActivityTest {
             allOf(
                 IntentMatchers.toPackage("com.github.brugapp.brug"),
                 hasComponent(QrCodeScannerActivity::class.java.name)
+            )
+        )
+    }
+
+    @Test
+    fun clickingOnMapButtonGoesToTheCorrectActivity() {
+        onView(withId(R.id.mapsButton)).perform(click())
+        Intents.intended(
+            allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                hasComponent(MapsActivity::class.java.name)
             )
         )
     }
