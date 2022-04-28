@@ -10,7 +10,7 @@ data class LocationMessage(
     override val body: String,
     val location: LocationService
 ) : Message(senderName, timestamp, body) {
-
+    lateinit var mapUrl: String
     companion object {
         fun fromMessage(m: Message, location: LocationService): LocationMessage {
             return LocationMessage(
