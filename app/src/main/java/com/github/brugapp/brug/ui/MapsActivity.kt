@@ -78,7 +78,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        // Add a marker in Sydney and move the camera
+        // Add a marker in Destination and move the camera
         val marker = LatLng(viewModel.getDestinationLat(), viewModel.getDestinationLon())
         mMap.addMarker(MarkerOptions().position(marker).title(viewModel.getDestinationName()))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(marker))
