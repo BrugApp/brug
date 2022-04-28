@@ -28,7 +28,6 @@ import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
@@ -40,9 +39,13 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 
+
 class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
+    private var LOCATION_REQUEST = 1
+    private lateinit var locationManager: LocationManager
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var convID: String
 
     private lateinit var buttonSendTextMessage: ImageButton
@@ -136,6 +139,24 @@ class ChatActivity : AppCompatActivity() {
 
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
+
+        }
+    }
+
+    private fun initSendImageCameraButton() {
+        // SEND IMAGE CAMERA BUTTON
+        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
+        buttonSendMessage.setOnClickListener {
+            viewModel.takeCameraImage(this)
+        }
+    }
+
+    private fun initSendImageButton() {
+        // SEND IMAGE BUTTON (from gallery)
+        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
+        buttonSendMessage.setOnClickListener {
+            viewModel.selectGalleryImage(this)
+
         }
     }
 
@@ -150,28 +171,13 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendImageCameraButton() {
-        // SEND IMAGE CAMERA BUTTON
-        val buttonSendCameraMsg = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
-        buttonSendCameraMsg.setOnClickListener {
-            viewModel.takeCameraImage(this)//takeCameraImage()
-        }
-    }
-
-    private fun initSendImageButton() {
-        // SEND IMAGE BUTTON (from gallery)
-        val buttonSendPicMsg = findViewById<ImageButton>(R.id.buttonSendImage)
-        buttonSendPicMsg.setOnClickListener {
-            viewModel.selectGalleryImage(this)
-        }
-    }
-
     /* Function to test if device has a microphone,
     private fun hasMicrophone(): Boolean {
         val pmanager = this.packageManager
         return pmanager.hasSystemFeature(
             PackageManager.FEATURE_MICROPHONE)
     }*/
+
 
     /*override fun onRequestPermissionsResult( // This should go to the bottom with the same function
         requestCode: Int,
@@ -223,9 +229,9 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendAudioButton(model: ChatViewModel) {
+    private fun initSendAudioButton(model : ChatViewModel){
         buttonSendAudio.setOnClickListener {
-            model.sendAudio()
+            model.stopAudio()
 
             buttonSendAudio.visibility = View.GONE
             deleteAudio.visibility = View.GONE
@@ -234,14 +240,7 @@ class ChatActivity : AppCompatActivity() {
             recordButton.visibility = View.VISIBLE
             model.setListenForRecord(recordButton, false)
 
-            val newMessage = AudioMessage(
-                "Me",
-                DateService.fromLocalDateTime(LocalDateTime.now()),
-                "",
-                "TO BE DEFINED" // TODO: FIGURE OUT HOW TO RETRIEVE AUDIO FILE
-            )
-
-            model.sendMessage(newMessage, convID,this)
+            model.sendAudio()
         }
     }
 

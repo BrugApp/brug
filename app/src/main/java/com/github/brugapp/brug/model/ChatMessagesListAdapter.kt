@@ -15,6 +15,7 @@ import com.github.brugapp.brug.model.ChatMessagesListAdapter.MessageType.*
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
+import me.jagar.chatvoiceplayerlibrary.VoicePlayerView
 import com.github.brugapp.brug.view_model.ChatViewModel
 import java.io.File
 import java.io.FileOutputStream
@@ -35,7 +36,7 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
     }
 
     enum class MessageType {
-        TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT, TYPE_LOCATION_RIGHT, TYPE_LOCATION_LEFT
+        TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT, TYPE_LOCATION_RIGHT, TYPE_LOCATION_LEFT, TYPE_AUDIO_LEFT, TYPE_AUDIO_RIGHT
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -46,6 +47,8 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
             TYPE_IMAGE_LEFT.ordinal -> R.layout.chat_image_layout_left
             TYPE_LOCATION_LEFT.ordinal -> R.layout.chat_location_layout_left
             TYPE_LOCATION_RIGHT.ordinal -> R.layout.chat_location_layout_right
+            TYPE_AUDIO_LEFT.ordinal -> R.layout.left_audio_layout
+            TYPE_AUDIO_RIGHT.ordinal -> R.layout.right_audio_layout
             else -> throw IllegalArgumentException("Invalid type")
         }
 
@@ -64,14 +67,20 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
 
     override fun getItemViewType(position: Int): Int {
         val message: Message = messageList[position]
-        return if (message.senderName == "Me") {
-            if (message is PicMessage) TYPE_IMAGE_LEFT.ordinal
-            else if (message is LocationMessage) TYPE_LOCATION_LEFT.ordinal
-            else TYPE_MESSAGE_LEFT.ordinal
+        return if(message.senderName == "Me"){
+            when (message) {
+                is PicMessage -> TYPE_IMAGE_LEFT.ordinal
+                is LocationMessage -> TYPE_LOCATION_LEFT.ordinal
+                is AudioMessage -> TYPE_AUDIO_RIGHT.ordinal
+                else -> TYPE_MESSAGE_LEFT.ordinal
+            }
         } else {
-            if (message is PicMessage) TYPE_IMAGE_RIGHT.ordinal
-            else if (message is LocationMessage) TYPE_LOCATION_RIGHT.ordinal
-            else TYPE_MESSAGE_RIGHT.ordinal
+            when (message) {
+                is PicMessage -> TYPE_IMAGE_RIGHT.ordinal
+                is LocationMessage -> TYPE_LOCATION_LEFT.ordinal
+                is AudioMessage -> TYPE_AUDIO_LEFT.ordinal
+                else -> TYPE_MESSAGE_RIGHT.ordinal
+            }
         }
     }
 
@@ -109,6 +118,10 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
             itemView.findViewById<ImageView>(R.id.map).setImageURI(Uri.parse(message.mapUrl))
         }
 
+        private fun bindAudioMessage(message: AudioMessage) {
+            itemView.findViewById<VoicePlayerView>(R.id.voicePlayerView).setAudio(message.audioUrl)
+        }
+
         private fun resizeImage(uri: Uri): Uri {
             // open the image and resize it
             val image = Drawable.createFromPath(uri.path)
@@ -128,7 +141,7 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
             when (messageModel) {
                 is LocationMessage -> bindLocationMessage(messageModel)
                 is PicMessage -> bindPicMessage(messageModel)
-                is AudioMessage -> bindTextMessage(messageModel)
+                is AudioMessage -> bindAudioMessage(messageModel)
                 else -> bindTextMessage(messageModel)
             }
         }
