@@ -6,11 +6,7 @@ check_android_task:
     ARCH: x86
     CC_TEST_REPORTER_ID: ENCRYPTED[!857be41d18fb18e2075930ad631d44da7bd45bc5e8dc8b76d7e849b42029770b2ec932e7bf0f2aa82ac0c709d83a61e3!]
     GOOGLE_MAPS_API_KEY: ENCRYPTED[!1686d62ddc14b25975155359b8c8eda037b2f8e159f590c3993051181a686a0fefdd760f0fac2cb09336df10fe7cc01c!]
-    PRE_BUILD: """
-      gradle.projectsEvaluated {
-        preBuild.dependsOn('mapsApiKey')
-      }
-    """
+    PRE_BUILD: "\ngradle.projectsEvaluated { preBuild.dependsOn('mapsApiKey'); }"
   container:
     image: reactivecircus/android-emulator-$API_LEVEL:latest
     kvm: true
