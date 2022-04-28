@@ -1,26 +1,34 @@
 package com.github.brugapp.brug.model
 
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.ChatMessagesListAdapter.MessageType.*
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
+import me.jagar.chatvoiceplayerlibrary.VoicePlayerView
+import com.github.brugapp.brug.view_model.ChatViewModel
+import java.io.File
+import java.io.FileOutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 // Adapter that binds the list of messages to the instances of ChatItemModel
-class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
+class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val messageList: MutableList<Message>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
 
     enum class MessageType {
-        TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT
+        TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT,
+        TYPE_AUDIO_LEFT, TYPE_AUDIO_RIGHT
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,11 +37,13 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
             TYPE_MESSAGE_LEFT.ordinal -> R.layout.chat_item_layout_left
             TYPE_IMAGE_RIGHT.ordinal -> R.layout.chat_image_layout_right
             TYPE_IMAGE_LEFT.ordinal -> R.layout.chat_image_layout_left
+            TYPE_AUDIO_LEFT.ordinal -> R.layout.left_audio_layout
+            TYPE_AUDIO_RIGHT.ordinal -> R.layout.right_audio_layout
             else -> throw IllegalArgumentException("Invalid type")
         }
 
         val itemView = LayoutInflater.from(parent.context).inflate(layout, parent, false)
-        return ViewHolder(itemView)
+        return ViewHolder(viewModel, itemView)
     }
 
     // Bind view with data models
@@ -47,16 +57,22 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
 
     override fun getItemViewType(position: Int): Int {
         val message: Message = messageList[position]
-        return if (message.senderName == "Me") {
-            if (message is PicMessage) TYPE_IMAGE_LEFT.ordinal
-            else TYPE_MESSAGE_LEFT.ordinal
+        return if(message.senderName == "Me"){
+            when (message) {
+                is PicMessage -> TYPE_IMAGE_LEFT.ordinal
+                is AudioMessage -> TYPE_AUDIO_RIGHT.ordinal
+                else -> TYPE_MESSAGE_LEFT.ordinal
+            }
         } else {
-            if (message is PicMessage) TYPE_IMAGE_RIGHT.ordinal
-            else TYPE_MESSAGE_RIGHT.ordinal
+            when (message) {
+                is PicMessage -> TYPE_IMAGE_RIGHT.ordinal
+                is AudioMessage -> TYPE_AUDIO_LEFT.ordinal
+                else -> TYPE_MESSAGE_RIGHT.ordinal
+            }
         }
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(private val viewModel: ChatViewModel, itemView: View) : RecyclerView.ViewHolder(itemView) {
         private fun formatDateTime(date: LocalDateTime): String {
             val formatter = DateTimeFormatter.ofPattern("dd/MM/yy - HH:mm")
             return date.format(formatter)
@@ -73,7 +89,26 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
         private fun bindPicMessage(message: PicMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
-            itemView.findViewById<ImageView>(R.id.picture).setImageURI(Uri.parse(message.imgUrl))
+            itemView.findViewById<ImageView>(R.id.picture).setImageURI(resizeImage(Uri.parse(message.imgUrl)))
+        }
+
+        private fun bindAudioMessage(message: AudioMessage) {
+            itemView.findViewById<VoicePlayerView>(R.id.voicePlayerView).setAudio(message.audioUrl)
+        }
+
+        private fun resizeImage(uri: Uri): Uri {
+            // open the image and resize it
+            val image = Drawable.createFromPath(uri.path)
+            val imageBM = image!!.toBitmap(image.intrinsicWidth, image.intrinsicHeight, Bitmap.Config.ARGB_8888)
+            val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
+
+            // store to new file
+            val newFile = File.createTempFile("temp", ".jpg")
+            val outputStream = FileOutputStream(newFile)
+            resized.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+            // return uri of new file
+            return Uri.fromFile(newFile)
         }
 
         //TODO: CHANGE BINDINGS WHEN LAYOUTS ARE IMPLEMENTED
@@ -81,7 +116,7 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
             when (messageModel) {
                 is LocationMessage -> bindTextMessage(messageModel)
                 is PicMessage -> bindPicMessage(messageModel)
-                is AudioMessage -> bindTextMessage(messageModel)
+                is AudioMessage -> bindAudioMessage(messageModel)
                 else -> bindTextMessage(messageModel)
             }
         }

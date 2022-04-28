@@ -23,8 +23,6 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
@@ -32,9 +30,13 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.time.LocalDateTime
 
+
 class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
+    private var LOCATION_REQUEST = 1
+    private lateinit var locationManager: LocationManager
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var convID: String
 
     private lateinit var buttonSendTextMessage: ImageButton
@@ -81,7 +83,6 @@ class ChatActivity : AppCompatActivity() {
 
         initSendAudioButton(viewModel)
 
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -119,6 +120,24 @@ class ChatActivity : AppCompatActivity() {
 
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
+
+        }
+    }
+
+    private fun initSendImageCameraButton() {
+        // SEND IMAGE CAMERA BUTTON
+        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
+        buttonSendMessage.setOnClickListener {
+            viewModel.takeCameraImage(this)
+        }
+    }
+
+    private fun initSendImageButton() {
+        // SEND IMAGE BUTTON (from gallery)
+        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
+        buttonSendMessage.setOnClickListener {
+            viewModel.selectGalleryImage(this)
+
         }
     }
 
@@ -133,28 +152,13 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendImageCameraButton() {
-        // SEND IMAGE CAMERA BUTTON
-        val buttonSendCameraMsg = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
-        buttonSendCameraMsg.setOnClickListener {
-            viewModel.takeCameraImage(this)//takeCameraImage()
-        }
-    }
-
-    private fun initSendImageButton() {
-        // SEND IMAGE BUTTON (from gallery)
-        val buttonSendPicMsg = findViewById<ImageButton>(R.id.buttonSendImage)
-        buttonSendPicMsg.setOnClickListener {
-            viewModel.selectGalleryImage(this)
-        }
-    }
-
     /* Function to test if device has a microphone,
     private fun hasMicrophone(): Boolean {
         val pmanager = this.packageManager
         return pmanager.hasSystemFeature(
             PackageManager.FEATURE_MICROPHONE)
     }*/
+
 
     /*override fun onRequestPermissionsResult( // This should go to the bottom with the same function
         requestCode: Int,
@@ -206,9 +210,9 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendAudioButton(model: ChatViewModel) {
+    private fun initSendAudioButton(model : ChatViewModel){
         buttonSendAudio.setOnClickListener {
-            model.sendAudio()
+            model.stopAudio()
 
             buttonSendAudio.visibility = View.GONE
             deleteAudio.visibility = View.GONE
@@ -217,14 +221,7 @@ class ChatActivity : AppCompatActivity() {
             recordButton.visibility = View.VISIBLE
             model.setListenForRecord(recordButton, false)
 
-            val newMessage = AudioMessage(
-                "Me",
-                DateService.fromLocalDateTime(LocalDateTime.now()),
-                "",
-                "TO BE DEFINED" // TODO: FIGURE OUT HOW TO RETRIEVE AUDIO FILE
-            )
-
-            model.sendMessage(newMessage, convID,this)
+            model.sendAudio()
         }
     }
 
@@ -259,18 +256,21 @@ class ChatActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
-        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
-        }
-
-        val imageUri = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
-        if (imageUri != null) {
-            // this will be the case for the gallery image
-            // camera images returns null as extras
-            println("=== URI set ===")
-            viewModel.sendPicMessage(this, convID, Uri.parse(imageUri))
+        if (resultCode == RESULT_OK){
+            if (requestCode == SELECT_PICTURE_REQUEST_CODE){
+                Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
+                val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                viewModel.setImageUri(imageUri)
+                viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
+            }
+            else if (requestCode == TAKE_PICTURE_REQUEST_CODE){
+                Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
+                if(data!!.extras != null){
+                    val imageUri = Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                    viewModel.setImageUri(imageUri)
+                }
+                viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
+            }
         }
     }
 }
