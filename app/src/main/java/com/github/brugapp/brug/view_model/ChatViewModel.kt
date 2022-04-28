@@ -58,7 +58,7 @@ class ChatViewModel : ViewModel() {
 
     fun initViewModel(messages: MutableList<Message>) {
         this.messages = messages
-        this.adapter = ChatMessagesListAdapter(messages)
+        this.adapter = ChatMessagesListAdapter(this, messages)
     }
 
     fun getAdapter(): ChatMessagesListAdapter {
@@ -113,7 +113,7 @@ class ChatViewModel : ViewModel() {
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             textBox.text.toString(),
-            picURI.toString()
+            compressImage(activity, picURI).toString()
         )
 
         sendMessage(newMessage, convID, activity)
@@ -161,7 +161,7 @@ class ChatViewModel : ViewModel() {
         return image
     }
 
-    private fun resize(activity: ChatActivity, uri: Uri): URI {
+    private fun compressImage(activity: ChatActivity, uri: Uri): URI {
         // open the image and resize it
         val imageBM = uriToBitmap(activity, uri)
         val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
