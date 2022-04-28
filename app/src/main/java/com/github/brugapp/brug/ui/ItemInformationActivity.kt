@@ -29,33 +29,38 @@ class ItemInformationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
-
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
 
         val textSet: HashMap<String,String> = viewModel.getText(item)
         setTextAllView(textSet)
 
+        setSwitch(item)
+        qrCodeButton()
+    }
+
+    private fun setSwitch(item: MyItem) {
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
-            liveData(Dispatchers.IO){
+            liveData(Dispatchers.IO) {
                 emit(ItemsRepository.updateItemFields(item, Firebase.auth.currentUser!!.uid))
-            }.observe(this){ response ->
-
-                val feedbackStr = if(response.onSuccess){
+            }.observe(this) { response ->
+                val feedbackStr = if (response.onSuccess) {
                     "Item state has been successfully changed"
                 } else {
                     "ERROR: Item state couldn't be saved"
                 }
-
                 Snackbar.make(
                     findViewById(android.R.id.content),
                     feedbackStr,
-                    Snackbar.LENGTH_LONG).show()
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
+    }
 
+    private fun qrCodeButton() {
         //if button is clicked, go to QrCodeShow
         val button: Button = findViewById(R.id.qrGen)
         button.setOnClickListener {
