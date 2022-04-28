@@ -54,7 +54,6 @@ class ChatViewModel() : ViewModel() {
 
     //private val locationListener = LocationListener { sendLocation(it) }
     private lateinit var activity: ChatActivity
-    private lateinit var imageUri: Uri
 
     //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
@@ -150,12 +149,12 @@ class ChatViewModel() : ViewModel() {
 
     fun sendPicMessage(activity: ChatActivity, convID: String) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
-        val resizedUri = resize(activity, imageUri) //still useful??
+        //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             textBox.text.toString(),
-            compressImage(activity, picURI).toString()
+            compressImage(activity, imageUri).toString()
         )
 
         sendMessage(newMessage, convID, activity)

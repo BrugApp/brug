@@ -100,14 +100,13 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
         private fun bindPicMessage(message: PicMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
-            itemView.findViewById<ImageView>(R.id.picture)
-                .setImageURI(Uri.parse(message.imgUrl))
+            itemView.findViewById<ImageView>(R.id.picture).setImageURI(resizeImage(Uri.parse(message.imgUrl)))
         }
 
         private fun bindLocationMessage(message: LocationMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
-            itemView.findViewById<ImageView>(R.id.picture).setImageURI(resizeImage(Uri.parse(message.imgUrl)))
+            itemView.findViewById<ImageView>(R.id.map).setImageURI(Uri.parse(message.mapUrl))
         }
 
         private fun resizeImage(uri: Uri): Uri {
