@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.sign_in
 
 import android.content.Intent
+import androidx.core.content.ContextCompat.startActivity
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -9,6 +10,7 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.ComponentNameMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.di.sign_in.SignInClient
@@ -49,23 +51,30 @@ class SignInActivityTestFakeGoogle {
     val rule = HiltAndroidRule(this)
 
     @Before
-    fun setUp(){
-        SignInActivityTestFake.FakeSignInClientModule.provideFakeSignInClient().signOut()
+    fun setUp() {
+        ActivityScenario.launch<SignInActivity>(
+            Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
+        )
     }
+
+//    @Before
+//    fun setUp(){
+//        SignInActivityTestFake.FakeSignInClientModule.provideFakeSignInClient().signOut()
+//    }
 
     @Test
     fun signInActivityFailsForDefaultSignedInUser() {
 
-        val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
-
-        ActivityScenario.launch<SignInActivity>(intent).use {
+//        val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
+//
+//        ActivityScenario.launch<SignInActivity>(intent).use {
             // check if contains guest button
             onView(withId(R.id.qr_found_btn))
                 .check(matches(isDisplayed()))
             // check if contains sign out button
             onView(withId(R.id.sign_in_google_button))
                 .check(matches(isDisplayed()))
-        }
+//        }
 
     }
 }

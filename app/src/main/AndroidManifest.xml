@@ -2,13 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.brugapp.brug">
 
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".BrugApp"
@@ -23,10 +28,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />
 
-        <activity
-            android:name=".ui.MapsActivity"
-            android:exported="false"
-            android:label="@string/title_activity_maps" />
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
@@ -47,6 +48,11 @@
             android:resource="@color/colorAccent" />
 
         <activity
+            android:name=".ui.MapsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_maps" />
+
+        <activity
             android:name=".ui.ReportItemActivity"
             android:exported="false" />
         <activity
@@ -60,7 +66,8 @@
             android:name=".ui.ChatActivity"
             android:exported="false"
             android:label="Chat"
-            android:parentActivityName=".ui.ChatMenuActivity" />
+            android:parentActivityName=".ui.ChatMenuActivity">
+        </activity>
         <activity
             android:name=".ui.RegisterUserActivity"
             android:exported="false" />
