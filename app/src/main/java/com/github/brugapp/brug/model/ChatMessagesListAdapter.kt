@@ -94,10 +94,6 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
         }
 
         private fun bindAudioMessage(message: AudioMessage) {
-            /* Here I should do what I need to set up this particular audio message
-            itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
-                formatDateTime(message.timestamp.toLocalDateTime())
-            itemView.findViewById<ImageView>(R.id.picture).setImageURI(Uri.parse(message.audioUrl))*/
             itemView.findViewById<VoicePlayerView>(R.id.voicePlayerView).setAudio(message.audioUrl)
         }
 

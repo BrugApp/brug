@@ -32,8 +32,6 @@ class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
     private var LOCATION_REQUEST = 1
-    private val RECORDING_REQUEST_CODE = 3000
-    private val STORAGE_REQUEST_CODE = 2000
     private lateinit var locationManager: LocationManager
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
@@ -46,10 +44,6 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var buttonSendAudio : ImageButton
     private lateinit var deleteAudio : ImageButton
     private lateinit var textMessage : EditText
-
-    private lateinit var playAudioButton : ImageButton
-    private lateinit var pauseAudioButton : ImageButton
-    private lateinit var voicePlayer : VoicePlayerView
 
     private lateinit var conversation: Conversation
 
@@ -232,17 +226,6 @@ class ChatActivity : AppCompatActivity() {
             PackageManager.FEATURE_MICROPHONE)
     }*/
 
-    /*override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == RECORDING_REQUEST_CODE){
-            recordButton.isEnabled = true
-        }
-    }*/
-
     private fun initRecordButton(model : ChatViewModel) {
         recordButton.setOnClickListener {
 
@@ -317,30 +300,5 @@ class ChatActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
             }
         })
-    }
-
-    private fun initPlayAudioButton(){
-        // TODO : do the same for the in play/pause button
-        playAudioButton = findViewById(R.id.play_audio_button_out)
-
-        playAudioButton.setOnClickListener {
-            playAudioButton.visibility = View.GONE
-            pauseAudioButton.visibility = View.VISIBLE
-
-            //viewModel.setUpPlayingAudio()
-            //viewModel.playAudio()
-        }
-    }
-
-    private fun initPauseAudioButton(){
-        // TODO : do the same for the in play/pause button
-        pauseAudioButton = findViewById(R.id.pause_audio_button_out)
-
-        pauseAudioButton.setOnClickListener {
-            playAudioButton.visibility = View.VISIBLE
-            pauseAudioButton.visibility = View.GONE
-
-            //viewModel.pauseAudio()
-        }
     }
 }

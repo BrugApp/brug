@@ -207,6 +207,24 @@ class ChatActivityTest {
         }
     }
 
+    @Test
+    fun initialChatSetupAfterAudio(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        val message = "Test text"
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.recordButton)).perform(click())
+            Thread.sleep(2000)
+            onView(withId(R.id.buttonSendAudio)).perform(click())
+            onView(withId(R.id.recordButton)).check(matches(isDisplayed()))
+        }
+    }
+
     // Helper function to match inside a RecyclerView (from StackOverflow)
     private fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?> {
         return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {

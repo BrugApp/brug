@@ -339,23 +339,4 @@ class ChatViewModel : ViewModel() {
         mediaRecorder.release()
     }
 
-    fun setUpPlayingAudio(){
-        // check this option : mediaPlayer.setDataSource(context, uri)
-        mediaPlayer = MediaPlayer()
-        mediaPlayer.setDataSource(audioPath)
-
-        mediaPlayer.setOnCompletionListener {
-            mediaPlayer.stop()
-        }
-    }
-
-    fun playAudio() {
-        mediaPlayer.prepare()
-        mediaPlayer.start()
-    }
-
-    fun pauseAudio() {
-        mediaPlayer.pause()
-    }
-
 }
