@@ -1,6 +1,8 @@
 package com.github.brugapp.brug.view_model
 
-import android.widget.*
+import android.widget.EditText
+import android.widget.Spinner
+import android.widget.TextView
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
 import com.github.brugapp.brug.model.Item

@@ -16,15 +16,16 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.AuthDatabase
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.di.sign_in.SignInClient
+import com.github.brugapp.brug.di.sign_in.firebase.AuthFirebase
 import com.github.brugapp.brug.di.sign_in.module.DatabaseAuthModule
 import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
 import com.github.brugapp.brug.di.sign_in.module.SignInClientModule
-import com.github.brugapp.brug.fake.FakeAuthDatabase
-import com.github.brugapp.brug.fake.FakeDatabaseUser
-import com.github.brugapp.brug.fake.FakeSignInAccount
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,6 +34,8 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -59,7 +62,7 @@ class SignInActivityTestFake {
         @ViewModelScoped
         @Provides
         fun provideFakeSignInAccount(): SignInAccount {
-            return FakeSignInAccount()
+            return BrugSignInAccount("Son Goku", "Vegeta", "0", "goku@capsulecorp.com")
         }
     }
 
@@ -70,7 +73,8 @@ class SignInActivityTestFake {
         @ViewModelScoped
         @Provides
         fun provideFakeAuthDatabase(): AuthDatabase {
-            return FakeAuthDatabase(FakeDatabaseUser())
+            //return FakeAuthDatabase(FakeDatabaseUser())
+            return AuthFirebase()
         }
     }
 
@@ -91,6 +95,12 @@ class SignInActivityTestFake {
     fun signInActivityGoesToCorrectActivityForSignedInUser() {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
+        runBlocking{
+            Firebase.auth.signInWithEmailAndPassword(
+            "test@unlost.com",
+            "123456"
+            ).await()
+        }
 
         ActivityScenario.launch<SignInActivity>(intent).use {
             intended(
@@ -100,6 +110,7 @@ class SignInActivityTestFake {
                     )
                 )
             )
+            Firebase.auth.signOut()
         }
     }
 
@@ -107,7 +118,12 @@ class SignInActivityTestFake {
     fun signInActivitySignsOutCorrectlyFromSettings() {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
-
+        runBlocking{
+            Firebase.auth.signInWithEmailAndPassword(
+                "test@unlost.com",
+                "123456"
+            ).await()
+        }
         ActivityScenario.launch<SignInActivity>(intent).use {
 
             val settingsButton = onView(withId(R.id.my_settings))

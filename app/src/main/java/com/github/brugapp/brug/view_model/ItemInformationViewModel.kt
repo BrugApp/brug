@@ -1,33 +1,26 @@
 package com.github.brugapp.brug.view_model
 
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.fake.MockDatabase
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.MyItem
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 class ItemInformationViewModel: ViewModel() {
 
-    private lateinit var item:Item
-    private lateinit var qrCode:String
+    private lateinit var qrId:String
+    private lateinit var item: MyItem
 
-    fun getText(item: Item): HashMap<String, String> {
+    fun getText(item: MyItem): HashMap<String, String> {
         this.item = item
-        //qrCode = FirebaseHelper.getCurrentUser("7IsGzvjHKd0KeeKK722m")!!.getId() + item.getId()
-        qrCode = MockDatabase.currentUser.getId() +":"+ item.getId()
+        qrId = Firebase.auth.uid +":"+ item.getItemID()
         val hash: HashMap<String,String> = HashMap()
-        hash["title"] = item.getName()
-        hash["image"] = item.getIcon().toString()
-        hash["description"] = item.getDescription()
+        hash["title"] = item.itemName
+        hash["image"] = item.getRelatedIcon().toString()
+        hash["description"] = item.itemDesc
         hash["isLost"] = item.isLost().toString()
         return hash
     }
-
-    //return concatenation of user id and item id
     fun getQrId(): String {
-        return qrCode
-    }
-
-
-    fun setLostValue(checked: Boolean) {
-       item.setLost(checked)
+        return qrId
     }
 }

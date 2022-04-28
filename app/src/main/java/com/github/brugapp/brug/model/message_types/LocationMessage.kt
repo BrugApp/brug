@@ -9,4 +9,16 @@ data class LocationMessage(
     override val timestamp: DateService,
     override val body: String,
     val location: LocationService
-) : Message(senderName, timestamp, body)
+) : Message(senderName, timestamp, body) {
+
+    companion object {
+        fun fromMessage(m: Message, location: LocationService): LocationMessage {
+            return LocationMessage(
+                m.senderName,
+                m.timestamp,
+                m.body,
+                location
+            )
+        }
+    }
+}

@@ -1,7 +1,6 @@
 package com.github.brugapp.brug.model
 
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import java.io.Serializable
 import java.util.regex.Pattern
 
@@ -84,13 +83,7 @@ class User// later generate id
     }
 
     fun addItem(item : Item) : Boolean{
-
-        if(item != null){
-            items.add(item)
-            return true
-        }
-        return false
-
+        return items.add(item)
     }
 
 }
