@@ -1,27 +1,31 @@
 package com.github.brugapp.brug
 
+import android.content.Intent
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.fake.MockDatabase.Companion.currentUser
-import com.github.brugapp.brug.fake.MockDatabase.Companion.itemId
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.model.ItemType
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
-import com.github.brugapp.brug.view_model.ListViewHolder
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsEqual
 import org.junit.After
@@ -38,43 +42,58 @@ private const val LIST_VIEW_ID: String = "$APP_PACKAGE_NAME:id/items_listview"
 private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/list_item_title"
 private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 
+
+private val ITEMS = listOf(
+    MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false),
+    MyItem("Wallet", ItemType.Wallet.ordinal, "With all my belongings", false),
+    MyItem("Car Keys", ItemType.CarKeys.ordinal, "Lamborghini Aventador LP-780-4", false),
+    MyItem("Keys", ItemType.Keys.ordinal, "Home keys", true)
+)
+
+private const val TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
+
+
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 class ItemsMenuActivityTest {
-    @get:Rule
-    val testRule = ActivityScenarioRule(ItemsMenuActivity::class.java)
 
     @get:Rule
     var rule = HiltAndroidRule(this)
 
+    private fun signInTestUser() {
+        runBlocking {
+            Firebase.auth.signInWithEmailAndPassword(
+                "test@unlost.com",
+                "123456").await()
+
+            for(item in ITEMS){
+                ItemsRepository.addItemToUser(item, TEST_USER_UID)
+            }
+        }
+    }
+
+    private fun wipeAllItemsAndSignOut() {
+        runBlocking {
+            ItemsRepository.deleteAllUserItems(TEST_USER_UID)
+        }
+        Firebase.auth.signOut()
+    }
+
     @Before
-    fun setUpIntents() {
+    fun setUp() {
         Intents.init()
+        signInTestUser()
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
     }
 
     @After
-    fun releaseIntents() {
+    fun cleanUp() {
         Intents.release()
+        wipeAllItemsAndSignOut()
     }
-
-//    @Before
-//    fun addItemsToUser() {
-//        val phone = Item("Phone", "Samsung Galaxy S22", itemId)
-//        val wallet = Item("Wallet","With all my belongings", itemId)
-//        val carKeys = Item("BMW Key", "BMW M3 F80 Competition", itemId)
-//        val keys = Item("Keys","House and everything else", itemId)
-//
-//        currentUser.addItem(phone)
-//        currentUser.addItem(wallet)
-//        currentUser.addItem(carKeys)
-//        currentUser.addItem(keys)
-//    }
-//
-//    @After
-//    fun deleteAddedItems() {
-//        currentUser.getItemList().clear()
-//    }
-
 
     @Test
     fun changingBottomNavBarMenuToItemsListKeepsFocus() {
@@ -180,18 +199,17 @@ class ItemsMenuActivityTest {
 
     @Test
     fun clickOnItemTriggersInformationItem() {
-        val itemsList = onView(withId(R.id.items_listview))
-        itemsList.perform(
-            RecyclerViewActions.actionOnItemAtPosition<ListViewHolder>(
-                1, click()
-            )
-        )
-        intended(
-            allOf(
-                toPackage(APP_PACKAGE_NAME),
-                hasComponent(ItemInformationActivity::class.java.name)
-            )
-        )
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToClick = chatList.getChild(UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToClick.click()
+
+        intended(hasComponent(ItemInformationActivity::class.java.name))
     }
 
 

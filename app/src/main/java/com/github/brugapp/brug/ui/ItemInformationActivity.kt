@@ -1,39 +1,57 @@
 package com.github.brugapp.brug.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.lifecycle.liveData
+import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
-import com.github.brugapp.brug.view_model.ItemsMenuViewModel
+import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 
 private const val NOT_IMPLEMENTED: String = "no information yet"
 
 class ItemInformationActivity : AppCompatActivity() {
+
     private val viewModel: ItemInformationViewModel by viewModels()
-    private val menuViewModel: ItemsMenuViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
 
-        //This function will set the text for all the textView
-        val index: Int = intent.getIntExtra("index",-1)
-        val item: Item = menuViewModel.getItemsList()[index]
-        val textSet:HashMap<String,String> = viewModel.getText(item)
+        val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
+
+        val textSet: HashMap<String,String> = viewModel.getText(item)
         setTextAllView(textSet)
 
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setLostValue(isChecked)
+            item.changeLostStatus(isChecked)
+            liveData(Dispatchers.IO){
+                emit(ItemsRepository.updateItemFields(item, Firebase.auth.currentUser!!.uid))
+            }.observe(this){ response ->
+
+                val feedbackStr = if(response.onSuccess){
+                    "Item state has been successfully changed"
+                } else {
+                    "ERROR: Item state couldn't be saved"
+                }
+
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    feedbackStr,
+                    Snackbar.LENGTH_LONG).show()
+            }
         }
-
-
     }
 
     private fun setTextAllView(textSet: HashMap<String,String>) {

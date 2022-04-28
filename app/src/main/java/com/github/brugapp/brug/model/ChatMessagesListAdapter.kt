@@ -24,7 +24,7 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
         fun onItemClick(position: Int)
     }
 
-    fun setOnItemClickListener(listener: onItemClickListener){
+    fun setOnItemClickListener(listener: onItemClickListener) {
         mListener = listener
     }
 
@@ -58,13 +58,13 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
 
     override fun getItemViewType(position: Int): Int {
         val message: Message = messageList[position]
-        return if(message.senderName == "Me"){
-            if(message is PicMessage) TYPE_IMAGE_LEFT.ordinal
-            else if(message is LocationMessage) TYPE_LOCATION_LEFT.ordinal
+        return if (message.senderName == "Me") {
+            if (message is PicMessage) TYPE_IMAGE_LEFT.ordinal
+            else if (message is LocationMessage) TYPE_LOCATION_LEFT.ordinal
             else TYPE_MESSAGE_LEFT.ordinal
         } else {
-            if(message is PicMessage) TYPE_IMAGE_RIGHT.ordinal
-            else if(message is LocationMessage) TYPE_LOCATION_RIGHT.ordinal
+            if (message is PicMessage) TYPE_IMAGE_RIGHT.ordinal
+            else if (message is LocationMessage) TYPE_LOCATION_RIGHT.ordinal
             else TYPE_MESSAGE_RIGHT.ordinal
         }
     }
@@ -76,9 +76,10 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
 //        }
 //    }
 
-    class ViewHolder(itemView: View, listener: onItemClickListener) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View, listener: onItemClickListener) :
+        RecyclerView.ViewHolder(itemView) {
         init {
-            itemView.setOnClickListener{
+            itemView.setOnClickListener {
                 listener.onItemClick(adapterPosition)
             }
         }
@@ -89,7 +90,8 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
         }
 
         private fun bindTextMessage(message: Message) {
-            itemView.findViewById<ImageView>(R.id.picture).setImageResource(R.mipmap.ic_launcher)
+            itemView.findViewById<ImageView>(R.id.picture)
+                .setImageResource(R.mipmap.ic_launcher)
             itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.senderName
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
@@ -99,7 +101,8 @@ class ChatMessagesListAdapter(private val messageList: MutableList<Message>) :
         private fun bindPicMessage(message: PicMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
-            itemView.findViewById<ImageView>(R.id.picture).setImageURI(Uri.parse(message.imgUrl))
+            itemView.findViewById<ImageView>(R.id.picture)
+                .setImageURI(Uri.parse(message.imgUrl))
         }
 
         private fun bindLocationMessage(message: LocationMessage) {

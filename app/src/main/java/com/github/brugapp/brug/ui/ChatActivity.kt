@@ -26,7 +26,8 @@ import androidx.core.view.iterator
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.devlomi.record_view.*
+import com.devlomi.record_view.RecordButton
+import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
@@ -39,27 +40,27 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
+import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
+import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.message_types.AudioMessage
+import com.github.brugapp.brug.model.message_types.TextMessage
+import com.github.brugapp.brug.model.services.DateService
+import java.time.LocalDateTime
 
 class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
-    private var LOCATION_REQUEST = 1
-    private val RECORDING_REQUEST_CODE = 3000
-    private val STORAGE_REQUEST_CODE = 2000
-    private lateinit var locationManager: LocationManager
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var convID: String
 
-    private lateinit var messageList: RecyclerView
+    private lateinit var buttonSendTextMessage: ImageButton
+    private lateinit var recordButton: RecordButton
+    private lateinit var messageLayout: LinearLayout
+    private lateinit var audioRecMessage: TextView
+    private lateinit var buttonSendAudio: ImageButton
+    private lateinit var deleteAudio: ImageButton
+    private lateinit var textMessage: EditText
 
-    private lateinit var buttonSendTextMessage : ImageButton
-    private lateinit var recordButton : RecordButton
-    private lateinit var messageLayout : LinearLayout
-    private lateinit var audioRecMessage : TextView
-    private lateinit var buttonSendAudio : ImageButton
-    private lateinit var deleteAudio : ImageButton
-    private lateinit var textMessage : EditText
-
-    private lateinit var conversation: Conversation
 
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
@@ -68,52 +69,47 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
 
-        val model: ChatViewModel by viewModels()
+        val conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
+        convID = conversation.convId
 
         val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         buttonSendTextMessage = findViewById(R.id.buttonSendMessage)
 
-        initMessageList(model)
-        initSendMessageButton(model)
-        initSendLocationButton(model, locationManager, fusedLocationClient)
-        initSendImageCameraButton(model)
-        initSendImageButton(model)
-
-        //initSendImageCameraButton() // TODO: Implement this
+        initMessageList(conversation)
+        initSendTextMessageButton()
+        initSendLocationButton(locationManager, fusedLocationClient)
+        initSendImageCameraButton()
+        initSendImageButton()
 
         messageLayout = findViewById(R.id.messageLayout)
         audioRecMessage = findViewById(R.id.audioRecording)
         buttonSendAudio = findViewById(R.id.buttonSendAudio)
 
         recordButton = findViewById(R.id.recordButton)
-        model.setListenForRecord(recordButton, false)
-        initRecordButton(model)
+        viewModel.setListenForRecord(recordButton, false)
+        initRecordButton(viewModel)
 
         deleteAudio = findViewById(R.id.deleteAudio)
-        initDeleteAudioButton(model)
+        initDeleteAudioButton(viewModel)
 
         textMessage = findViewById(R.id.editMessage)
         initTextInputField()
 
-        initSendAudioButton(model)
-
-
+        initSendAudioButton(viewModel)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         return super.onCreateOptionsMenu(menu)
     }
 
-    private fun initMessageList(model: ChatViewModel) {
-        conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
-
+    private fun initMessageList(conversation: Conversation) {
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
-        model.initViewModel(conversation.messages)
+        viewModel.initViewModel(conversation.messages)
         messageList.layoutManager = LinearLayoutManager(this)
 
-        val adapter = model.getAdapter()
+        val adapter = viewModel.getAdapter()
         messageList.adapter = adapter
 
         adapter.setOnItemClickListener(object: ChatMessagesListAdapter.onItemClickListener{
@@ -124,11 +120,11 @@ class ChatActivity : AppCompatActivity() {
             }
         })
 
+        scrollToBottom((adapter.itemCount) - 1)
+
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItemName
         )
-
-
     }
 
     private fun inflateActionBar(username: String, itemLost: String) {
@@ -136,114 +132,46 @@ class ChatActivity : AppCompatActivity() {
         supportActionBar!!.subtitle = "Related to the item \"$itemLost\""
     }
 
-    private fun initSendMessageButton(model: ChatViewModel) {
-        // SEND MESSAGE BUTTON
-        buttonSendTextMessage.setOnClickListener {
+    private fun initSendTextMessageButton() {
+        val buttonSendTextMsg = findViewById<ImageButton>(R.id.buttonSendMessage)
+        buttonSendTextMsg.setOnClickListener {
             // Get elements from UI
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
+            val newMessage = TextMessage("Me",
+                DateService.fromLocalDateTime(LocalDateTime.now()),
+                content
+            )
+            viewModel.sendMessage(newMessage, convID, this)
+
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
-            model.sendMessage(content, conversation.convId, this)
         }
     }
 
-    private fun initSendImageCameraButton(model: ChatViewModel) {
+    private fun initSendLocationButton(locationManager: LocationManager,
+                                       fusedLocationClient: FusedLocationProviderClient) {
+        val buttonSendLocationMsg = findViewById<ImageButton>(R.id.buttonSendLocalisation)
+        buttonSendLocationMsg.setOnClickListener {
+            viewModel.requestLocation(convID,
+                this,
+                fusedLocationClient,
+                locationManager)
+        }
+    }
+
+    private fun initSendImageCameraButton() {
         // SEND IMAGE CAMERA BUTTON
-        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
-        buttonSendMessage.setOnClickListener {
-            viewModel.takeCameraImage(this)
+        val buttonSendCameraMsg = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
+        buttonSendCameraMsg.setOnClickListener {
+            viewModel.takeCameraImage(this)//takeCameraImage()
         }
     }
 
-    private fun initSendImageButton(model: ChatViewModel) {
+    private fun initSendImageButton() {
         // SEND IMAGE BUTTON (from gallery)
-        val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
-        buttonSendMessage.setOnClickListener {
+        val buttonSendPicMsg = findViewById<ImageButton>(R.id.buttonSendImage)
+        buttonSendPicMsg.setOnClickListener {
             viewModel.selectGalleryImage(this)
-        }
-    }
-
-    private fun initSendLocationButton(
-        model: ChatViewModel,
-        locationManager: LocationManager,
-        fusedLocationClient: FusedLocationProviderClient
-    ) {
-        val buttonSendLocalisation = findViewById<ImageButton>(R.id.buttonSendLocalisation)
-        buttonSendLocalisation.setOnClickListener {
-            model.requestLocation(this, fusedLocationClient, locationManager)
-        }
-    }
-
-    // LOCALISATION METHODS (inspired by https://github.com/punit9l/)
-    // TODO: Refactor when the firebase helper is implemented
-    /*
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun requestLocation() {
-        // Check if permissions are given
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions( arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_REQUEST)}
-        else {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { lastKnownLocation: Location? ->
-                    if (lastKnownLocation != null) foundLocation(lastKnownLocation)
-                }
-
-            // Launch the locationListener (updates every 1000 ms)
-            val locationGpsProvider = LocationManager.GPS_PROVIDER
-            locationManager.requestLocationUpdates(
-                locationGpsProvider,
-                1000,
-                0.1f,
-                locationListener
-            )
-            // Stop the update as we only want it once (at least for now)
-            locationManager.removeUpdates(locationListener)
-        }
-    }
-
-    // Ask ViewModel to compute UI updates
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun foundLocation(location: Location) {
-        viewModel.sendLocalisation(location.longitude, location.latitude)
-    }
-
-    // Implementation of the LocationListener
-    @RequiresApi(Build.VERSION_CODES.O)
-    private val locationListener: LocationListener =
-        LocationListener { location -> foundLocation(location) }
-
-
-    // HELPER METHODS TO DISPLAY LIST OF MESSAGES
-    private fun initMessageList() {
-        messageList = findViewById(R.id.messagesList)
-        val linearManager = LinearLayoutManager(this)
-        linearManager.stackFromEnd = true
-        messageList.layoutManager = linearManager
-        messageList.setHasFixedSize(true)
-
-        viewModel.initAdapter()
-        messageList.adapter = viewModel.getAdapter()
-    }
-    */
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        val TAKE_PICTURE_REQUEST_CODE = 1
-        val SELECT_PICTURE_REQUEST_CODE = 10
-
-        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
-            viewModel.uploadImage(this)
-        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
-            val imageUri = data?.data
-            if (imageUri != null) {
-                viewModel.setImageUri(imageUri)
-                viewModel.uploadImage(this)
-            }
         }
     }
 
@@ -254,7 +182,7 @@ class ChatActivity : AppCompatActivity() {
             PackageManager.FEATURE_MICROPHONE)
     }*/
 
-    /*override fun onRequestPermissionsResult(
+    /*override fun onRequestPermissionsResult( // This should go to the bottom with the same function
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
@@ -265,12 +193,12 @@ class ChatActivity : AppCompatActivity() {
         }
     }*/
 
-    private fun initRecordButton(model : ChatViewModel) {
+    private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
 
             model.setListenForRecord(recordButton, true)
 
-            if(model.isAudioPermissionOk(this) && model.isExtStorageOk(this)){
+            if (model.isAudioPermissionOk(this) && model.isExtStorageOk(this)) {
 
                 model.setupRecording()
 
@@ -280,18 +208,18 @@ class ChatActivity : AppCompatActivity() {
                 deleteAudio.visibility = View.VISIBLE
                 audioRecMessage.visibility = View.VISIBLE
 
-            }else if(model.isAudioPermissionOk(this)){
+            } else if (model.isAudioPermissionOk(this)) {
                 model.requestExtStorage(this)
-            }else if(model.isExtStorageOk(this)){
+            } else if (model.isExtStorageOk(this)) {
                 model.requestRecording(this)
-            }else{
+            } else {
                 model.requestRecording(this)
                 model.requestExtStorage(this)
             }
         }
     }
 
-    private fun initDeleteAudioButton(model : ChatViewModel){
+    private fun initDeleteAudioButton(model: ChatViewModel) {
         deleteAudio.setOnClickListener {
             model.deleteAudio()
 
@@ -304,7 +232,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendAudioButton(model : ChatViewModel){
+    private fun initSendAudioButton(model: ChatViewModel) {
         buttonSendAudio.setOnClickListener {
             model.sendAudio()
 
@@ -315,11 +243,18 @@ class ChatActivity : AppCompatActivity() {
             recordButton.visibility = View.VISIBLE
             model.setListenForRecord(recordButton, false)
 
-            model.sendMessage("Audio sent, will be able to listen soon ...!", conversation.convId,this)
+            val newMessage = AudioMessage(
+                "Me",
+                DateService.fromLocalDateTime(LocalDateTime.now()),
+                "",
+                "TO BE DEFINED" // TODO: FIGURE OUT HOW TO RETRIEVE AUDIO FILE
+            )
+
+            model.sendMessage(newMessage, convID,this)
         }
     }
 
-    private fun initTextInputField(){
+    private fun initTextInputField() {
         textMessage.addTextChangedListener(object : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -330,11 +265,10 @@ class ChatActivity : AppCompatActivity() {
                 if (s.toString().trim().isEmpty()) {
                     buttonSendTextMessage.visibility = View.GONE
                     recordButton.visibility = View.VISIBLE
-                }else{
+                } else {
                     recordButton.visibility = View.GONE
                     buttonSendTextMessage.visibility = View.VISIBLE
                 }
-
             }
 
             override fun afterTextChanged(s: Editable?) {
@@ -375,5 +309,29 @@ class ChatActivity : AppCompatActivity() {
 
         // return uri
         return uri
+    }
+
+    fun scrollToBottom(position: Int) {
+        val rv = findViewById<View>(R.id.messagesList) as RecyclerView
+        rv.smoothScrollToPosition(position)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
+        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
+            Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
+        }
+
+        val imageUri = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
+        if (imageUri != null) {
+            // this will be the case for the gallery image
+            // camera images returns null as extras
+            println("=== URI set ===")
+            viewModel.sendPicMessage(this, convID, Uri.parse(imageUri))
+        }
     }
 }
