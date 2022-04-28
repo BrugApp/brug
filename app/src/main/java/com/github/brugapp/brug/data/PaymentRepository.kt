@@ -12,7 +12,9 @@ import org.json.JSONObject
 class PaymentRepository : AppCompatActivity() {
 
     private lateinit var paymentsClient: PaymentsClient
-
+    private val gatewayMerchantId = "gatewayMerchantId"
+    private val gateway = "gatewayExample"
+    private val currency = "USD"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val walletOptions = Wallet.WalletOptions.Builder().setEnvironment(WalletConstants.ENVIRONMENT_TEST).build()
@@ -33,12 +35,12 @@ class PaymentRepository : AppCompatActivity() {
                     .put("allowedCardNetworks",JSONArray().put("AMEX").put("DISCOVER").put("INTERAC").put("JCB").put("MASTERCARD").put("MIR").put("VISA")))
                 .put("tokenizationSpecification",JSONObject()
                     .put("type","PAYMENT_GATEWAY")
-                    .put("parameters",JSONObject().put("gateway","example").put("gatewayMerchantId","exampleGatewayMerchantId"))))
+                    .put("parameters",JSONObject().put("gateway",gateway).put("gatewayMerchantId",gatewayMerchantId))))
             )
             .put("transactionInfo",JSONObject()
                 .put("totalPriceStatus","FINAL")
                 .put("totalPrice","12.34")
-                .put("currencyCode","USD"))
+                .put("currencyCode",currency))
         return IsReadyToPayRequest.fromJson(jsonDerulo.toString())
     }
 
@@ -48,10 +50,10 @@ class PaymentRepository : AppCompatActivity() {
 
             .addOnCompleteListener {
                 if(it.result) {
-                    //showGooglePayButton(completeTask.getResult())
+                    //@TODO implement UI google-pay class to enable UI-updates
+                    // update UI to show Google Pay Button using task result
                 }else {
-                    //handle the payment error
-                    //Toast.makeText(this, "Credit card payment failed", Toast.LENGTH_LONG).show()
+                    //update UI to handle the payment error with Toast.makeText(this, "Credit card payment failed", Toast.LENGTH_LONG).show()
                 }
             }
     }

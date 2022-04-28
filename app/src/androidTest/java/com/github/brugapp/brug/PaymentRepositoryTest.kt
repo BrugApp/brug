@@ -12,9 +12,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PaymentRepositoryTest {
 
-    @get:Rule
-    var paymentActivityRule = ActivityScenarioRule(PaymentRepository::class.java)
-
     @Test
     fun paymentRequestTest(){
         val item = PaymentRepository().paymentRequest()
