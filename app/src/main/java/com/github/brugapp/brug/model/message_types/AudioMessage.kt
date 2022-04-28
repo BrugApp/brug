@@ -8,4 +8,16 @@ data class AudioMessage(
     override val timestamp: DateService,
     override val body: String,
     val audioUrl: String)
-    : Message(senderName, timestamp, body)
+    : Message(senderName, timestamp, body){
+
+    companion object {
+        fun fromMessage(m: Message, audioUrl: String): AudioMessage {
+            return AudioMessage(
+                m.senderName,
+                m.timestamp,
+                m.body,
+                audioUrl
+            )
+        }
+    }
+}

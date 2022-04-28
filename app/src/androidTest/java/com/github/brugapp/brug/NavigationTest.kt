@@ -8,8 +8,6 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.ui.*
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
@@ -70,4 +68,14 @@ class NavigationTest {
         )
     }
 
+    @Test
+    fun clickingOnMapButtonGoesToTheCorrectActivity() {
+        Espresso.onView(ViewMatchers.withId(R.id.mapsButton)).perform(ViewActions.click())
+        Intents.intended(
+            Matchers.allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                IntentMatchers.hasComponent(MapsActivity::class.java.name)
+            )
+        )
+    }
 }

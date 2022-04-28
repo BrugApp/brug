@@ -15,10 +15,13 @@ class ProfilePictureSetActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //TODO: PASS THE USER TO THE FRAGMENT
+//        val user = intent.extras!!.get(USER_INTENT_KEY) as MyUser
+
         supportFragmentManager.fragmentFactory = fragmentFactory
         setContentView(R.layout.activity_profile_picture)
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment,ProfileSettingsFragment::class.java,null)
             .commit()
-        }
     }
+}

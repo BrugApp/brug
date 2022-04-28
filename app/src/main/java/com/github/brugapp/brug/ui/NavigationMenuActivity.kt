@@ -25,5 +25,10 @@ class NavigationMenuActivity : AppCompatActivity() {
             val myIntent = Intent(this, NavigationViewActivity::class.java)
             startActivity(myIntent)
         }
+
+        findViewById<Button>(R.id.mapsButton).setOnClickListener {
+            val myIntent = Intent(this, MapsActivity::class.java)
+            startActivity(myIntent)
+        }
     }
 }

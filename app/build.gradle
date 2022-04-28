@@ -4,6 +4,7 @@ plugins {
     id 'jacoco'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 }
 
 apply plugin: 'com.google.gms.google-services'
@@ -64,6 +65,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-testing:2.4.1'
     implementation 'androidx.preference:preference:1.1.1'
+    implementation 'com.google.android.gms:play-services-maps:18.0.2'
     def lifecycle_version = "2.5.0-alpha05"
     def arch_version = "2.1.0"
 
@@ -130,7 +132,7 @@ dependencies {
 
     implementation "com.google.dagger:hilt-android:2.38.1"
     implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.1.0'
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.1.1'
     kapt "com.google.dagger:hilt-compiler:2.38.1"
     testImplementation 'junit:junit:4.13.2'
 
@@ -227,34 +229,17 @@ connectedCheck {
 }
 
 task accessToken {
-    def tokenFile = new File("${projectDir}/src/main/res/values/developer-config.xml")
+    def tokenFile = new File("${projectDir}/src/main/res/values/developer-config.xml");
     if (!tokenFile.exists()) {
-        String mapboxAccessToken = "$System.env.MAPBOX_ACCESS_TOKEN"
+        String mapboxAccessToken = "$System.env.MAPBOX_ACCESS_TOKEN";
         if (mapboxAccessToken == "null") {
-            System.out.println("You should set the MAPBOX_ACCESS_TOKEN environment variable.")
-            mapboxAccessToken = "pk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ3eW1lYjBkc3IzcG8zYW82OW8zdm0ifQ.in109seK8hLAP_LPafNnfQ"
+            System.out.println("You should set the MAPBOX_ACCESS_TOKEN environment variable.");
+            mapboxAccessToken = "pk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ3eW1lYjBkc3IzcG8zYW82OW8zdm0ifQ.in109seK8hLAP_LPafNnfQ";
         }
         String tokenFileContents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<resources>\n" +
                 "    <string name=\"mapbox_access_token\">" + mapboxAccessToken + "</string>\n" +
-                "</resources>"
-        tokenFile.write(tokenFileContents)
+                "</resources>";
+        tokenFile.write(tokenFileContents);
     }
-
-}
-
-task secretToken {
-//    def tokenFile = new File("gradle.properties")
-//    String mapboxDownloadsToken = "$System.env.MAPBOX_DOWNLOADS_TOKEN"
-//    if (mapboxDownloadsToken == "null") {
-//        System.out.println("You should set the MAPBOX_DOWNLOADS_TOKEN environment variable.")
-//        mapboxDownloadsToken = "token"
-//    }
-//    String tokenFileContents = "\nMAPBOX_DOWNLOADS_TOKEN=" + mapboxDownloadsToken
-//    tokenFile.append(tokenFileContents)
-}
-
-gradle.projectsEvaluated {
-    preBuild.dependsOn('accessToken')
-//    preBuild.dependsOn('secretToken')
 }
