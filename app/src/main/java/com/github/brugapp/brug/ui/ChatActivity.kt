@@ -23,7 +23,6 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -265,12 +264,12 @@ class ChatActivity : AppCompatActivity() {
             Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
         }
 
-        val imageUri = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
+        val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
         if (imageUri != null) {
             // this will be the case for the gallery image
             // camera images returns null as extras
             println("=== URI set ===")
-            viewModel.sendPicMessage(this, convID, Uri.parse(imageUri))
+            viewModel.sendPicMessage(this, convID, imageUri)
         }
     }
 }
