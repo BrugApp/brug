@@ -41,11 +41,8 @@ class MapBoxActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        mapView = MapView(this)
-//        setContentView(mapView)
         setContentView(R.layout.activity_map_box)
         mapView = findViewById(R.id.mapView)
-//        mapView.getMapboxMap().loadStyleUri(Style.MAPBOX_STREETS)
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
         locationPermissionHelper.checkPermissions {
             onMapReady()
