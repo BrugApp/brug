@@ -274,21 +274,5 @@ class ChatActivity : AppCompatActivity() {
                 viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
             }
         }
-
-//        if (requestCode == TAKE_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-//
-//
-//
-//        } else if (requestCode == SELECT_PICTURE_REQUEST_CODE && resultCode == RESULT_OK) {
-//
-//        }
-//
-//        val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
-//        if (imageUri != null) {
-//            // this will be the case for the gallery image
-//            // camera images returns null as extras
-//            println("=== URI set ===")
-//            viewModel.sendPicMessage(this, convID, imageUri)
-//        }
     }
 }
