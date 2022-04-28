@@ -50,6 +50,7 @@ class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
     private lateinit var audioPath : String
+    private lateinit var imageUri: Uri // NEEDED TO RETRIEVE THE IMAGE FROM THE CAMERA AFTER SNAPPING A PICTURE
 
     //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
@@ -66,7 +67,6 @@ class ChatViewModel : ViewModel() {
     }
 
     fun sendMessage(message: Message, convID: String, activity: ChatActivity) {
-//        val newMessage = Message("Me", DateService.fromLocalDateTime(LocalDateTime.now()), content)
         messages.add(message)
         adapter.notifyItemInserted(messages.size - 1)
         // scroll to bottom automatically
@@ -128,7 +128,7 @@ class ChatViewModel : ViewModel() {
         if (intent.resolveActivity(activity.packageManager) != null) {
             val imageFile = createImageFile(activity)
             // Create a file Uri for saving the image
-            val imageUri = FileProvider.getUriForFile(
+            imageUri = FileProvider.getUriForFile(
                 activity,
                 "com.github.brugapp.brug.fileprovider",
                 imageFile
@@ -136,6 +136,14 @@ class ChatViewModel : ViewModel() {
             intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri)
             startActivityForResult(activity, intent, TAKE_PICTURE_REQUEST_CODE, null)
         }
+    }
+
+    fun getImageUri(): Uri {
+        return this.imageUri
+    }
+
+    fun setImageUri(uri: Uri){
+        imageUri = uri
     }
 
     fun selectGalleryImage(activity: ChatActivity) {
