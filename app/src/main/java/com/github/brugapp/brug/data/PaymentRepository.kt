@@ -9,17 +9,19 @@ import com.google.android.gms.wallet.WalletConstants
 import org.json.JSONArray
 import org.json.JSONObject
 
-class PaymentRepository : AppCompatActivity() {
+object PaymentRepository{
 
     private lateinit var paymentsClient: PaymentsClient
     private val gatewayMerchantId = "gatewayMerchantId"
     private val gateway = "gatewayExample"
     private val currency = "USD"
+    /*
+    @TODO add this part to UI activity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val walletOptions = Wallet.WalletOptions.Builder().setEnvironment(WalletConstants.ENVIRONMENT_TEST).build()
         paymentsClient = Wallet.getPaymentsClient(this,walletOptions)
-    }
+    }*/
 
     fun paymentRequest(): IsReadyToPayRequest{ //this method should be private but we need to test it
         //version & parameter choices described here: https://developers.google.com/pay/api/android/reference/request-objects

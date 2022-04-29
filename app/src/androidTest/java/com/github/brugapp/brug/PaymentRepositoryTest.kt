@@ -12,13 +12,13 @@ class PaymentRepositoryTest {
 
     @Test
     fun paymentRequestTest(){
-        val item = PaymentRepository().paymentRequest()
+        val item = PaymentRepository.paymentRequest()
         MatcherAssert.assertThat(item, IsNull.notNullValue())
     }
 
     @Test
     fun updateOnSuccessTest(){
-        val update = PaymentRepository().updateOnSuccess()
+        val update = PaymentRepository.updateOnSuccess()
         MatcherAssert.assertThat(update, IsNull.notNullValue())
     }
 
