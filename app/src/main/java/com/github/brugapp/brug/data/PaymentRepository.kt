@@ -11,7 +11,9 @@ import org.json.JSONObject
 
 object PaymentRepository{
 
-    private lateinit var paymentsClient: PaymentsClient
+    //private lateinit var paymentsClient: PaymentsClient
+    //val walletOptions = Wallet.WalletOptions.Builder().setEnvironment(WalletConstants.ENVIRONMENT_TEST).build()
+    //var paymentsClient = Wallet.getPaymentsClient(this,walletOptions)
     private val gatewayMerchantId = "gatewayMerchantId"
     private val gateway = "gatewayExample"
     private val currency = "USD"
@@ -48,6 +50,8 @@ object PaymentRepository{
 
     fun updateOnSuccess(){ //this method should be private but we need to test it
         val paymentRequest = paymentRequest()
+        /*
+        @TODO add this part to UI activity
         paymentsClient.isReadyToPay(paymentRequest)
 
             .addOnCompleteListener {
@@ -58,5 +62,7 @@ object PaymentRepository{
                     //update UI to handle the payment error with Toast.makeText(this, "Credit card payment failed", Toast.LENGTH_LONG).show()
                 }
             }
+
+         */
     }
 }
