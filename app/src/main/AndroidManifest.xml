@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.github.brugapp.brug">
 
     <queries>
@@ -96,11 +97,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.SignInActivity" />
-        </activity>
-        <activity
-            android:name=".data.PaymentRepository"
-            android:exported="false"
-            android:parentActivityName=".ui.ChatActivity">
         </activity>
 
         <activity
