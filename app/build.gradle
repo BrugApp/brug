@@ -56,6 +56,13 @@ jacoco {
 }
 
 dependencies {
+
+    // Mapbox dependencies
+    implementation 'com.mapbox.maps:android:10.4.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-core:5.0.0'
+    implementation "com.google.android.gms:play-services-location:19.0.1"
+    implementation "com.mapbox.navigation:ui-dropin:2.5.0-beta.1"
+
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-testing:2.4.1'
     implementation 'androidx.preference:preference:1.1.1'
@@ -225,4 +232,18 @@ connectedCheck {
     finalizedBy jacocoTestReport
 }
 
-
+task accessToken {
+    def tokenFile = new File("${projectDir}/src/main/res/values/developer-config.xml");
+    if (!tokenFile.exists()) {
+        String mapboxAccessToken = "$System.env.MAPBOX_ACCESS_TOKEN";
+        if (mapboxAccessToken == "null") {
+            System.out.println("You should set the MAPBOX_ACCESS_TOKEN environment variable.");
+            mapboxAccessToken = "pk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ3eW1lYjBkc3IzcG8zYW82OW8zdm0ifQ.in109seK8hLAP_LPafNnfQ";
+        }
+        String tokenFileContents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+                "<resources>\n" +
+                "    <string name=\"mapbox_access_token\">" + mapboxAccessToken + "</string>\n" +
+                "</resources>";
+        tokenFile.write(tokenFileContents);
+    }
+}
