@@ -9,12 +9,15 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
 import android.location.LocationManager
+import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
@@ -27,6 +30,7 @@ import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -46,19 +50,31 @@ import java.time.LocalDateTime
 import java.util.*
 
 //TODO: NEEDS REFACTORING & DOCUMENTATION
-class ChatViewModel : ViewModel() {
+class ChatViewModel() : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
+    private lateinit var mediaPlayer : MediaPlayer
     private lateinit var audioPath : String
     private lateinit var imageUri: Uri // NEEDED TO RETRIEVE THE IMAGE FROM THE CAMERA AFTER SNAPPING A PICTURE
+
+    //private val locationListener = LocationListener { sendLocation(it) }
+    private lateinit var activity: ChatActivity
 
     //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
 
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
-    fun initViewModel(messages: MutableList<Message>) {
+    fun initViewModel(messages: MutableList<Message>, activity: ChatActivity) {
         this.messages = messages
+
+        // initiate arguments values for location messages
+        for (message in messages){
+            if(message is LocationMessage){
+                message.mapUrl = activity.createFakeImage().toString()
+            }
+        }
+
         this.adapter = ChatMessagesListAdapter(this, messages)
     }
 
@@ -69,7 +85,6 @@ class ChatViewModel : ViewModel() {
     fun sendMessage(message: Message, convID: String, activity: ChatActivity) {
         messages.add(message)
         adapter.notifyItemInserted(messages.size - 1)
-        // scroll to bottom automatically
         activity.scrollToBottom(adapter.itemCount - 1)
 
         if(Firebase.auth.currentUser == null){
@@ -92,8 +107,35 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    // LOCATION RELATED
+    fun requestLocation(
+        activity: Activity,
+        fusedLocationClient: FusedLocationProviderClient,
+        locationManager: LocationManager
+    ) {
+        this.activity = activity as ChatActivity
+        if (ContextCompat.checkSelfPermission(
+                activity.applicationContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                activity.applicationContext,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                activity,
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ),
+                LOCATION_REQUEST_CODE
+            )
+        }
+    }
+
     private fun sendLocationMessage(activity: ChatActivity, location: Location, convID: String){
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
+        val uri = activity.createFakeImage()
         val newMessage = LocationMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -101,25 +143,31 @@ class ChatViewModel : ViewModel() {
             LocationService.fromAndroidLocation(location)
         )
 
+        newMessage.mapUrl = activity.createFakeImage().toString()
         sendMessage(newMessage, convID, activity)
 
         // Clear the message field
         textBox.text = ""
+
+        adapter.notifyItemInserted(messages.size - 1)
     }
 
-    fun sendPicMessage(activity: ChatActivity, convID: String, picURI: Uri) {
+    fun sendPicMessage(activity: ChatActivity, convID: String) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
+        //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             textBox.text.toString(),
-            compressImage(activity, picURI).toString()
+            compressImage(activity, imageUri).toString()
         )
 
         sendMessage(newMessage, convID, activity)
 
         // Clear the message field
         textBox.text = ""
+
+        activity.scrollToBottom(adapter.itemCount - 1)
     }
 
     // IMAGE RELATED =======================================================
@@ -138,10 +186,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun getImageUri(): Uri {
-        return this.imageUri
-    }
-
     fun setImageUri(uri: Uri){
         imageUri = uri
     }
@@ -152,8 +196,8 @@ class ChatViewModel : ViewModel() {
     }
 
     // Create a File for saving the image (and the name)
-    private fun createImageFile(activity: ChatActivity): File {
-        val storageDir: File? = activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    private fun createImageFile(cont: Context): File {
+        val storageDir: File? = cont.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
             "JPEG_${simpleDateFormat.format(Date())}_",
             ".jpg",
@@ -231,8 +275,6 @@ class ChatViewModel : ViewModel() {
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
 
-            //val file = File(Environment.getExternalStorageDirectory().absolutePath, "ChatMe/Media/Recording")
-
             mediaRecorder.setOutputFile(audioPath)
             mediaRecorder.prepare()
             mediaRecorder.start()
@@ -241,33 +283,35 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun setListenForRecord(recordButton: RecordButton, bool: Boolean) {
+    fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
         recordButton.isListenForRecord = bool
     }
 
-
-    fun deleteAudio() {
+    fun deleteAudio(){
         mediaRecorder.reset()
         mediaRecorder.release()
         val file = File(audioPath)
-        if (file.exists()) {
+        if(file.exists()){
             file.delete()
         }
     }
 
-    fun sendAudio() {
+    fun stopAudio() {
         mediaRecorder.stop()
         mediaRecorder.release()
     }
 
-    // PERMISSIONS RELATED =======================================================
-    //TODO: Check permissions for Camera?
-    fun isAudioPermissionOk(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
+    fun sendAudio(){
+
+        // TODO: modify this implementation to adapt it for Firestore
+        val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
+            "Audio", audioPath)
+
+        messages.add(audioMessage)
+        adapter.notifyItemInserted(messages.size - 1)
     }
+
+    // PERMISSIONS RELATED =======================================================
 
     fun requestRecording(activity: Activity) {
         requestPermissions(
@@ -284,12 +328,12 @@ class ChatViewModel : ViewModel() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun requestExtStorage(activity: Activity) {
-        requestPermissions(
-            activity,
-            Array(1) { Manifest.permission.WRITE_EXTERNAL_STORAGE },
-            STORAGE_REQUEST_CODE
-        )
+    fun isAudioPermissionOk(context : Context) : Boolean{
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestExtStorage(activity: Activity){
+        requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
     }
 
     private fun requestLocationPermissions(activity: Activity) {
