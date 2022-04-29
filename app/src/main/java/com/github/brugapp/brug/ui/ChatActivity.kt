@@ -3,10 +3,13 @@ package com.github.brugapp.brug.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
@@ -15,6 +18,7 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devlomi.record_view.RecordButton
@@ -22,13 +26,18 @@ import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
+import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.util.*
 
 
 class ChatActivity : AppCompatActivity() {
@@ -47,6 +56,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var deleteAudio: ImageButton
     private lateinit var textMessage: EditText
 
+    private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +92,6 @@ class ChatActivity : AppCompatActivity() {
         initTextInputField()
 
         initSendAudioButton(viewModel)
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -91,11 +100,21 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initMessageList(conversation: Conversation) {
         val messageList = findViewById<RecyclerView>(R.id.messagesList)
-        viewModel.initViewModel(conversation.messages)
+        viewModel.initViewModel(conversation.messages, this)
         messageList.layoutManager = LinearLayoutManager(this)
-        messageList.adapter = viewModel.getAdapter()
 
-        scrollToBottom((viewModel.getAdapter().itemCount) - 1)
+        val adapter = viewModel.getAdapter()
+        messageList.adapter = adapter
+
+        adapter.setOnItemClickListener(object: ChatMessagesListAdapter.onItemClickListener{
+            override fun onItemClick(position: Int) {
+                if(adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
+                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal)
+                    Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        scrollToBottom((adapter.itemCount) - 1)
 
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItemName
@@ -247,6 +266,41 @@ class ChatActivity : AppCompatActivity() {
         })
     }
 
+    @SuppressLint("NewApi")
+    fun createFakeImage(): Uri? {
+        val encodedImage =
+            "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
+        val decodedImage = Base64.getDecoder().decode(encodedImage)
+        val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
+
+        // store to outputstream
+        val outputStream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+        // create file name
+        val storageDir: File? = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val imageFile = File.createTempFile(
+            "JPEG_${simpleDateFormat.format(Date())}_",
+            ".jpg",
+            storageDir
+        )
+
+        // get URI
+        val uri = FileProvider.getUriForFile(
+            this,
+            "com.github.brugapp.brug.fileprovider",
+            imageFile
+        )
+
+        // store bitmap to file
+        imageFile.writeBytes(outputStream.toByteArray())
+        outputStream.flush()
+        outputStream.close()
+
+        // return uri
+        return uri
+    }
+
     fun scrollToBottom(position: Int) {
         val rv = findViewById<View>(R.id.messagesList) as RecyclerView
         rv.smoothScrollToPosition(position)
@@ -255,21 +309,19 @@ class ChatActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if (resultCode == RESULT_OK){
             if (requestCode == SELECT_PICTURE_REQUEST_CODE){
-                Toast.makeText(this, "Image selected", Toast.LENGTH_SHORT).show()
                 val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
                 viewModel.setImageUri(imageUri)
-                viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
+                viewModel.sendPicMessage(this, convID)
             }
             else if (requestCode == TAKE_PICTURE_REQUEST_CODE){
-                Toast.makeText(this, "Image taken", Toast.LENGTH_SHORT).show()
-                if(data!!.extras != null){
-                    val imageUri = Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
-                    viewModel.setImageUri(imageUri)
+                // for the tests (use of stubs that store uri as extra)
+                val uriString = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
+                if(uriString != null){
+                    viewModel.setImageUri(Uri.parse(uriString))
                 }
-                viewModel.sendPicMessage(this, convID, viewModel.getImageUri())
+                viewModel.sendPicMessage(this, convID)
             }
         }
     }

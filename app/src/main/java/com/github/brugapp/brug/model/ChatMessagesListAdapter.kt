@@ -25,10 +25,18 @@ import java.time.format.DateTimeFormatter
 // Adapter that binds the list of messages to the instances of ChatItemModel
 class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val messageList: MutableList<Message>) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
+    // for onclick on the items of the recycler
+    private lateinit var mListener: onItemClickListener
+    interface onItemClickListener {
+        fun onItemClick(position: Int)
+    }
+
+    fun setOnItemClickListener(listener: onItemClickListener) {
+        mListener = listener
+    }
 
     enum class MessageType {
-        TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT,
-        TYPE_AUDIO_LEFT, TYPE_AUDIO_RIGHT
+        TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT, TYPE_LOCATION_RIGHT, TYPE_LOCATION_LEFT, TYPE_AUDIO_LEFT, TYPE_AUDIO_RIGHT
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -37,13 +45,15 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
             TYPE_MESSAGE_LEFT.ordinal -> R.layout.chat_item_layout_left
             TYPE_IMAGE_RIGHT.ordinal -> R.layout.chat_image_layout_right
             TYPE_IMAGE_LEFT.ordinal -> R.layout.chat_image_layout_left
+            TYPE_LOCATION_LEFT.ordinal -> R.layout.chat_location_layout_left
+            TYPE_LOCATION_RIGHT.ordinal -> R.layout.chat_location_layout_right
             TYPE_AUDIO_LEFT.ordinal -> R.layout.left_audio_layout
             TYPE_AUDIO_RIGHT.ordinal -> R.layout.right_audio_layout
             else -> throw IllegalArgumentException("Invalid type")
         }
 
         val itemView = LayoutInflater.from(parent.context).inflate(layout, parent, false)
-        return ViewHolder(viewModel, itemView)
+        return ViewHolder(itemView, mListener)
     }
 
     // Bind view with data models
@@ -60,26 +70,36 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
         return if(message.senderName == "Me"){
             when (message) {
                 is PicMessage -> TYPE_IMAGE_LEFT.ordinal
+                is LocationMessage -> TYPE_LOCATION_LEFT.ordinal
                 is AudioMessage -> TYPE_AUDIO_RIGHT.ordinal
                 else -> TYPE_MESSAGE_LEFT.ordinal
             }
         } else {
             when (message) {
                 is PicMessage -> TYPE_IMAGE_RIGHT.ordinal
+                is LocationMessage -> TYPE_LOCATION_LEFT.ordinal
                 is AudioMessage -> TYPE_AUDIO_LEFT.ordinal
                 else -> TYPE_MESSAGE_RIGHT.ordinal
             }
         }
     }
 
-    class ViewHolder(private val viewModel: ChatViewModel, itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View, listener: onItemClickListener) :
+        RecyclerView.ViewHolder(itemView) {
+        init {
+            itemView.setOnClickListener {
+                listener.onItemClick(adapterPosition)
+            }
+        }
+
         private fun formatDateTime(date: LocalDateTime): String {
             val formatter = DateTimeFormatter.ofPattern("dd/MM/yy - HH:mm")
             return date.format(formatter)
         }
 
         private fun bindTextMessage(message: Message) {
-            itemView.findViewById<ImageView>(R.id.picture).setImageResource(R.mipmap.ic_launcher)
+            itemView.findViewById<ImageView>(R.id.picture)
+                .setImageResource(R.mipmap.ic_launcher)
             itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.senderName
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
@@ -90,6 +110,12 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
             itemView.findViewById<ImageView>(R.id.picture).setImageURI(resizeImage(Uri.parse(message.imgUrl)))
+        }
+
+        private fun bindLocationMessage(message: LocationMessage) {
+            itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
+                formatDateTime(message.timestamp.toLocalDateTime())
+            itemView.findViewById<ImageView>(R.id.map).setImageURI(Uri.parse(message.mapUrl))
         }
 
         private fun bindAudioMessage(message: AudioMessage) {
@@ -111,10 +137,9 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
             return Uri.fromFile(newFile)
         }
 
-        //TODO: CHANGE BINDINGS WHEN LAYOUTS ARE IMPLEMENTED
         fun bind(messageModel: Message) {
             when (messageModel) {
-                is LocationMessage -> bindTextMessage(messageModel)
+                is LocationMessage -> bindLocationMessage(messageModel)
                 is PicMessage -> bindPicMessage(messageModel)
                 is AudioMessage -> bindAudioMessage(messageModel)
                 else -> bindTextMessage(messageModel)
