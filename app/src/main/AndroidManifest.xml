@@ -33,6 +33,18 @@
             android:parentActivityName=".ui.ItemsMenuActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.NavigationMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.NavigationViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.LocationTrackingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.MapBoxActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_settings" />

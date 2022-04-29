@@ -31,3 +31,6 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+#Mapbox
+app/src/main/res/values/developer-config.xml

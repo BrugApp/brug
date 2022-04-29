@@ -13,13 +13,6 @@ plugins {
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin' version '2.0.0' apply false
 }
 
-allprojects {
-    repositories {
-        google()
-        maven { url 'https://jitpack.io' }
-    }
-}
-
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
