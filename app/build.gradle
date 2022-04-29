@@ -80,6 +80,9 @@ dependencies {
     //for AndroidX use:
     implementation 'com.github.3llomi:RecordView:3.1.1'
 
+    //for Google Pay use:
+    implementation 'com.google.android.gms:play-services-wallet:19.1.0'
+
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     // ViewModel utilities for Compose
