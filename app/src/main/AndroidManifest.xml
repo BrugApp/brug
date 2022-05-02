@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.github.brugapp.brug">
 
     <queries>
@@ -97,6 +98,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.SignInActivity" />
         </activity>
+
         <activity
             android:name=".ui.QrCodeScannerActivity"
             android:exported="false"
