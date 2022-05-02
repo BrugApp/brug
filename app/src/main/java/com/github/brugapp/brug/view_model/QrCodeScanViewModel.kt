@@ -43,6 +43,7 @@ class QrCodeScanViewModel: ViewModel() {
             scanMode = ScanMode.CONTINUOUS
             isAutoFocusEnabled = true
             isFlashEnabled = false
+            // HERE LIES THE CODE HANDLING WHAT HAPPENS AFTER SCANNING THE QR CODE
             decodeCallback = DecodeCallback {
                 activity.runOnUiThread {
                     activity.findViewById<EditText>(R.id.editTextReportItem).setText(it.text)

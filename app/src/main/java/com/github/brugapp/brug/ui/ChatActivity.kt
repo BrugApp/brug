@@ -302,8 +302,10 @@ class ChatActivity : AppCompatActivity() {
     }
 
     fun scrollToBottom(position: Int) {
-        val rv = findViewById<View>(R.id.messagesList) as RecyclerView
-        rv.smoothScrollToPosition(position)
+        if(position > 0){
+            val rv = findViewById<View>(R.id.messagesList) as RecyclerView
+            rv.smoothScrollToPosition(position)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

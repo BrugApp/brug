@@ -177,10 +177,10 @@ object ConvRepository {
                 .mapNotNull { message ->
                     MessageRepository.getMessageFromSnapshot(message, messageUserName, authUserID)
                 }.sortedBy { it.timestamp.getSeconds() }
-            if(messages.isEmpty()) {
-                Log.e("FIREBASE ERROR", "Empty Message List")
-                return null
-            }
+//            if(messages.isEmpty()) {
+//                Log.e("FIREBASE ERROR", "Empty Message List")
+//                return null
+//            }
 
             return Conversation(convID, userFields, lostItemName, messages.toMutableList())
         } catch(e: Exception) {

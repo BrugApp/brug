@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.view_model
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -135,11 +136,12 @@ class ChatViewModel() : ViewModel() {
 
     private fun sendLocationMessage(activity: ChatActivity, location: Location, convID: String){
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
+        val strMsg = textBox.text.toString().ifBlank { "📍 Location" }
         val uri = activity.createFakeImage()
         val newMessage = LocationMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
-            textBox.text.toString(),
+            strMsg,
             LocationService.fromAndroidLocation(location)
         )
 
@@ -154,11 +156,12 @@ class ChatViewModel() : ViewModel() {
 
     fun sendPicMessage(activity: ChatActivity, convID: String) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
+        val strMsg = textBox.text.toString().ifBlank { "📷 Image" }
         //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
-            textBox.text.toString(),
+            strMsg,
             compressImage(activity, imageUri).toString()
         )
 
@@ -230,6 +233,7 @@ class ChatViewModel() : ViewModel() {
         return outputFile.toURI()
     }
 
+    @SuppressLint("MissingPermission")
     fun requestLocation(
         convID: String,
         activity: ChatActivity,
