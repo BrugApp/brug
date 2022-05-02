@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.view_model
 
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -29,10 +30,11 @@ class ConversationListAdapter(
     override fun onBindViewHolder(holder: ListViewHolder, position: Int) {
         val listElement = chatList[position]
         holder.title.text = listElement.userFields.getFullName()
-        if(listElement.userFields.getUserIcon() == null){
+        if(listElement.userFields.getUserIconPath() == null){
             holder.icon.setImageResource(R.mipmap.ic_launcher)
         } else {
-            holder.icon.setImageDrawable(listElement.userFields.getUserIcon())
+            val drawableIcon = Drawable.createFromPath(listElement.userFields.getUserIconPath())
+            holder.icon.setImageDrawable(drawableIcon)
         }
         val lastMessageBody =
             if(listElement.messages.isEmpty()) "Empty Conversation"

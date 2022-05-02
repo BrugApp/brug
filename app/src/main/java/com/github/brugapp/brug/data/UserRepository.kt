@@ -180,13 +180,12 @@ object UserRepository {
             }
 
             return if(userDoc.contains("user_icon")){
-                val userIcon: Drawable? = downloadUserIconInTemp(uid, userDoc["user_icon"] as String)
-                Log.e("FIREBASE CHECK", (userDoc["user_icon"] as String))
+                val userIconPath = downloadUserIconInTemp(uid, userDoc["user_icon"] as String)
                 MyUser(
                     uid,
                     userDoc["first_name"] as String,
                     userDoc["last_name"] as String,
-                    userIcon
+                    userIconPath
                 )
             } else MyUser(
                 uid,
@@ -201,7 +200,7 @@ object UserRepository {
         }
     }
 
-    private suspend fun downloadUserIconInTemp(uid: String, path: String): Drawable? {
+    private suspend fun downloadUserIconInTemp(uid: String, path: String): String? {
         try {
             val file = File.createTempFile(uid, ".jpg")
             // Downloading from Firebase Storage requires a signed-in user !
@@ -215,7 +214,7 @@ object UserRepository {
                 .getReference(path)
                 .getFile(file)
                 .await()
-            return Drawable.createFromPath(file.path)
+            return file.path
 
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
