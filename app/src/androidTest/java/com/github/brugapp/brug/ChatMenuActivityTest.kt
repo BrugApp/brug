@@ -16,6 +16,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -47,19 +48,21 @@ class ChatMenuActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
+    private val firebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore = FirebaseFakeHelper().providesFirestore()
 
     private fun signInTestUser() {
         runBlocking {
-            Firebase.auth.signInWithEmailAndPassword(
+            firebaseAuth.signInWithEmailAndPassword(
                 "test@unlost.com",
                 "123456").await()
 
-            ConvRepository.addNewConversation(TEST_USER_UID, INTERLOCUTOR_USER_UID, DUMMY_LOST_ITEM)
+            ConvRepository.addNewConversation(TEST_USER_UID, INTERLOCUTOR_USER_UID, DUMMY_LOST_ITEM,firestore)
         }
     }
 
     private fun signOut() {
-        Firebase.auth.signOut()
+        firebaseAuth.signOut()
     }
 
     @Before

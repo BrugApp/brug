@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.ui
 
 import android.content.Intent
+import android.gesture.GestureStroke
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -21,12 +22,18 @@ import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.UserRepository
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 
 class ProfileSettingsFragment(
-    private val registry: ActivityResultRegistry
+    private val registry: ActivityResultRegistry,
+    private val firebaseAuth: FirebaseAuth,
+    private val firebaseStorage: FirebaseStorage,
+    private val firestore: FirebaseFirestore
 ) : Fragment() {
 
     private fun resize(image: Drawable?): Drawable? {
@@ -42,7 +49,7 @@ class ProfileSettingsFragment(
             val drawable = Drawable.createFromStream(inputStream, uri.toString())
             activity?.let {
                 liveData(Dispatchers.IO){
-                    emit(UserRepository.updateUserIcon(Firebase.auth.currentUser!!.uid, drawable))
+                    emit(UserRepository.updateUserIcon(firebaseAuth.currentUser!!.uid, drawable,firebaseAuth, firebaseStorage, firestore))
                 }.observe(this){
                     val myIntent = Intent(activity, ProfilePictureSetActivity::class.java)
                     startActivity(myIntent)
@@ -60,7 +67,7 @@ class ProfileSettingsFragment(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         liveData(Dispatchers.IO){
-            emit(UserRepository.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid))
+            emit(UserRepository.getMinimalUserFromUID(firebaseAuth.currentUser!!.uid,firestore,firebaseAuth,firebaseStorage))
         }.observe(viewLifecycleOwner){ user ->
             view.findViewById<ProgressBar>(R.id.loadingUserProfile).visibility = View.GONE
 

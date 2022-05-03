@@ -38,8 +38,11 @@ import com.github.brugapp.brug.model.services.LocationService
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -50,7 +53,7 @@ import java.time.LocalDateTime
 import java.util.*
 
 //TODO: NEEDS REFACTORING & DOCUMENTATION
-class ChatViewModel() : ViewModel() {
+class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
     private lateinit var mediaPlayer : MediaPlayer
@@ -82,19 +85,19 @@ class ChatViewModel() : ViewModel() {
         return adapter
     }
 
-    fun sendMessage(message: Message, convID: String, activity: ChatActivity) {
+    fun sendMessage(message: Message, convID: String, activity: ChatActivity,firestore: FirebaseFirestore,firebaseAuth: FirebaseAuth,firebaseStorage: FirebaseStorage) {
         messages.add(message)
         adapter.notifyItemInserted(messages.size - 1)
         activity.scrollToBottom(adapter.itemCount - 1)
 
-        if(Firebase.auth.currentUser == null){
+        if(firebaseAuth.currentUser == null){
             Snackbar.make(activity.findViewById(android.R.id.content),
                 "ERROR: You are no longer logged in ! Log in again to send the message.",
                 Snackbar.LENGTH_LONG)
                 .show()
         } else {
             liveData(Dispatchers.IO) {
-                emit(MessageRepository.addMessageToConv(message, Firebase.auth.currentUser!!.uid, convID))
+                emit(MessageRepository.addMessageToConv(message, firebaseAuth.currentUser!!.uid, convID,firestore,firebaseAuth, firebaseStorage))
             }.observe(activity) { response ->
                 if(response.onError != null){
                     Log.e("FIREBASE ERROR", response.onError!!.message.toString())
@@ -133,7 +136,7 @@ class ChatViewModel() : ViewModel() {
         }
     }
 
-    private fun sendLocationMessage(activity: ChatActivity, location: Location, convID: String){
+    private fun sendLocationMessage(activity: ChatActivity, location: Location, convID: String, firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val uri = activity.createFakeImage()
         val newMessage = LocationMessage(
@@ -144,7 +147,7 @@ class ChatViewModel() : ViewModel() {
         )
 
         newMessage.mapUrl = activity.createFakeImage().toString()
-        sendMessage(newMessage, convID, activity)
+        sendMessage(newMessage, convID, activity,firestore,firebaseAuth,firebaseStorage)
 
         // Clear the message field
         textBox.text = ""
@@ -152,7 +155,7 @@ class ChatViewModel() : ViewModel() {
         adapter.notifyItemInserted(messages.size - 1)
     }
 
-    fun sendPicMessage(activity: ChatActivity, convID: String) {
+    fun sendPicMessage(activity: ChatActivity, convID: String, firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
@@ -162,7 +165,7 @@ class ChatViewModel() : ViewModel() {
             compressImage(activity, imageUri).toString()
         )
 
-        sendMessage(newMessage, convID, activity)
+        sendMessage(newMessage, convID, activity,firestore,firebaseAuth,firebaseStorage)
 
         // Clear the message field
         textBox.text = ""
@@ -234,7 +237,10 @@ class ChatViewModel() : ViewModel() {
         convID: String,
         activity: ChatActivity,
         fusedLocationClient: FusedLocationProviderClient,
-        locationManager: LocationManager
+        locationManager: LocationManager,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
     ) {
         if (ActivityCompat.checkSelfPermission(
                 activity,
@@ -249,7 +255,7 @@ class ChatViewModel() : ViewModel() {
 
         fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
             if (lastKnownLocation != null) {
-                sendLocationMessage(activity, lastKnownLocation, convID)
+                sendLocationMessage(activity, lastKnownLocation, convID, firestore, firebaseAuth, firebaseStorage)
             } else {
                 // Launch the locationListener (updates every 1000 ms)
                 val locationGpsProvider = LocationManager.GPS_PROVIDER
@@ -257,10 +263,10 @@ class ChatViewModel() : ViewModel() {
                     locationGpsProvider,
                     50,
                     0.1f
-                ) { sendLocationMessage(activity, it, convID) }
+                ) { sendLocationMessage(activity, it, convID,firestore,firebaseAuth,firebaseStorage) }
 
                 // Stop the update as we only want it once (at least for now)
-                locationManager.removeUpdates { sendLocationMessage(activity, it, convID) }
+                locationManager.removeUpdates { sendLocationMessage(activity, it, convID,firestore,firebaseAuth,firebaseStorage) }
             }
         }
     }

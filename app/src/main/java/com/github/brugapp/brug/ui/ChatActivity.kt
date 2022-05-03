@@ -33,11 +33,15 @@ import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
+import javax.inject.Inject
 
 
 class ChatActivity : AppCompatActivity() {
@@ -55,6 +59,13 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var buttonSendAudio: ImageButton
     private lateinit var deleteAudio: ImageButton
     private lateinit var textMessage: EditText
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+    @Inject
+    lateinit var firebaseStorage: FirebaseStorage
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
@@ -135,7 +146,7 @@ class ChatActivity : AppCompatActivity() {
                 DateService.fromLocalDateTime(LocalDateTime.now()),
                 content
             )
-            viewModel.sendMessage(newMessage, convID, this)
+            viewModel.sendMessage(newMessage, convID, this,firestore,firebaseAuth, firebaseStorage)
 
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
@@ -167,7 +178,7 @@ class ChatActivity : AppCompatActivity() {
             viewModel.requestLocation(convID,
                 this,
                 fusedLocationClient,
-                locationManager)
+                locationManager,firestore,firebaseAuth, firebaseStorage)
         }
     }
 
@@ -313,7 +324,7 @@ class ChatActivity : AppCompatActivity() {
             if (requestCode == SELECT_PICTURE_REQUEST_CODE){
                 val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
                 viewModel.setImageUri(imageUri)
-                viewModel.sendPicMessage(this, convID)
+                viewModel.sendPicMessage(this, convID,firestore,firebaseAuth,firebaseStorage)
             }
             else if (requestCode == TAKE_PICTURE_REQUEST_CODE){
                 // for the tests (use of stubs that store uri as extra)
@@ -321,7 +332,7 @@ class ChatActivity : AppCompatActivity() {
                 if(uriString != null){
                     viewModel.setImageUri(Uri.parse(uriString))
                 }
-                viewModel.sendPicMessage(this, convID)
+                viewModel.sendPicMessage(this, convID,firestore,firebaseAuth,firebaseStorage)
             }
         }
     }

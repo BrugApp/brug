@@ -4,7 +4,9 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.MyUser
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
@@ -19,20 +21,22 @@ private const val DUMMY_UID = "AUTHUSERID"
 private val DUMMY_ACCOUNT = BrugSignInAccount("Rayan", "Kikou", "", "")
 
 class UserRepositoryTest {
+
+    val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     @Test
     fun getMinimalUserWithWrongUIDReturnsNull() = runBlocking {
-        assertThat(UserRepository.getMinimalUserFromUID("WRONGUID"), IsNull.nullValue())
+        assertThat(UserRepository.getMinimalUserFromUID("WRONGUID",FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage()), IsNull.nullValue())
     }
 
     @Test
     fun getMinimalUserWithGoodUIDReturnsUser() = runBlocking {
-        assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID), IsNot(IsNull.nullValue()))
+        assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage()), IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun addAuthUserCorrectlyAddsUser() = runBlocking {
-        assertThat(UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT).onSuccess, IsEqual(true))
-        val user = UserRepository.getMinimalUserFromUID(DUMMY_UID)
+        assertThat(UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
+        val user = UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage())
         assertThat(user, IsNot(IsNull.nullValue()))
         assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null)))
     }
@@ -40,16 +44,16 @@ class UserRepositoryTest {
     @Test
     fun updateUserFieldsOfInexistentUserReturnsError() = runBlocking {
         val wrongUser = MyUser("WRONGUID", "BAD", "USER", null)
-        assertThat(UserRepository.updateUserFields(wrongUser).onError, IsNot(IsNull.nullValue()))
+        assertThat(UserRepository.updateUserFields(wrongUser,FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun updateUserCorrectlyUpdatesUserFields() = runBlocking {
-        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore())
         val updatedUser = MyUser(DUMMY_UID, "Bryan", "Kikou", null)
-        assertThat(UserRepository.updateUserFields(updatedUser).onSuccess, IsEqual(true))
+        assertThat(UserRepository.updateUserFields(updatedUser,FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
 
-        val user = UserRepository.getMinimalUserFromUID(DUMMY_UID)
+        val user = UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage())
         assertThat(user, IsNot(IsNull.nullValue()))
         assertThat(user, IsEqual(updatedUser))
     }
@@ -60,7 +64,7 @@ class UserRepositoryTest {
         val drawable = ApplicationProvider.getApplicationContext<Context>().getDrawable(R.drawable.ic_baseline_person_24)
         assertThat(drawable, IsNot(IsNull.nullValue()))
 
-        assertThat(UserRepository.updateUserIcon(DUMMY_UID, drawable!!).onError, IsNot(IsNull.nullValue()))
+        assertThat(UserRepository.updateUserIcon(DUMMY_UID, drawable!!,FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage(),FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
@@ -70,15 +74,15 @@ class UserRepositoryTest {
         assertThat(drawable, IsNot(IsNull.nullValue()))
 
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
-        val authUser = Firebase.auth
+        val authUser = firebaseAuth
             .signInWithEmailAndPassword("test@unlost.com", "123456")
             .await()
             .user
-        assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
-        assertThat(Firebase.auth.currentUser!!.uid, IsEqual(authUser!!.uid))
+        assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
+        assertThat(firebaseAuth.currentUser!!.uid, IsEqual(authUser!!.uid))
 
-        assertThat(UserRepository.updateUserIcon("WRONGUID", drawable!!).onError, IsNot(IsNull.nullValue()))
-        Firebase.auth.signOut()
+        assertThat(UserRepository.updateUserIcon("WRONGUID", drawable!!,FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage(),FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
+        firebaseAuth.signOut()
     }
 
     @Test
@@ -88,18 +92,18 @@ class UserRepositoryTest {
         assertThat(drawable, IsNot(IsNull.nullValue()))
 
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
-        val authUser = Firebase.auth
+        val authUser = firebaseAuth
             .signInWithEmailAndPassword("test@unlost.com", "123456")
             .await()
             .user
-        assertThat(Firebase.auth.currentUser, IsNot(IsNull.nullValue()))
-        assertThat(Firebase.auth.currentUser!!.uid, IsEqual(authUser!!.uid))
+        assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
+        assertThat(firebaseAuth.currentUser!!.uid, IsEqual(authUser!!.uid))
 
-        val response = UserRepository.updateUserIcon(DUMMY_UID, drawable!!)
+        val response = UserRepository.updateUserIcon(DUMMY_UID, drawable!!,FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage(),FirebaseFakeHelper().providesFirestore())
         assertThat(response.onError, IsNull.nullValue())
 
-        val updatedUser = UserRepository.getMinimalUserFromUID(DUMMY_UID)
-        Firebase.auth.signOut()
+        val updatedUser = UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage())
+        firebaseAuth.signOut()
 
         assertThat(updatedUser, IsNot(IsNull.nullValue()))
         assertThat(updatedUser!!.getUserIcon(), IsNot(IsNull.nullValue()))
@@ -110,25 +114,25 @@ class UserRepositoryTest {
 
     @Test
     fun resetUserIconOfInexistentUserReturnsError() = runBlocking {
-        assertThat(UserRepository.resetUserIcon("WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(UserRepository.resetUserIcon("WRONGUID",FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun resetUserIconOfExistingUserReturnsSuccessfully() = runBlocking {
-        assertThat(UserRepository.resetUserIcon(DUMMY_UID).onSuccess, IsEqual(true))
+        assertThat(UserRepository.resetUserIcon(DUMMY_UID,FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
     }
 
 
     @Test
     fun deleteUserReturnsSuccessfully() = runBlocking {
-        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore())
 //        UserRepo.addAuthUser(DUMMY_USER)
-        assertThat(UserRepository.deleteUserFromID(DUMMY_UID).onSuccess, IsEqual(true))
-        assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID), IsNull.nullValue())
+        assertThat(UserRepository.deleteUserFromID(DUMMY_UID, FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
+        assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage()), IsNull.nullValue())
     }
 
     @Test
     fun deleteInexistentUserReturnsError() = runBlocking {
-        assertThat(UserRepository.deleteUserFromID("WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(UserRepository.deleteUserFromID("WRONGUID",FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
     }
 }

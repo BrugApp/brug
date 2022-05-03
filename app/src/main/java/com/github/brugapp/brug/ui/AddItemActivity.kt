@@ -11,15 +11,25 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.AddItemViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 const val DESCRIPTION_LIMIT = 60
 
+@AndroidEntryPoint
 class AddItemActivity : AppCompatActivity() {
 
     private val viewModel: AddItemViewModel by viewModels()
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,14 +52,16 @@ class AddItemActivity : AppCompatActivity() {
 
         val addButton = findViewById<Button>(R.id.add_item_button)
         addButton.setOnClickListener {
-            addItemOnListener(itemName, itemNameHelper, itemType, itemDesc)
+            addItemOnListener(itemName, itemNameHelper, itemType, itemDesc,firebaseAuth)
         }
     }
 
     private fun addItemOnListener(itemName: EditText,
                                   itemNameHelper: TextView,
                                   itemType: Spinner,
-                                  itemDesc: EditText){
+                                  itemDesc: EditText,
+                                  firebaseAuth: FirebaseAuth
+    ){
         if(viewModel.verifyForm(itemNameHelper,itemName)){
 //               user.addItemToList(newItem)
             val newItem = MyItem(
@@ -58,7 +70,7 @@ class AddItemActivity : AppCompatActivity() {
                 itemDesc.text.toString(),
                 false)
 
-            runBlocking {ItemsRepository.addItemToUser(newItem, Firebase.auth.currentUser!!.uid)}
+            runBlocking {ItemsRepository.addItemToUser(newItem, firebaseAuth.currentUser!!.uid, firestore)}
 
             val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)

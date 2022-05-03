@@ -11,8 +11,11 @@ import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -31,11 +34,17 @@ class SignInViewModel @Inject constructor(
 
     // Check for existing Sign In account, if the user is already signed in
     // the SignInAccount will be non-null.
-    private var currentUser: MyUser? = createNewBrugUser(lastSignedInAccount) //= createNewBrugUser(lastSignedInAccount)
+    //private var currentUser: MyUser? = createNewBrugUser(lastSignedInAccount,) //= createNewBrugUser(lastSignedInAccount)
+    private var currentUser: MyUser? = null //= createNewBrugUser(lastSignedInAccount)
 
-    fun handleSignInResult(it: Intent?): AuthCredential? {
+    fun handleSignInResult(
+        it: Intent?,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ): AuthCredential? {
         val currentAccount = signInResultHandler.handleSignInResult(it)
-        currentUser = createNewBrugUser(currentAccount)
+        currentUser = createNewBrugUser(currentAccount,firestore,firebaseAuth,firebaseStorage)
         return credentialGetter.getCredential(currentAccount?.idToken)
     }
 
@@ -49,24 +58,29 @@ class SignInViewModel @Inject constructor(
         currentUser = null
     }
 
-    fun goToDemoMode(activity: AppCompatActivity){
+    fun goToDemoMode(
+        activity: AppCompatActivity,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ){
         liveData(Dispatchers.IO){
             emit(
-                Firebase.auth.signInWithEmailAndPassword(
+                firebaseAuth.signInWithEmailAndPassword(
                 "unlost.app@gmail.com",
                 "brugsdpProject1").await())
         }.observe(activity) { result ->
             if(result.user != null){
-                if(runBlocking{UserRepository.getMinimalUserFromUID(result.user!!.uid)} == null){
+                if(runBlocking{UserRepository.getMinimalUserFromUID(result.user!!.uid,firestore,firebaseAuth,firebaseStorage)} == null){
                     runBlocking{UserRepository.addUserFromAccount(
-                        Firebase.auth.currentUser!!.uid,
+                        firebaseAuth.currentUser!!.uid,
                         BrugSignInAccount(
                             "Unlost",
                             "DemoUser",
                             "",
                             ""
                         )
-                    )}
+                    ,firestore)}
                 }
 
                 activity.startActivity(Intent(activity.applicationContext, ItemsMenuActivity::class.java))
@@ -80,14 +94,19 @@ class SignInViewModel @Inject constructor(
 
 
     // return new Brug User from SignInAccount
-    private fun createNewBrugUser(account: SignInAccount?): MyUser? {
+    private fun createNewBrugUser(
+        account: SignInAccount?,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ): MyUser? {
         if (account == null || auth.uid == null) return null
         return runBlocking {
-            val user = UserRepository.getMinimalUserFromUID(auth.uid!!)
+            val user = UserRepository.getMinimalUserFromUID(auth.uid!!,firestore,firebaseAuth,firebaseStorage)
             if(user == null){
-                val response = UserRepository.addUserFromAccount(auth.uid!!, account)
+                val response = UserRepository.addUserFromAccount(auth.uid!!, account,firestore)
                 if(response.onSuccess){
-                    UserRepository.getMinimalUserFromUID(auth.uid!!)
+                    UserRepository.getMinimalUserFromUID(auth.uid!!,firestore,firebaseAuth,firebaseStorage)
                 }
             }
             null

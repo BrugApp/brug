@@ -16,35 +16,45 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
 private const val NOT_IMPLEMENTED: String = "no information yet"
 
+@AndroidEntryPoint
 class ItemInformationActivity : AppCompatActivity() {
 
     private val viewModel: ItemInformationViewModel by viewModels()
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
 
-        val textSet: HashMap<String,String> = viewModel.getText(item)
+        val textSet: HashMap<String,String> = viewModel.getText(item,firebaseAuth)
         setTextAllView(textSet)
 
-        setSwitch(item)
+        setSwitch(item,firebaseAuth)
         qrCodeButton()
     }
 
-    private fun setSwitch(item: MyItem) {
+    private fun setSwitch(item: MyItem,firebaseAuth: FirebaseAuth) {
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
             liveData(Dispatchers.IO) {
-                emit(ItemsRepository.updateItemFields(item, Firebase.auth.currentUser!!.uid))
+                emit(ItemsRepository.updateItemFields(item, firebaseAuth.currentUser!!.uid, firestore))
             }.observe(this) { response ->
                 val feedbackStr = if (response.onSuccess) {
                     "Item state has been successfully changed"

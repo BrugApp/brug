@@ -22,8 +22,10 @@ import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
 import com.github.brugapp.brug.di.sign_in.module.SignInClientModule
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.Module
@@ -74,12 +76,14 @@ class SignInActivityTestFake {
         @Provides
         fun provideFakeAuthDatabase(): AuthDatabase {
             //return FakeAuthDatabase(FakeDatabaseUser())
-            return AuthFirebase()
+            return AuthFirebase(Firebase.auth)
         }
     }
 
     @get:Rule
     val rule = HiltAndroidRule(this)
+
+    val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
 
     @Before
     fun setUp() {
@@ -96,7 +100,7 @@ class SignInActivityTestFake {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         runBlocking{
-            Firebase.auth.signInWithEmailAndPassword(
+            firebaseAuth.signInWithEmailAndPassword(
             "test@unlost.com",
             "123456"
             ).await()
@@ -110,7 +114,7 @@ class SignInActivityTestFake {
                     )
                 )
             )
-            Firebase.auth.signOut()
+            firebaseAuth.signOut()
         }
     }
 
@@ -119,7 +123,7 @@ class SignInActivityTestFake {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         runBlocking{
-            Firebase.auth.signInWithEmailAndPassword(
+            firebaseAuth.signInWithEmailAndPassword(
                 "test@unlost.com",
                 "123456"
             ).await()

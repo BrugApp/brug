@@ -2,8 +2,11 @@ package com.github.brugapp.brug.data
 
 import android.util.Log
 import com.github.brugapp.brug.model.Conversation
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 private const val USERS_DB = "Users"
@@ -24,18 +27,18 @@ object ConvRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun addNewConversation(thisUID: String, uid: String, lostItemName: String): FirebaseResponse {
+    suspend fun addNewConversation(thisUID: String, uid: String, lostItemName: String,firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
             //FIRST CHECK IF THE USERS EXIST OR NOT
-            val userRef = Firebase.firestore.collection(USERS_DB).document(thisUID)
+            val userRef = firestore.collection(USERS_DB).document(thisUID)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
-            val otherUserRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val otherUserRef = firestore.collection(USERS_DB).document(uid)
             if(!otherUserRef.get().await().exists()){
                 response.onError = Exception("Interlocutor user doesn't exist")
                 return response
@@ -44,7 +47,7 @@ object ConvRepository {
 
             // FIRST ADD AN ENTRY IN THE CONVERSATIONS COLLECTION
             val convID = "$thisUID$uid"
-            Firebase.firestore.collection(CONV_DB).document(convID).set(mapOf(
+            firestore.collection(CONV_DB).document(convID).set(mapOf(
                 "lost_item_name" to lostItemName
             )).await()
 
@@ -68,7 +71,7 @@ object ConvRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun deleteConversationFromID(convID: String, thisUID: String): FirebaseResponse {
+    suspend fun deleteConversationFromID(convID: String, thisUID: String,firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
@@ -77,24 +80,24 @@ object ConvRepository {
                 return response
             }
 
-            val convRef = Firebase.firestore.collection(CONV_DB).document(convID)
+            val convRef = firestore.collection(CONV_DB).document(convID)
             if(!convRef.get().await().exists()){
                 response.onError = Exception("Conversation doesn't exist")
                 return response
             }
 
 
-            val userRef = Firebase.firestore.collection(USERS_DB).document(thisUID)
+            val userRef = firestore.collection(USERS_DB).document(thisUID)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("Conv Related User doesn't exist")
                 return response
             }
 
             // FIRST DELETE THE CONVERSATION
-            Firebase.firestore.collection(CONV_DB).document(convID).delete().await()
+            firestore.collection(CONV_DB).document(convID).delete().await()
 
             // THEN REMOVE THE REFERENCE FROM THE CURRENT USER DOCUMENT IN FIREBASE
-            Firebase.firestore.collection(USERS_DB).document(thisUID).collection(CONV_REFS_DB).document(convID).delete().await()
+            firestore.collection(USERS_DB).document(thisUID).collection(CONV_REFS_DB).document(convID).delete().await()
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -105,18 +108,18 @@ object ConvRepository {
     }
 
     /* ONLY FOR TESTS */
-    suspend fun deleteAllUserConversations(uid: String): FirebaseResponse {
+    suspend fun deleteAllUserConversations(uid: String,firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val userRef = firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
             userRef.collection(CONV_DB).get().await().mapNotNull { conv ->
-                deleteConversationFromID(conv.id, uid)
+                deleteConversationFromID(conv.id, uid,firestore)
             }
 
             response.onSuccess = true
@@ -134,16 +137,17 @@ object ConvRepository {
      *
      * @return List<Conversation> if the operation was successful, or a null value in case of error.
      */
-    suspend fun getUserConvFromUID(uid: String): List<Conversation>? {
+    suspend fun getUserConvFromUID(uid: String,firestore: FirebaseFirestore,
+                                   firebaseAuth: FirebaseAuth,firebaseStorage: FirebaseStorage): List<Conversation>? {
         return try {
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val userRef = firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
                 Log.e("FIREBASE ERROR", "User doesn't exist")
                 return null
             }
 
             userRef.collection(CONV_REFS_DB).get().await().mapNotNull { convRef ->
-                    getConvFromRefID(convRef.id, uid)
+                    getConvFromRefID(convRef.id, uid,firestore, firebaseAuth, firebaseStorage)
                 }
 
         } catch(e: Exception) {
@@ -152,10 +156,13 @@ object ConvRepository {
         }
     }
 
-    private suspend fun getConvFromRefID(convID: String, authUserID: String): Conversation? {
+    private suspend fun getConvFromRefID(convID: String, authUserID: String,
+                                         firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth,
+                                         firebaseStorage: FirebaseStorage
+    ): Conversation? {
         try {
             //FETCH CONV_DOC FROM ID
-            val convSnapshot = Firebase.firestore.collection(CONV_DB).document(convID).get().await()
+            val convSnapshot = firestore.collection(CONV_DB).document(convID).get().await()
 
             // MAYBE TOO HARSH OF A CONDITION
             if(!convSnapshot.contains("lost_item_name")){
@@ -165,7 +172,7 @@ object ConvRepository {
 
             //FETCH USER FIELDS
             val userFields = UserRepository.getMinimalUserFromUID(
-                parseConvUserNameFromID(convID, authUserID)
+                parseConvUserNameFromID(convID, authUserID), firestore, firebaseAuth, firebaseStorage
             ) ?: return null
 
             //FETCH LOSTITEMNAME
@@ -175,7 +182,7 @@ object ConvRepository {
             val messageUserName = userFields.getFullName()
             val messages = convSnapshot.reference.collection(MSG_DB).get().await()
                 .mapNotNull { message ->
-                    MessageRepository.getMessageFromSnapshot(message, messageUserName, authUserID)
+                    MessageRepository.getMessageFromSnapshot(message, messageUserName, authUserID, firebaseStorage, firebaseAuth)
                 }.sortedBy { it.timestamp.getSeconds() }
             if(messages.isEmpty()) {
                 Log.e("FIREBASE ERROR", "Empty Message List")

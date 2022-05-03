@@ -10,8 +10,9 @@ import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.ui.CHAT_CHECK_TEXT
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 
 
@@ -23,14 +24,17 @@ class ChatMenuViewModel : ViewModel() {
     fun setCallback(activity: AppCompatActivity,
                     dragPair: Pair<Int, Int>,
                     swipePair: Pair<Drawable, Int>,
-                    listAdapterPair: Pair<MutableList<Conversation>, ConversationListAdapter>): ListCallback<Conversation> {
+                    listAdapterPair: Pair<MutableList<Conversation>, ConversationListAdapter>,
+                    firebaseAuth:FirebaseAuth,
+                    firestore: FirebaseFirestore
+    ): ListCallback<Conversation> {
 
         val listView = activity.findViewById<RecyclerView>(R.id.chat_listview)
 
         return ListCallback(CHAT_CHECK_TEXT, dragPair, swipePair, listAdapterPair){ delConv, position ->
             liveData(Dispatchers.IO){
                 emit(
-                    ConvRepository.deleteConversationFromID(delConv.convId, Firebase.auth.currentUser!!.uid))
+                    ConvRepository.deleteConversationFromID(delConv.convId, firebaseAuth.currentUser!!.uid,firestore))
             }.observe(activity){ response ->
                 if(response.onSuccess){
                     listAdapterPair.first.removeAt(position)
@@ -41,7 +45,7 @@ class ChatMenuViewModel : ViewModel() {
                         Snackbar.LENGTH_LONG).setAction("Undo") {
                         liveData(Dispatchers.IO){
                             emit(
-                                ConvRepository.addNewConversation(Firebase.auth.currentUser!!.uid, delConv.userFields.uid, delConv.lostItemName)
+                                ConvRepository.addNewConversation(firebaseAuth.currentUser!!.uid, delConv.userFields.uid, delConv.lostItemName,firestore)
                             )}.observe(activity){
                             if(!response.onSuccess){
                                 Snackbar.make(listView,

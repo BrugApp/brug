@@ -17,6 +17,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
@@ -60,23 +61,26 @@ class ItemsMenuActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
+    private val firebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore = FirebaseFakeHelper().providesFirestore()
+
     private fun signInTestUser() {
         runBlocking {
-            Firebase.auth.signInWithEmailAndPassword(
+            firebaseAuth.signInWithEmailAndPassword(
                 "test@unlost.com",
                 "123456").await()
 
             for(item in ITEMS){
-                ItemsRepository.addItemToUser(item, TEST_USER_UID)
+                ItemsRepository.addItemToUser(item, TEST_USER_UID,firestore)
             }
         }
     }
 
     private fun wipeAllItemsAndSignOut() {
         runBlocking {
-            ItemsRepository.deleteAllUserItems(TEST_USER_UID)
+            ItemsRepository.deleteAllUserItems(TEST_USER_UID, firestore)
         }
-        Firebase.auth.signOut()
+        firebaseAuth.signOut()
     }
 
     @Before

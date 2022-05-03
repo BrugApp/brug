@@ -17,12 +17,17 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.ui.AddItemActivity
 import com.github.brugapp.brug.ui.DESCRIPTION_LIMIT
 import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.hamcrest.Description
@@ -38,15 +43,22 @@ import org.junit.runner.RunWith
 //TODO: TRY TO PUT IMAGE ASSERTIONS NOW
 private const val TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class AddItemTest {
 
     @get:Rule
     var testRule = ActivityScenarioRule(AddItemActivity::class.java)
 
+    @get:Rule
+    var rule = HiltAndroidRule(this)
+
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+
     private fun signInTestUser() {
         runBlocking {
-            Firebase.auth.signInWithEmailAndPassword(
+            firebaseAuth.signInWithEmailAndPassword(
                 "test@unlost.com",
                 "123456").await()
         }
@@ -54,9 +66,9 @@ class AddItemTest {
 
     private fun wipeItemsAndSignOut() {
         runBlocking {
-            ItemsRepository.deleteAllUserItems(TEST_USER_UID)
+            ItemsRepository.deleteAllUserItems(TEST_USER_UID,firestore)
         }
-        Firebase.auth.signOut()
+        firebaseAuth.signOut()
     }
 
     @Before

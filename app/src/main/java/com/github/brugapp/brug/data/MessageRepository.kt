@@ -10,11 +10,14 @@ import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.Timestamp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.tasks.await
 import java.io.File
@@ -36,10 +39,10 @@ object MessageRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun addMessageToConv(m: Message, senderID: String, convID: String): FirebaseResponse {
+    suspend fun addMessageToConv(m: Message, senderID: String, convID: String,firestore:FirebaseFirestore,firebaseAuth: FirebaseAuth,firebaseStorage: FirebaseStorage): FirebaseResponse {
         val addResponse = FirebaseResponse()
         try {
-            val convRef = Firebase.firestore.collection(CONV_DB).document(convID)
+            val convRef = firestore.collection(CONV_DB).document(convID)
             if(!convRef.get().await().exists()){
                 addResponse.onError = Exception("Conversation doesn't exist")
                 return addResponse
@@ -53,7 +56,7 @@ object MessageRepository {
             when(m){
                 is LocationMessage -> message["location"] = m.location.toFirebaseGeoPoint()
                 is AudioMessage -> {
-                    val uploadPath = uploadFileToDatabase(m.audioUrl, convID)
+                    val uploadPath = uploadFileToDatabase(m.audioUrl, convID,firebaseAuth, firebaseStorage)
                     if(uploadPath.isNullOrBlank()){
                         addResponse.onError = Exception("Unable to upload file")
                         return addResponse
@@ -62,7 +65,7 @@ object MessageRepository {
                     }
                 }
                 is PicMessage -> {
-                    val uploadPath = uploadFileToDatabase(m.imgUrl, convID)
+                    val uploadPath = uploadFileToDatabase(m.imgUrl, convID,firebaseAuth, firebaseStorage)
                     if(uploadPath.isNullOrBlank()){
                         addResponse.onError = Exception("Unable to upload file")
                         return addResponse
@@ -82,7 +85,7 @@ object MessageRepository {
         return addResponse
     }
 
-    suspend fun getMessageFromSnapshot(snapshot: QueryDocumentSnapshot, userName: String, authUserID: String): Message? {
+    suspend fun getMessageFromSnapshot(snapshot: QueryDocumentSnapshot, userName: String, authUserID: String,firebaseStorage: FirebaseStorage,firebaseAuth: FirebaseAuth): Message? {
         if(!snapshot.contains("sender")
             || !snapshot.contains("timestamp")
             || !snapshot.contains("body")){
@@ -106,22 +109,22 @@ object MessageRepository {
 
             snapshot.contains("image_url") ->
                 PicMessage.fromMessage(message,
-                    downloadFileToTemp(snapshot["image_url"] as String).toString()
+                    downloadFileToTemp(snapshot["image_url"] as String,firebaseAuth,firebaseStorage).toString()
                 )
 
             snapshot.contains("audio_url") ->
                 AudioMessage.fromMessage(message,
-                    downloadFileToTemp(snapshot["audio_url"] as String).toString()
+                    downloadFileToTemp(snapshot["audio_url"] as String,firebaseAuth,firebaseStorage).toString()
                 )
             else -> TextMessage.fromMessage(message)
         }
     }
 
 
-    private suspend fun uploadFileToDatabase(imgURI: String, convID: String): String?{
+    private suspend fun uploadFileToDatabase(imgURI: String, convID: String,firebaseAuth:FirebaseAuth,firebaseStorage: FirebaseStorage): String?{
         return try {
             // Uploading to Firebase Storage requires a signed-in user !
-            val currentUser = Firebase.auth.currentUser
+            val currentUser = firebaseAuth.currentUser
             if(currentUser == null){
                 Log.e("FIREBASE ERROR", "User is not signed in")
                 return null
@@ -131,7 +134,7 @@ object MessageRepository {
             val filePath = "$CONV_ASSETS$convID/${tempSplit[tempSplit.size-1]}"
             Log.d("FIREBASE CHECK", filePath)
 
-            Firebase.storage.reference.child(filePath)
+            firebaseStorage.reference.child(filePath)
                 .putFile(Uri.parse(imgURI))
                 .await()
 
@@ -143,10 +146,10 @@ object MessageRepository {
         }
     }
 
-    private suspend fun downloadFileToTemp(path: String): Uri? {
+    private suspend fun downloadFileToTemp(path: String,firebaseAuth: FirebaseAuth,firebaseStorage: FirebaseStorage): Uri? {
         try {
             // Downloading from Firebase Storage requires a signed-in user !
-            val currentUser = Firebase.auth.currentUser
+            val currentUser = firebaseAuth.currentUser
             if(currentUser == null) {
                 Log.d("FIREBASE ERROR", "User is not signed in")
                 return null
@@ -156,7 +159,7 @@ object MessageRepository {
             val file = File.createTempFile(tempSplit[tempSplit.size-1], ".jpg")
             Log.d("FIREBASE CHECK", file.path)
 
-            Firebase.storage
+                    firebaseStorage
                 .getReference(path)
                 .getFile(file)
                 .await()

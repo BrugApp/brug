@@ -2,6 +2,7 @@ package com.github.brugapp.brug.data
 
 import android.util.Log
 import com.github.brugapp.brug.model.MyItem
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,11 +23,11 @@ object ItemsRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun addItemToUser(item: MyItem, uid: String): FirebaseResponse {
+    suspend fun addItemToUser(item: MyItem, uid: String,firestore:FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val userRef = firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("User doesn't exist")
                 return response
@@ -55,10 +56,10 @@ object ItemsRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun updateItemFields(item: MyItem, uid: String): FirebaseResponse {
+    suspend fun updateItemFields(item: MyItem, uid: String,firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
         try {
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val userRef = firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("User doesn't exist")
                 return response
@@ -92,12 +93,12 @@ object ItemsRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun deleteItemFromUser(itemID: String, uid: String): FirebaseResponse {
+    suspend fun deleteItemFromUser(itemID: String, uid: String,firestore:FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
 
         //TODO: MAKE SURE THE ITEM ID IS RETRIEVED WITH ALL THE OTHER INFOS !
         try {
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val userRef = firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("User doesn't exist")
                 return response
@@ -120,11 +121,11 @@ object ItemsRepository {
     }
 
     /* RESERVED FOR TESTS */
-    suspend fun addItemWithItemID(item: MyItem, itemID: String, uid: String): FirebaseResponse {
+    suspend fun addItemWithItemID(item: MyItem, itemID: String, uid: String,firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val userRef = firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("User doesn't exist")
                 return response
@@ -145,18 +146,18 @@ object ItemsRepository {
         return response
     }
 
-    suspend fun deleteAllUserItems(uid: String): FirebaseResponse {
+    suspend fun deleteAllUserItems(uid: String,firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val userRef = firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
             userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
-                deleteItemFromUser(item.id, uid)
+                deleteItemFromUser(item.id, uid,firestore)
             }
 
             response.onSuccess = true
@@ -175,9 +176,9 @@ object ItemsRepository {
      *
      * @return List<MyItem> containing all the user's items, or a null value in case of error.
      */
-    suspend fun getUserItemsFromUID(uid: String): List<MyItem>? {
+    suspend fun getUserItemsFromUID(uid: String,firestore: FirebaseFirestore): List<MyItem>? {
         return try {
-            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            val userRef = firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
                 Log.e("FIREBASE ERROR","User doesn't exist")
                 return null

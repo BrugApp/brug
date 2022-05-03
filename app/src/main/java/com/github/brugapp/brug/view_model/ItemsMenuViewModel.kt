@@ -10,7 +10,9 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.ITEMS_DELETE_TEXT
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 
@@ -23,7 +25,10 @@ class ItemsMenuViewModel : ViewModel() {
     fun setCallback(activity: AppCompatActivity,
                     dragPair: Pair<Int, Int>,
                     swipePair: Pair<Drawable, Int>,
-                    listAdapterPair: Pair<MutableList<MyItem>, ItemsListAdapter>): ListCallback<MyItem> {
+                    listAdapterPair: Pair<MutableList<MyItem>, ItemsListAdapter>,
+                    firebaseAuth: FirebaseAuth,
+                    firestore: FirebaseFirestore
+                    ): ListCallback<MyItem> {
 
         val listView = activity.findViewById<RecyclerView>(R.id.items_listview)
 
@@ -31,7 +36,7 @@ class ItemsMenuViewModel : ViewModel() {
             liveData(Dispatchers.IO){
                 emit(
                     ItemsRepository.deleteItemFromUser(deletedItem.getItemID()
-                        , Firebase.auth.currentUser!!.uid))
+                        , firebaseAuth.currentUser!!.uid,firestore))
             }.observe(activity){ response ->
 
                 if(response.onSuccess){
@@ -44,7 +49,7 @@ class ItemsMenuViewModel : ViewModel() {
                         liveData(Dispatchers.IO){
                             emit(
                                 ItemsRepository.addItemToUser(deletedItem,
-                                    Firebase.auth.currentUser!!.uid))
+                                    firebaseAuth.currentUser!!.uid,firestore))
                         }.observe(activity){
                             if(!response.onSuccess){
                                 Snackbar.make(listView,

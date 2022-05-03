@@ -22,9 +22,16 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.ProfilePictureSetActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -89,9 +96,14 @@ class ProfileUserTest {
     @get:Rule
     val rule = HiltAndroidRule(this)
 
+
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
+
     private fun signInTestAccount(){
         runBlocking{
-            Firebase.auth.signInWithEmailAndPassword(
+            firebaseAuth.signInWithEmailAndPassword(
                 "test@unlost.com",
                 "123456"
             ).await()
@@ -100,9 +112,11 @@ class ProfileUserTest {
 
     private fun removeIconAndSignOut() {
         runBlocking {
-            UserRepository.resetUserIcon(Firebase.auth.currentUser!!.uid)
+            UserRepository
+                .resetUserIcon(
+                    firebaseAuth.currentUser!!.uid,firestore)
         }
-        Firebase.auth.signOut()
+        firebaseAuth.signOut()
     }
 
 
@@ -158,7 +172,7 @@ class ProfileUserTest {
 
 //        DUMMY_USER.setUserIcon(drawable)
         val response = runBlocking { UserRepository.updateUserIcon(
-            Firebase.auth.currentUser!!.uid, drawable!!) }
+            firebaseAuth.currentUser!!.uid, drawable!!,firebaseAuth,firebaseStorage,firestore) }
         assertThat(response.onSuccess, IsEqual(true))
 //        MockDatabase.currentUser.setProfilePicture(drawable)
 

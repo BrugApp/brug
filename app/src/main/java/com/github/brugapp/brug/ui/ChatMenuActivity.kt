@@ -21,9 +21,14 @@ import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
 import com.github.brugapp.brug.view_model.ConversationListAdapter
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import javax.inject.Inject
 
 const val CHAT_SEARCH_HINT: String = "Search for a conversation…"
 const val CHAT_CHECK_TEXT: String = "The conversation has been marked as resolved."
@@ -31,9 +36,18 @@ const val CHAT_CHECK_TEXT: String = "The conversation has been marked as resolve
 const val CHAT_INTENT_KEY = "conversation"
 
 
+@AndroidEntryPoint
 class ChatMenuActivity : AppCompatActivity() {
 
     private val viewModel: ChatMenuViewModel by viewModels()
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+    @Inject
+    lateinit var firebaseStorage: FirebaseStorage
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +71,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
     // ONLY GETS THE LIST OF CONVERSATIONS RELATED TO THE USER, NOT THE FULL USER PROFILE !
     private fun initChatList() = liveData(Dispatchers.IO){
-        emit(ConvRepository.getUserConvFromUID(Firebase.auth.currentUser!!.uid))
+        emit(ConvRepository.getUserConvFromUID(firebaseAuth.currentUser!!.uid,firestore, firebaseAuth, firebaseStorage))
     }.observe(this) { list ->
         findViewById<ProgressBar>(R.id.loadingConvs).visibility = View.GONE
         val conversations = if(list.isNullOrEmpty()) mutableListOf() else list.toMutableList()
@@ -83,7 +97,7 @@ class ChatMenuActivity : AppCompatActivity() {
             listViewAdapter
         )
 
-        val listCallback = viewModel.setCallback(this, dragPair, swipePair, listAdapterPair)
+        val listCallback = viewModel.setCallback(this, dragPair, swipePair, listAdapterPair, firebaseAuth,firestore)
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
 
         listView.adapter = listViewAdapter
