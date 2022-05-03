@@ -58,6 +58,9 @@ class QrCodeScannerActivity : AppCompatActivity() {
                             uidAndItemID[0],
                             item.itemName)
                     }
+                    MyFCMMessagingService.sendNotification(this,
+                        "One of your lost items has been found !",
+                        "Someone has found your item '${item.itemName}'")
 
                 }
             }

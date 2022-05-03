@@ -2,8 +2,11 @@ package com.github.brugapp.brug.data
 
 import android.util.Log
 import com.github.brugapp.brug.model.Conversation
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 
 private const val USERS_DB = "Users"
@@ -26,7 +29,6 @@ object ConvRepository {
      */
     suspend fun addNewConversation(thisUID: String, uid: String, lostItemName: String): FirebaseResponse {
         val response = FirebaseResponse()
-
         try {
             //FIRST CHECK IF THE USERS EXIST OR NOT
             val userRef = Firebase.firestore.collection(USERS_DB).document(thisUID)
@@ -41,9 +43,16 @@ object ConvRepository {
                 return response
             }
 
+            val convID = "$thisUID$uid"
+
+            // CHECK IF THE CONVERSATION FOR THE OBJECT DOESN'T ALREADY EXIST
+            val convDoc = Firebase.firestore.collection(CONV_DB).document(convID).get().await()
+            if(convDoc.exists() && convDoc.contains("lost_item_name") && convDoc["lost_item_name"] == lostItemName){
+                response.onError = Exception("The conversation for this object already exists")
+                return response
+            }
 
             // FIRST ADD AN ENTRY IN THE CONVERSATIONS COLLECTION
-            val convID = "$thisUID$uid"
             Firebase.firestore.collection(CONV_DB).document(convID).set(mapOf(
                 "lost_item_name" to lostItemName
             )).await()
@@ -142,9 +151,17 @@ object ConvRepository {
                 return null
             }
 
-            userRef.collection(CONV_REFS_DB).get().await().mapNotNull { convRef ->
+            // awaitRealtime CHECKS FOR CHANGES RELATED TO THE LIST OF CONV_REFS,
+            // AND TRIGGERS A GET REQUEST IF A CHANGE HAS BEEN DETECTED
+            val convListResponse = userRef.collection(CONV_REFS_DB).awaitRealtime()
+            if(convListResponse.packet != null){
+                return convListResponse.packet.mapNotNull { convRef ->
                     getConvFromRefID(convRef.id, uid)
                 }
+            } else {
+                Log.e("FIREBASE ERROR", convListResponse.error!!.message.toString())
+                return listOf()
+            }
 
         } catch(e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
@@ -171,18 +188,20 @@ object ConvRepository {
             //FETCH LOSTITEMNAME
             val lostItemName = convSnapshot["lost_item_name"] as String
 
-            //FETCH MESSAGE
+            //FETCH MESSAGES
             val messageUserName = userFields.getFullName()
-            val messages = convSnapshot.reference.collection(MSG_DB).get().await()
-                .mapNotNull { message ->
+            val messagesListResponse = convSnapshot.reference.collection(MSG_DB).awaitRealtime()
+
+            val messagesList = if(messagesListResponse.packet != null){
+                messagesListResponse.packet.mapNotNull { message ->
                     MessageRepository.getMessageFromSnapshot(message, messageUserName, authUserID)
                 }.sortedBy { it.timestamp.getSeconds() }
-//            if(messages.isEmpty()) {
-//                Log.e("FIREBASE ERROR", "Empty Message List")
-//                return null
-//            }
+            } else {
+                Log.e("FIREBASE ERROR", messagesListResponse.error!!.message.toString())
+                listOf()
+            }
 
-            return Conversation(convID, userFields, lostItemName, messages.toMutableList())
+            return Conversation(convID, userFields, lostItemName, messagesList.toMutableList())
         } catch(e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             return null
@@ -191,5 +210,15 @@ object ConvRepository {
 
     private fun parseConvUserNameFromID(convID: String, uid: String): String {
         return convID.replace(uid, "", ignoreCase = false)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun Query.awaitRealtime() = suspendCancellableCoroutine<QueryResponse> { continuation ->
+        addSnapshotListener { value, error ->
+            if (error == null && continuation.isActive)
+                continuation.resume(QueryResponse(value, null), null)
+            else if (error != null && continuation.isActive)
+                continuation.resume(QueryResponse(null, error), null)
+        }
     }
 }
