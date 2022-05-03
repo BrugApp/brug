@@ -13,7 +13,7 @@ import com.github.brugapp.brug.model.Conversation
  * Custom adapter class for the RecyclerView lists in ChatMenuActivity
  */
 
-private const val USERPIC_DIMENSIONS = 192
+private const val USERPIC_LEN = 192
 
 class ConversationListAdapter(
     private val chatList: MutableList<Conversation>,
@@ -38,7 +38,7 @@ class ConversationListAdapter(
             holder.icon.setImageResource(R.mipmap.ic_launcher)
         } else {
             val drawableIcon = Drawable.createFromPath(listElement.userFields.getUserIconPath())
-            val bitmap = drawableIcon!!.toBitmap(USERPIC_DIMENSIONS, USERPIC_DIMENSIONS, Bitmap.Config.ARGB_8888)
+            val bitmap = drawableIcon!!.toBitmap(USERPIC_LEN, USERPIC_LEN, Bitmap.Config.ARGB_8888)
             holder.icon.setImageBitmap(bitmap)
         }
         val lastMessageBody =
