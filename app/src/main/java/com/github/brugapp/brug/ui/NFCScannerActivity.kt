@@ -29,6 +29,7 @@ class NFCScannerActivity: AppCompatActivity() {
     private val Write_error = "Error occurred during writing, try again"
     private var writeMode: Boolean = false
 
+    private lateinit var manager: NfcManager
     private lateinit var adapter: NfcAdapter
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
@@ -44,11 +45,14 @@ class NFCScannerActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nfc_scanner)
         viewModel.checkPermission(this)
-        adapter = NfcAdapter.getDefaultAdapter(this)
+        context = this
+        manager = context.getSystemService(Context.NFC_SERVICE) as NfcManager
+        adapter = manager.defaultAdapter
+        //adapter = NfcAdapter.getDefaultAdapter(this)
         nfcInfo = findViewById<View>(R.id.editTextReportItem) as TextView
         nfcContents = findViewById<View>(R.id.editTextTextPersonName) as TextView
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button
-        context = this
+
         activateButton.setOnClickListener{
             try{
                 if(tag==null){
@@ -97,7 +101,7 @@ class NFCScannerActivity: AppCompatActivity() {
         if (messages==null|| messages.isEmpty()) return
         lateinit var text : String
         var payload = messages[0].records[0].payload
-        var textEncoding = if((payload[0] and 128.toByte()) == 0 as Byte) Charset.forName("UTF-8") else Charset.forName("UTF-16")
+        var textEncoding = if((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
         var languageCodeLength = payload[0] and 63.toByte()
         try{
             text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
@@ -125,7 +129,7 @@ class NFCScannerActivity: AppCompatActivity() {
         val langLength = langBytes.size
         val textLength = textBytes.size
         lateinit var payload: ByteArray
-        payload[0] = langLength as Byte
+        payload[0] = langLength.toByte()
         System.arraycopy(langBytes, 0, payload, 1, langLength)
         System.arraycopy(textBytes, 0, payload, 1 + langLength, textLength)
         return NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, byteArrayOf(), payload)
