@@ -15,18 +15,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.USER_ID_INTENT_KEY
 import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ItemsListAdapter
 import com.github.brugapp.brug.view_model.ItemsMenuViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
@@ -56,8 +52,6 @@ class ItemsMenuActivity : AppCompatActivity() {
     }
 
 
-
-
     // For the searchbar when pressing on the top bar's search icon
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         customTopBar.inflateTopBar(menuInflater, menu, ITEMS_SEARCH_HINT)
@@ -72,11 +66,11 @@ class ItemsMenuActivity : AppCompatActivity() {
 
 
     // ONLY GETS THE LIST OF ITEMS RELATED TO THE USER, NOT THE FULL USER PROFILE !
-    private fun initItemsList() = liveData(Dispatchers.IO){
-        emit(ItemsRepository.getUserItemsFromUID(firebaseAuth.currentUser!!.uid,firestore))
+    private fun initItemsList() = liveData(Dispatchers.IO) {
+        emit(ItemsRepository.getUserItemsFromUID(firebaseAuth.currentUser!!.uid, firestore))
     }.observe(this) { itemsList ->
         findViewById<ProgressBar>(R.id.loadingItems).visibility = View.GONE
-        val list = if(itemsList.isNullOrEmpty()) mutableListOf() else itemsList.toMutableList()
+        val list = if (itemsList.isNullOrEmpty()) mutableListOf() else itemsList.toMutableList()
 
         val listView = findViewById<RecyclerView>(R.id.items_listview)
         val itemsListAdapter = ItemsListAdapter(list)
@@ -94,8 +88,9 @@ class ItemsMenuActivity : AppCompatActivity() {
         )
 
         val swipePair = Pair(
-            ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24) !!,
-            ContextCompat.getColor(this, R.color.list_item_del_BG))
+            ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24)!!,
+            ContextCompat.getColor(this, R.color.list_item_del_BG)
+        )
 
         val listAdapterPair = Pair(
             list,
@@ -108,15 +103,16 @@ class ItemsMenuActivity : AppCompatActivity() {
             swipePair,
             listAdapterPair,
             firebaseAuth,
-            firestore)
+            firestore
+        )
         ItemTouchHelper(listCallback).attachToRecyclerView(listView)
         listView.adapter = itemsListAdapter
     }
 
-    private fun initFloatingAddButton(){
+    private fun initFloatingAddButton() {
         val addButton = findViewById<FloatingActionButton>(R.id.add_new_item_button)
 
-        addButton.setOnClickListener{
+        addButton.setOnClickListener {
             val myIntent = Intent(this, AddItemActivity::class.java)
             startActivity(myIntent)
         }

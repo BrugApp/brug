@@ -7,10 +7,10 @@ data class TextMessage(
     override val senderName: String,
     override val timestamp: DateService,
     override val body: String,
-): Message(senderName, timestamp, body) {
+) : Message(senderName, timestamp, body) {
 
-    companion object{
-        fun fromMessage(m: Message): TextMessage{
+    companion object {
+        fun fromMessage(m: Message): TextMessage {
             return TextMessage(m.senderName, m.timestamp, m.body)
         }
     }

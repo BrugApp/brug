@@ -9,7 +9,6 @@ import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -31,17 +30,20 @@ object UserRepository {
      * @return FirebaseResponse object, denoting if the new entry has correctly been added to the database
      */
     suspend fun addUserFromAccount(
-        authUID: String, account: SignInAccount,firestore: FirebaseFirestore)
+        authUID: String, account: SignInAccount, firestore: FirebaseFirestore
+    )
             : FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
             val userDoc = firestore.collection(USERS_DB).document(authUID)
-            if(!userDoc.get().await().exists()){
-                firestore.collection(USERS_DB).document(authUID).set(mapOf(
-                    "first_name" to account.firstName,
-                    "last_name" to account.lastName
-                )).await()
+            if (!userDoc.get().await().exists()) {
+                firestore.collection(USERS_DB).document(authUID).set(
+                    mapOf(
+                        "first_name" to account.firstName,
+                        "last_name" to account.lastName
+                    )
+                ).await()
             }
 
             response.onSuccess = true
@@ -59,20 +61,22 @@ object UserRepository {
      *
      * @return FirebaseResponse object, denoting if the entry to update has correctly been updated in Firebase
      */
-    suspend fun updateUserFields(user: MyUser,firestore: FirebaseFirestore): FirebaseResponse {
+    suspend fun updateUserFields(user: MyUser, firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
         try {
             val userRef = firestore.collection(USERS_DB).document(user.uid)
-            if(!userRef.get().await().exists()){
+            if (!userRef.get().await().exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
-            userRef.update(mapOf(
-                "first_name" to user.firstName,
-                "last_name" to user.lastName
-            )).await()
+            userRef.update(
+                mapOf(
+                    "first_name" to user.firstName,
+                    "last_name" to user.lastName
+                )
+            ).await()
             response.onSuccess = true
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             response.onError = e
         }
 
@@ -89,13 +93,13 @@ object UserRepository {
      */
     suspend fun updateUserIcon(
         uid: String, newIcon: Drawable,
-        auth: FirebaseAuth,firebaseStorage: FirebaseStorage,firestore: FirebaseFirestore
+        auth: FirebaseAuth, firebaseStorage: FirebaseStorage, firestore: FirebaseFirestore
     ): FirebaseResponse {
         val response = FirebaseResponse()
         try {
             // Uploading to Firebase Storage requires a signed-in user !
             val currentUser = auth.currentUser
-            if(currentUser == null){ //|| currentUser.uid != uid NOT FOR THE MOMENT, SINCE USER ISN'T IN AUTH DATABASE
+            if (currentUser == null) { //|| currentUser.uid != uid NOT FOR THE MOMENT, SINCE USER ISN'T IN AUTH DATABASE
                 response.onError = Exception("User is not signed in")
                 return response
             }
@@ -117,7 +121,7 @@ object UserRepository {
             baos.close()
             response.onSuccess = true
 
-        } catch(e: Exception){
+        } catch (e: Exception) {
             response.onError = e
         }
 
@@ -125,20 +129,22 @@ object UserRepository {
     }
 
     /* ONLY FOR TEST PURPOSES */
-    suspend fun resetUserIcon(uid: String,firestore: FirebaseFirestore): FirebaseResponse {
+    suspend fun resetUserIcon(uid: String, firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
+            if (!userRef.get().await().exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
-            firestore.collection(USERS_DB).document(uid).update(mapOf(
-                "user_icon" to ""
-            )).await()
+            firestore.collection(USERS_DB).document(uid).update(
+                mapOf(
+                    "user_icon" to ""
+                )
+            ).await()
             response.onSuccess = true
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             response.onError = e
         }
 
@@ -152,18 +158,18 @@ object UserRepository {
      *
      * @return FirebaseResponse object, denoting if the deletion was successful
      */
-    suspend fun deleteUserFromID(uid: String,firestore: FirebaseFirestore): FirebaseResponse {
+    suspend fun deleteUserFromID(uid: String, firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
+            if (!userRef.get().await().exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
             firestore.collection(USERS_DB).document(uid).delete().await()
             response.onSuccess = true
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             response.onError = e
         }
 
@@ -178,19 +184,26 @@ object UserRepository {
      * @return MyUser object instantiated with the parameters held in Firebase, or a null value in case of error
      */
     suspend fun getMinimalUserFromUID(
-        uid: String,firestore: FirebaseFirestore,firebaseAuth: FirebaseAuth,firebaseStorage: FirebaseStorage)
-    : MyUser? {
+        uid: String,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    )
+            : MyUser? {
         try {
             val userDoc = firestore.collection(USERS_DB).document(uid).get().await()
-            if(!userDoc.contains("first_name")
-                || !userDoc.contains("last_name")){
+            if (!userDoc.contains("first_name")
+                || !userDoc.contains("last_name")
+            ) {
                 Log.e("FIREBASE ERROR", "Invalid User Format")
                 return null
             }
 
-            return if(userDoc.contains("user_icon")){
-                val userIcon: Drawable? = downloadUserIconInTemp(uid, userDoc["user_icon"] as String,
-                firebaseAuth, firebaseStorage)
+            return if (userDoc.contains("user_icon")) {
+                val userIcon: Drawable? = downloadUserIconInTemp(
+                    uid, userDoc["user_icon"] as String,
+                    firebaseAuth, firebaseStorage
+                )
                 Log.e("FIREBASE CHECK", (userDoc["user_icon"] as String))
                 MyUser(
                     uid,
@@ -211,15 +224,17 @@ object UserRepository {
         }
     }
 
-    private suspend fun downloadUserIconInTemp(uid: String, path: String,
-                                               firebaseAuth: FirebaseAuth,
-                                               firebaseStorage: FirebaseStorage)
+    private suspend fun downloadUserIconInTemp(
+        uid: String, path: String,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    )
             : Drawable? {
         try {
             val file = File.createTempFile(uid, ".jpg")
             // Downloading from Firebase Storage requires a signed-in user !
             val currentUser = firebaseAuth.currentUser
-            if(currentUser == null) { // || currentUser.uid != uid NOT FOR THE MOMENT, SINCE USER ISN'T IN AUTH DATABASE
+            if (currentUser == null) { // || currentUser.uid != uid NOT FOR THE MOMENT, SINCE USER ISN'T IN AUTH DATABASE
                 Log.e("FIREBASE ERROR", "User is not signed in")
                 return null
             }

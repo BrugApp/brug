@@ -4,8 +4,6 @@ import android.util.Log
 import com.github.brugapp.brug.model.MyItem
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 
 private const val USERS_DB = "Users"
@@ -23,22 +21,28 @@ object ItemsRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun addItemToUser(item: MyItem, uid: String,firestore:FirebaseFirestore): FirebaseResponse {
+    suspend fun addItemToUser(
+        item: MyItem,
+        uid: String,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
+            if (!userRef.get().await().exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
-            userRef.collection(ITEMS_DB).add(mapOf(
+            userRef.collection(ITEMS_DB).add(
+                mapOf(
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
                     "is_lost" to item.isLost()
-                )).await()
+                )
+            ).await()
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -56,29 +60,35 @@ object ItemsRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun updateItemFields(item: MyItem, uid: String,firestore: FirebaseFirestore): FirebaseResponse {
+    suspend fun updateItemFields(
+        item: MyItem,
+        uid: String,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse {
         val response = FirebaseResponse()
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
+            if (!userRef.get().await().exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
             val itemRef = userRef.collection(ITEMS_DB).document(item.getItemID())
-            if(!itemRef.get().await().exists()){
+            if (!itemRef.get().await().exists()) {
                 response.onError = Exception("Item doesn't exist")
                 return response
             }
 
-            itemRef.update(mapOf(
-                "item_name" to item.itemName,
-                "item_type" to item.itemTypeID,
-                "item_description" to item.itemDesc,
-                "is_lost" to item.isLost()
-            )).await()
+            itemRef.update(
+                mapOf(
+                    "item_name" to item.itemName,
+                    "item_type" to item.itemTypeID,
+                    "item_description" to item.itemDesc,
+                    "is_lost" to item.isLost()
+                )
+            ).await()
             response.onSuccess = true
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             response.onError = e
         }
 
@@ -93,19 +103,23 @@ object ItemsRepository {
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
-    suspend fun deleteItemFromUser(itemID: String, uid: String,firestore:FirebaseFirestore): FirebaseResponse {
+    suspend fun deleteItemFromUser(
+        itemID: String,
+        uid: String,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse {
         val response = FirebaseResponse()
 
         //TODO: MAKE SURE THE ITEM ID IS RETRIEVED WITH ALL THE OTHER INFOS !
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
+            if (!userRef.get().await().exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
             val itemRef = userRef.collection(ITEMS_DB).document(itemID)
-            if(!itemRef.get().await().exists()){
+            if (!itemRef.get().await().exists()) {
                 response.onError = Exception("Item doesn't exist")
                 return response
             }
@@ -121,22 +135,29 @@ object ItemsRepository {
     }
 
     /* RESERVED FOR TESTS */
-    suspend fun addItemWithItemID(item: MyItem, itemID: String, uid: String,firestore: FirebaseFirestore): FirebaseResponse {
+    suspend fun addItemWithItemID(
+        item: MyItem,
+        itemID: String,
+        uid: String,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
+            if (!userRef.get().await().exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
-            userRef.collection(ITEMS_DB).document(itemID).set(mapOf(
-                "item_name" to item.itemName,
-                "item_type" to item.itemTypeID,
-                "item_description" to item.itemDesc,
-                "is_lost" to item.isLost()
-            )).await()
+            userRef.collection(ITEMS_DB).document(itemID).set(
+                mapOf(
+                    "item_name" to item.itemName,
+                    "item_type" to item.itemTypeID,
+                    "item_description" to item.itemDesc,
+                    "is_lost" to item.isLost()
+                )
+            ).await()
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -146,22 +167,22 @@ object ItemsRepository {
         return response
     }
 
-    suspend fun deleteAllUserItems(uid: String,firestore: FirebaseFirestore): FirebaseResponse {
+    suspend fun deleteAllUserItems(uid: String, firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
+            if (!userRef.get().await().exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
 
             userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
-                deleteItemFromUser(item.id, uid,firestore)
+                deleteItemFromUser(item.id, uid, firestore)
             }
 
             response.onSuccess = true
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             response.onError = e
         }
 
@@ -176,11 +197,11 @@ object ItemsRepository {
      *
      * @return List<MyItem> containing all the user's items, or a null value in case of error.
      */
-    suspend fun getUserItemsFromUID(uid: String,firestore: FirebaseFirestore): List<MyItem>? {
+    suspend fun getUserItemsFromUID(uid: String, firestore: FirebaseFirestore): List<MyItem>? {
         return try {
             val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
-                Log.e("FIREBASE ERROR","User doesn't exist")
+            if (!userRef.get().await().exists()) {
+                Log.e("FIREBASE ERROR", "User doesn't exist")
                 return null
             }
 
@@ -188,19 +209,20 @@ object ItemsRepository {
                 getItemFromDoc(item)
             }
 
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             null
         }
     }
 
 
-    private fun getItemFromDoc(itemDoc: QueryDocumentSnapshot): MyItem?{
+    private fun getItemFromDoc(itemDoc: QueryDocumentSnapshot): MyItem? {
         try {
-            if(!itemDoc.contains("item_name")
+            if (!itemDoc.contains("item_name")
                 || !itemDoc.contains("item_type")
                 || !itemDoc.contains("item_description")
-                || !itemDoc.contains("is_lost")){
+                || !itemDoc.contains("is_lost")
+            ) {
                 Log.e("FIREBASE ERROR", "Invalid Item Format")
                 return null
             }

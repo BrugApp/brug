@@ -11,15 +11,12 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.USER_ID_INTENT_KEY
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
@@ -33,6 +30,7 @@ class ItemInformationActivity : AppCompatActivity() {
 
     @Inject
     lateinit var firestore: FirebaseFirestore
+
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
@@ -41,20 +39,26 @@ class ItemInformationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_item_information)
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
 
-        val textSet: HashMap<String,String> = viewModel.getText(item,firebaseAuth)
+        val textSet: HashMap<String, String> = viewModel.getText(item, firebaseAuth)
         setTextAllView(textSet)
 
-        setSwitch(item,firebaseAuth)
+        setSwitch(item, firebaseAuth)
         qrCodeButton()
     }
 
-    private fun setSwitch(item: MyItem,firebaseAuth: FirebaseAuth) {
+    private fun setSwitch(item: MyItem, firebaseAuth: FirebaseAuth) {
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
             liveData(Dispatchers.IO) {
-                emit(ItemsRepository.updateItemFields(item, firebaseAuth.currentUser!!.uid, firestore))
+                emit(
+                    ItemsRepository.updateItemFields(
+                        item,
+                        firebaseAuth.currentUser!!.uid,
+                        firestore
+                    )
+                )
             }.observe(this) { response ->
                 val feedbackStr = if (response.onSuccess) {
                     "Item state has been successfully changed"
@@ -81,7 +85,7 @@ class ItemInformationActivity : AppCompatActivity() {
         }
     }
 
-    private fun setTextAllView(textSet: HashMap<String,String>) {
+    private fun setTextAllView(textSet: HashMap<String, String>) {
         setTextView(R.id.tv_name, textSet["title"])
         setTextView(R.id.item_name, textSet["title"])
         setTextView(R.id.item_last_location, textSet["lastLocation"])
@@ -94,12 +98,12 @@ class ItemInformationActivity : AppCompatActivity() {
         icon.setImageResource(img)
     }
 
-    private fun setTextView(textId:Int, value:String?){
+    private fun setTextView(textId: Int, value: String?) {
 
         //if we have no text, we will show a basic text
-        if(value == null){
+        if (value == null) {
             findViewById<TextView>(textId).text = NOT_IMPLEMENTED
-        }else
+        } else
             findViewById<TextView>(textId).text = value
     }
 }

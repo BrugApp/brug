@@ -12,7 +12,6 @@ import com.github.brugapp.brug.ui.CHAT_CHECK_TEXT
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 
 
@@ -21,36 +20,57 @@ import kotlinx.coroutines.Dispatchers
  */
 class ChatMenuViewModel : ViewModel() {
 
-    fun setCallback(activity: AppCompatActivity,
-                    dragPair: Pair<Int, Int>,
-                    swipePair: Pair<Drawable, Int>,
-                    listAdapterPair: Pair<MutableList<Conversation>, ConversationListAdapter>,
-                    firebaseAuth:FirebaseAuth,
-                    firestore: FirebaseFirestore
+    fun setCallback(
+        activity: AppCompatActivity,
+        dragPair: Pair<Int, Int>,
+        swipePair: Pair<Drawable, Int>,
+        listAdapterPair: Pair<MutableList<Conversation>, ConversationListAdapter>,
+        firebaseAuth: FirebaseAuth,
+        firestore: FirebaseFirestore
     ): ListCallback<Conversation> {
 
         val listView = activity.findViewById<RecyclerView>(R.id.chat_listview)
 
-        return ListCallback(CHAT_CHECK_TEXT, dragPair, swipePair, listAdapterPair){ delConv, position ->
-            liveData(Dispatchers.IO){
+        return ListCallback(
+            CHAT_CHECK_TEXT,
+            dragPair,
+            swipePair,
+            listAdapterPair
+        ) { delConv, position ->
+            liveData(Dispatchers.IO) {
                 emit(
-                    ConvRepository.deleteConversationFromID(delConv.convId, firebaseAuth.currentUser!!.uid,firestore))
-            }.observe(activity){ response ->
-                if(response.onSuccess){
+                    ConvRepository.deleteConversationFromID(
+                        delConv.convId,
+                        firebaseAuth.currentUser!!.uid,
+                        firestore
+                    )
+                )
+            }.observe(activity) { response ->
+                if (response.onSuccess) {
                     listAdapterPair.first.removeAt(position)
                     listAdapterPair.second.notifyItemRemoved(position)
 
-                    Snackbar.make(listView,
+                    Snackbar.make(
+                        listView,
                         CHAT_CHECK_TEXT,
-                        Snackbar.LENGTH_LONG).setAction("Undo") {
-                        liveData(Dispatchers.IO){
+                        Snackbar.LENGTH_LONG
+                    ).setAction("Undo") {
+                        liveData(Dispatchers.IO) {
                             emit(
-                                ConvRepository.addNewConversation(firebaseAuth.currentUser!!.uid, delConv.userFields.uid, delConv.lostItemName,firestore)
-                            )}.observe(activity){
-                            if(!response.onSuccess){
-                                Snackbar.make(listView,
+                                ConvRepository.addNewConversation(
+                                    firebaseAuth.currentUser!!.uid,
+                                    delConv.userFields.uid,
+                                    delConv.lostItemName,
+                                    firestore
+                                )
+                            )
+                        }.observe(activity) {
+                            if (!response.onSuccess) {
+                                Snackbar.make(
+                                    listView,
                                     "ERROR: Unable to re-add requested conversation to database",
-                                    Snackbar.LENGTH_LONG).show()
+                                    Snackbar.LENGTH_LONG
+                                ).show()
                             }
                         }
 
@@ -58,9 +78,11 @@ class ChatMenuViewModel : ViewModel() {
                         listAdapterPair.second.notifyItemInserted(position)
                     }.show()
                 } else {
-                    Snackbar.make(listView,
+                    Snackbar.make(
+                        listView,
                         "ERROR: Unable to delete requested item from database",
-                        Snackbar.LENGTH_LONG).show()
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
         }

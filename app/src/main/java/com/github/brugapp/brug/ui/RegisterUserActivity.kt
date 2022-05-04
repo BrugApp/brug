@@ -14,7 +14,6 @@ import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.view_model.RegisterUserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -28,6 +27,7 @@ class RegisterUserActivity : AppCompatActivity() {
 
     @Inject
     lateinit var firestore: FirebaseFirestore
+
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
@@ -47,7 +47,7 @@ class RegisterUserActivity : AppCompatActivity() {
 
         regUserButton.setOnClickListener {
             progressBar.visibility = View.VISIBLE
-            if(!viewModel.anyEmpty(firstNameField, lastNameField, passwdField, emailField)){
+            if (!viewModel.anyEmpty(firstNameField, lastNameField, passwdField, emailField)) {
                 val newAccount = BrugSignInAccount(
                     firstNameField.text.toString(),
                     lastNameField.text.toString(),
@@ -55,8 +55,15 @@ class RegisterUserActivity : AppCompatActivity() {
                     emailField.text.toString()
                 )
 
-                val response = runBlocking { FirebaseAuthRepository.createAuthAccount(newAccount, passwdField.text.toString(),firebaseAuth,firestore) }
-                if(response.onSuccess){
+                val response = runBlocking {
+                    FirebaseAuthRepository.createAuthAccount(
+                        newAccount,
+                        passwdField.text.toString(),
+                        firebaseAuth,
+                        firestore
+                    )
+                }
+                if (response.onSuccess) {
                     Toast.makeText(
                         this,
                         "Authentication was successful.",

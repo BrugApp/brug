@@ -11,9 +11,7 @@ import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.ITEMS_DELETE_TEXT
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 
 
@@ -22,39 +20,54 @@ import kotlinx.coroutines.Dispatchers
  */
 class ItemsMenuViewModel : ViewModel() {
 
-    fun setCallback(activity: AppCompatActivity,
-                    dragPair: Pair<Int, Int>,
-                    swipePair: Pair<Drawable, Int>,
-                    listAdapterPair: Pair<MutableList<MyItem>, ItemsListAdapter>,
-                    firebaseAuth: FirebaseAuth,
-                    firestore: FirebaseFirestore
-                    ): ListCallback<MyItem> {
+    fun setCallback(
+        activity: AppCompatActivity,
+        dragPair: Pair<Int, Int>,
+        swipePair: Pair<Drawable, Int>,
+        listAdapterPair: Pair<MutableList<MyItem>, ItemsListAdapter>,
+        firebaseAuth: FirebaseAuth,
+        firestore: FirebaseFirestore
+    ): ListCallback<MyItem> {
 
         val listView = activity.findViewById<RecyclerView>(R.id.items_listview)
 
-        return ListCallback(ITEMS_DELETE_TEXT, dragPair, swipePair, listAdapterPair) { deletedItem, position ->
-            liveData(Dispatchers.IO){
+        return ListCallback(
+            ITEMS_DELETE_TEXT,
+            dragPair,
+            swipePair,
+            listAdapterPair
+        ) { deletedItem, position ->
+            liveData(Dispatchers.IO) {
                 emit(
-                    ItemsRepository.deleteItemFromUser(deletedItem.getItemID()
-                        , firebaseAuth.currentUser!!.uid,firestore))
-            }.observe(activity){ response ->
+                    ItemsRepository.deleteItemFromUser(
+                        deletedItem.getItemID(), firebaseAuth.currentUser!!.uid, firestore
+                    )
+                )
+            }.observe(activity) { response ->
 
-                if(response.onSuccess){
+                if (response.onSuccess) {
                     listAdapterPair.first.removeAt(position)
                     listAdapterPair.second.notifyItemRemoved(position)
 
-                    Snackbar.make(listView,
+                    Snackbar.make(
+                        listView,
                         ITEMS_DELETE_TEXT,
-                        Snackbar.LENGTH_LONG).setAction("Undo") {
-                        liveData(Dispatchers.IO){
+                        Snackbar.LENGTH_LONG
+                    ).setAction("Undo") {
+                        liveData(Dispatchers.IO) {
                             emit(
-                                ItemsRepository.addItemToUser(deletedItem,
-                                    firebaseAuth.currentUser!!.uid,firestore))
-                        }.observe(activity){
-                            if(!response.onSuccess){
-                                Snackbar.make(listView,
+                                ItemsRepository.addItemToUser(
+                                    deletedItem,
+                                    firebaseAuth.currentUser!!.uid, firestore
+                                )
+                            )
+                        }.observe(activity) {
+                            if (!response.onSuccess) {
+                                Snackbar.make(
+                                    listView,
                                     "ERROR: Unable to re-add requested item to database",
-                                    Snackbar.LENGTH_LONG).show()
+                                    Snackbar.LENGTH_LONG
+                                ).show()
                             }
                         }
 
@@ -62,9 +75,11 @@ class ItemsMenuViewModel : ViewModel() {
                         listAdapterPair.second.notifyItemInserted(position)
                     }.show()
                 } else {
-                    Snackbar.make(listView,
+                    Snackbar.make(
+                        listView,
                         "ERROR: Unable to delete requested item from database",
-                        Snackbar.LENGTH_LONG).show()
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
         }

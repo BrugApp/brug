@@ -2,9 +2,7 @@ package com.github.brugapp.brug.data
 
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 
 object FirebaseAuthRepository {
@@ -20,8 +18,8 @@ object FirebaseAuthRepository {
     suspend fun createAuthAccount(
         account: SignInAccount,
         passwd: String,
-        mAuth:FirebaseAuth,
-        firestore:FirebaseFirestore
+        mAuth: FirebaseAuth,
+        firestore: FirebaseFirestore
     ): FirebaseResponse {
         val response = FirebaseResponse()
         try {
@@ -31,7 +29,7 @@ object FirebaseAuthRepository {
                 return response
             }
 
-            return UserRepository.addUserFromAccount(newAuthEntry.user!!.uid, account,firestore)
+            return UserRepository.addUserFromAccount(newAuthEntry.user!!.uid, account, firestore)
         } catch (e: Exception) {
             response.onError = e
         }

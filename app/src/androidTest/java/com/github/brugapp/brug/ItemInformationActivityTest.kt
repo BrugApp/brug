@@ -16,55 +16,63 @@ import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.ItemInformationActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
 private const val TOGGLE_SWITCH_ID: String = "$APP_PACKAGE_NAME:id/isLostSwitch"
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class ItemInformationActivityTest{
+class ItemInformationActivityTest {
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val str = "no information yet"
     private val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
 
+    @get:Rule
+    var rule = HiltAndroidRule(this)
+
     @Before
     fun setUp() {
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ItemInformationActivity::class.java)
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ItemInformationActivity::class.java)
         intent.putExtra(ITEM_INTENT_KEY, item)
         ActivityScenario.launch<ItemInformationActivity>(intent)
     }
 
     @Test
-    fun correctTypeDisplayed(){
+    fun correctTypeDisplayed() {
         onView(withId(R.id.item_name)).check(matches(withText("Phone")))
         onView(withId(R.id.tv_name)).check(matches(withText("Phone")))
     }
 
     @Test
-    fun correctDescriptionDisplayed(){
+    fun correctDescriptionDisplayed() {
         onView(withId(R.id.item_description)).check(matches(withText("Samsung Galaxy S22")))
     }
 
     @Test
-    fun noLocationAndOwnerAndDateYet(){
+    fun noLocationAndOwnerAndDateYet() {
         onView(withId(R.id.item_last_location)).check(matches(withText(str)))
         onView(withId(R.id.item_owner)).check(matches(withText(str)))
     }
 
     @Test
-    fun declaredItemAsLost(){
-        runBlocking { firebaseAuth.signInWithEmailAndPassword(
-            "test@unlost.com",
-            "123456"
-        ) }
+    fun declaredItemAsLost() {
+        runBlocking {
+            firebaseAuth.signInWithEmailAndPassword(
+                "test@unlost.com",
+                "123456"
+            )
+        }
         assertThat(
             item.isLost(),
             CoreMatchers.`is`(false)

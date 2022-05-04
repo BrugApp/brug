@@ -10,13 +10,13 @@ import java.time.ZoneOffset
 /**
  * Abstraction class handling dates.
  */
-class DateService private constructor(private val seconds: Long): Serializable {
-    companion object{
+class DateService private constructor(private val seconds: Long) : Serializable {
+    companion object {
         fun fromFirebaseTimestamp(timestamp: Timestamp): DateService {
             return DateService(timestamp.seconds)
         }
 
-        fun fromLocalDateTime(datetime: LocalDateTime): DateService{
+        fun fromLocalDateTime(datetime: LocalDateTime): DateService {
             return DateService(datetime.toEpochSecond(ZoneOffset.UTC))
         }
     }
@@ -29,7 +29,7 @@ class DateService private constructor(private val seconds: Long): Serializable {
         return Timestamp(seconds, 0)
     }
 
-    fun getSeconds(): Long{
+    fun getSeconds(): Long {
         return seconds
     }
 

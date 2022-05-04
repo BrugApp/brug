@@ -32,6 +32,8 @@ import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -48,8 +50,13 @@ import java.time.Month
 import java.util.*
 
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class ChatActivityTest {
+
+    @get:Rule
+    var rule = HiltAndroidRule(this)
+
     @get:Rule
     val permissionRule1: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)

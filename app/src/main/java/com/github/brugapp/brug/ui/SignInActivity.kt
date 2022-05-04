@@ -27,8 +27,10 @@ class SignInActivity : AppCompatActivity() {
 
     @Inject
     lateinit var firestore: FirebaseFirestore
+
     @Inject
     lateinit var firebaseStorage: FirebaseStorage
+
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
@@ -49,7 +51,7 @@ class SignInActivity : AppCompatActivity() {
         findViewById<Button>(R.id.demo_button).setOnClickListener {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
             // ONLY FOR DEMO MODE
-            viewModel.goToDemoMode(this,firestore,firebaseAuth,firebaseStorage)
+            viewModel.goToDemoMode(this, firestore, firebaseAuth, firebaseStorage)
         }
 
         findViewById<Button>(R.id.mapDemoButton).setOnClickListener {
@@ -85,7 +87,8 @@ class SignInActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
-                val credential: AuthCredential? = viewModel.handleSignInResult(it.data,firestore,firebaseAuth,firebaseStorage)
+                val credential: AuthCredential? =
+                    viewModel.handleSignInResult(it.data, firestore, firebaseAuth, firebaseStorage)
                 firebaseAuth(credential)
             }
         }

@@ -11,7 +11,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ProfilePictureSetActivity : AppCompatActivity() {
 
-    @Inject lateinit var fragmentFactory: SettingsFragmentFactory
+    @Inject
+    lateinit var fragmentFactory: SettingsFragmentFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +22,7 @@ class ProfilePictureSetActivity : AppCompatActivity() {
         supportFragmentManager.fragmentFactory = fragmentFactory
         setContentView(R.layout.activity_profile_picture)
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment,ProfileSettingsFragment::class.java,null)
+            .replace(R.id.fragment, ProfileSettingsFragment::class.java, null)
             .commit()
     }
 }

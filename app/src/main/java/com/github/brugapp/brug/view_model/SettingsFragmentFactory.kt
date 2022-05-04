@@ -10,19 +10,20 @@ import com.google.firebase.storage.FirebaseStorage
 import javax.inject.Inject
 
 
-
 class SettingsFragmentFactory @Inject constructor(
     val registry: ActivityResultRegistry,
     val firebaseFirestore: FirebaseFirestore,
     val firebaseStorage: FirebaseStorage,
     val firebaseAuth: FirebaseAuth
-): FragmentFactory(){
+) : FragmentFactory() {
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
-        return when(className){
+        return when (className) {
             ProfileSettingsFragment::class.java.name -> {
-                ProfileSettingsFragment(registry,firebaseAuth,firebaseStorage,firebaseFirestore)
+                ProfileSettingsFragment(registry, firebaseAuth, firebaseStorage, firebaseFirestore)
             }
-            else -> {super.instantiate(classLoader, className)}
+            else -> {
+                super.instantiate(classLoader, className)
+            }
         }
     }
 }

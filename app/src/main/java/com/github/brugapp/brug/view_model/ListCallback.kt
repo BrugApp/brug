@@ -17,15 +17,14 @@ class ListCallback<T>(
     private val swipePair: Pair<Drawable, Int>,
     private val listAdapterPair: Pair<MutableList<T>, RecyclerView.Adapter<ListViewHolder>>,
     private val onSwipeActions: (T, Int) -> Unit
-    ): ItemTouchHelper.SimpleCallback(dragSwipePair.first, dragSwipePair.second)
-{
+) : ItemTouchHelper.SimpleCallback(dragSwipePair.first, dragSwipePair.second) {
     /* DRAG TO REORDER (UP AND DOWN THE LIST) */
     override fun onMove(
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        return if(dragSwipePair.first != 0){
+        return if (dragSwipePair.first != 0) {
             val startPosition = viewHolder.adapterPosition
             val endPosition = target.adapterPosition
 
@@ -33,9 +32,11 @@ class ListCallback<T>(
             Collections.swap(list, startPosition, endPosition)
             recyclerView.adapter?.notifyItemMoved(startPosition, endPosition)
 
-            Snackbar.make(recyclerView,
+            Snackbar.make(
+                recyclerView,
                 MOVED_TEXT,
-                Snackbar.LENGTH_LONG)
+                Snackbar.LENGTH_LONG
+            )
                 .show()
             true
         } else false
@@ -43,7 +44,7 @@ class ListCallback<T>(
 
     /* SWIPE TO DELETE (LEFT AND RIGHT) */
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        if(dragSwipePair.second != 0){
+        if (dragSwipePair.second != 0) {
             val position = viewHolder.adapterPosition
             val list = listAdapterPair.first
             val eltToDelete = list[position]

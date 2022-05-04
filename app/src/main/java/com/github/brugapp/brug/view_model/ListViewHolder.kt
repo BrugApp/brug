@@ -8,14 +8,15 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * View holder for the lists of items & conversations in the app.
  */
-class ListViewHolder (view: View,
-                      iconId: Int,
-                      titleId: Int,
-                      descId: Int,
-                      onItemClicked: (Int) -> Unit
-) : RecyclerView.ViewHolder(view){
+class ListViewHolder(
+    view: View,
+    iconId: Int,
+    titleId: Int,
+    descId: Int,
+    onItemClicked: (Int) -> Unit
+) : RecyclerView.ViewHolder(view) {
 
-    init{
+    init {
         itemView.setOnClickListener {
             onItemClicked(adapterPosition)
         }
