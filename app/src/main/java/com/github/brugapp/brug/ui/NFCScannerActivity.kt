@@ -30,7 +30,7 @@ class NFCScannerActivity: AppCompatActivity() {
 
     private lateinit var adapter: NfcAdapter
     private lateinit var nfcIntent: PendingIntent
-    private lateinit var writingTagFilters: IntentFilter
+    private lateinit var writingTagFilters: Array<IntentFilter>
     private var writeMode: Boolean = false
     private lateinit var tag: Tag
     private lateinit var context: Context
@@ -76,7 +76,7 @@ class NFCScannerActivity: AppCompatActivity() {
             nfcIntent = PendingIntent.getActivity(this, 0, Intent(this, this.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0)
             var tagDetected = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
             tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
-            var writeTagFilters = arrayOf(tagDetected)
+            writingTagFilters = arrayOf(tagDetected)
         }
     }
 
@@ -139,12 +139,30 @@ class NFCScannerActivity: AppCompatActivity() {
     }
 
     override fun onPause() {
-        adapter.disableForegroundDispatch(this)
         super.onPause()
+        writeModeOff()
     }
 
     override fun onResume(){
         super.onResume()
-        adapter.enableForegroundDispatch(this,nfcIntent,null,null)
+        writeModeOn()
+    }
+
+    private fun writeModeOff(){
+        writeMode = true
+        adapter.disableForegroundDispatch(this)
+    }
+
+    private fun writeModeOn(){
+        adapter.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        readFromIntent(intent)
+        if ((NfcAdapter.ACTION_TAG_DISCOVERED) == intent.action){
+            tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!!
+        }
     }
 }
