@@ -11,7 +11,27 @@
         android:layout_width="241dp"
         android:layout_height="57dp"
         android:layout_marginBottom="52dp"
-        android:text="I found a tag !"
+        android:text="I found a QR tag !"
+        app:layout_constraintBottom_toTopOf="@+id/sign_in_google_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/nfc_found_btn"
+        android:layout_width="241dp"
+        android:layout_height="57dp"
+        android:text="I found a NFC tag !"
+        app:layout_constraintBottom_toTopOf="@+id/qr_found_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+
+    <Button
+        android:id="@+id/qr_found_btn2"
+        android:layout_width="241dp"
+        android:layout_height="57dp"
+        android:layout_marginBottom="52dp"
+        android:text="I found a QR tag !"
         app:layout_constraintBottom_toTopOf="@+id/sign_in_google_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

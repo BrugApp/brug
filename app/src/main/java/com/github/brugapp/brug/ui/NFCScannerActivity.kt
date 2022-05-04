@@ -27,11 +27,11 @@ class NFCScannerActivity: AppCompatActivity() {
     private val Error_detected = "No NFC was found!"
     private val Write_success = "Text written successfully"
     private val Write_error = "Error occurred during writing, try again"
+    private var writeMode: Boolean = false
 
     private lateinit var adapter: NfcAdapter
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
-    private var writeMode: Boolean = false
     private lateinit var tag: Tag
     private lateinit var context: Context
     private lateinit var nfcInfo: TextView
@@ -49,13 +49,12 @@ class NFCScannerActivity: AppCompatActivity() {
         nfcContents = findViewById<View>(R.id.editTextTextPersonName) as TextView
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button
         context = this
-
         activateButton.setOnClickListener{
             try{
                 if(tag==null){
                     Toast.makeText(context,Error_detected,Toast.LENGTH_LONG).show()
                 }else{
-                    write("Plaintext|"+nfcInfo.getText().toString(),tag)
+                    write("Plaintext|"+nfcInfo.text.toString(),tag)
                     Toast.makeText(context,Write_success,Toast.LENGTH_LONG).show()
                 }
             }catch(e: IOException){
@@ -72,7 +71,7 @@ class NFCScannerActivity: AppCompatActivity() {
             Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
             finish()
         }else {
-            readFromIntent(getIntent())
+            readFromIntent(intent)
             nfcIntent = PendingIntent.getActivity(this, 0, Intent(this, this.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0)
             var tagDetected = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
             tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
@@ -117,7 +116,6 @@ class NFCScannerActivity: AppCompatActivity() {
         ndef.writeNdefMessage(message)
         ndef.close()
     }
-
 
     @Throws(UnsupportedEncodingException::class)
     private fun createRecord(text: String): NdefRecord {
