@@ -21,17 +21,13 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.ProfilePictureSetActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storage
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,7 +53,7 @@ import org.junit.runner.RunWith
  *
  */
 
-private const val TEST_USERNAME = "Test Unlost"
+private const val TEST_USERNAME = "Rayan Kikou"
 
 @HiltAndroidTest
 @UninstallModules(ActivityResultModule::class)
@@ -93,6 +89,11 @@ class ProfileUserTest {
         }
     }
 
+    private var testUserUid: String = ""
+    private val TEST_PASSWORD: String = "123456"
+    private val TEST_EMAIL: String = "unlost@profileUser.com"
+    private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
+
     @get:Rule
     val rule = HiltAndroidRule(this)
 
@@ -101,12 +102,27 @@ class ProfileUserTest {
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
+    companion object {
+        var firstTime = true
+    }
+
+    private fun createTestUser(){
+        runBlocking {
+            if(firstTime){
+                firebaseAuth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
+                firstTime = false
+            }
+        }
+    }
     private fun signInTestAccount(){
         runBlocking{
             firebaseAuth.signInWithEmailAndPassword(
-                "test@unlost.com",
-                "123456"
+                TEST_EMAIL,
+               TEST_PASSWORD
             ).await()
+            testUserUid = firebaseAuth.currentUser!!.uid
+                UserRepository
+                    .addUserFromAccount(testUserUid, ACCOUNT1, firestore)
         }
     }
 
@@ -114,7 +130,7 @@ class ProfileUserTest {
         runBlocking {
             UserRepository
                 .resetUserIcon(
-                    firebaseAuth.currentUser!!.uid,firestore)
+                    testUserUid,firestore)
         }
         firebaseAuth.signOut()
     }
@@ -123,6 +139,7 @@ class ProfileUserTest {
     @Before
     fun setUp() {
         Intents.init()
+        createTestUser()
         signInTestAccount()
         val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
 //        intent.putExtra(USER_INTENT_KEY, DUMMY_USER)
@@ -146,13 +163,13 @@ class ProfileUserTest {
     @Test
     fun correctNameIsDisplayed(){
         val name: String = TEST_USERNAME//MockDatabase.currentUser.getFirstName() + " " + MockDatabase.currentUser.getLastName()
-        Thread.sleep(30000)
+        //Thread.sleep(3000)
         onView(withId(R.id.username)).check(matches(withText(name)))
     }
 
     @Test
     fun initProfilePictureAndChange(){
-        Thread.sleep(30000)
+        //Thread.sleep(3000)
         correctProfilePictureDisplayed()
         cleanUp()
         setUp()
@@ -161,7 +178,7 @@ class ProfileUserTest {
 
 
     private fun correctProfilePictureDisplayed(){
-        Thread.sleep(30000)
+        //Thread.sleep(3000)
         onView(withId(R.id.imgProfile)).check(matches(withDrawable(R.mipmap.ic_launcher_round)))
     }
 

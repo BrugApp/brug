@@ -19,6 +19,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
@@ -51,7 +53,7 @@ class SignInActivityButtonTest {
     fun demoButtonGoesToItemsMenuActivity() {
         onView(withId(R.id.demo_button)).perform(click())
 
-        Thread.sleep(30000)
+        //Thread.sleep(30000)
         intended(
             allOf(
                 toPackage("com.github.brugapp.brug"),

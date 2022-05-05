@@ -85,6 +85,7 @@ object MessageRepository {
                 .await()
             addResponse.onSuccess = true
         } catch (e: Exception) {
+            Log.d("MessageRepository", e.toString())
             addResponse.onError = e
         }
         return addResponse

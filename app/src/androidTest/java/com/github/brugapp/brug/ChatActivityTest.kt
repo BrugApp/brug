@@ -256,7 +256,7 @@ class ChatActivityTest {
 
         ActivityScenario.launch<Activity>(intent).use {
             onView(withId(R.id.recordButton)).perform(click())
-            Thread.sleep(2000)
+            Thread.sleep(1000)
             onView(withId(R.id.buttonSendAudio)).perform(click())
             onView(withId(R.id.recordButton)).check(matches(isDisplayed()))
         }

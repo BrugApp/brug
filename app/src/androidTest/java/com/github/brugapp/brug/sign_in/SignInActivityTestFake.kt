@@ -76,7 +76,7 @@ class SignInActivityTestFake {
         @Provides
         fun provideFakeAuthDatabase(): AuthDatabase {
             //return FakeAuthDatabase(FakeDatabaseUser())
-            return AuthFirebase(Firebase.auth)
+            return AuthFirebase(FirebaseFakeHelper().providesAuth())
         }
     }
 
@@ -84,15 +84,31 @@ class SignInActivityTestFake {
     val rule = HiltAndroidRule(this)
 
     val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val email = "test@signIn.com"
+    private val password = "123456"
+    companion object{
+        var firstTime = true
+    }
+
+    private fun createUser(){
+        if(firstTime){
+            firstTime = false
+            runBlocking {
+                firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            }
+        }
+    }
 
     @Before
     fun setUp() {
         Intents.init()
+        createUser()
     }
 
     @After
     fun cleanUp() {
         Intents.release()
+        firebaseAuth.signOut()
     }
 
     @Test
@@ -101,8 +117,8 @@ class SignInActivityTestFake {
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         runBlocking{
             firebaseAuth.signInWithEmailAndPassword(
-            "test@unlost.com",
-            "123456"
+                email,
+                password
             ).await()
         }
 
@@ -124,8 +140,8 @@ class SignInActivityTestFake {
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         runBlocking{
             firebaseAuth.signInWithEmailAndPassword(
-                "test@unlost.com",
-                "123456"
+                email,
+                password
             ).await()
         }
         ActivityScenario.launch<SignInActivity>(intent).use {

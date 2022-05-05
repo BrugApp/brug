@@ -18,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -50,6 +52,12 @@ class SignInActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.demo_button).setOnClickListener {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
+
+            val email = "unlost.app@gmail.com"
+            val password = "brugsdpProject1"
+            runBlocking {
+                firebaseAuth.createUserWithEmailAndPassword(email,password).await()
+            }
             // ONLY FOR DEMO MODE
             viewModel.goToDemoMode(this, firestore, firebaseAuth, firebaseStorage)
         }

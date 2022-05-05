@@ -17,9 +17,12 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.ui.*
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -32,6 +35,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.Month
 
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
 
@@ -43,7 +48,7 @@ private var test_user_uid = ""
 private var interlocutor_uid = ""
 private const val DUMMY_LOST_ITEM = "DummyItemName"
 private const val INTERLOCUTOR_EMAIL = "Interlocuteur@lespommes.ch"
-private const val TEST_USER_EMAIL = "test@unlost.com"
+private const val TEST_USER_EMAIL = "test@convMenu.com"
 private const val PASSWORD = "123456"
 private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
 private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
@@ -57,13 +62,23 @@ class ChatMenuActivityTest {
     private val firebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore = FirebaseFakeHelper().providesFirestore()
     private val firebaseStorage = FirebaseFakeHelper().providesStorage()
+    private val DUMMY_DATE = DateService.fromLocalDateTime(
+        LocalDateTime.of(
+            2022, Month.MARCH, 23, 15, 30
+        )
+    )
+    companion object {
+        var test_first_time = true
+        var interlocutor_first_time = true
+    }
 
 
     private fun signInTestUser() {
         runBlocking {
             firebaseAuth.signInWithEmailAndPassword(
                 TEST_USER_EMAIL,
-                PASSWORD).await()
+                PASSWORD
+            ).await()
         }
     }
 
@@ -73,9 +88,13 @@ class ChatMenuActivityTest {
 
     private fun createInterlocutorUser() {
         runBlocking {
-            firebaseAuth.createUserWithEmailAndPassword(
-                INTERLOCUTOR_EMAIL,PASSWORD
-            )
+            if (interlocutor_first_time) {
+                firebaseAuth.createUserWithEmailAndPassword(
+                    INTERLOCUTOR_EMAIL,
+                    PASSWORD
+                ).await()
+                interlocutor_first_time = false
+            }
         }
     }
     private fun signInInterlocutor() {
@@ -91,10 +110,13 @@ class ChatMenuActivityTest {
     }
     private fun createTestUser() {
         runBlocking {
-            firebaseAuth.createUserWithEmailAndPassword(
-            TEST_USER_EMAIL,
-               PASSWORD
-            )
+            if (test_first_time) {
+                firebaseAuth.createUserWithEmailAndPassword(
+                    TEST_USER_EMAIL,
+                    PASSWORD
+                ).await()
+                test_first_time = false
+            }
         }
     }
 
@@ -106,11 +128,31 @@ class ChatMenuActivityTest {
     private fun createConv() {
         runBlocking {
             UserRepository
-                .addUserFromAccount(test_user_uid, ACCOUNT1,firestore)
+                .addUserFromAccount(test_user_uid, ACCOUNT1, firestore)
             UserRepository
-                .addUserFromAccount(interlocutor_uid, ACCOUNT2,firestore)
-            val result = ConvRepository.addNewConversation(test_user_uid, interlocutor_uid, DUMMY_LOST_ITEM,firestore)
-            val convs = ConvRepository.getUserConvFromUID(test_user_uid,firestore,firebaseAuth, firebaseStorage)
+                .addUserFromAccount(interlocutor_uid, ACCOUNT2, firestore)
+            val result = ConvRepository.addNewConversation(
+                test_user_uid,
+                interlocutor_uid,
+                DUMMY_LOST_ITEM,
+                firestore
+            )
+            val convID = "$test_user_uid$interlocutor_uid"
+            val message = Message(ACCOUNT1.firstName, DUMMY_DATE, "Bonjour")
+            MessageRepository.addMessageToConv(
+                message,
+                test_user_uid,
+                convID,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
+            val convs = ConvRepository.getUserConvFromUID(
+                test_user_uid,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
             //NO MESSAGE SO THERE IS AN ERROR
             Log.d("createConv", result.onError.toString())
             Log.d("convs list", convs.toString())
@@ -129,7 +171,8 @@ class ChatMenuActivityTest {
         signInTestUser()
         getUidTestUser()
         createConv()
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
         ActivityScenario.launch<ChatMenuActivity>(intent)
     }
 
@@ -178,7 +221,8 @@ class ChatMenuActivityTest {
             UiSelector()
                 .resourceId(LIST_ENTRY_ID)
                 .enabled(true)
-                .instance(0))
+                .instance(0)
+        )
 
         entryToSwipe.swipeLeft(50)
 
@@ -193,10 +237,12 @@ class ChatMenuActivityTest {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToSwipe = itemsList.getChild(UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(0))
+        val entryToSwipe = itemsList.getChild(
+            UiSelector()
+                .resourceId(LIST_ENTRY_ID)
+                .enabled(true)
+                .instance(0)
+        )
 
         entryToSwipe.swipeRight(50)
 
@@ -210,10 +256,12 @@ class ChatMenuActivityTest {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToClick = chatList.getChild(UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(0))
+        val entryToClick = chatList.getChild(
+            UiSelector()
+                .resourceId(LIST_ENTRY_ID)
+                .enabled(true)
+                .instance(0)
+        )
 
         entryToClick.click()
 

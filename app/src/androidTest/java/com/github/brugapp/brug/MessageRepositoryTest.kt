@@ -154,6 +154,8 @@ class MessageRepositoryTest {
         assertThat(response.onError!!.message, IsEqual("Unable to upload file"))
     }
 
+    private val userEmail = "test@Message.com"
+
     @Test
     fun addPicMessageWithLoginCorrectlyAddsPicMessage() = runBlocking {
         // CREATE IMAGE & MESSAGE
@@ -168,8 +170,9 @@ class MessageRepositoryTest {
 
 
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
+        val user = firebaseAuth.createUserWithEmailAndPassword(userEmail, "123456").await()
         val authUser = firebaseAuth
-            .signInWithEmailAndPassword("test@unlost.com", "123456")
+            .signInWithEmailAndPassword(userEmail, "123456")
             .await()
             .user
         assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))

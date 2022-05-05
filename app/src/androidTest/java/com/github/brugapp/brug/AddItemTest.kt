@@ -58,10 +58,16 @@ class AddItemTest {
 
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    companion object{
+        var first_time = true
+    }
 
     private fun createUser(){
         runBlocking{
-            firebaseAuth.createUserWithEmailAndPassword("test@unlost.com","123456")
+            if(first_time) {
+                firebaseAuth.createUserWithEmailAndPassword("test@unlost.com", "123456").await()
+                first_time = false
+            }
         }
     }
     private fun signInTestUser() {

@@ -101,13 +101,17 @@ class ConvRepositoryTest {
         val drawable = ApplicationProvider.getApplicationContext<Context>().getDrawable(R.mipmap.ic_launcher)
         assertThat(drawable, IsNot(IsNull.nullValue()))
 
+        val email = "test@convAttachement.com"
+        val password ="123456"
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
+        firebaseAuth.createUserWithEmailAndPassword(email,password).await()
         val authUser =firebaseAuth
-            .signInWithEmailAndPassword("test@unlost.com", "123456")
+            .signInWithEmailAndPassword(email, password)
             .await()
             .user
         assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
         assertThat(firebaseAuth.currentUser!!.uid, IsEqual(authUser!!.uid))
+        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore)
 
         val file = File.createTempFile("tempIMG", ".jpg")
         val fos = FileOutputStream(file)
