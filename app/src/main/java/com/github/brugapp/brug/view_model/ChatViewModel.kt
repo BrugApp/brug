@@ -140,7 +140,10 @@ class ChatViewModel() : ViewModel() {
 
         // Get image from API or create stub one
         val urlString = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/0,0,2/600x600?access_token=sk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ5Y3RzNzAwN2gzZW84NDhrZWFzazUifQ.oFG1iEVd9zcRmDX5oNJddQ"
-        newMessage.mapUrl = loadImageFromUrl(activity, URL(urlString))
+        runBlocking {
+            newMessage.mapUrl = loadImageFromUrl(activity, URL(urlString))
+        }
+
         println("MAPURL = " + newMessage.mapUrl)
         sendMessage(newMessage, convID, activity)
 
@@ -150,7 +153,7 @@ class ChatViewModel() : ViewModel() {
         adapter.notifyItemInserted(messages.size - 1)
     }
 
-    private fun loadImageFromUrl(activity: ChatActivity, url: URL): String{
+    private suspend fun loadImageFromUrl(activity: ChatActivity, url: URL): String{
         val bitmapResult: Deferred<Bitmap?> = GlobalScope.async {
             url.toBitmap()
         }
@@ -179,7 +182,6 @@ class ChatViewModel() : ViewModel() {
 
     fun sendPicMessage(activity: ChatActivity, convID: String) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
-        //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -382,7 +384,9 @@ class ChatViewModel() : ViewModel() {
     }
 }
 
-// extension function to get / download bitmap from url
+// EXTENSION FUNCTIONS =======================================================
+
+// extension function to download bitmap from url
 fun URL.toBitmap(): Bitmap? {
     return try {
         BitmapFactory.decodeStream(openStream())
