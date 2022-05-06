@@ -3,6 +3,7 @@ package com.github.brugapp.brug.view_model
 import android.Manifest
 import android.app.Activity
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -36,7 +37,7 @@ class NFCScanViewModel : ViewModel() {
     }
 
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{
-        var nfcIntent = PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0)
+        var nfcIntent = PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_IMMUTABLE)
         var tagDetected = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
         return Pair(nfcIntent,arrayOf(tagDetected))

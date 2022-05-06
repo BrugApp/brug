@@ -12,10 +12,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NFCScannerActivityTest {
-    /*
-- - - - - - - - - - - - - - - - -can't test emulator without NFC! - - - - - - - - - - - - - - - - -
+
+//- - - - - - - - - - - - - - - - -can't test emulator without NFC! - - - - - - - - - - - - - - - - -
     @get:Rule
-    var qrCodeScannerActivityRule = ActivityScenarioRule(NFCScannerActivity::class.java)
+    var nfcScannerActivityRule = ActivityScenarioRule(NFCScannerActivity::class.java)
 
     @Test
     fun correctHintText(){
@@ -23,9 +23,14 @@ class NFCScannerActivityTest {
     }
 
     @Test
-    fun buttonIsVisible(){
-        onView(withId(R.id.nfc_found_btn)).check(matches((withText("activate tag"))))
+    fun correctButton(){
+        onView(withId(R.id.buttonReportItem)).check(matches(withText("activate tag")))
     }
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-     */
+
+    @Test
+    fun correctPlaintext(){
+        onView(withId(R.id.editTextTextPersonName)).check(matches(withText("Plain Text")))
+    }
+//- - - - - - - - - - - - - - - - -these tests work on physical devices - - - - - - - - - - - - - - 
+
 }
