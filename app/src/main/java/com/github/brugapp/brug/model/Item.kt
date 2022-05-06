@@ -74,4 +74,4 @@ class Item// Generate the id later
         this.description = description
     }
 }
-enum class ItemType { Wallet, Keys,CarKeys,Phone,Other }
+

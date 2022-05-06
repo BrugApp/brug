@@ -5,6 +5,7 @@ import android.content.Intent
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.ChatMenuActivity
 import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.ui.MapBoxActivity
 import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.google.android.material.navigation.NavigationBarView
 
@@ -34,7 +35,7 @@ class BottomNavBar {
                 }
                 R.id.chat_menu_button -> {
                     if(currentActivity is ItemsMenuActivity){
-                        currentActivity.startActivity(Intent(currentActivity, ChatMenuActivity::class.java))
+                        currentActivity.startActivity(Intent(currentActivity, MapBoxActivity::class.java))
                     }
                     true
                 }
