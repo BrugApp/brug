@@ -16,8 +16,10 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings.System.getString
 import android.util.Log
 import android.widget.TextView
+import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
@@ -68,9 +70,15 @@ class ChatViewModel() : ViewModel() {
         this.messages = messages
 
         // initiate arguments values for location messages
+
         for (message in messages){
             if(message is LocationMessage){
                 message.mapUrl = createFakeImage(activity).toString()
+                var url = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/0,0,2/600x600?access_token="
+                url += activity.getString(R.string.mapbox_access_token)
+                runBlocking {
+                    message.mapUrl = loadImageFromUrl(activity, URL(url)).toString()
+                }
             }
         }
 
