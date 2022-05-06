@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
+import android.content.Context.NFC_SERVICE
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -14,13 +15,14 @@ import android.util.Log
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import java.io.IOException
 import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
 import kotlin.experimental.and
-import kotlin.jvm.Throws
+
 
 private const val NFC_REQUEST_CODE = 1000101
 
@@ -33,7 +35,10 @@ class NFCScanViewModel : ViewModel() {
     }
 
     fun setupAdapter(this1: Context): NfcAdapter{
-        return NfcAdapter.getDefaultAdapter(this1)
+        //return NfcAdapter.getDefaultAdapter(this1)
+        val manager = this1.getSystemService(NFC_SERVICE) as NfcManager
+        val adapter = manager.defaultAdapter
+        return adapter
     }
 
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{

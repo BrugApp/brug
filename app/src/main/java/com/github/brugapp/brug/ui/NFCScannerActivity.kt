@@ -32,7 +32,7 @@ class NFCScannerActivity: AppCompatActivity() {
     private lateinit var adapter: NfcAdapter
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
-    private lateinit var tag: Tag
+    private var tag: Tag? = null
     private lateinit var context: Context
     private lateinit var nfcInfo: TextView
     private lateinit var nfcContents: TextView
@@ -45,16 +45,25 @@ class NFCScannerActivity: AppCompatActivity() {
         context = this
         viewModel.checkPermission(context)
         adapter = viewModel.setupAdapter(context)
+        print("adapter is $adapter")
         nfcInfo = findViewById<View>(R.id.editTextReportItem) as TextView
-        nfcContents = findViewById<View>(R.id.editTextTextPersonName) as TextView
+        nfcContents = findViewById<View>(R.id.nfcContents) as TextView
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button
+
+        if (adapter==null){ //|| adapter.isEnabled){
+            Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
+            finish()
+        }else {
+            nfcIntent = viewModel.setupWritingTagFilters(this).first
+            writingTagFilters = viewModel.setupWritingTagFilters(this).second
+        }
 
         activateButton.setOnClickListener{
             try{
                 if(tag==null){
                     Toast.makeText(context,Error_detected,Toast.LENGTH_LONG).show()
                 }else{
-                    viewModel.write("Plaintext|"+nfcInfo.text.toString(),tag)
+                    viewModel.write("Plaintext|"+nfcInfo.text.toString(),tag!!) //changed tag to tag!!
                     Toast.makeText(context,Write_success,Toast.LENGTH_LONG).show()
                 }
             }catch(e: IOException){
@@ -65,14 +74,6 @@ class NFCScannerActivity: AppCompatActivity() {
                 e.printStackTrace()
             }
             viewModel.displayReportNotification(context)
-        }
-
-        if (adapter==null || adapter.isEnabled){
-            Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
-            finish()
-        }else {
-            nfcIntent = viewModel.setupWritingTagFilters(this).first
-            writingTagFilters = viewModel.setupWritingTagFilters(this).second
         }
     }
 

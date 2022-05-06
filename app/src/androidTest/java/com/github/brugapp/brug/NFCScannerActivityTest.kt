@@ -31,6 +31,6 @@ class NFCScannerActivityTest {
     fun correctPlaintext(){
         onView(withId(R.id.editTextTextPersonName)).check(matches(withText("Plain Text")))
     }
-//- - - - - - - - - - - - - - - - -these tests work on physical devices - - - - - - - - - - - - - - 
+//- - - - - - - - - - - - - - - - -these tests work on physical devices - - - - - - - - - - - - - -
 
 }
