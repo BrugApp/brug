@@ -1,8 +1,10 @@
 package com.github.brugapp.brug.view_model
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -12,12 +14,10 @@ import android.location.LocationManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
@@ -40,25 +40,22 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileDescriptor
+import kotlinx.coroutines.*
+import java.io.*
 import java.net.URI
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 //TODO: NEEDS REFACTORING & DOCUMENTATION
 class ChatViewModel() : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder : MediaRecorder
-    private lateinit var mediaPlayer : MediaPlayer
     private lateinit var audioPath : String
-    private lateinit var imageUri: Uri // NEEDED TO RETRIEVE THE IMAGE FROM THE CAMERA AFTER SNAPPING A PICTURE
-
-    //private val locationListener = LocationListener { sendLocation(it) }
-    private lateinit var activity: ChatActivity
+    // Uri needed to retrieve image from camera after taking a picture
+    private lateinit var imageUri: Uri
 
     //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
@@ -71,7 +68,7 @@ class ChatViewModel() : ViewModel() {
         // initiate arguments values for location messages
         for (message in messages){
             if(message is LocationMessage){
-                message.mapUrl = activity.createFakeImage().toString()
+                message.mapUrl = createFakeImage(activity).toString()
             }
         }
 
@@ -113,7 +110,6 @@ class ChatViewModel() : ViewModel() {
         fusedLocationClient: FusedLocationProviderClient,
         locationManager: LocationManager
     ) {
-        this.activity = activity as ChatActivity
         if (ContextCompat.checkSelfPermission(
                 activity.applicationContext,
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -135,7 +131,6 @@ class ChatViewModel() : ViewModel() {
 
     private fun sendLocationMessage(activity: ChatActivity, location: Location, convID: String){
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
-        val uri = activity.createFakeImage()
         val newMessage = LocationMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -143,13 +138,43 @@ class ChatViewModel() : ViewModel() {
             LocationService.fromAndroidLocation(location)
         )
 
-        newMessage.mapUrl = activity.createFakeImage().toString()
+        // Get image from API or create stub one
+        val urlString = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/0,0,2/600x600?access_token=sk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ5Y3RzNzAwN2gzZW84NDhrZWFzazUifQ.oFG1iEVd9zcRmDX5oNJddQ"
+        newMessage.mapUrl = loadImageFromUrl(activity, URL(urlString))
+        println("MAPURL = " + newMessage.mapUrl)
         sendMessage(newMessage, convID, activity)
 
         // Clear the message field
         textBox.text = ""
 
         adapter.notifyItemInserted(messages.size - 1)
+    }
+
+    private fun loadImageFromUrl(activity: ChatActivity, url: URL): String{
+        val bitmapResult: Deferred<Bitmap?> = GlobalScope.async {
+            url.toBitmap()
+        }
+        var savedUri: Uri? = null
+
+        GlobalScope.launch(Dispatchers.Main){
+            val bitmap: Bitmap? = bitmapResult.await()
+
+            // if downloaded then saved it
+            if (bitmap != null){
+                bitmap.apply {
+                    println("bitmap loaded!")
+                    savedUri = storeImage(activity)
+                    println("URISAVED = $savedUri")
+                }
+            }
+            // otherwise create a fake image
+            else {
+                println("bitmap not loaded: $bitmap")
+                savedUri = createFakeImage(activity)
+                println("URISAVED = $savedUri")
+            }
+        }
+        return savedUri.toString()
     }
 
     fun sendPicMessage(activity: ChatActivity, convID: String) {
@@ -230,6 +255,7 @@ class ChatViewModel() : ViewModel() {
         return outputFile.toURI()
     }
 
+    @SuppressLint("MissingPermission")
     fun requestLocation(
         convID: String,
         activity: ChatActivity,
@@ -311,6 +337,16 @@ class ChatViewModel() : ViewModel() {
         adapter.notifyItemInserted(messages.size - 1)
     }
 
+    // HELPERS METHODS =======================================================
+    @SuppressLint("NewApi")
+    fun createFakeImage(activity: ChatActivity): Uri? {
+        val encodedImage =
+            "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
+        val decodedImage = Base64.getDecoder().decode(encodedImage)
+        val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
+        return image.storeImage(activity)
+    }
+
     // PERMISSIONS RELATED =======================================================
 
     fun requestRecording(activity: Activity) {
@@ -343,5 +379,37 @@ class ChatViewModel() : ViewModel() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ), LOCATION_REQUEST_CODE
         )
+    }
+}
+
+// extension function to get / download bitmap from url
+fun URL.toBitmap(): Bitmap? {
+    return try {
+        BitmapFactory.decodeStream(openStream())
+    } catch (e: IOException) {
+        println("Error when loading image from URL: $e")
+        null
+    }
+}
+
+// extension function to store bitmap
+fun Bitmap.storeImage(context: Context): Uri? {
+    val wrapper = ContextWrapper(context)
+    var file = wrapper.getDir("images", Context.MODE_PRIVATE)
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
+    val filename: String = "IMG_" + LocalDateTime.now().format(formatter) .toString() + ".jpg"
+    file = File(file, filename)
+
+    return try {
+        val outputStream: OutputStream = FileOutputStream(file)
+        compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        outputStream.flush()
+        outputStream.close()
+        Uri.parse(file.absolutePath)
+
+    } catch (e: IOException){
+        println("Error when storing image: $e")
+        e.printStackTrace()
+        null
     }
 }
