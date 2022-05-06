@@ -12,6 +12,8 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class NFCScannerActivityTest {
+    /*
+- - - - - - - - - - - - - - - - -can't test emulator without NFC! - - - - - - - - - - - - - - - - -
     @get:Rule
     var qrCodeScannerActivityRule = ActivityScenarioRule(NFCScannerActivity::class.java)
 
@@ -24,6 +26,6 @@ class NFCScannerActivityTest {
     fun buttonIsVisible(){
         onView(withId(R.id.nfc_found_btn)).check(matches((withText("activate tag"))))
     }
-
-    
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+     */
 }
