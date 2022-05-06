@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.MessageRepository
@@ -44,6 +45,7 @@ import kotlinx.coroutines.*
 import java.io.*
 import java.net.URI
 import java.net.URL
+import java.nio.channels.Channels
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -140,11 +142,7 @@ class ChatViewModel() : ViewModel() {
 
         // Get image from API or create stub one
         val urlString = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/0,0,2/600x600?access_token=sk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ5Y3RzNzAwN2gzZW84NDhrZWFzazUifQ.oFG1iEVd9zcRmDX5oNJddQ"
-        runBlocking {
-            newMessage.mapUrl = loadImageFromUrl(activity, URL(urlString))
-        }
-
-        println("MAPURL = " + newMessage.mapUrl)
+        newMessage.mapUrl = runBlocking { loadImageFromUrl(activity, URL(urlString)).toString() }
         sendMessage(newMessage, convID, activity)
 
         // Clear the message field
@@ -153,31 +151,23 @@ class ChatViewModel() : ViewModel() {
         adapter.notifyItemInserted(messages.size - 1)
     }
 
-    private suspend fun loadImageFromUrl(activity: ChatActivity, url: URL): String{
-        val bitmapResult: Deferred<Bitmap?> = GlobalScope.async {
-            url.toBitmap()
-        }
-        var savedUri: Uri? = null
-
-        GlobalScope.launch(Dispatchers.Main){
-            val bitmap: Bitmap? = bitmapResult.await()
-
-            // if downloaded then saved it
-            if (bitmap != null){
-                bitmap.apply {
-                    println("bitmap loaded!")
-                    savedUri = storeImage(activity)
-                    println("URISAVED = $savedUri")
+    private suspend fun loadImageFromUrl(activity: ChatActivity, url: URL): Uri {
+        try {
+            val image = createImageFile(activity)
+            viewModelScope.launch(Dispatchers.IO) {
+                url.openStream().use {
+                    Channels.newChannel(it).use { rbc ->
+                        FileOutputStream(image).use { fos ->
+                            fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
+                        }
+                    }
                 }
-            }
-            // otherwise create a fake image
-            else {
-                println("bitmap not loaded: $bitmap")
-                savedUri = createFakeImage(activity)
-                println("URISAVED = $savedUri")
-            }
+            }.join()
+            return Uri.fromFile(image)
+        }  catch (e: Exception) {
+            println("Error when loading image from URL: $e")
+            return createFakeImage(activity)!!
         }
-        return savedUri.toString()
     }
 
     fun sendPicMessage(activity: ChatActivity, convID: String) {
@@ -241,19 +231,19 @@ class ChatViewModel() : ViewModel() {
     }
 
     private fun compressImage(activity: ChatActivity, uri: Uri): URI {
-        // open the image and resize it
         val imageBM = uriToBitmap(activity, uri)
         val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
+        return storeBitmap(activity, resized)
+    }
 
-        // store to new file
+    private fun storeBitmap(activity: ChatActivity, bitmap: Bitmap): URI {
         val outputStream = ByteArrayOutputStream()
-        resized.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         val outputFile = createImageFile(activity)
         outputFile.writeBytes(outputStream.toByteArray())
         outputStream.flush()
         outputStream.close()
 
-        // return uri of new file
         return outputFile.toURI()
     }
 
@@ -330,7 +320,6 @@ class ChatViewModel() : ViewModel() {
     }
 
     fun sendAudio(){
-
         // TODO: modify this implementation to adapt it for Firestore
         val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
             "Audio", audioPath)
@@ -346,7 +335,24 @@ class ChatViewModel() : ViewModel() {
             "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
         val decodedImage = Base64.getDecoder().decode(encodedImage)
         val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
-        return image.storeImage(activity)
+
+        // store to outputstream
+        val outputStream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+        // create file
+        val imageFile = createImageFile(activity)
+
+        // get URI for file
+        val uri = FileProvider.getUriForFile(
+            activity,
+            "com.github.brugapp.brug.fileprovider",
+            imageFile
+        )
+
+        // store file
+        storeBitmap(activity, image)
+        return uri
     }
 
     // PERMISSIONS RELATED =======================================================
@@ -381,39 +387,5 @@ class ChatViewModel() : ViewModel() {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ), LOCATION_REQUEST_CODE
         )
-    }
-}
-
-// EXTENSION FUNCTIONS =======================================================
-
-// extension function to download bitmap from url
-fun URL.toBitmap(): Bitmap? {
-    return try {
-        BitmapFactory.decodeStream(openStream())
-    } catch (e: IOException) {
-        println("Error when loading image from URL: $e")
-        null
-    }
-}
-
-// extension function to store bitmap
-fun Bitmap.storeImage(context: Context): Uri? {
-    val wrapper = ContextWrapper(context)
-    var file = wrapper.getDir("images", Context.MODE_PRIVATE)
-    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")
-    val filename: String = "IMG_" + LocalDateTime.now().format(formatter) .toString() + ".jpg"
-    file = File(file, filename)
-
-    return try {
-        val outputStream: OutputStream = FileOutputStream(file)
-        compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        outputStream.flush()
-        outputStream.close()
-        Uri.parse(file.absolutePath)
-
-    } catch (e: IOException){
-        println("Error when storing image: $e")
-        e.printStackTrace()
-        null
     }
 }
