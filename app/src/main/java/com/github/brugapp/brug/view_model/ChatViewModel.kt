@@ -43,6 +43,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.mapbox.geojson.Point
 import kotlinx.coroutines.*
 import java.io.*
 import java.net.URI
@@ -73,16 +74,24 @@ class ChatViewModel() : ViewModel() {
 
         for (message in messages){
             if(message is LocationMessage){
-                message.mapUrl = createFakeImage(activity).toString()
-                var url = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/0,0,2/600x600?access_token="
-                url += activity.getString(R.string.mapbox_access_token)
+                val url = getUrlForLocation(activity, message.location.toAndroidLocation())
                 runBlocking {
-                    message.mapUrl = loadImageFromUrl(activity, URL(url)).toString()
+                    message.mapUrl = loadImageFromUrl(activity, url).toString()
                 }
             }
         }
 
         this.adapter = ChatMessagesListAdapter(this, messages)
+    }
+
+    private fun getUrlForLocation(activity: ChatActivity, location: Location): URL{
+        val lat = location.latitude.toString()
+        val lon = location.longitude.toString()
+        val baseUrl =
+            "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(%7B%22type%22%3A%22Point%22%2C%22coordinates%22%3A%5B$lon%2C$lat%5D%7D)/"
+        val posUrl = "$lon,$lat"
+        val endUrl = ",15/500x500?logo=false&attribution=false&access_token=" + activity.getString(R.string.mapbox_access_token)
+        return URL(baseUrl + posUrl + endUrl)
     }
 
     fun getAdapter(): ChatMessagesListAdapter {
@@ -149,8 +158,8 @@ class ChatViewModel() : ViewModel() {
         )
 
         // Get image from API or create stub one
-        val urlString = "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/0,0,2/600x600?access_token=sk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ5Y3RzNzAwN2gzZW84NDhrZWFzazUifQ.oFG1iEVd9zcRmDX5oNJddQ"
-        newMessage.mapUrl = runBlocking { loadImageFromUrl(activity, URL(urlString)).toString() }
+        val url = getUrlForLocation(activity, location)
+        newMessage.mapUrl = runBlocking { loadImageFromUrl(activity, url).toString() }
         sendMessage(newMessage, convID, activity)
 
         // Clear the message field
