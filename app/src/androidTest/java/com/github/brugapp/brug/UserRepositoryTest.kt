@@ -78,7 +78,7 @@ class UserRepositoryTest {
         val email = "test@InexistantUser.com"
         val password = "123456"
         //create user
-        firebaseAuth.createUserWithEmailAndPassword(email,password)
+        firebaseAuth.createUserWithEmailAndPassword(email,password).await()
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
         val authUser = firebaseAuth
             .signInWithEmailAndPassword(email, password)

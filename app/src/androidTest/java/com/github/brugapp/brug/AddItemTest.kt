@@ -53,9 +53,6 @@ class AddItemTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
-   // @get:Rule
-   // var testRule = ActivityScenarioRule(AddItemActivity::class.java)
-
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
     companion object{
