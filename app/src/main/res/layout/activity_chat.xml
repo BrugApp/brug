@@ -123,22 +123,17 @@
             app:srcCompat="@drawable/ic_baseline_send_24"
             android:visibility="gone"/>
 
-        <com.devlomi.record_view.RecordButton
+        <ImageButton
             android:id="@+id/recordButton"
-            android:layout_width="0dp"
-            android:layout_height="44dp"
-            android:layout_marginEnd="5dp"
-            android:layout_weight=".2"
-            android:background="@drawable/circle"
-            android:scaleType="center"
-            android:tint="@color/black"
+            android:layout_width="44dp"
+            android:layout_height="50dp"
+            android:backgroundTint="#FFFFFF"
+            android:contentDescription="@string/send"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:mic_icon="@drawable/ic_mic"
-            android:visibility="visible"
-            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck">
-
-        </com.devlomi.record_view.RecordButton>
+            app:srcCompat="@drawable/ic_mic"
+            app:tint="#616161"
+            android:visibility="visible"/>
 
         <ImageButton
             android:id="@+id/buttonSendMessage"

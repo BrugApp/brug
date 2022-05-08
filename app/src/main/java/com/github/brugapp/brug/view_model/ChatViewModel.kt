@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.view_model
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -12,12 +13,10 @@ import android.location.LocationManager
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
@@ -25,7 +24,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
@@ -230,6 +228,7 @@ class ChatViewModel() : ViewModel() {
         return outputFile.toURI()
     }
 
+    @SuppressLint("MissingPermission")
     fun requestLocation(
         convID: String,
         activity: ChatActivity,
@@ -265,9 +264,9 @@ class ChatViewModel() : ViewModel() {
         }
     }
 
-    fun setupRecording(){
+    fun setupRecording(activity: ChatActivity){
 
-        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/audio.3gp"
+        audioPath = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!.absolutePath + "/audio.3gp"
 
         try {
             mediaRecorder = MediaRecorder()
@@ -281,10 +280,6 @@ class ChatViewModel() : ViewModel() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-    }
-
-    fun setListenForRecord(recordButton : RecordButton, bool : Boolean){
-        recordButton.isListenForRecord = bool
     }
 
     fun deleteAudio(){
