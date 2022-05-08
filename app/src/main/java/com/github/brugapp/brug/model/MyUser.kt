@@ -7,14 +7,14 @@ data class MyUser(
     val uid: String,
     val firstName: String,
     val lastName: String,
-    private var userIcon: Drawable?
-) : Serializable {
+    private var userIconPath: String?
+): Serializable {
 
     fun getFullName(): String {
         return "$firstName $lastName"
     }
 
-    fun getUserIcon(): Drawable? {
-        return this.userIcon
+    fun getUserIconPath(): String? {
+        return this.userIconPath
     }
 }

@@ -91,7 +91,7 @@ class ProfileSettingsFragment(
 
             } else {
                 val profilePic = view.findViewById<ImageView>(R.id.imgProfile)
-                val profilePicDrawable = user.getUserIcon()
+                val profilePicDrawable = Drawable.createFromPath(user.getUserIconPath())
 
                 if (profilePicDrawable != null) {
                     profilePic.setImageDrawable(resize(profilePicDrawable))
