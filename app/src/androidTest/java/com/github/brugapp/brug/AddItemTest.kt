@@ -17,13 +17,11 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.ui.AddItemActivity
-import com.github.brugapp.brug.ui.ChatMenuActivity
 import com.github.brugapp.brug.ui.DESCRIPTION_LIMIT
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -56,14 +54,14 @@ class AddItemTest {
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
     companion object{
-        var first_time = true
+        var firstTime = true
     }
 
     private fun createUser(){
         runBlocking{
-            if(first_time) {
+            if(firstTime) {
                 firebaseAuth.createUserWithEmailAndPassword("test@unlost.com", "123456").await()
-                first_time = false
+                firstTime = false
             }
         }
     }

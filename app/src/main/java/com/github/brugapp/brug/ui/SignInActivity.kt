@@ -53,11 +53,11 @@ class SignInActivity : AppCompatActivity() {
         findViewById<Button>(R.id.demo_button).setOnClickListener {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
 
-            val email = "unlost.app@gmail.com"
-            val password = "brugsdpProject1"
-            runBlocking {
-                firebaseAuth.createUserWithEmailAndPassword(email,password).await()
-            }
+            //val email = "unlost.app@gmail.com"
+            //val password = "brugsdpProject1"
+            //runBlocking {
+            //    firebaseAuth.createUserWithEmailAndPassword(email,password).await()
+            //}
             // ONLY FOR DEMO MODE
             viewModel.goToDemoMode(this, firestore, firebaseAuth, firebaseStorage)
         }

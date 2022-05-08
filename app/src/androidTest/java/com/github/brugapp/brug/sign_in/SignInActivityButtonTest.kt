@@ -51,6 +51,12 @@ class SignInActivityButtonTest {
 
     @Test
     fun demoButtonGoesToItemsMenuActivity() {
+        val email = "unlost.app@gmail.com"
+        val password = "brugsdpProject1"
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword(email,password).await()
+        }
+
         onView(withId(R.id.demo_button)).perform(click())
 
         //Thread.sleep(30000)

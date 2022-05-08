@@ -62,14 +62,14 @@ class ChatMenuActivityTest {
     private val firebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore = FirebaseFakeHelper().providesFirestore()
     private val firebaseStorage = FirebaseFakeHelper().providesStorage()
-    private val DUMMY_DATE = DateService.fromLocalDateTime(
+    private val dummyDate = DateService.fromLocalDateTime(
         LocalDateTime.of(
             2022, Month.MARCH, 23, 15, 30
         )
     )
     companion object {
-        var test_first_time = true
-        var interlocutor_first_time = true
+        var testFirstTime = true
+        var interlocutorFirstTime = true
     }
 
 
@@ -88,12 +88,12 @@ class ChatMenuActivityTest {
 
     private fun createInterlocutorUser() {
         runBlocking {
-            if (interlocutor_first_time) {
+            if (interlocutorFirstTime) {
                 firebaseAuth.createUserWithEmailAndPassword(
                     INTERLOCUTOR_EMAIL,
                     PASSWORD
                 ).await()
-                interlocutor_first_time = false
+                interlocutorFirstTime = false
             }
         }
     }
@@ -110,12 +110,12 @@ class ChatMenuActivityTest {
     }
     private fun createTestUser() {
         runBlocking {
-            if (test_first_time) {
+            if (testFirstTime) {
                 firebaseAuth.createUserWithEmailAndPassword(
                     TEST_USER_EMAIL,
                     PASSWORD
                 ).await()
-                test_first_time = false
+                testFirstTime = false
             }
         }
     }
@@ -138,7 +138,7 @@ class ChatMenuActivityTest {
                 firestore
             )
             val convID = "$test_user_uid$interlocutor_uid"
-            val message = Message(ACCOUNT1.firstName, DUMMY_DATE, "Bonjour")
+            val message = Message(ACCOUNT1.firstName, dummyDate, "Bonjour")
             MessageRepository.addMessageToConv(
                 message,
                 test_user_uid,

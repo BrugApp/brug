@@ -137,10 +137,10 @@ dependencies {
     // Also declare the dependency for the Google Play services library and specify its version
     implementation 'com.google.android.gms:play-services-auth:20.1.0'
 
-    implementation "com.google.dagger:hilt-android:2.38.1"
+    implementation "com.google.dagger:hilt-android:2.41"
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx:24.1.1'
-    kapt "com.google.dagger:hilt-compiler:2.38.1"
+    kapt "com.google.dagger:hilt-compiler:2.41"
     testImplementation 'junit:junit:4.13.2'
 
     // Espresso
@@ -160,11 +160,11 @@ dependencies {
     //QRCode Scanner
     implementation 'com.github.yuriy-budiyev:code-scanner:2.1.1'
     // For Robolectric tests.
-    testImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
-    kaptTest 'com.google.dagger:hilt-android-compiler:2.38.1'
+    testImplementation 'com.google.dagger:hilt-android-testing:2.41'
+    kaptTest 'com.google.dagger:hilt-android-compilcom.github.brugapp.bruger:2.38.1'
     // For instrumented tests.
-    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
-    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.38.1'
+    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.41'
+    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.41'
 
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:29.3.0')
