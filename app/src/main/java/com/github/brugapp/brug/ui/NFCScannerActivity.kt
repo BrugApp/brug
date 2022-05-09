@@ -4,7 +4,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.nfc.*
+import android.nfc.FormatException
+import android.nfc.NfcAdapter
+import android.nfc.Tag
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -20,17 +22,18 @@ class NFCScannerActivity: AppCompatActivity() {
     private val Error_detected = "No NFC was found!"
     private val Write_success = "Text written successfully"
     private val Write_error = "Error occurred during writing, try again"
+    private val viewModel: NFCScanViewModel by viewModels()
+
     private var writeMode: Boolean = false
+    private var tag: Tag? = null
 
     private lateinit var adapter: NfcAdapter
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
-    private var tag: Tag? = null
     private lateinit var context: Context
     private lateinit var editMessage: TextView
     private lateinit var nfcContents: TextView
     private lateinit var activateButton: Button
-    private val viewModel: NFCScanViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?){
         super.onCreate(savedInstanceState)
@@ -43,7 +46,7 @@ class NFCScannerActivity: AppCompatActivity() {
         nfcContents = findViewById<View>(R.id.nfcContents) as TextView
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button
 
-        if (adapter==null){ //|| adapter.isEnabled){
+        if (adapter==null){
             Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
             finish()
         }
@@ -55,7 +58,7 @@ class NFCScannerActivity: AppCompatActivity() {
                 if(tag==null){
                     Toast.makeText(context,Error_detected,Toast.LENGTH_LONG).show()
                 }else{
-                    viewModel.write(editMessage.text.toString(),tag!!) //changed tag to tag!!
+                    viewModel.write(editMessage.text.toString(),tag!!)
                     Toast.makeText(context,Write_success,Toast.LENGTH_LONG).show()
                 }
             }catch(e: IOException){
