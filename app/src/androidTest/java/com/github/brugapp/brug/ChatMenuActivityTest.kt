@@ -1,6 +1,7 @@
 package com.github.brugapp.brug
 
 import android.content.Intent
+import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -16,9 +17,13 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.data.MessageRepository
+import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.ui.*
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
@@ -30,6 +35,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.time.LocalDateTime
+import java.time.Month
 
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
 
@@ -37,9 +44,14 @@ private const val LIST_VIEW_ID: String = "$APP_PACKAGE_NAME:id/chat_listview"
 private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/chat_entry_title"
 private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 
-private const val TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
-private const val INTERLOCUTOR_USER_UID = "qnUozimLdsYaSZXPW1mfGdxkUcR2"
+private var test_user_uid = ""
+private var interlocutor_uid = ""
 private const val DUMMY_LOST_ITEM = "DummyItemName"
+private const val INTERLOCUTOR_EMAIL = "Interlocuteur@lespommes.ch"
+private const val TEST_USER_EMAIL = "test@convMenu.com"
+private const val PASSWORD = "123456"
+private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
+private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
 
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
@@ -47,28 +59,124 @@ class ChatMenuActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
+    private val firebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore = FirebaseFakeHelper().providesFirestore()
+    private val firebaseStorage = FirebaseFakeHelper().providesStorage()
+    private val dummyDate = DateService.fromLocalDateTime(
+        LocalDateTime.of(
+            2022, Month.MARCH, 23, 15, 30
+        )
+    )
+    companion object {
+        var testFirstTime = true
+        var interlocutorFirstTime = true
+    }
+
 
     private fun signInTestUser() {
         runBlocking {
-            Firebase.auth.signInWithEmailAndPassword(
-                "test@unlost.com",
-                "123456").await()
-
-            ConvRepository.addNewConversation(TEST_USER_UID, INTERLOCUTOR_USER_UID, DUMMY_LOST_ITEM)
+            firebaseAuth.signInWithEmailAndPassword(
+                TEST_USER_EMAIL,
+                PASSWORD
+            ).await()
         }
     }
 
     private fun signOut() {
-        Firebase.auth.signOut()
+        firebaseAuth.signOut()
+    }
+
+    private fun createInterlocutorUser() {
+        runBlocking {
+            if (interlocutorFirstTime) {
+                firebaseAuth.createUserWithEmailAndPassword(
+                    INTERLOCUTOR_EMAIL,
+                    PASSWORD
+                ).await()
+                interlocutorFirstTime = false
+            }
+        }
+    }
+    private fun signInInterlocutor() {
+        runBlocking {
+            firebaseAuth.signInWithEmailAndPassword(INTERLOCUTOR_EMAIL, PASSWORD).await()
+        }
+    }
+
+    private fun getUidInterlocutor() {
+        runBlocking {
+            interlocutor_uid = firebaseAuth.currentUser?.uid!!
+        }
+    }
+    private fun createTestUser() {
+        runBlocking {
+            if (testFirstTime) {
+                firebaseAuth.createUserWithEmailAndPassword(
+                    TEST_USER_EMAIL,
+                    PASSWORD
+                ).await()
+                testFirstTime = false
+            }
+        }
+    }
+
+    private fun getUidTestUser() {
+        runBlocking {
+            test_user_uid = firebaseAuth.currentUser?.uid!!
+        }
+    }
+    private fun createConv() {
+        runBlocking {
+            UserRepository
+                .addUserFromAccount(test_user_uid, ACCOUNT1, firestore)
+            UserRepository
+                .addUserFromAccount(interlocutor_uid, ACCOUNT2, firestore)
+            val result = ConvRepository.addNewConversation(
+                test_user_uid,
+                interlocutor_uid,
+                DUMMY_LOST_ITEM,
+                firestore
+            )
+            val convID = "$test_user_uid$interlocutor_uid"
+            val message = Message(ACCOUNT1.firstName, dummyDate, "Bonjour")
+            MessageRepository.addMessageToConv(
+                message,
+                test_user_uid,
+                convID,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
+            val convs = ConvRepository.getUserConvFromUID(
+                test_user_uid,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
+            //NO MESSAGE SO THERE IS AN ERROR
+            Log.d("createConv", result.onError.toString())
+            Log.d("convs list", convs.toString())
+        }
+
     }
 
     @Before
     fun setUp() {
         Intents.init()
+        createInterlocutorUser()
+        signInInterlocutor()
+        getUidInterlocutor()
+        signOut()
+        createTestUser()
         signInTestUser()
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        getUidTestUser()
+        createConv()
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
         ActivityScenario.launch<ChatMenuActivity>(intent)
     }
+
+
 
     @After
     fun cleanUp() {
@@ -111,9 +219,10 @@ class ChatMenuActivityTest {
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(
             UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(0))
+                .resourceId(LIST_ENTRY_ID)
+                .enabled(true)
+                .instance(0)
+        )
 
         entryToSwipe.swipeLeft(50)
 
@@ -128,10 +237,12 @@ class ChatMenuActivityTest {
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToSwipe = itemsList.getChild(UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(0))
+        val entryToSwipe = itemsList.getChild(
+            UiSelector()
+                .resourceId(LIST_ENTRY_ID)
+                .enabled(true)
+                .instance(0)
+        )
 
         entryToSwipe.swipeRight(50)
 
@@ -145,10 +256,12 @@ class ChatMenuActivityTest {
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToClick = chatList.getChild(UiSelector()
-            .resourceId(LIST_ENTRY_ID)
-            .enabled(true)
-            .instance(0))
+        val entryToClick = chatList.getChild(
+            UiSelector()
+                .resourceId(LIST_ENTRY_ID)
+                .enabled(true)
+                .instance(0)
+        )
 
         entryToClick.click()
 

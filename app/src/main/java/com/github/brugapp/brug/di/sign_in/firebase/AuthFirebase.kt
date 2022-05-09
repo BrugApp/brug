@@ -5,13 +5,11 @@ import com.github.brugapp.brug.di.sign_in.DatabaseUser
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 
-class AuthFirebase : AuthDatabase() {
+class AuthFirebase(firebaseAuth: FirebaseAuth) : AuthDatabase() {
 
-    private val auth: FirebaseAuth = Firebase.auth
+    private val auth: FirebaseAuth = firebaseAuth
     override val currentUser: DatabaseUser?
         get() = auth.currentUser?.let { DatabaseUserFirebase(it) }
 

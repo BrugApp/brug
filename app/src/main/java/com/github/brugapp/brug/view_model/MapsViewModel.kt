@@ -11,9 +11,13 @@ class MapsViewModel : ViewModel() {
     fun getDestinationLon(): Double = destinationLongitude
     fun getDestinationName(): String = destinationName
 
-    fun updateDestination(destinationLatitude: Double?, destinationLongitude: Double?, destinationName: String?) {
-        destinationLatitude?.let{this.destinationLatitude = it}
-        destinationLongitude?.let{this.destinationLongitude = it}
-        destinationName?.let{this.destinationName = it}
+    fun updateDestination(
+        destinationLatitude: Double?,
+        destinationLongitude: Double?,
+        destinationName: String?
+    ) {
+        destinationLatitude?.let { this.destinationLatitude = it }
+        destinationLongitude?.let { this.destinationLongitude = it }
+        destinationName?.let { this.destinationName = it }
     }
 }

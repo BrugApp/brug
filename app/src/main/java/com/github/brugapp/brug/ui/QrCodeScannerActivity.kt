@@ -12,7 +12,7 @@ import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 //library found on github: https://github.com/yuriy-budiyev/code-scanner
 class QrCodeScannerActivity : AppCompatActivity() {
 
-    private val viewModel:QrCodeScanViewModel by viewModels()
+    private val viewModel: QrCodeScanViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,8 +38,10 @@ class QrCodeScannerActivity : AppCompatActivity() {
     }
 
     private fun displayReportNotification() {
-        MyFCMMessagingService.sendNotification(this, "Item found",
-            "One of your Items was found !")
+        MyFCMMessagingService.sendNotification(
+            this, "Item found",
+            "One of your Items was found !"
+        )
     }
 
 }

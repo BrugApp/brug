@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import com.github.brugapp.brug.MainActivity
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -34,7 +33,7 @@ class MyFCMMessagingService : FirebaseMessagingService() {
      * the previous token had been compromised. Note that this is called when the
      * FCM registration token is initially generated so this is where you would retrieve the token.
      */
-    override fun onNewToken(token: String){}
+    override fun onNewToken(token: String) {}
 
 
     companion object {
@@ -48,8 +47,10 @@ class MyFCMMessagingService : FirebaseMessagingService() {
         fun sendNotification(context: Context, messageTitle: String, messageBody: String) {
             val intent = Intent(context, SignInActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            val pendingIntent = PendingIntent.getActivity(context, 0, intent,
-                PendingIntent.FLAG_IMMUTABLE)
+            val pendingIntent = PendingIntent.getActivity(
+                context, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
 
             val channelId = context.getString(R.string.default_notification_channel_id)
             val channelName = context.getString(R.string.default_notification_channel_name)
@@ -76,12 +77,18 @@ class MyFCMMessagingService : FirebaseMessagingService() {
 
         }
 
-        private fun initChannel(channelId: String, channelName: String, notificationManager: NotificationManager) {
+        private fun initChannel(
+            channelId: String,
+            channelName: String,
+            notificationManager: NotificationManager
+        ) {
             // Since android Oreo notification channel is needed.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(channelId,
+                val channel = NotificationChannel(
+                    channelId,
                     channelName,
-                    NotificationManager.IMPORTANCE_HIGH)
+                    NotificationManager.IMPORTANCE_HIGH
+                )
                 notificationManager.createNotificationChannel(channel)
             }
         }
