@@ -35,15 +35,27 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
+import javax.inject.Inject
 
 
 //library found on github: https://github.com/yuriy-budiyev/code-scanner
+@AndroidEntryPoint
 class QrCodeScannerActivity : AppCompatActivity() {
 
     private val viewModel: QrCodeScanViewModel by viewModels()
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+
+    @Inject
+    lateinit var firebaseStorage: FirebaseStorage
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,16 +83,16 @@ class QrCodeScannerActivity : AppCompatActivity() {
             } else {
                 requestLocationPermissions()
                 var isAnonymous = false
-                if(Firebase.auth.uid == null){
+                if(firebaseAuth.uid == null){
                     runBlocking {
-                        val auth = FirebaseAuth.getInstance().signInAnonymously().await()
+                        val auth = firebaseAuth.signInAnonymously().await()
                         if(auth.user == null){
                             //THROW ERROR
                         } else {
                             UserRepository.addUserFromAccount(
                                 auth.user!!.uid,
                                 BrugSignInAccount("Anonymous", "User", "", ""),
-                                FirebaseFirestore.getInstance()
+                                firestore
                             )
                         }
                     }
@@ -89,7 +101,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
 
                 val uidAndItemID = qrContentBox.text.split(":")
                 val item = runBlocking { ItemsRepository.getSingleItemFromIDs(uidAndItemID[0], uidAndItemID[1]) }
-                val convID = "${Firebase.auth.uid!!}${uidAndItemID[0]}"
+                val convID = "${firebaseAuth.uid!!}${uidAndItemID[0]}"
                 if(item == null){
                     Snackbar.make(it,
                         "ERROR: the QR code you scanned contains badly formatted data",
@@ -98,9 +110,9 @@ class QrCodeScannerActivity : AppCompatActivity() {
                 } else {
                     runBlocking {
                         ConvRepository.addNewConversation(
-                            Firebase.auth.uid!!,
+                            firebaseAuth.uid!!,
                             uidAndItemID[0],
-                            item.itemName, FirebaseFirestore.getInstance()
+                            item.itemName, firestore
                         )
                     }
 
@@ -117,12 +129,12 @@ class QrCodeScannerActivity : AppCompatActivity() {
                         requestLocation(
                             senderName,
                             convID,
-                            Firebase.auth.uid!!,
+                            firebaseAuth.uid!!,
                             fusedLocationClient,
                             locationManager,
-                            FirebaseFirestore.getInstance(),
-                            FirebaseAuth.getInstance(),
-                            FirebaseStorage.getInstance()
+                            firestore,
+                            firebaseAuth,
+                            firebaseStorage
                         )
                     }
 
@@ -135,11 +147,11 @@ class QrCodeScannerActivity : AppCompatActivity() {
                     runBlocking{
                         MessageRepository.addMessageToConv(
                             textMessage,
-                            Firebase.auth.uid!!,
+                            firebaseAuth.uid!!,
                             convID,
-                            FirebaseFirestore.getInstance(),
-                            FirebaseAuth.getInstance(),
-                            FirebaseStorage.getInstance()
+                            firestore,
+                            firebaseAuth,
+                            firebaseStorage
                         )
                     }
                     MyFCMMessagingService.sendNotification(this,

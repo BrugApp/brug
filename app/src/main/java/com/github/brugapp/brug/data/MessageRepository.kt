@@ -2,6 +2,8 @@ package com.github.brugapp.brug.data
 
 import android.net.Uri
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
@@ -15,8 +17,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import java.io.File
+import java.time.LocalDateTime
 
 private const val MSG_DB = "Messages"
 private const val CONV_DB = "Conversations"
@@ -91,7 +95,38 @@ object MessageRepository {
         return addResponse
     }
 
-    suspend fun getMessageFromSnapshot(
+    /**
+     * Retrieves the list of messages in real-time, i.e. each time a new message is added to the conversation,
+     * given a conversation ID, the name of the interlocutor, the ID of the authenticated user and the activity which will
+     * observe the values.
+     *
+     * @param convID the conversation ID
+     * @param convUserName the name of the interlocutor
+     * @param authUserID the UID of the authenticated user
+     * @param context (needed to be able to execute a Coroutine outside a Coroutine Context) - the activity which will observe the data
+     *
+     * @return nothing, but sets the list of messages into the cache to be accessed by the ChatActivity
+     */
+    fun getRealtimeMessages(convID: String, convUserName: String, authUserID: String, context: AppCompatActivity,
+                            firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage) {
+        firestore.collection(CONV_DB).document(convID).collection(MSG_DB).addSnapshotListener { value, error ->
+            if(value != null && error == null){
+                liveData(Dispatchers.IO){
+                    emit(
+                        value.mapNotNull { messageSnapshot ->
+                            getMessageFromSnapshot(messageSnapshot, convUserName, authUserID, firebaseStorage, firebaseAuth)
+                        }.sortedBy { it.timestamp.getSeconds() }
+                    )
+                }.observe(context){ list ->
+                    BrugDataCache.addMessageList(convID, list.toMutableList())
+                }
+            } else {
+                Log.e("FIREBASE ERROR", error?.message.toString())
+            }
+        }
+    }
+
+    private suspend fun getMessageFromSnapshot(
         snapshot: QueryDocumentSnapshot,
         userName: String,
         authUserID: String,

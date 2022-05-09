@@ -26,6 +26,8 @@ import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
+import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.message_types.TextMessage
@@ -114,23 +116,38 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(conversation: Conversation) {
-        val messageList = findViewById<RecyclerView>(R.id.messagesList)
-        viewModel.initViewModel(conversation.messages, this)
-        messageList.layoutManager = LinearLayoutManager(this)
+        MessageRepository.getRealtimeMessages(
+            conversation.convId,
+            conversation.userFields.getFullName(),
+            firebaseAuth.uid!!,
+            this,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
 
-        val adapter = viewModel.getAdapter()
-        messageList.adapter = adapter
+        BrugDataCache.getMessageList(conversation.convId).observe(this){ messages ->
+            findViewById<ProgressBar>(R.id.loadingMessages).visibility = View.GONE
 
-        adapter.setOnItemClickListener(object : ChatMessagesListAdapter.onItemClickListener {
-            override fun onItemClick(position: Int) {
-                if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
-                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
-                )
-                    Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_SHORT).show()
-            }
-        })
+            val messageList = findViewById<RecyclerView>(R.id.messagesList)
+            viewModel.initViewModel(messages, this)
+            messageList.layoutManager = LinearLayoutManager(this)
 
-        scrollToBottom((adapter.itemCount) - 1)
+            val adapter = viewModel.getAdapter()
+            messageList.adapter = adapter
+
+            adapter.setOnItemClickListener(object : ChatMessagesListAdapter.onItemClickListener {
+                override fun onItemClick(position: Int) {
+                    if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
+                        adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
+                    )
+                        Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_SHORT).show()
+                }
+            })
+
+            scrollToBottom((adapter.itemCount) - 1)
+        }
+
 
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItemName

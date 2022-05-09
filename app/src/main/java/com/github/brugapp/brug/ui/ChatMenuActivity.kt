@@ -10,22 +10,23 @@ import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
 import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 const val CHAT_SEARCH_HINT: String = "Search for a conversation…"
@@ -69,54 +70,53 @@ class ChatMenuActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    // ONLY GETS THE LIST OF CONVERSATIONS RELATED TO THE USER, NOT THE FULL USER PROFILE !
-    private fun initChatList() = liveData(Dispatchers.IO) {
-        emit(
-            ConvRepository.getUserConvFromUID(
-                firebaseAuth.currentUser!!.uid,
-                firestore,
-                firebaseAuth,
-                firebaseStorage
-            )
-        )
-    }.observe(this) { list ->
-        findViewById<ProgressBar>(R.id.loadingConvs).visibility = View.GONE
-        val conversations = if (list.isNullOrEmpty()) mutableListOf() else list.toMutableList()
-
-        val listView = findViewById<RecyclerView>(R.id.chat_listview)
-        val listViewAdapter = ConversationListAdapter(conversations) { clickedConv ->
-            val intent = Intent(this, ChatActivity::class.java)
-            intent.putExtra(CHAT_INTENT_KEY, clickedConv)
-            startActivity(intent)
-        }
-
-        listView.layoutManager = LinearLayoutManager(this)
-        val dragPair = Pair(
-            0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
-        )
-
-        val swipePair = Pair(
-            ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_circle_outline_24)!!,
-            ContextCompat.getColor(this, R.color.chat_list_resolve_BG)
-        )
-
-        val listAdapterPair = Pair(
-            conversations,
-            listViewAdapter
-        )
-
-        val listCallback = viewModel.setCallback(
+    private fun initChatList() {
+        ConvRepository.getRealtimeConvsFromUID(
+            firebaseAuth.uid!!,
             this,
-            dragPair,
-            swipePair,
-            listAdapterPair,
+            firestore,
             firebaseAuth,
-            firestore
+            firebaseStorage
         )
-        ItemTouchHelper(listCallback).attachToRecyclerView(listView)
+        // GET ELEMENTS FROM CACHE
+        BrugDataCache.getConversationList().observe(this){ conversations ->
 
-        listView.adapter = listViewAdapter
-        listView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
+            findViewById<ProgressBar>(R.id.loadingConvs).visibility = View.GONE
+            val listView = findViewById<RecyclerView>(R.id.chat_listview)
+            val listViewAdapter = ConversationListAdapter(conversations) { clickedConv ->
+                val intent = Intent(this, ChatActivity::class.java)
+                intent.putExtra(CHAT_INTENT_KEY, clickedConv)
+                startActivity(intent)
+            }
+
+            listView.layoutManager = LinearLayoutManager(this)
+            val dragPair = Pair(
+                0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
+            )
+
+            val swipePair = Pair(
+                ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_circle_outline_24)!!,
+                ContextCompat.getColor(this, R.color.chat_list_resolve_BG)
+            )
+
+            val listAdapterPair = Pair(
+                conversations,
+                listViewAdapter
+            )
+
+            val listCallback = viewModel.setCallback(
+                this,
+                dragPair,
+                swipePair,
+                listAdapterPair,
+                firebaseAuth,
+                firestore
+            )
+            ItemTouchHelper(listCallback).attachToRecyclerView(listView)
+
+            listView.adapter = listViewAdapter
+            listView.addItemDecoration(DividerItemDecoration(this, LinearLayout.VERTICAL))
+        }
     }
 
     companion object {

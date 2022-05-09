@@ -1,13 +1,20 @@
 package com.github.brugapp.brug.data
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.services.DateService
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
@@ -153,6 +160,44 @@ object ConvRepository {
     }
 
     /**
+     * Retrieves the list of messages in real-time, i.e. each time a new message is added to the conversation.
+     *
+     * @param uid the user ID
+     * @param context (needed to be able to execute a Coroutine outside a Coroutine Context) - the activity which will observe the data
+     *
+     * @return nothing, but sets the list of conversations into the cache to be accessed by the ChatActivity if successful
+     */
+    fun getRealtimeConvsFromUID(
+        uid: String, context: AppCompatActivity,
+        firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage
+    ) {
+        val userRef = firestore.collection(USERS_DB).document(uid)
+        userRef.get().addOnCompleteListener{ task ->
+            if(task.isSuccessful){
+                if(task.result.exists()){
+                    userRef.collection(CONV_REFS_DB).addSnapshotListener { value, error ->
+                        if(value != null && error == null){
+                            liveData(Dispatchers.IO){
+                                emit(
+                                    value.mapNotNull { convRef ->
+                                        getConvFromRefID(convRef.id, uid, firestore, firebaseAuth, firebaseStorage)
+                                    },
+                                )
+                            }.observe(context) { list ->
+                                BrugDataCache.setConversationsList(list)
+                            }
+                        } else {
+                            Log.e("FIREBASE ERROR", error?.message.toString())
+                        }
+                    }
+                }
+            } else {
+                Log.e("FIREBASE ERROR", task.exception?.message.toString())
+            }
+        }
+    }
+
+    /**
      * Retrieves the list of Conversation of a user, given its user ID.
      *
      * @param uid the user ID
@@ -214,24 +259,57 @@ object ConvRepository {
             //FETCH LOSTITEMNAME
             val lostItemName = convSnapshot["lost_item_name"] as String
 
-            //FETCH MESSAGES
-            val messageUserName = userFields.getFullName()
-            val messagesListResponse = convSnapshot.reference.collection(MSG_DB).awaitRealtime()
+            val lastMessage =
+                convSnapshot.reference.collection(MSG_DB).get().await().mapNotNull { msgSnapshot ->
+                    retrieveMessageMetadatasFromSnapshot(msgSnapshot, authUserID, userFields.getFullName())
+                }.maxByOrNull { it.timestamp.getSeconds() }
 
-            val messagesList = if(messagesListResponse.packet != null){
-                messagesListResponse.packet.mapNotNull { message ->
-                    MessageRepository.getMessageFromSnapshot(message, messageUserName, authUserID, firebaseStorage, firebaseAuth)
-                }.sortedBy { it.timestamp.getSeconds() }
-            } else {
-                Log.e("FIREBASE ERROR", messagesListResponse.error!!.message.toString())
-                listOf()
-            }
+//            //FETCH MESSAGES
+//            val messageUserName = userFields.getFullName()
+//            val messagesListResponse = convSnapshot.reference.collection(MSG_DB).awaitRealtime()
+//
+//            val messagesList = if(messagesListResponse.packet != null){
+//                messagesListResponse.packet.mapNotNull { message ->
+//                    MessageRepository.getMessageFromSnapshot(message, messageUserName, authUserID, firebaseStorage, firebaseAuth)
+//                }.sortedBy { it.timestamp.getSeconds() }
+//            } else {
+//                Log.e("FIREBASE ERROR", messagesListResponse.error!!.message.toString())
+//                listOf()
+//            }
 
-            return Conversation(convID, userFields, lostItemName, messagesList.toMutableList())
+            return Conversation(convID, userFields, lostItemName, lastMessage)
         } catch(e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             return null
         }
+    }
+
+    private fun retrieveMessageMetadatasFromSnapshot(
+        msgSnapshot: QueryDocumentSnapshot,
+        authUserID: String,
+        userName: String
+    ): Message?{
+        val senderName = if ((msgSnapshot["sender"] as String) != authUserID) userName else "Me"
+        val timestamp = msgSnapshot["timestamp"] as Timestamp
+        val messageBody = when {
+            msgSnapshot.contains("audio_url") -> {
+                "Audio 🎵"
+            }
+            msgSnapshot.contains("image_url") -> {
+                "Image 📷"
+            }
+            msgSnapshot.contains("location") -> {
+                "Location 📍"
+            }
+            msgSnapshot.contains("body") -> {
+                msgSnapshot["body"] as String
+            }
+            else -> {
+                return null
+            }
+        }
+
+        return Message(senderName, DateService.fromFirebaseTimestamp(timestamp), messageBody)
     }
 
     private fun parseConvUserNameFromID(convID: String, uid: String): String {
