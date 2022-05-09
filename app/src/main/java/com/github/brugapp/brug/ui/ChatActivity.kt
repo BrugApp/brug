@@ -250,7 +250,7 @@ class ChatActivity : AppCompatActivity() {
             messageLayout.visibility = View.VISIBLE
             recordButton.visibility = View.VISIBLE
 
-            model.sendAudio(this, convID)
+            model.sendAudio(this, convID, firestore, firebaseAuth, firebaseStorage)
         }
     }
 
