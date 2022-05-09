@@ -87,6 +87,7 @@ class SignInActivityButtonTest {
             )
         )
     }
+}
 /*
     @Test
     fun nfcButtonGoesToNFCScannerActivity(){
