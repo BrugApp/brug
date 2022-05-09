@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.*
-import android.nfc.tech.Ndef
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -15,13 +13,8 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import java.io.IOException
-import java.io.UnsupportedEncodingException
-import java.nio.charset.Charset
-import kotlin.experimental.and
-import kotlin.jvm.Throws
 
 class NFCScannerActivity: AppCompatActivity() {
     private val Error_detected = "No NFC was found!"
@@ -34,7 +27,7 @@ class NFCScannerActivity: AppCompatActivity() {
     private lateinit var writingTagFilters: Array<IntentFilter>
     private var tag: Tag? = null
     private lateinit var context: Context
-    private lateinit var nfcInfo: TextView
+    private lateinit var editMessage: TextView
     private lateinit var nfcContents: TextView
     private lateinit var activateButton: Button
     private val viewModel: NFCScanViewModel by viewModels()
@@ -46,24 +39,23 @@ class NFCScannerActivity: AppCompatActivity() {
         viewModel.checkPermission(context)
         adapter = viewModel.setupAdapter(context)
         print("adapter is $adapter")
-        nfcInfo = findViewById<View>(R.id.editTextReportItem) as TextView
+        editMessage = findViewById<View>(R.id.edit_message) as TextView
         nfcContents = findViewById<View>(R.id.nfcContents) as TextView
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button
 
         if (adapter==null){ //|| adapter.isEnabled){
             Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
             finish()
-        }else {
-            nfcIntent = viewModel.setupWritingTagFilters(this).first
-            writingTagFilters = viewModel.setupWritingTagFilters(this).second
         }
+        nfcIntent = viewModel.setupWritingTagFilters(this).first
+        writingTagFilters = viewModel.setupWritingTagFilters(this).second
 
         activateButton.setOnClickListener{
             try{
                 if(tag==null){
                     Toast.makeText(context,Error_detected,Toast.LENGTH_LONG).show()
                 }else{
-                    viewModel.write("Plaintext|"+nfcInfo.text.toString(),tag!!) //changed tag to tag!!
+                    viewModel.write("Plaintext|"+editMessage.text.toString(),tag!!) //changed tag to tag!!
                     Toast.makeText(context,Write_success,Toast.LENGTH_LONG).show()
                 }
             }catch(e: IOException){
@@ -104,6 +96,9 @@ class NFCScannerActivity: AppCompatActivity() {
         viewModel.readFromIntent(nfcContents,intent)
         if ((NfcAdapter.ACTION_TAG_DISCOVERED) == intent.action){
             tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!!
+            Toast.makeText(context,"action tag was discovered",Toast.LENGTH_LONG).show()
+        }else{
+            Toast.makeText(context,"action tag was not discovered",Toast.LENGTH_LONG).show()
         }
     }
 }

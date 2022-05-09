@@ -45,7 +45,7 @@ class QrCodeScanViewModel: ViewModel() {
             isFlashEnabled = false
             decodeCallback = DecodeCallback {
                 activity.runOnUiThread {
-                    activity.findViewById<EditText>(R.id.editTextReportItem).setText(it.text)
+                    activity.findViewById<EditText>(R.id.edit_message).setText(it.text)
                 }
             }
             errorCallback = ErrorCallback {

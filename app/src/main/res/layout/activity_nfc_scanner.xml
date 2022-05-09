@@ -7,12 +7,12 @@
     tools:context=".ui.QrCodeScannerActivity">
 
     <EditText
-        android:id="@+id/editTextReportItem"
+        android:id="@+id/edit_message"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:autofillHints=""
         android:ems="10"
-        android:hint="type something"
+        android:hint="Type Something..."
         android:inputType="text"
         android:minHeight="48dp"
         android:textColorHint="#78909C"
@@ -33,29 +33,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextReportItem" />
-
-    <EditText
-        android:id="@+id/editTextTextPersonName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:minHeight="48dp"
-        android:text="Plain Text"
-        app:layout_constraintBottom_toTopOf="@+id/editTextReportItem"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/edit_message" />
 
     <TextView
         android:id="@+id/nfcContents"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonReportItem" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Plain Text:"
+        app:layout_constraintBottom_toTopOf="@+id/edit_message"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

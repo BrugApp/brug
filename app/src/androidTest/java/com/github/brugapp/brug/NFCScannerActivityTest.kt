@@ -19,7 +19,7 @@ class NFCScannerActivityTest {
 
     @Test
     fun correctHintText(){
-        onView(withId(R.id.editTextReportItem)).check(matches((withHint("type something"))))
+        onView(withId(R.id.edit_message)).check(matches((withHint("type something"))))
     }
 
     @Test

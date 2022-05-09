@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Context
 import android.content.Context.NFC_SERVICE
 import android.content.Intent
@@ -15,12 +16,13 @@ import android.util.Log
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.messaging.MyFCMMessagingService
+import com.mapbox.navigation.core.internal.PredictiveCache.init
 import java.io.IOException
 import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
+import java.util.*
 import kotlin.experimental.and
 
 
@@ -34,15 +36,14 @@ class NFCScanViewModel : ViewModel() {
                 context as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE)
     }
 
-    fun setupAdapter(this1: Context): NfcAdapter{
-        //return NfcAdapter.getDefaultAdapter(this1)
-        val manager = this1.getSystemService(NFC_SERVICE) as NfcManager
-        val adapter = manager.defaultAdapter
-        return adapter
+    fun setupAdapter(this1: Context): NfcAdapter {
+        return NfcAdapter.getDefaultAdapter(this1)
+        //val manager = this1.getSystemService(NFC_SERVICE) as NfcManager
+        //return manager.defaultAdapter
     }
 
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{
-        var nfcIntent = PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_IMMUTABLE)
+        var nfcIntent = PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE)
         var tagDetected = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
         return Pair(nfcIntent,arrayOf(tagDetected))
@@ -52,12 +53,7 @@ class NFCScanViewModel : ViewModel() {
         val action = intent.action
         if (action.equals(NfcAdapter.ACTION_TAG_DISCOVERED)||action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
             val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-            lateinit var messages : Array<NdefMessage>
-            if(rawMessages!=null){
-                for(i in rawMessages.indices){
-                    messages[i]=rawMessages[i] as NdefMessage
-                }
-            }
+            var messages: Array<NdefMessage> = Array<NdefMessage>(rawMessages!!.size){i -> rawMessages[i] as NdefMessage}
             buildTagViews(nfcContents, messages)
         }
     }
@@ -93,8 +89,8 @@ class NFCScanViewModel : ViewModel() {
         val langBytes = lang.toByteArray()
         val langLength = langBytes.size
         val textLength = textBytes.size
-        lateinit var payload: ByteArray
-        payload[0] = langLength.toByte()
+        var payload: ByteArray = ByteArray(langLength+textLength+1)
+        payload.set(0, langLength.toByte())
         System.arraycopy(langBytes, 0, payload, 1, langLength)
         System.arraycopy(textBytes, 0, payload, 1 + langLength, textLength)
         return NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, byteArrayOf(), payload)
