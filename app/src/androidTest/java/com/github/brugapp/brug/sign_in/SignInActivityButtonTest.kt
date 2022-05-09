@@ -87,11 +87,10 @@ class SignInActivityButtonTest {
             )
         )
     }
-
+/*
     @Test
     fun nfcButtonGoesToNFCScannerActivity(){
         onView(withId(R.id.nfc_found_btn)).perform(click())
         intended(allOf(toPackage("com.github.brugapp.brug"), hasComponent(NFCScannerActivity::class.java.name)))
     }
-
-}
+}*/
