@@ -5,12 +5,8 @@ import android.content.Intent
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.ui.ChatMenuActivity
-import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SettingsActivity
-import com.google.android.material.snackbar.Snackbar
 
 class CustomTopBar {
 
@@ -24,7 +20,7 @@ class CustomTopBar {
     }
 
     fun defineTopBarActions(item: MenuItem, currentActivity: Activity) {
-        when(item.itemId){
+        when (item.itemId) {
             R.id.my_settings -> {
                 currentActivity.startActivity(Intent(currentActivity, SettingsActivity::class.java))
             }

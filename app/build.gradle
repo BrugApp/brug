@@ -236,17 +236,17 @@ connectedCheck {
 }
 
 task accessToken {
-    def tokenFile = new File("${projectDir}/src/main/res/values/developer-config.xml");
+    def tokenFile = new File("${projectDir}/src/main/res/values/developer-config.xml")
     if (!tokenFile.exists()) {
-        String mapboxAccessToken = "$System.env.MAPBOX_ACCESS_TOKEN";
+        String mapboxAccessToken = "$System.env.MAPBOX_ACCESS_TOKEN"
         if (mapboxAccessToken == "null") {
-            System.out.println("You should set the MAPBOX_ACCESS_TOKEN environment variable.");
-            mapboxAccessToken = "pk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ3eW1lYjBkc3IzcG8zYW82OW8zdm0ifQ.in109seK8hLAP_LPafNnfQ";
+            System.out.println("You should set the MAPBOX_ACCESS_TOKEN environment variable.")
+            mapboxAccessToken = "pk.eyJ1Ijoib21hcmVtIiwiYSI6ImNsMmZ3eW1lYjBkc3IzcG8zYW82OW8zdm0ifQ.in109seK8hLAP_LPafNnfQ"
         }
         String tokenFileContents = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<resources>\n" +
                 "    <string name=\"mapbox_access_token\">" + mapboxAccessToken + "</string>\n" +
-                "</resources>";
-        tokenFile.write(tokenFileContents);
+                "</resources>"
+        tokenFile.write(tokenFileContents)
     }
 }

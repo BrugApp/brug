@@ -11,14 +11,18 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * Class handling the graphical part when swiping left or right on a list item.
  */
-class CallbackUI(private val c: Canvas, private val viewHolder: RecyclerView.ViewHolder, private val dX: Float) {
+class CallbackUI(
+    private val c: Canvas,
+    private val viewHolder: RecyclerView.ViewHolder,
+    private val dX: Float
+) {
 
     /**
      * Defines what is drawn in the window in the case of the swipe left (resp. swipe right) events.
      */
     fun setSwipeUI(
         swipePair: Pair<Drawable, Int>
-    ){
+    ) {
         val chatView = viewHolder.itemView
 
         val icon: Drawable = swipePair.first
@@ -44,7 +48,7 @@ class CallbackUI(private val c: Canvas, private val viewHolder: RecyclerView.Vie
     private fun computeBGBounds(dX: Float, chatView: View): Rect {
         val leftOffset: Int
         val rightOffset: Int
-        if(dX > 0){
+        if (dX > 0) {
             leftOffset = chatView.left
             rightOffset = dX.toInt()
         } else {
@@ -55,10 +59,15 @@ class CallbackUI(private val c: Canvas, private val viewHolder: RecyclerView.Vie
         return Rect(leftOffset, chatView.top, rightOffset, chatView.bottom)
     }
 
-    private fun computeIconBounds(icon: Drawable, dX: Float, iconMargin: Int, chatView: View): Rect {
+    private fun computeIconBounds(
+        icon: Drawable,
+        dX: Float,
+        iconMargin: Int,
+        chatView: View
+    ): Rect {
         val leftOffset: Int
         val rightOffset: Int
-        if(dX > 0){
+        if (dX > 0) {
             leftOffset = chatView.left + iconMargin
             rightOffset = chatView.left + iconMargin + icon.intrinsicWidth
         } else {
@@ -66,6 +75,11 @@ class CallbackUI(private val c: Canvas, private val viewHolder: RecyclerView.Vie
             rightOffset = chatView.right - iconMargin
         }
 
-        return Rect(leftOffset, chatView.top + iconMargin, rightOffset, chatView.bottom - iconMargin)
+        return Rect(
+            leftOffset,
+            chatView.top + iconMargin,
+            rightOffset,
+            chatView.bottom - iconMargin
+        )
     }
 }

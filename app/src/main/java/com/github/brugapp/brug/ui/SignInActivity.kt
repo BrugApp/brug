@@ -14,12 +14,27 @@ import com.github.brugapp.brug.di.sign_in.DatabaseUser
 import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SignInActivity : AppCompatActivity() {
 
     private val viewModel: SignInViewModel by viewModels()
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+
+    @Inject
+    lateinit var firebaseStorage: FirebaseStorage
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,8 +52,14 @@ class SignInActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.demo_button).setOnClickListener {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
+
+            //val email = "unlost.app@gmail.com"
+            //val password = "brugsdpProject1"
+            //runBlocking {
+            //    firebaseAuth.createUserWithEmailAndPassword(email,password).await()
+            //}
             // ONLY FOR DEMO MODE
-            viewModel.goToDemoMode(this)
+            viewModel.goToDemoMode(this, firestore, firebaseAuth, firebaseStorage)
         }
 
         findViewById<Button>(R.id.mapDemoButton).setOnClickListener {
@@ -74,7 +95,8 @@ class SignInActivity : AppCompatActivity() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
-                val credential: AuthCredential? = viewModel.handleSignInResult(it.data)
+                val credential: AuthCredential? =
+                    viewModel.handleSignInResult(it.data, firestore, firebaseAuth, firebaseStorage)
                 firebaseAuth(credential)
             }
         }

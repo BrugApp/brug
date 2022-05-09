@@ -2,6 +2,8 @@ package com.github.brugapp.brug.di.sign_in.module
 
 import com.github.brugapp.brug.di.sign_in.AuthDatabase
 import com.github.brugapp.brug.di.sign_in.firebase.AuthFirebase
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +17,6 @@ object DatabaseAuthModule {
     @ViewModelScoped
     @Provides
     fun provideFirebaseAuth(): AuthDatabase {
-        return AuthFirebase()
+        return AuthFirebase(Firebase.auth)
     }
 }

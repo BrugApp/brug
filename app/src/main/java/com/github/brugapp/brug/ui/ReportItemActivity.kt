@@ -17,7 +17,9 @@ class ReportItemActivity : AppCompatActivity() {
     }
 
     private fun displayReportNotification() {
-        MyFCMMessagingService.sendNotification(this, "Item found",
-            "One of your Items was found !")
+        MyFCMMessagingService.sendNotification(
+            this, "Item found",
+            "One of your Items was found !"
+        )
     }
 }
