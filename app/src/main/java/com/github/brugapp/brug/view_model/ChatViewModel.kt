@@ -86,7 +86,7 @@ class ChatViewModel() : ViewModel() {
         activity.scrollToBottom(adapter.itemCount - 1)
 
         if(Firebase.auth.currentUser == null){
-            Snackbar.make(activity.findViewById(android.R.id.content),
+            Snackbar.make( activity.findViewById(android.R.id.content),
                 "ERROR: You are no longer logged in ! Log in again to send the message.",
                 Snackbar.LENGTH_LONG)
                 .show()
@@ -266,7 +266,8 @@ class ChatViewModel() : ViewModel() {
 
     fun setupRecording(activity: ChatActivity){
 
-        audioPath = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!.absolutePath + "/audio.3gp"
+        audioPath = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!.absolutePath +
+                "/audio" + DateService.fromLocalDateTime(LocalDateTime.now()) + ".3gp"
 
         try {
             mediaRecorder = MediaRecorder()
@@ -274,7 +275,7 @@ class ChatViewModel() : ViewModel() {
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
 
-            mediaRecorder.setOutputFile(audioPath)
+            mediaRecorder.setOutputFile(Uri.parse(audioPath).toString())
             mediaRecorder.prepare()
             mediaRecorder.start()
         } catch (e: Exception) {
@@ -296,14 +297,17 @@ class ChatViewModel() : ViewModel() {
         mediaRecorder.release()
     }
 
-    fun sendAudio(){
+    fun sendAudio(activity: ChatActivity, convID: String){
 
         // TODO: modify this implementation to adapt it for Firestore
-        val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
-            "Audio", audioPath)
+        Log.e("FIREBASE CHECK", Uri.fromFile(File(audioPath)).toString())
+        Log.e("FIREBASE CHECK", audioPath)
 
-        messages.add(audioMessage)
-        adapter.notifyItemInserted(messages.size - 1)
+        val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
+            "Audio", Uri.fromFile(File(audioPath)).toString(), audioPath
+        )
+        //Uri.fromFile(File(audioPath)).toString()
+        sendMessage(audioMessage, convID, activity)
     }
 
     // PERMISSIONS RELATED =======================================================

@@ -176,18 +176,6 @@ class ChatActivity : AppCompatActivity() {
             PackageManager.FEATURE_MICROPHONE)
     }*/
 
-
-    /*override fun onRequestPermissionsResult( // This should go to the bottom with the same function
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == RECORDING_REQUEST_CODE){
-            recordButton.isEnabled = true
-        }
-    }*/
-
     private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
 
@@ -234,7 +222,7 @@ class ChatActivity : AppCompatActivity() {
             messageLayout.visibility = View.VISIBLE
             recordButton.visibility = View.VISIBLE
 
-            model.sendAudio()
+            model.sendAudio(this, convID)
         }
     }
 

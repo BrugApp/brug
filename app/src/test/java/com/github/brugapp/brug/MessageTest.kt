@@ -226,8 +226,9 @@ class MessageTest {
         ))
         val body = "TESTMESSAGE"
         val audioUrl = "/path/to/dummy/audio.mp3"
+        val audioPath = "/path/to/dummy/audio.mp3"
 
-        val m = AudioMessage(senderName, timestamp, body, audioUrl)
+        val m = AudioMessage(senderName, timestamp, body, audioUrl, audioPath)
 
         assertThat(m.senderName, IsEqual(senderName))
         assertThat(m.timestamp, IsEqual(timestamp))
@@ -246,8 +247,9 @@ class MessageTest {
         )
 
         val audioUrl = "/path/to/dummy/audio.mp3"
+        val audioPath = "/path/to/dummy/audio.mp3"
 
-        val m = AudioMessage.fromMessage(msg, audioUrl)
+        val m = AudioMessage.fromMessage(msg, audioUrl, audioPath)
 
         assertThat(m.senderName, IsEqual(msg.senderName))
         assertThat(m.timestamp, IsEqual(msg.timestamp))
@@ -263,9 +265,10 @@ class MessageTest {
         ))
         val body = "TESTMESSAGE"
         val audioUrl = "/path/to/dummy/audio.mp3"
+        val audioPath = "/path/to/dummy/audio.mp3"
 
-        val m1 = AudioMessage(senderName, timestamp, body, audioUrl)
-        val m2 = AudioMessage(senderName, timestamp, body, audioUrl)
+        val m1 = AudioMessage(senderName, timestamp, body, audioUrl, audioPath)
+        val m2 = AudioMessage(senderName, timestamp, body, audioUrl, audioPath)
 
         assertThat(m1, IsEqual(m2))
     }
@@ -281,9 +284,10 @@ class MessageTest {
         ))
         val body = "TESTMESSAGE"
         val audioUrl = "/path/to/dummy/audio.mp3"
+        val audioPath = "/path/to/dummy/audio.mp3"
 
-        val m1 = AudioMessage(senderName, timestamp1, body, audioUrl)
-        val m2 = AudioMessage(senderName, timestamp2, body, audioUrl)
+        val m1 = AudioMessage(senderName, timestamp1, body, audioUrl, audioPath)
+        val m2 = AudioMessage(senderName, timestamp2, body, audioUrl, audioPath)
 
         assertThat(m1, IsNot(IsEqual(m2)))
     }

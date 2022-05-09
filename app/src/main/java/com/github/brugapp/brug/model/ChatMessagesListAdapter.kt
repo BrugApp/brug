@@ -119,7 +119,7 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
         }
 
         private fun bindAudioMessage(message: AudioMessage) {
-            itemView.findViewById<VoicePlayerView>(R.id.voicePlayerView).setAudio(message.audioUrl)
+            itemView.findViewById<VoicePlayerView>(R.id.voicePlayerView).setAudio(message.audioPath)
         }
 
         private fun resizeImage(uri: Uri): Uri {
