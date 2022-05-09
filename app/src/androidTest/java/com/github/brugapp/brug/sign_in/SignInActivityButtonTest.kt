@@ -12,6 +12,7 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
