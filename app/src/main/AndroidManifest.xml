@@ -23,6 +23,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Brug">
+        <activity
+            android:name=".ui.NavigationToItemActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -30,8 +33,8 @@
 
         <activity
             android:name=".ui.QrCodeShowActivity"
-            android:parentActivityName=".ui.ItemsMenuActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.ItemsMenuActivity" />
         <activity
             android:name=".ui.NavigationMenuActivity"
             android:exported="false" />
@@ -67,7 +70,6 @@
             android:name=".ui.MapsActivity"
             android:exported="false"
             android:label="@string/title_activity_maps" />
-
         <activity
             android:name=".ui.ReportItemActivity"
             android:exported="false" />
@@ -82,8 +84,7 @@
             android:name=".ui.ChatActivity"
             android:exported="false"
             android:label="Chat"
-            android:parentActivityName=".ui.ChatMenuActivity">
-        </activity>
+            android:parentActivityName=".ui.ChatMenuActivity"></activity>
         <activity
             android:name=".ui.RegisterUserActivity"
             android:exported="false" />

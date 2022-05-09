@@ -154,4 +154,8 @@ class HelloWorldView : View {
             it.draw(canvas)
         }
     }
+
+    fun ez(){
+
+    }
 }

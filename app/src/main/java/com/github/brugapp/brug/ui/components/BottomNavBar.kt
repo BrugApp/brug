@@ -3,10 +3,7 @@ package com.github.brugapp.brug.ui.components
 import android.app.Activity
 import android.content.Intent
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.ui.ChatMenuActivity
-import com.github.brugapp.brug.ui.ItemsMenuActivity
-import com.github.brugapp.brug.ui.MapBoxActivity
-import com.github.brugapp.brug.ui.QrCodeScannerActivity
+import com.github.brugapp.brug.ui.*
 import com.google.android.material.navigation.NavigationBarView
 
 class BottomNavBar {
@@ -35,7 +32,7 @@ class BottomNavBar {
                 }
                 R.id.chat_menu_button -> {
                     if(currentActivity is ItemsMenuActivity){
-                        currentActivity.startActivity(Intent(currentActivity, MapBoxActivity::class.java))
+                        currentActivity.startActivity(Intent(currentActivity, NavigationToItemActivity::class.java))
                     }
                     true
                 }

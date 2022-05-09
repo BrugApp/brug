@@ -50,6 +50,9 @@ android {
     packagingOptions {
         exclude "META-INF/DEPENDENCIES"
     }
+    dataBinding {
+        enabled = true
+    }
 }
 jacoco {
     toolVersion = "0.8.7"
@@ -57,15 +60,17 @@ jacoco {
 
 dependencies {
 
+    kapt 'com.android.databinding:compiler:3.1.4'
+
     // Mapbox dependencies
-    implementation 'com.mapbox.maps:android:10.4.0'
-    implementation 'com.mapbox.mapboxsdk:mapbox-android-core:5.0.0'
+    implementation 'com.mapbox.maps:android:10.5.0-beta.1'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-core:5.0.1'
     implementation "com.google.android.gms:play-services-location:19.0.1"
     implementation "com.mapbox.navigation:ui-dropin:2.5.0-beta.1"
 
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-testing:2.4.1'
-    implementation 'androidx.preference:preference:1.1.1'
+    implementation 'androidx.preference:preference:1.2.0'
     implementation 'com.google.android.gms:play-services-maps:18.0.2'
     def lifecycle_version = "2.5.0-alpha05"
     def arch_version = "2.1.0"
