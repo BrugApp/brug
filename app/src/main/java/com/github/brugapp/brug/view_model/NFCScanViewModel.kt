@@ -69,7 +69,7 @@ class NFCScanViewModel : ViewModel() {
         }catch (e : UnsupportedEncodingException){
             Log.e("UnsupportedEncoding",e.toString())
         }
-        nfcContents.text = "NFC Contents: $text"
+        nfcContents.text = "Read Tag Contents: $text"
     }
 
     @Throws(IOException::class, FormatException::class)

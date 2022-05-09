@@ -55,7 +55,7 @@ class NFCScannerActivity: AppCompatActivity() {
                 if(tag==null){
                     Toast.makeText(context,Error_detected,Toast.LENGTH_LONG).show()
                 }else{
-                    viewModel.write("Plaintext|"+editMessage.text.toString(),tag!!) //changed tag to tag!!
+                    viewModel.write(editMessage.text.toString(),tag!!) //changed tag to tag!!
                     Toast.makeText(context,Write_success,Toast.LENGTH_LONG).show()
                 }
             }catch(e: IOException){
@@ -68,8 +68,6 @@ class NFCScannerActivity: AppCompatActivity() {
             viewModel.displayReportNotification(context)
         }
     }
-
-
 
     override fun onPause() {
         super.onPause()
@@ -96,9 +94,6 @@ class NFCScannerActivity: AppCompatActivity() {
         viewModel.readFromIntent(nfcContents,intent)
         if ((NfcAdapter.ACTION_TAG_DISCOVERED) == intent.action){
             tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!!
-            Toast.makeText(context,"action tag was discovered",Toast.LENGTH_LONG).show()
-        }else{
-            Toast.makeText(context,"action tag was not discovered",Toast.LENGTH_LONG).show()
         }
     }
 }
