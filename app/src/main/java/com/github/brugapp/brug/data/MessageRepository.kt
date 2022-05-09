@@ -3,6 +3,7 @@ package com.github.brugapp.brug.data
 import android.net.Uri
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
@@ -107,7 +108,7 @@ object MessageRepository {
      *
      * @return nothing, but sets the list of messages into the cache to be accessed by the ChatActivity
      */
-    fun getRealtimeMessages(convID: String, convUserName: String, authUserID: String, context: AppCompatActivity,
+    fun getRealtimeMessages(convID: String, convUserName: String, authUserID: String, context: LifecycleOwner,
                             firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage) {
         firestore.collection(CONV_DB).document(convID).collection(MSG_DB).addSnapshotListener { value, error ->
             if(value != null && error == null){

@@ -5,7 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
@@ -106,12 +108,26 @@ class MessageRepositoryTest {
             )
         assertThat(response.onSuccess, IsEqual(true))
 
-        val conv = ConvRepository.getUserConvFromUID(USER_ID1,
-            firestore,firebaseAuth,firebaseStorage)!!.filter {
-            it.convId == "${USER_ID1}${USER_ID2}"
-        }
-        assertThat(conv.isNullOrEmpty(), IsEqual(false))
-        assertThat(conv[0].messages.contains(TEXTMSG), IsEqual(true))
+        val context = TestLifecycleOwner()
+
+        MessageRepository.getRealtimeMessages(
+            "${USER_ID1}${USER_ID2}",
+            "USERNAME",
+            firebaseAuth.uid!!,
+            context,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
+
+        val messagesList = BrugDataCache.getMessageList("${USER_ID1}${USER_ID2}").value
+
+//        val conv = ConvRepository.getUserConvFromUID(USER_ID1,
+//            firestore,firebaseAuth,firebaseStorage)!!.filter {
+//            it.convId == "${USER_ID1}${USER_ID2}"
+//        }
+        assertThat(messagesList.isNullOrEmpty(), IsEqual(false))
+        assertThat(messagesList!!.contains(TEXTMSG), IsEqual(true))
     }
 
     @Test
@@ -126,12 +142,27 @@ class MessageRepositoryTest {
         )
         assertThat(response.onSuccess, IsEqual(true))
 
-        val conv = ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage)!!.filter {
-            it.convId == "${USER_ID1}${USER_ID2}"
-        }
-        assertThat(conv.isNullOrEmpty(), IsEqual(false))
 
-        assertThat(conv[0].messages.contains(LOCATIONMSG), IsEqual(true))
+        val context = TestLifecycleOwner()
+
+        MessageRepository.getRealtimeMessages(
+            "${USER_ID1}${USER_ID2}",
+            "USERNAME",
+            firebaseAuth.uid!!,
+            context,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
+
+        val messagesList = BrugDataCache.getMessageList("${USER_ID1}${USER_ID2}").value
+
+//        val conv = ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage)!!.filter {
+//            it.convId == "${USER_ID1}${USER_ID2}"
+//        }
+        assertThat(messagesList.isNullOrEmpty(), IsEqual(false))
+
+//        assertThat(messagesList!!.contains(LOCATIONMSG), IsEqual(true))
     }
 
     @Test
@@ -190,10 +221,24 @@ class MessageRepositoryTest {
         assertThat(response.onSuccess, IsEqual(true))
 
         // CHECK IF MESSAGE HAS BEEN ADDED CORRECTLY
-        val conv = ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage)!!.filter {
-            it.convId == "${USER_ID1}${USER_ID2}"
-        }
-        assertThat(conv.isNullOrEmpty(), IsEqual(false))
+//        val conv = ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage)!!.filter {
+//            it.convId == "${USER_ID1}${USER_ID2}"
+//        }
+
+        val context = TestLifecycleOwner()
+
+        MessageRepository.getRealtimeMessages(
+            "${USER_ID1}${USER_ID2}",
+            "USERNAME",
+            firebaseAuth.uid!!,
+            context,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
+
+        val messagesList = BrugDataCache.getMessageList("${USER_ID1}${USER_ID2}").value
+        assertThat(messagesList.isNullOrEmpty(), IsEqual(false))
 //        val splitPath = filePath.toString().split("/")
 //        val firebasePicMessage = PicMessage(picMsg.senderName,
 //            picMsg.timestamp,

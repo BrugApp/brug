@@ -1,7 +1,9 @@
 package com.github.brugapp.brug.data
 
+import android.content.Context
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
@@ -168,7 +170,7 @@ object ConvRepository {
      * @return nothing, but sets the list of conversations into the cache to be accessed by the ChatActivity if successful
      */
     fun getRealtimeConvsFromUID(
-        uid: String, context: AppCompatActivity,
+        uid: String, context: LifecycleOwner,
         firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage
     ) {
         val userRef = firestore.collection(USERS_DB).document(uid)

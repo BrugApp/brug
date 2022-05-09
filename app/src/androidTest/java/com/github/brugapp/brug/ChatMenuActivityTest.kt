@@ -147,15 +147,15 @@ class ChatMenuActivityTest {
                 firebaseAuth,
                 firebaseStorage
             )
-            val convs = ConvRepository.getUserConvFromUID(
-                test_user_uid,
-                firestore,
-                firebaseAuth,
-                firebaseStorage
-            )
+//            val convs = ConvRepository.getUserConvFromUID(
+//                test_user_uid,
+//                firestore,
+//                firebaseAuth,
+//                firebaseStorage
+//            )
             //NO MESSAGE SO THERE IS AN ERROR
             Log.d("createConv", result.onError.toString())
-            Log.d("convs list", convs.toString())
+//            Log.d("convs list", convs.toString())
         }
 
     }

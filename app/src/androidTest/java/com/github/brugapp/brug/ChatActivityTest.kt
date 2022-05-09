@@ -88,9 +88,9 @@ class ChatActivityTest {
         "USER1USER2",
         dummyUser,
         "DummyItem",
-        mutableListOf(Message(
+        Message(
             dummyUser.getFullName(), dummyDate, "TestMessage"
-        ))
+        )
     )
 
     @Before

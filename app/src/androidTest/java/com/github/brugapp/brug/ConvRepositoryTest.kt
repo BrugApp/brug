@@ -4,7 +4,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
@@ -15,9 +19,7 @@ import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -44,7 +46,7 @@ private const val DUMMY_ITEM_NAME = "Airpods"
 
 class ConvRepositoryTest {
 
-    private val firestore:FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firebaseStorage:FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
@@ -71,8 +73,14 @@ class ConvRepositoryTest {
     @Test
     fun addNewConvCorrectlyReturns() = runBlocking {
         assertThat(ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore).onSuccess, IsEqual(true))
-        val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM_NAME, mutableListOf())
-        val convList = ConvRepository.getUserConvFromUID(USER_ID1, firestore,firebaseAuth,firebaseStorage)
+        val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM_NAME, null)
+//        val convList = ConvRepository.getUserConvFromUID(USER_ID1, firestore,firebaseAuth,firebaseStorage)
+
+        val context = TestLifecycleOwner()
+        ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)
+        assertThat(BrugDataCache.getConversationList().value, IsNot(IsNull.nullValue()))
+        val convList = BrugDataCache.getConversationList().value
+
         assertThat(convList.isNullOrEmpty(), IsEqual(false))
         val conv = convList!!.last()
         assertThat(conv.convId, IsEqual(conversation.convId))
@@ -81,18 +89,29 @@ class ConvRepositoryTest {
     }
 
     @Test
-    fun getConvsFromNonexistentUserReturnsNull() = runBlocking {
-        assertThat(ConvRepository.getUserConvFromUID("WRONGCONVID",firestore,firebaseAuth,firebaseStorage), IsNull.nullValue())
+    fun getConvsFromNonexistentUserReturnsNull() {
+        val context = TestLifecycleOwner()
+        val wrongConvID = "WRONGCONVID"
+        ConvRepository.getRealtimeConvsFromUID(wrongConvID, context, firestore, firebaseAuth, firebaseStorage)
+        assertThat(BrugDataCache.getConversationList().value, IsNull.nullValue())
+//        assertThat(ConvRepository.getUserConvFromUID("WRONGCONVID",firestore,firebaseAuth,firebaseStorage), IsNull.nullValue())
     }
 
     @Test
-    fun getBadlyFormattedConvsReturnsEmptyList() = runBlocking {
-        assertThat(ConvRepository.getUserConvFromUID(USERWRONGCONV_ID,firestore,firebaseAuth,firebaseStorage), IsEqual(listOf()))
+    fun getBadlyFormattedConvsReturnsEmptyList() {
+        val context = TestLifecycleOwner()
+        ConvRepository.getRealtimeConvsFromUID(USERWRONGCONV_ID, context, firestore, firebaseAuth, firebaseStorage)
+        assertThat(BrugDataCache.getConversationList().value, IsNull.nullValue())
+//        assertThat(ConvRepository.getUserConvFromUID(USERWRONGCONV_ID,firestore,firebaseAuth,firebaseStorage), IsEqual(listOf()))
     }
 
     @Test
-    fun getConvsFromValidUserCorrectlyReturnsSuccessfully() = runBlocking {
-        assertThat(ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage), IsNot(IsNull.nullValue()))
+    fun getConvsFromValidUserCorrectlyReturnsSuccessfully() {
+        val context = TestLifecycleOwner()
+        ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)
+        assertThat(BrugDataCache.getConversationList().value, IsNot(IsNull.nullValue()))
+
+//        assertThat(ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage), IsNot(IsNull.nullValue()))
     }
 
     @Test
@@ -129,7 +148,11 @@ class ConvRepositoryTest {
 
         assertThat(MessageRepository.addMessageToConv(picMessage, USER_ID1,"${USER_ID1}${USER_ID2}",firestore, firebaseAuth, firebaseStorage).onSuccess, IsEqual(true))
 
-        assertThat(ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage), IsNot(IsNull.nullValue()))
+        val context = TestLifecycleOwner()
+        ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)
+        assertThat(BrugDataCache.getConversationList().value, IsNot(IsNull.nullValue()))
+
+//        assertThat(ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage), IsNot(IsNull.nullValue()))
         firebaseAuth.signOut()
     }
 
