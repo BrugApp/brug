@@ -15,18 +15,22 @@ import com.github.brugapp.brug.model.ChatMessagesListAdapter.MessageType.*
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
-import me.jagar.chatvoiceplayerlibrary.VoicePlayerView
 import com.github.brugapp.brug.view_model.ChatViewModel
+import me.jagar.chatvoiceplayerlibrary.VoicePlayerView
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 // Adapter that binds the list of messages to the instances of ChatItemModel
-class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val messageList: MutableList<Message>) :
+class ChatMessagesListAdapter(
+    private val viewModel: ChatViewModel,
+    private val messageList: MutableList<Message>
+) :
     RecyclerView.Adapter<ChatMessagesListAdapter.ViewHolder>() {
     // for onclick on the items of the recycler
     private lateinit var mListener: onItemClickListener
+
     interface onItemClickListener {
         fun onItemClick(position: Int)
     }
@@ -67,7 +71,7 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
 
     override fun getItemViewType(position: Int): Int {
         val message: Message = messageList[position]
-        return if(message.senderName == "Me"){
+        return if (message.senderName == "Me") {
             when (message) {
                 is PicMessage -> TYPE_IMAGE_LEFT.ordinal
                 is LocationMessage -> TYPE_LOCATION_LEFT.ordinal
@@ -109,7 +113,8 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
         private fun bindPicMessage(message: PicMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
-            itemView.findViewById<ImageView>(R.id.picture).setImageURI(resizeImage(Uri.parse(message.imgUrl)))
+            itemView.findViewById<ImageView>(R.id.picture)
+                .setImageURI(resizeImage(Uri.parse(message.imgUrl)))
         }
 
         private fun bindLocationMessage(message: LocationMessage) {
@@ -125,7 +130,11 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
         private fun resizeImage(uri: Uri): Uri {
             // open the image and resize it
             val image = Drawable.createFromPath(uri.path)
-            val imageBM = image!!.toBitmap(image.intrinsicWidth, image.intrinsicHeight, Bitmap.Config.ARGB_8888)
+            val imageBM = image!!.toBitmap(
+                image.intrinsicWidth,
+                image.intrinsicHeight,
+                Bitmap.Config.ARGB_8888
+            )
             val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
 
             // store to new file

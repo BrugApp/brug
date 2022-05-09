@@ -21,35 +21,48 @@ import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.UserRepository
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 
 class ProfileSettingsFragment(
-    private val registry: ActivityResultRegistry
+    private val registry: ActivityResultRegistry,
+    private val firebaseAuth: FirebaseAuth,
+    private val firebaseStorage: FirebaseStorage,
+    private val firestore: FirebaseFirestore
 ) : Fragment() {
 
     private fun resize(image: Drawable?): Drawable? {
-        if(image == null) return null
+        if (image == null) return null
         val b = (image as BitmapDrawable).bitmap
         val bitmapResized = Bitmap.createScaledBitmap(b, 200, 200, false)
         return BitmapDrawable(resources, bitmapResized)
     }
 
-    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent(),registry) { uri: Uri? ->
-        if(uri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
-            val inputStream = activity?.contentResolver?.openInputStream(uri)
-            val drawable = Drawable.createFromStream(inputStream, uri.toString())
-            activity?.let {
-                liveData(Dispatchers.IO){
-                    emit(UserRepository.updateUserIcon(Firebase.auth.currentUser!!.uid, drawable))
-                }.observe(this){
-                    val myIntent = Intent(activity, ProfilePictureSetActivity::class.java)
-                    startActivity(myIntent)
+    private val getContent =
+        registerForActivityResult(ActivityResultContracts.GetContent(), registry) { uri: Uri? ->
+            if (uri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val inputStream = activity?.contentResolver?.openInputStream(uri)
+                val drawable = Drawable.createFromStream(inputStream, uri.toString())
+                activity?.let {
+                    liveData(Dispatchers.IO) {
+                        emit(
+                            UserRepository.updateUserIcon(
+                                firebaseAuth.currentUser!!.uid,
+                                drawable,
+                                firebaseAuth,
+                                firebaseStorage,
+                                firestore
+                            )
+                        )
+                    }.observe(this) {
+                        val myIntent = Intent(activity, ProfilePictureSetActivity::class.java)
+                        startActivity(myIntent)
+                    }
                 }
             }
         }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,21 +72,28 @@ class ProfileSettingsFragment(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        liveData(Dispatchers.IO){
-            emit(UserRepository.getMinimalUserFromUID(Firebase.auth.currentUser!!.uid))
-        }.observe(viewLifecycleOwner){ user ->
+        liveData(Dispatchers.IO) {
+            emit(
+                UserRepository.getMinimalUserFromUID(
+                    firebaseAuth.currentUser!!.uid,
+                    firestore,
+                    firebaseAuth,
+                    firebaseStorage
+                )
+            )
+        }.observe(viewLifecycleOwner) { user ->
             view.findViewById<ProgressBar>(R.id.loadingUserProfile).visibility = View.GONE
 
-            if(user == null){
+            if (user == null) {
                 Snackbar.make(view, "ERROR: User cannot be retrieved !", Snackbar.LENGTH_LONG)
                     .show()
 //                startActivity(Intent(this, SettingsActivity::class.java))
 
             } else {
                 val profilePic = view.findViewById<ImageView>(R.id.imgProfile)
-                val profilePicDrawable = user.getUserIcon()
+                val profilePicDrawable = Drawable.createFromPath(user.getUserIconPath())
 
-                if(profilePicDrawable != null){
+                if (profilePicDrawable != null) {
                     profilePic.setImageDrawable(resize(profilePicDrawable))
                 } else {
                     profilePic.setImageResource(R.mipmap.ic_launcher_round)

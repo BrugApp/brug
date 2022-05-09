@@ -33,13 +33,19 @@ import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
@@ -55,6 +61,15 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var buttonSendAudio: ImageButton
     private lateinit var deleteAudio: ImageButton
     private lateinit var textMessage: EditText
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+
+    @Inject
+    lateinit var firebaseStorage: FirebaseStorage
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
@@ -106,10 +121,11 @@ class ChatActivity : AppCompatActivity() {
         val adapter = viewModel.getAdapter()
         messageList.adapter = adapter
 
-        adapter.setOnItemClickListener(object: ChatMessagesListAdapter.onItemClickListener{
+        adapter.setOnItemClickListener(object : ChatMessagesListAdapter.onItemClickListener {
             override fun onItemClick(position: Int) {
-                if(adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
-                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal)
+                if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
+                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
+                )
                     Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_SHORT).show()
             }
         })
@@ -131,11 +147,19 @@ class ChatActivity : AppCompatActivity() {
         buttonSendTextMsg.setOnClickListener {
             // Get elements from UI
             val content: String = findViewById<TextView>(R.id.editMessage).text.toString()
-            val newMessage = TextMessage("Me",
+            val newMessage = TextMessage(
+                "Me",
                 DateService.fromLocalDateTime(LocalDateTime.now()),
                 content
             )
-            viewModel.sendMessage(newMessage, convID, this)
+            viewModel.sendMessage(
+                newMessage,
+                convID,
+                this,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
 
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
@@ -160,14 +184,18 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendLocationButton(locationManager: LocationManager,
-                                       fusedLocationClient: FusedLocationProviderClient) {
+    private fun initSendLocationButton(
+        locationManager: LocationManager,
+        fusedLocationClient: FusedLocationProviderClient
+    ) {
         val buttonSendLocationMsg = findViewById<ImageButton>(R.id.buttonSendLocalisation)
         buttonSendLocationMsg.setOnClickListener {
-            viewModel.requestLocation(convID,
+            viewModel.requestLocation(
+                convID,
                 this,
                 fusedLocationClient,
-                locationManager)
+                locationManager, firestore, firebaseAuth, firebaseStorage
+            )
         }
     }
 
@@ -229,7 +257,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendAudioButton(model : ChatViewModel){
+    private fun initSendAudioButton(model: ChatViewModel) {
         buttonSendAudio.setOnClickListener {
             model.stopAudio()
 
@@ -311,19 +339,19 @@ class ChatActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK){
-            if (requestCode == SELECT_PICTURE_REQUEST_CODE){
-                val imageUri = data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SELECT_PICTURE_REQUEST_CODE) {
+                val imageUri =
+                    data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
                 viewModel.setImageUri(imageUri)
-                viewModel.sendPicMessage(this, convID)
-            }
-            else if (requestCode == TAKE_PICTURE_REQUEST_CODE){
+                viewModel.sendPicMessage(this, convID, firestore, firebaseAuth, firebaseStorage)
+            } else if (requestCode == TAKE_PICTURE_REQUEST_CODE) {
                 // for the tests (use of stubs that store uri as extra)
                 val uriString = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
-                if(uriString != null){
+                if (uriString != null) {
                     viewModel.setImageUri(Uri.parse(uriString))
                 }
-                viewModel.sendPicMessage(this, convID)
+                viewModel.sendPicMessage(this, convID, firestore, firebaseAuth, firebaseStorage)
             }
         }
     }

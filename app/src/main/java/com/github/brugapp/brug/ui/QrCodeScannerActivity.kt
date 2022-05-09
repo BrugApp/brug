@@ -12,6 +12,7 @@ import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 
@@ -19,7 +20,7 @@ import kotlinx.coroutines.runBlocking
 //library found on github: https://github.com/yuriy-budiyev/code-scanner
 class QrCodeScannerActivity : AppCompatActivity() {
 
-    private val viewModel:QrCodeScanViewModel by viewModels()
+    private val viewModel: QrCodeScanViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +57,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
                         ConvRepository.addNewConversation(
                             Firebase.auth.uid!!,
                             uidAndItemID[0],
-                            item.itemName)
+                            item.itemName, FirebaseFirestore.getInstance())
                     }
                     MyFCMMessagingService.sendNotification(this,
                         "One of your lost items has been found !",
@@ -80,8 +81,10 @@ class QrCodeScannerActivity : AppCompatActivity() {
     }
 
     private fun displayReportNotification() {
-        MyFCMMessagingService.sendNotification(this, "Item found",
-            "One of your Items was found !")
+        MyFCMMessagingService.sendNotification(
+            this, "Item found",
+            "One of your Items was found !"
+        )
     }
 
 }
