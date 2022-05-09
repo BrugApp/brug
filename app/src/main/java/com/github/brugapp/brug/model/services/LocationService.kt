@@ -7,7 +7,10 @@ import java.io.Serializable
 /**
  * Abstraction class handling Location services.
  */
-class LocationService private constructor(private val latitude: Double, private val longitude: Double): Serializable {
+class LocationService private constructor(
+    private val latitude: Double,
+    private val longitude: Double
+) : Serializable {
     companion object {
         fun fromGeoPoint(geopoint: GeoPoint): LocationService {
             return LocationService(geopoint.latitude, geopoint.longitude)
@@ -18,7 +21,7 @@ class LocationService private constructor(private val latitude: Double, private 
         }
     }
 
-    fun toAndroidLocation(): Location{
+    fun toAndroidLocation(): Location {
         val location = Location("")
         location.latitude = latitude
         location.longitude = longitude

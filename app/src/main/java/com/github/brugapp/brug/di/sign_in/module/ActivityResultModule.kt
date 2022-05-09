@@ -14,7 +14,7 @@ import dagger.hilt.android.qualifiers.ActivityContext
 object ActivityResultModule {
 
     @Provides
-    fun provideActivityResultRegistry(@ActivityContext activity: Context):ActivityResultRegistry =
+    fun provideActivityResultRegistry(@ActivityContext activity: Context): ActivityResultRegistry =
         (activity as? AppCompatActivity)?.activityResultRegistry
             ?: throw IllegalArgumentException("You must use AppCompatActivity")
 }

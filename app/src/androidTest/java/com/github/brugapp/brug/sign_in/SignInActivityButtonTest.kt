@@ -9,14 +9,18 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.NavigationMenuActivity
 import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.github.brugapp.brug.ui.SignInActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers.allOf
 import org.junit.After
 import org.junit.Before
@@ -32,6 +36,8 @@ class SignInActivityButtonTest {
     @get:Rule
     val rule = HiltAndroidRule(this)
 
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+
     @Before
     fun setUp() {
         Intents.init()
@@ -40,14 +46,20 @@ class SignInActivityButtonTest {
     @After
     fun cleanUp() {
         Intents.release()
-        Firebase.auth.signOut()
+        firebaseAuth.signOut()
     }
 
     @Test
     fun demoButtonGoesToItemsMenuActivity() {
+        val email = "unlost.app@gmail.com"
+        val password = "brugsdpProject1"
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword(email,password).await()
+        }
+
         onView(withId(R.id.demo_button)).perform(click())
 
-        Thread.sleep(30000)
+        //Thread.sleep(30000)
         intended(
             allOf(
                 toPackage("com.github.brugapp.brug"),

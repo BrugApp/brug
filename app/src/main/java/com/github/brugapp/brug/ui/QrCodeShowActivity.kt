@@ -3,7 +3,6 @@ package com.github.brugapp.brug.ui
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity

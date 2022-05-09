@@ -13,15 +13,16 @@ class User// later generate id
     private var id: String,
     @Transient
     private var profilePicture: Drawable?
-): Serializable {
+) : Serializable {
     private var items: MutableList<Item>
 
     private var tripleList = listOf(
         Triple("Phone", "Samsung Galaxy S22", ItemType.Phone),
         Triple("Wallet", "With all my belongings", ItemType.Wallet),
         Triple("BMW Key", "BMW M3 F80 Competition", ItemType.CarKeys),
-        Triple("Keys","House and everything else", ItemType.Keys)
+        Triple("Keys", "House and everything else", ItemType.Keys)
     )
+
     init {
         if (firstName.isBlank() || lastName.isBlank() || id.isBlank()) {
             throw IllegalArgumentException("Invalid name !")
@@ -40,15 +41,15 @@ class User// later generate id
             throw IllegalArgumentException("Invalid email !")
 
         }
-        items = tripleList.map { generateItem(it.first,it.second,it.third) }.toMutableList()
+        items = tripleList.map { generateItem(it.first, it.second, it.third) }.toMutableList()
     }
 
 
-    private fun generateId() :String{
+    private fun generateId(): String {
         return (1..100).random().toString()
     }
 
-    private fun generateItem(name:String, description: String, type: ItemType): Item {
+    private fun generateItem(name: String, description: String, type: ItemType): Item {
         return Item(name, description, generateId()).setType(type)
     }
 
@@ -73,7 +74,7 @@ class User// later generate id
     }
 
 
-    fun setProfilePicture(drawable: Drawable?): User{
+    fun setProfilePicture(drawable: Drawable?): User {
         this.profilePicture = drawable
         return this
     }
@@ -82,7 +83,7 @@ class User// later generate id
         return this.profilePicture
     }
 
-    fun addItem(item : Item) : Boolean{
+    fun addItem(item: Item): Boolean {
         return items.add(item)
     }
 

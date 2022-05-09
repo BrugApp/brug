@@ -16,14 +16,23 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.ui.RegisterUserActivity
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class RegisterUserTest {
     @get:Rule
     var registerUserActivityRule = ActivityScenarioRule(RegisterUserActivity::class.java)
+
+
+    @get:Rule
+    val rule = HiltAndroidRule(this)
+
 
     @Test
     fun registerUserTypeAndSubmitTest(){

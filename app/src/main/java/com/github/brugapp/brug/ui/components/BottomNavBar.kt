@@ -18,23 +18,38 @@ class BottomNavBar {
 
 
         bottomBar.setOnItemSelectedListener {
-            when(it.itemId){
+            when (it.itemId) {
                 R.id.items_list_menu_button -> {
-                    if(currentActivity is ChatMenuActivity){
-                        currentActivity.startActivity(Intent(currentActivity, ItemsMenuActivity::class.java))
+                    if (currentActivity is ChatMenuActivity) {
+                        currentActivity.startActivity(
+                            Intent(
+                                currentActivity,
+                                ItemsMenuActivity::class.java
+                            )
+                        )
                     }
                     true
                 }
                 R.id.qr_scan_menu_button -> {
                     //TODO: HANDLE CASE PROPERLY
-                    if(currentActivity is ItemsMenuActivity || currentActivity is ChatMenuActivity){
-                        currentActivity.startActivity(Intent(currentActivity, QrCodeScannerActivity::class.java))
+                    if (currentActivity is ItemsMenuActivity || currentActivity is ChatMenuActivity) {
+                        currentActivity.startActivity(
+                            Intent(
+                                currentActivity,
+                                QrCodeScannerActivity::class.java
+                            )
+                        )
                     }
                     true
                 }
                 R.id.chat_menu_button -> {
-                    if(currentActivity is ItemsMenuActivity){
-                        currentActivity.startActivity(Intent(currentActivity, ChatMenuActivity::class.java))
+                    if (currentActivity is ItemsMenuActivity) {
+                        currentActivity.startActivity(
+                            Intent(
+                                currentActivity,
+                                ChatMenuActivity::class.java
+                            )
+                        )
                     }
                     true
                 }

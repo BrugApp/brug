@@ -36,8 +36,9 @@ import com.github.brugapp.brug.model.services.LocationService
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -48,11 +49,11 @@ import java.time.LocalDateTime
 import java.util.*
 
 //TODO: NEEDS REFACTORING & DOCUMENTATION
-class ChatViewModel() : ViewModel() {
+class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
-    private lateinit var mediaRecorder : MediaRecorder
-    private lateinit var mediaPlayer : MediaPlayer
-    private lateinit var audioPath : String
+    private lateinit var mediaRecorder: MediaRecorder
+    private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var audioPath: String
     private lateinit var imageUri: Uri // NEEDED TO RETRIEVE THE IMAGE FROM THE CAMERA AFTER SNAPPING A PICTURE
 
     //private val locationListener = LocationListener { sendLocation(it) }
@@ -67,8 +68,8 @@ class ChatViewModel() : ViewModel() {
         this.messages = messages
 
         // initiate arguments values for location messages
-        for (message in messages){
-            if(message is LocationMessage){
+        for (message in messages) {
+            if (message is LocationMessage) {
                 message.mapUrl = activity.createFakeImage().toString()
             }
         }
@@ -80,25 +81,46 @@ class ChatViewModel() : ViewModel() {
         return adapter
     }
 
-    fun sendMessage(message: Message, convID: String, activity: ChatActivity) {
+    fun sendMessage(
+        message: Message,
+        convID: String,
+        activity: ChatActivity,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ) {
         messages.add(message)
         adapter.notifyItemInserted(messages.size - 1)
         activity.scrollToBottom(adapter.itemCount - 1)
 
-        if(Firebase.auth.currentUser == null){
-            Snackbar.make( activity.findViewById(android.R.id.content),
+        if (firebaseAuth.currentUser == null) {
+            Snackbar.make(
+                activity.findViewById(android.R.id.content),
+
                 "ERROR: You are no longer logged in ! Log in again to send the message.",
-                Snackbar.LENGTH_LONG)
+                Snackbar.LENGTH_LONG
+            )
                 .show()
         } else {
             liveData(Dispatchers.IO) {
-                emit(MessageRepository.addMessageToConv(message, Firebase.auth.currentUser!!.uid, convID))
+                emit(
+                    MessageRepository.addMessageToConv(
+                        message,
+                        firebaseAuth.currentUser!!.uid,
+                        convID,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    )
+                )
             }.observe(activity) { response ->
-                if(response.onError != null){
+                if (response.onError != null) {
                     Log.e("FIREBASE ERROR", response.onError!!.message.toString())
-                    Snackbar.make(activity.findViewById(android.R.id.content),
+                    Snackbar.make(
+                        activity.findViewById(android.R.id.content),
                         "ERROR: Unable to register the new message in the database",
-                        Snackbar.LENGTH_LONG)
+                        Snackbar.LENGTH_LONG
+                    )
                         .show()
                 }
             }
@@ -131,7 +153,14 @@ class ChatViewModel() : ViewModel() {
         }
     }
 
-    private fun sendLocationMessage(activity: ChatActivity, location: Location, convID: String){
+    private fun sendLocationMessage(
+        activity: ChatActivity,
+        location: Location,
+        convID: String,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val uri = activity.createFakeImage()
         val newMessage = LocationMessage(
@@ -142,7 +171,7 @@ class ChatViewModel() : ViewModel() {
         )
 
         newMessage.mapUrl = activity.createFakeImage().toString()
-        sendMessage(newMessage, convID, activity)
+        sendMessage(newMessage, convID, activity, firestore, firebaseAuth, firebaseStorage)
 
         // Clear the message field
         textBox.text = ""
@@ -150,7 +179,13 @@ class ChatViewModel() : ViewModel() {
         adapter.notifyItemInserted(messages.size - 1)
     }
 
-    fun sendPicMessage(activity: ChatActivity, convID: String) {
+    fun sendPicMessage(
+        activity: ChatActivity,
+        convID: String,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
@@ -160,7 +195,7 @@ class ChatViewModel() : ViewModel() {
             compressImage(activity, imageUri).toString()
         )
 
-        sendMessage(newMessage, convID, activity)
+        sendMessage(newMessage, convID, activity, firestore, firebaseAuth, firebaseStorage)
 
         // Clear the message field
         textBox.text = ""
@@ -184,7 +219,7 @@ class ChatViewModel() : ViewModel() {
         }
     }
 
-    fun setImageUri(uri: Uri){
+    fun setImageUri(uri: Uri) {
         imageUri = uri
     }
 
@@ -233,7 +268,10 @@ class ChatViewModel() : ViewModel() {
         convID: String,
         activity: ChatActivity,
         fusedLocationClient: FusedLocationProviderClient,
-        locationManager: LocationManager
+        locationManager: LocationManager,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
     ) {
         if (ActivityCompat.checkSelfPermission(
                 activity,
@@ -248,7 +286,14 @@ class ChatViewModel() : ViewModel() {
 
         fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
             if (lastKnownLocation != null) {
-                sendLocationMessage(activity, lastKnownLocation, convID)
+                sendLocationMessage(
+                    activity,
+                    lastKnownLocation,
+                    convID,
+                    firestore,
+                    firebaseAuth,
+                    firebaseStorage
+                )
             } else {
                 // Launch the locationListener (updates every 1000 ms)
                 val locationGpsProvider = LocationManager.GPS_PROVIDER
@@ -256,10 +301,28 @@ class ChatViewModel() : ViewModel() {
                     locationGpsProvider,
                     50,
                     0.1f
-                ) { sendLocationMessage(activity, it, convID) }
+                ) {
+                    sendLocationMessage(
+                        activity,
+                        it,
+                        convID,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    )
+                }
 
                 // Stop the update as we only want it once (at least for now)
-                locationManager.removeUpdates { sendLocationMessage(activity, it, convID) }
+                locationManager.removeUpdates {
+                    sendLocationMessage(
+                        activity,
+                        it,
+                        convID,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    )
+                }
             }
         }
     }
@@ -283,11 +346,13 @@ class ChatViewModel() : ViewModel() {
         }
     }
 
+
     fun deleteAudio(){
+
         mediaRecorder.reset()
         mediaRecorder.release()
         val file = File(audioPath)
-        if(file.exists()){
+        if (file.exists()) {
             file.delete()
         }
     }
@@ -297,17 +362,16 @@ class ChatViewModel() : ViewModel() {
         mediaRecorder.release()
     }
 
-    fun sendAudio(activity: ChatActivity, convID: String){
-
-        // TODO: modify this implementation to adapt it for Firestore
-        Log.e("FIREBASE CHECK", Uri.fromFile(File(audioPath)).toString())
-        Log.e("FIREBASE CHECK", audioPath)
+    fun sendAudio(activity: ChatActivity, convID: String,
+                  firestore: FirebaseFirestore,
+                  firebaseAuth: FirebaseAuth,
+                  firebaseStorage: FirebaseStorage){
 
         val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
             "Audio", Uri.fromFile(File(audioPath)).toString(), audioPath
         )
         //Uri.fromFile(File(audioPath)).toString()
-        sendMessage(audioMessage, convID, activity)
+        sendMessage(audioMessage, convID, activity, firestore, firebaseAuth, firebaseStorage)
     }
 
     // PERMISSIONS RELATED =======================================================
@@ -327,12 +391,19 @@ class ChatViewModel() : ViewModel() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun isAudioPermissionOk(context : Context) : Boolean{
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+    fun isAudioPermissionOk(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun requestExtStorage(activity: Activity){
-        requestPermissions(activity, Array(1){Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE)
+    fun requestExtStorage(activity: Activity) {
+        requestPermissions(
+            activity,
+            Array(1) { Manifest.permission.WRITE_EXTERNAL_STORAGE },
+            STORAGE_REQUEST_CODE
+        )
     }
 
     private fun requestLocationPermissions(activity: Activity) {
