@@ -46,8 +46,11 @@ class NFCScanViewModel : ViewModel() {
         val action = intent.action
         if (action.equals(NfcAdapter.ACTION_TAG_DISCOVERED)||action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
             val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-            var messages: Array<NdefMessage> = Array<NdefMessage>(rawMessages!!.size){i -> rawMessages[i] as NdefMessage}
-            buildTagViews(nfcContents, messages)
+            if (rawMessages!=null) {
+                val messages: Array<NdefMessage> =
+                    Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
+                buildTagViews(nfcContents, messages)
+            }
         }
     }
 
