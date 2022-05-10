@@ -2,7 +2,6 @@ package com.github.brugapp.brug.data
 
 import android.net.Uri
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Message
@@ -21,7 +20,6 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import java.io.File
-import java.time.LocalDateTime
 
 private const val MSG_DB = "Messages"
 private const val CONV_DB = "Conversations"
@@ -165,6 +163,7 @@ object MessageRepository {
                     message,
                     downloadFileToTemp(
                         snapshot["image_url"] as String,
+                        ".jpg",
                         firebaseAuth,
                         firebaseStorage
                     ).toString()
@@ -175,6 +174,7 @@ object MessageRepository {
                     message,
                     downloadFileToTemp(
                         snapshot["audio_url"] as String,
+                        ".3gp",
                         firebaseAuth,
                         firebaseStorage
                     ).toString()
@@ -216,6 +216,7 @@ object MessageRepository {
 
     private suspend fun downloadFileToTemp(
         path: String,
+        suffix: String,
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
     ): Uri? {
@@ -228,7 +229,7 @@ object MessageRepository {
             }
 
             val tempSplit = path.split("/")
-            val file = File.createTempFile(tempSplit[tempSplit.size - 1], ".jpg")
+            val file = File.createTempFile(tempSplit[tempSplit.size - 1], suffix)
             Log.d("FIREBASE CHECK", file.path)
 
             firebaseStorage

@@ -1,8 +1,6 @@
 package com.github.brugapp.brug.data
 
-import android.content.Context
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Conversation
@@ -199,41 +197,41 @@ object ConvRepository {
         }
     }
 
-    /**
-     * Retrieves the list of Conversation of a user, given its user ID.
-     *
-     * @param uid the user ID
-     *
-     * @return List<Conversation> if the operation was successful, or a null value in case of error.
-     */
-    suspend fun getUserConvFromUID(
-        uid: String, firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage
-    ): List<Conversation>? {
-        return try {
-            val userRef = firestore.collection(USERS_DB).document(uid)
-            if (!userRef.get().await().exists()) {
-                Log.e("FIREBASE ERROR", "User doesn't exist")
-                return null
-            }
-
-            // awaitRealtime CHECKS FOR CHANGES RELATED TO THE LIST OF CONV_REFS,
-            // AND TRIGGERS A GET REQUEST IF A CHANGE HAS BEEN DETECTED
-            val convListResponse = userRef.collection(CONV_REFS_DB).awaitRealtime()
-            if(convListResponse.packet != null){
-                return convListResponse.packet.mapNotNull { convRef ->
-                    getConvFromRefID(convRef.id, uid, firestore, firebaseAuth, firebaseStorage)
-                }
-            } else {
-                Log.e("FIREBASE ERROR", convListResponse.error!!.message.toString())
-                return listOf()
-            }
-
-        } catch (e: Exception) {
-            Log.e("FIREBASE ERROR", e.message.toString())
-            null
-        }
-    }
+//    /**
+//     * Retrieves the list of Conversation of a user, given its user ID.
+//     *
+//     * @param uid the user ID
+//     *
+//     * @return List<Conversation> if the operation was successful, or a null value in case of error.
+//     */
+//    suspend fun getUserConvFromUID(
+//        uid: String, firestore: FirebaseFirestore,
+//        firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage
+//    ): List<Conversation>? {
+//        return try {
+//            val userRef = firestore.collection(USERS_DB).document(uid)
+//            if (!userRef.get().await().exists()) {
+//                Log.e("FIREBASE ERROR", "User doesn't exist")
+//                return null
+//            }
+//
+//            // awaitRealtime CHECKS FOR CHANGES RELATED TO THE LIST OF CONV_REFS,
+//            // AND TRIGGERS A GET REQUEST IF A CHANGE HAS BEEN DETECTED
+//            val convListResponse = userRef.collection(CONV_REFS_DB).awaitRealtime()
+//            if(convListResponse.packet != null){
+//                return convListResponse.packet.mapNotNull { convRef ->
+//                    getConvFromRefID(convRef.id, uid, firestore, firebaseAuth, firebaseStorage)
+//                }
+//            } else {
+//                Log.e("FIREBASE ERROR", convListResponse.error!!.message.toString())
+//                return listOf()
+//            }
+//
+//        } catch (e: Exception) {
+//            Log.e("FIREBASE ERROR", e.message.toString())
+//            null
+//        }
+//    }
 
     private suspend fun getConvFromRefID(
         convID: String, authUserID: String,
@@ -265,19 +263,6 @@ object ConvRepository {
                 convSnapshot.reference.collection(MSG_DB).get().await().mapNotNull { msgSnapshot ->
                     retrieveMessageMetadatasFromSnapshot(msgSnapshot, authUserID, userFields.getFullName())
                 }.maxByOrNull { it.timestamp.getSeconds() }
-
-//            //FETCH MESSAGES
-//            val messageUserName = userFields.getFullName()
-//            val messagesListResponse = convSnapshot.reference.collection(MSG_DB).awaitRealtime()
-//
-//            val messagesList = if(messagesListResponse.packet != null){
-//                messagesListResponse.packet.mapNotNull { message ->
-//                    MessageRepository.getMessageFromSnapshot(message, messageUserName, authUserID, firebaseStorage, firebaseAuth)
-//                }.sortedBy { it.timestamp.getSeconds() }
-//            } else {
-//                Log.e("FIREBASE ERROR", messagesListResponse.error!!.message.toString())
-//                listOf()
-//            }
 
             return Conversation(convID, userFields, lostItemName, lastMessage)
         } catch(e: Exception) {
@@ -318,13 +303,13 @@ object ConvRepository {
         return convID.replace(uid, "", ignoreCase = false)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun Query.awaitRealtime() = suspendCancellableCoroutine<QueryResponse> { continuation ->
-        addSnapshotListener { value, error ->
-            if (error == null && continuation.isActive)
-                continuation.resume(QueryResponse(value, null), null)
-            else if (error != null && continuation.isActive)
-                continuation.resume(QueryResponse(null, error), null)
-        }
-    }
+//    @OptIn(ExperimentalCoroutinesApi::class)
+//    private suspend fun Query.awaitRealtime() = suspendCancellableCoroutine<QueryResponse> { continuation ->
+//        addSnapshotListener { value, error ->
+//            if (error == null && continuation.isActive)
+//                continuation.resume(QueryResponse(value, null), null)
+//            else if (error != null && continuation.isActive)
+//                continuation.resume(QueryResponse(null, error), null)
+//        }
+//    }
 }
