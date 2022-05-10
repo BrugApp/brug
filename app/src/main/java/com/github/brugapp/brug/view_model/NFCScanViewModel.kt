@@ -32,15 +32,31 @@ class NFCScanViewModel : ViewModel() {
         return NfcAdapter.getDefaultAdapter(this1) }
 
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{
-        val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
-        tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
+        val tagDetected = setupTag()
         return Pair(PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE),arrayOf(tagDetected)) }
 
+    fun setupTag(): IntentFilter { //testable
+        val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
+        tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
+        return tagDetected
+     }
+
     fun readFromIntent(nfcContents: TextView, intent: Intent){
-        if (intent.action.equals(ACTION_TAG_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
-            val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-            if (rawMessages!=null) { val messages: Array<NdefMessage> = Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
-                buildTagViews(nfcContents, messages) } } }
+        if (checkIntentAction(intent){
+            if(rawMessageToMessage(intent).first){
+                buildTagViews(nfcContents, rawMessageToMessage(intent).second) } } }
+
+    fun checkIntentAction(intent: Intent): Boolean { //testable
+        return (intent.action.equals(ACTION_TAG_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED))
+    }
+
+    fun rawMessageToMessage(intent: Intent): Pair<Boolean,Array<NdefMessage>> {
+        val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
+        val messages: Array<NdefMessage> = arrayOf<NdefMessage>()
+            if (rawMessages!=null) {
+                messages = Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
+            } return Pair(rawMessages!=null,messages)
+    }
 
     private fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){
         if (messages==null|| messages.isEmpty()) return
