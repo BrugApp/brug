@@ -42,7 +42,7 @@ class NFCScanViewModel : ViewModel() {
      }
 
     fun readFromIntent(nfcContents: TextView, intent: Intent){
-        if (checkIntentAction(intent){
+        if (checkIntentAction(intent)){
             if(rawMessageToMessage(intent).first){
                 buildTagViews(nfcContents, rawMessageToMessage(intent).second) } } }
 
