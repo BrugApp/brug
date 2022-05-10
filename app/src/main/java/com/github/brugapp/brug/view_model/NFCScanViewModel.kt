@@ -24,23 +24,19 @@ import kotlin.experimental.and
 private const val NFC_REQUEST_CODE = 1000101
 
 class NFCScanViewModel : ViewModel() {
-    fun checkPermission(context: Context){
-        val perm = ContextCompat.checkSelfPermission(context,Manifest.permission.NFC)
-        if(perm == PackageManager.PERMISSION_DENIED)
-            ActivityCompat.requestPermissions(
-                context as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE)
-    }
+    fun checkNFCPermission(context1: Context){
+        val permission = ContextCompat.checkSelfPermission(context1,Manifest.permission.NFC)
+        if(PackageManager.PERMISSION_DENIED == permission)
+            ActivityCompat.requestPermissions(context1 as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE) }
 
     fun setupAdapter(this1: Context): NfcAdapter {
-        return NfcAdapter.getDefaultAdapter(this1)
-    }
+        return NfcAdapter.getDefaultAdapter(this1) }
 
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{
-        var nfcIntent = PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE)
-        var tagDetected = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
+        val nfcIntent = PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE)
+        val tagDetected = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
-        return Pair(nfcIntent,arrayOf(tagDetected))
-    }
+        return Pair(nfcIntent,arrayOf(tagDetected)) }
 
     fun readFromIntent(nfcContents: TextView, intent: Intent){
         val action = intent.action
@@ -49,22 +45,18 @@ class NFCScanViewModel : ViewModel() {
             if (rawMessages!=null) {
                 val messages: Array<NdefMessage> =
                     Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
-                buildTagViews(nfcContents, messages)
-            }
-        }
-    }
+                buildTagViews(nfcContents, messages) } } }
 
     private fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){
         if (messages==null|| messages.isEmpty()) return
         lateinit var text : String
-        var payload = messages[0].records[0].payload
-        var textEncoding = if((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
-        var languageCodeLength = payload[0] and 63.toByte()
+        val payload = messages[0].records[0].payload
+        val textEncoding = if((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
+        val languageCodeLength = payload[0] and 63.toByte()
         try{
             text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
         }catch (e : UnsupportedEncodingException){
-            Log.e("UnsupportedEncoding",e.toString())
-        }
+            Log.e("UnsupportedEncoding",e.toString()) }
         nfcContents.text = "Read Tag Contents: $text"
     }
 
@@ -75,24 +67,37 @@ class NFCScanViewModel : ViewModel() {
         val ndef = Ndef.get(tag)
         ndef.connect()
         ndef.writeNdefMessage(message)
-        ndef.close()
-    }
+        ndef.close() }
 
     @Throws(UnsupportedEncodingException::class)
     fun createRecord(text: String): NdefRecord {
+
         val lang = "en"
         val textBytes = text.toByteArray()
         val langBytes = lang.toByteArray()
         val langLength = langBytes.size
         val textLength = textBytes.size
+
         var payload: ByteArray = ByteArray(langLength+textLength+1)
+
         payload[0] = langLength.toByte()
-        System.arraycopy(langBytes, 0, payload, 1, langLength)
-        System.arraycopy(textBytes, 0, payload, 1 + langLength, textLength)
+        System.arraycopy(
+            langBytes,
+            0,
+            payload,
+            1,
+            langLength)
+        System.arraycopy(
+            textBytes,
+            0,
+            payload,
+            1 + langLength,
+            textLength)
+
         return NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, byteArrayOf(), payload)
+
     }
 
     fun displayReportNotification(this1: Context) {
-        MyFCMMessagingService.sendNotification(this1, "Item found", "One of your items was found!")
-    }
+        MyFCMMessagingService.sendNotification(this1, "Item found", "One of your items was found!") }
 }
