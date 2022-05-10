@@ -57,7 +57,8 @@ class NFCScanViewModel : ViewModel() {
             if (rawMessages!=null) {
                 messages = Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
                 if(rawMessages!=null) bool=true
-            } return Pair(bool,messages)
+            } 
+        return Pair(bool,messages)
     }
 
     private fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){
