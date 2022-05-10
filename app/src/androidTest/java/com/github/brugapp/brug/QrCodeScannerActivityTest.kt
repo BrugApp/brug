@@ -6,19 +6,37 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.replaceText
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.QrCodeScannerActivity
+import com.github.brugapp.brug.ui.SignInActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+
+
+private const val ERROR_STR = "ERROR: An error has occurred, try again."
+private const val SUCCESS_STR = "Thank you ! The user will be notified."
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
@@ -34,6 +52,19 @@ class QrCodeScannerActivityTest {
     //var permissionRule: GrantPermissionRule = GrantPermissionRule
     //    .grant(android.Manifest.permission.CAMERA)
 
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+
+    @Before
+    fun setUp(){
+        Intents.init()
+    }
+
+    @After
+    fun cleanUp(){
+        Intents.release()
+    }
+
     @Test
     fun hintTextIsCorrect(){
         onView(withId(R.id.editTextReportItem))
@@ -43,10 +74,55 @@ class QrCodeScannerActivityTest {
     @Test
     fun reportButtonDisplaysNotificationWithoutCrashing(){
         onView(withId(R.id.buttonReportItem))
-            .perform(ViewActions.click())
+            .perform(click())
         NotificationManagerCompat.from(ApplicationProvider.getApplicationContext()).cancelAll()
         Thread.sleep(1000)
     }
+
+    @Test
+    fun reportWithEmptyTextFieldReturnsErrorToast(){
+        val editTextItem = onView(withId(R.id.editTextReportItem))
+        editTextItem.perform(replaceText(""))
+        onView(withId(R.id.buttonReportItem)).perform(click())
+
+        // HERE SHOULD LIE AN ASSERTION ON TOAST MESSAGES, BUT IMPOSSIBLE TO DO
+    }
+
+    @Test
+    fun reportWithBadlyFormattedTextReturnsErrorToast() {
+        val editTextItem = onView(withId(R.id.editTextReportItem))
+        editTextItem.perform(replaceText("abc"))
+        onView(withId(R.id.buttonReportItem)).perform(click())
+    }
+
+    @Test
+    fun reportWithValidQRStringAsAnonymousGoesToSignInActivity(){
+        val userID = "ieieioOIaehhihuhimsjue"
+        val itemID = "993uwjwjaiuhiu"
+        runBlocking {
+            UserRepository.addUserFromAccount(
+                userID,
+                BrugSignInAccount("Test", "User", "", ""),
+                firestore
+            )
+            ItemsRepository.addItemWithItemID(
+                MyItem("DummyItem", 0, "DummyDesc", true),
+                itemID,
+                userID,
+                firestore
+            )
+        }
+
+        val editTextItem = onView(withId(R.id.editTextReportItem))
+        editTextItem.perform(replaceText("$userID:$itemID"))
+        onView(withId(R.id.buttonReportItem)).perform(click())
+        Thread.sleep(1000)
+        intended(
+            IntentMatchers.hasComponent(SignInActivity::class.java.name)
+        )
+    }
+
+
 }
 
 @HiltAndroidTest

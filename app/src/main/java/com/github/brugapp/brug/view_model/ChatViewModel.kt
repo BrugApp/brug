@@ -127,32 +127,6 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    // LOCATION RELATED
-    fun requestLocation(
-        activity: Activity,
-        fusedLocationClient: FusedLocationProviderClient,
-        locationManager: LocationManager
-    ) {
-        this.activity = activity as ChatActivity
-        if (ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                activity,
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                LOCATION_REQUEST_CODE
-            )
-        }
-    }
-
     private fun sendLocationMessage(
         activity: ChatActivity,
         location: Location,
