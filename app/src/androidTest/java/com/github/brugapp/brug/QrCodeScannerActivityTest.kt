@@ -29,7 +29,6 @@ class QrCodeScannerActivityTest {
     @get:Rule
     var qrCodeScannerActivityRule = ActivityScenarioRule(QrCodeScannerActivity::class.java)
 
-
     //https://stackoverflow.com/questions/33929937/android-marshmallow-test-permissions-with-espresso
     //@get:Rule
     //var permissionRule: GrantPermissionRule = GrantPermissionRule
