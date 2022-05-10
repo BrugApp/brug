@@ -119,6 +119,7 @@ object MessageRepository {
                         }.sortedBy { it.timestamp.getSeconds() }
                     )
                 }.observe(context){ list ->
+                    Log.e("FIREBASE STATE", "ADDING MESSAGES TO LIST")
                     BrugDataCache.addMessageList(convID, list.toMutableList())
                 }
             } else {
@@ -141,6 +142,7 @@ object MessageRepository {
             Log.e("FIREBASE ERROR", "Invalid Message Format")
             return null
         }
+
 
         //TODO: CHECK IF SENDERNAME IS NOT EMPTY
         val senderName = if ((snapshot["sender"] as String) != authUserID) userName else "Me"
