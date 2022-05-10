@@ -17,20 +17,18 @@ class ConversationTest {
         val convID = "DUMMYID"
         val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null)
         val lostItemName = "DUMMYITEMNAME"
-        val messagesList = mutableListOf(
-            Message("SENDERNAME",
+        val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
                     LocalDateTime.of(
                     2022, Month.APRIL, 22, 17, 55
                 )),
             "TESTMESSAGE")
-        )
 
-        val conversation = Conversation(convID, userFields, lostItemName, messagesList)
+        val conversation = Conversation(convID, userFields, lostItemName, lastMessage)
         assertThat(conversation.convId, IsEqual(convID))
         assertThat(conversation.userFields, IsEqual(userFields))
         assertThat(conversation.lostItemName, IsEqual(lostItemName))
-        assertThat(conversation.messages, IsEqual(messagesList))
+        assertThat(conversation.lastMessage, IsEqual(lastMessage))
     }
 
     @Test
@@ -38,17 +36,15 @@ class ConversationTest {
         val convID = "DUMMYID"
         val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null)
         val lostItemName = "DUMMYITEMNAME"
-        val messagesList = mutableListOf(
-            Message("SENDERNAME",
+        val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
                     LocalDateTime.of(
                         2022, Month.APRIL, 22, 17, 55
                     )),
                 "TESTMESSAGE")
-        )
 
-        val conversation1 = Conversation(convID, userFields, lostItemName, messagesList)
-        val conversation2 = Conversation(convID, userFields, lostItemName, messagesList)
+        val conversation1 = Conversation(convID, userFields, lostItemName, lastMessage)
+        val conversation2 = Conversation(convID, userFields, lostItemName, lastMessage)
         assertThat(conversation1, IsEqual(conversation2))
     }
 
@@ -57,17 +53,15 @@ class ConversationTest {
         val convID = "DUMMYID"
         val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null)
         val lostItemName = "DUMMYITEMNAME"
-        val messagesList = mutableListOf(
-            Message("SENDERNAME",
+        val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
                     LocalDateTime.of(
                         2022, Month.APRIL, 22, 17, 55
                     )),
                 "TESTMESSAGE")
-        )
 
-        val conversation1 = Conversation(convID, userFields, lostItemName, messagesList)
-        val conversation2 = Conversation("DUMMY2", userFields, lostItemName, messagesList)
+        val conversation1 = Conversation(convID, userFields, lostItemName, lastMessage)
+        val conversation2 = Conversation("DUMMY2", userFields, lostItemName, lastMessage)
         assertThat(conversation1, IsNot(IsEqual(conversation2)))
     }
 }
