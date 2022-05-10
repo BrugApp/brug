@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.nfc.*
+import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import android.nfc.tech.Ndef
 import android.util.Log
 import android.widget.TextView
@@ -25,73 +26,77 @@ private const val NFC_REQUEST_CODE = 1000101
 
 class NFCScanViewModel : ViewModel() {
     fun checkNFCPermission(context1: Context){
-        if(PackageManager.PERMISSION_DENIED == checkSelfPermission(context1,Manifest.permission.NFC))
-            requestPermissions(context1 as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE) }
+        if(PackageManager.PERMISSION_DENIED == checkSelfPermission(context1,Manifest.permission.NFC)) requestPermissions(context1 as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE) }
 
     fun setupAdapter(this1: Context): NfcAdapter {
         return NfcAdapter.getDefaultAdapter(this1) }
 
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{
-        val nfcIntent = PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE)
-        val tagDetected = IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED)
+        val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
-        return Pair(nfcIntent,arrayOf(tagDetected)) }
+        return Pair(PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE),arrayOf(tagDetected)) }
 
     fun readFromIntent(nfcContents: TextView, intent: Intent){
-        val action = intent.action
-        if (action.equals(NfcAdapter.ACTION_TAG_DISCOVERED)||action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
+        if (intent.action.equals(ACTION_TAG_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)){
             val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-            if (rawMessages!=null) {
-                val messages: Array<NdefMessage> =
-                    Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
+            if (rawMessages!=null) { val messages: Array<NdefMessage> = Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
                 buildTagViews(nfcContents, messages) } } }
 
     private fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){
         if (messages==null|| messages.isEmpty()) return
-        lateinit var text : String
         val payload = messages[0].records[0].payload
         val textEncoding = if((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
         val languageCodeLength = payload[0] and 63.toByte()
-        try{
-            text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
+        try{ var text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
+            nfcContents.text = "Read Tag Contents: $text"
         }catch (e : UnsupportedEncodingException){
-            Log.e("UnsupportedEncoding",e.toString()) }
-        nfcContents.text = "Read Tag Contents: $text"
-    }
+            Log.e("UnsupportedEncodiyng",e.toString()) } }
 
     @Throws(IOException::class, FormatException::class)
     fun write(text: String, tag: Tag) {
-        val records = arrayOf(createRecord(text))
-        val message = NdefMessage(records)
-        val ndef = Ndef.get(tag)
-        ndef.connect()
-        ndef.writeNdefMessage(message)
-        ndef.close() }
+        Ndef.get(tag).connect()
+        Ndef.get(tag).writeNdefMessage(NdefMessage(arrayOf(createRecord(text))))
+        Ndef.get(tag).close() }
 
     @Throws(UnsupportedEncodingException::class)
     fun createRecord(text: String): NdefRecord {
+        
+        //returns: an immutable NdefRecord
+
+        //parameter: 'text' the string message we want to build the record from
+
+        //the write function calls createRecord in order to write a given message to the tag
 
         val lang = "en"
+        //we can change the record language in the previous line
+
         val textBytes = text.toByteArray()
         val langBytes = lang.toByteArray()
+
         val langLength = langBytes.size
         val textLength = textBytes.size
 
-        var payload: ByteArray = ByteArray(langLength+textLength+1)
+        var payload: ByteArray = ByteArray(
+            langLength+textLength+1
+        )
 
         payload[0] = langLength.toByte()
+
         System.arraycopy(
             langBytes,
             0,
             payload,
             1,
-            langLength)
+            langLength
+        )
+
         System.arraycopy(
             textBytes,
             0,
             payload,
             1 + langLength,
-            textLength)
+            textLength
+        )
 
         return NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, byteArrayOf(), payload)
 
