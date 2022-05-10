@@ -12,14 +12,20 @@ import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.QrCodeScannerActivity
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class QrCodeScannerActivityTest {
+    @get:Rule
+    var rule = HiltAndroidRule(this)
+
     @get:Rule
     var qrCodeScannerActivityRule = ActivityScenarioRule(QrCodeScannerActivity::class.java)
 
@@ -44,8 +50,12 @@ class QrCodeScannerActivityTest {
     }
 }
 
+@HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class  QrCodeScannerActivityIntent{
+class QrCodeScannerActivityIntent{
+    @get:Rule
+    var rule = HiltAndroidRule(this)
+
     private val intent = Intent(ApplicationProvider.getApplicationContext(),QrCodeScannerActivity::class.java)
 
     @Test

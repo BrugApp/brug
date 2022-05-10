@@ -22,14 +22,12 @@ import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devlomi.record_view.RecordButton
-import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
-import com.github.brugapp.brug.R
-import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
-import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
+import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
@@ -116,15 +114,24 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(conversation: Conversation) {
-        MessageRepository.getRealtimeMessages(
-            conversation.convId,
-            conversation.userFields.getFullName(),
-            firebaseAuth.uid!!,
-            this,
-            firestore,
-            firebaseAuth,
-            firebaseStorage
-        )
+        val messagesTestList =
+            if(intent.extras != null && intent.extras!!.containsKey(MESSAGE_TEST_LIST_KEY)){
+                intent.extras!!.get(MESSAGE_TEST_LIST_KEY) as MutableList<Message>
+            } else null
+
+        if(messagesTestList == null) {
+            MessageRepository.getRealtimeMessages(
+                conversation.convId,
+                conversation.userFields.getFullName(),
+                firebaseAuth.uid!!,
+                this,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
+        } else {
+            BrugDataCache.addMessageList(conversation.convId, messagesTestList)
+        }
 
         BrugDataCache.getMessageList(conversation.convId).observe(this){ messages ->
             findViewById<ProgressBar>(R.id.loadingMessages).visibility = View.GONE

@@ -33,7 +33,7 @@ object BrugDataCache {
     }
 
     fun resetConversationsList() {
-        this.conversationsList.value = mutableListOf()
+        this.conversationsList.postValue(mutableListOf())
     }
 
     fun resetMessages() {
