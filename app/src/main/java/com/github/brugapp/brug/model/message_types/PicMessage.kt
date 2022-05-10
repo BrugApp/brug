@@ -7,8 +7,8 @@ data class PicMessage(
     override val senderName: String,
     override val timestamp: DateService,
     override val body: String,
-    val imgUrl: String)
-    : Message(senderName, timestamp, body){
+    val imgUrl: String
+) : Message(senderName, timestamp, body) {
 
     companion object {
         fun fromMessage(m: Message, imgUrl: String): PicMessage {

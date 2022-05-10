@@ -1,6 +1,7 @@
 package com.github.brugapp.brug
 
 import android.content.Intent
+import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -17,6 +18,9 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
@@ -28,10 +32,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsEqual
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import org.junit.runner.RunWith
 import java.io.IOException
 
@@ -50,7 +51,7 @@ private val ITEMS = listOf(
     MyItem("Keys", ItemType.Keys.ordinal, "Home keys", true)
 )
 
-private const val TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
+private var TEST_USER_UID = ""
 
 
 @RunWith(AndroidJUnit4::class)
@@ -60,28 +61,45 @@ class ItemsMenuActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
+    private val firebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore = FirebaseFakeHelper().providesFirestore()
+    private  val TEST_EMAIL ="test@ItemsMenu.com"
+    private  val TEST_PASSWORD = "123456"
+    private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
+    companion object {
+        var firstTime = true
+    }
+
+    private fun createTestUser(){
+        runBlocking {
+            if(firstTime){
+                firebaseAuth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
+                firstTime = false
+            }
+        }
+    }
     private fun signInTestUser() {
         runBlocking {
-            Firebase.auth.signInWithEmailAndPassword(
-                "test@unlost.com",
-                "123456").await()
-
+            firebaseAuth.signInWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
+            TEST_USER_UID = firebaseAuth.currentUser!!.uid
+            UserRepository.addUserFromAccount(TEST_USER_UID, ACCOUNT1,firestore)
             for(item in ITEMS){
-                ItemsRepository.addItemToUser(item, TEST_USER_UID)
+                ItemsRepository.addItemToUser(item, TEST_USER_UID,firestore)
             }
         }
     }
 
     private fun wipeAllItemsAndSignOut() {
         runBlocking {
-            ItemsRepository.deleteAllUserItems(TEST_USER_UID)
+            ItemsRepository.deleteAllUserItems(TEST_USER_UID, firestore)
         }
-        Firebase.auth.signOut()
+        firebaseAuth.signOut()
     }
 
     @Before
     fun setUp() {
         Intents.init()
+        createTestUser()
         signInTestUser()
         val intent = Intent(
             ApplicationProvider.getApplicationContext(),

@@ -5,7 +5,12 @@ import androidx.lifecycle.ViewModel
 
 class RegisterUserViewModel : ViewModel() {
     //checks if input data is valid
-    fun anyEmpty(firstName: EditText, lastName: EditText, email: EditText, password: EditText): Boolean {
+    fun anyEmpty(
+        firstName: EditText,
+        lastName: EditText,
+        email: EditText,
+        password: EditText
+    ): Boolean {
         when {
             firstName.text.isEmpty() -> {
                 firstName.error = "Please enter first name"

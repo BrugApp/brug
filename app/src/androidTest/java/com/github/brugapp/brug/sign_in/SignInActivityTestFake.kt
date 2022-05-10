@@ -22,8 +22,10 @@ import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
 import com.github.brugapp.brug.di.sign_in.module.SignInClientModule
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.Module
@@ -74,21 +76,39 @@ class SignInActivityTestFake {
         @Provides
         fun provideFakeAuthDatabase(): AuthDatabase {
             //return FakeAuthDatabase(FakeDatabaseUser())
-            return AuthFirebase()
+            return AuthFirebase(FirebaseFakeHelper().providesAuth())
         }
     }
 
     @get:Rule
     val rule = HiltAndroidRule(this)
 
+    val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val email = "test@signIn.com"
+    private val password = "123456"
+    companion object{
+        var firstTime = true
+    }
+
+    private fun createUser(){
+        if(firstTime){
+            firstTime = false
+            runBlocking {
+                firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            }
+        }
+    }
+
     @Before
     fun setUp() {
         Intents.init()
+        createUser()
     }
 
     @After
     fun cleanUp() {
         Intents.release()
+        firebaseAuth.signOut()
     }
 
     @Test
@@ -96,9 +116,9 @@ class SignInActivityTestFake {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         runBlocking{
-            Firebase.auth.signInWithEmailAndPassword(
-            "test@unlost.com",
-            "123456"
+            firebaseAuth.signInWithEmailAndPassword(
+                email,
+                password
             ).await()
         }
 
@@ -110,7 +130,7 @@ class SignInActivityTestFake {
                     )
                 )
             )
-            Firebase.auth.signOut()
+            firebaseAuth.signOut()
         }
     }
 
@@ -119,9 +139,9 @@ class SignInActivityTestFake {
 
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         runBlocking{
-            Firebase.auth.signInWithEmailAndPassword(
-                "test@unlost.com",
-                "123456"
+            firebaseAuth.signInWithEmailAndPassword(
+                email,
+                password
             ).await()
         }
         ActivityScenario.launch<SignInActivity>(intent).use {

@@ -9,7 +9,7 @@ import com.google.android.gms.wallet.WalletConstants
 import org.json.JSONArray
 import org.json.JSONObject
 
-object PaymentRepository{
+object PaymentRepository {
 
     //private lateinit var paymentsClient: PaymentsClient
     //val walletOptions = Wallet.WalletOptions.Builder().setEnvironment(WalletConstants.ENVIRONMENT_TEST).build()
