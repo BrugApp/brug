@@ -17,12 +17,12 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import java.io.IOException
+import java.lang.Exception
 
 class NFCScannerActivity: AppCompatActivity() {
     private val Error_detected = "No NFC was found!"
     private val Write_success = "Text written successfully"
-    private val IO_Write_error = "IO Error occurred during writing, try again"
-    private val Format_Write_error = "Format Error occurred during writing, try again"
+    private val Write_error = "Error occurred during writing, try again"
     private val viewModel: NFCScanViewModel by viewModels()
     private var writeMode: Boolean = false
     private var tag: Tag? = null
@@ -51,10 +51,15 @@ class NFCScannerActivity: AppCompatActivity() {
             try{ if(tag==null) Toast.makeText(context,Error_detected,Toast.LENGTH_LONG).show()
                 else{ viewModel.write(editMessage.text.toString(),tag!!)
                     Toast.makeText(context,Write_success,Toast.LENGTH_LONG).show() }
-            }catch(e1: IOException){ Toast.makeText(context,IO_Write_error,Toast.LENGTH_LONG).show()
-                e1.printStackTrace()
-            }catch(e2: FormatException){ Toast.makeText(context,Format_Write_error,Toast.LENGTH_LONG).show()
-                e2.printStackTrace() }
+            }catch(e: Exception){
+                when(e){
+                    is IOException, is FormatException ->{
+                        Toast.makeText(context,Write_error,Toast.LENGTH_LONG).show()
+                        e.printStackTrace()
+                    }
+                    else -> throw e
+                }
+            }
             viewModel.displayReportNotification(context) } }
 
     override fun onPause() {
