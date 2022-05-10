@@ -370,7 +370,6 @@ class ChatViewModel : ViewModel() {
         val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
             "Audio", Uri.fromFile(File(audioPath)).toString(), audioPath
         )
-        //Uri.fromFile(File(audioPath)).toString()
         sendMessage(audioMessage, convID, activity, firestore, firebaseAuth, firebaseStorage)
     }
 
