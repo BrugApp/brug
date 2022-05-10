@@ -51,10 +51,10 @@ class NFCScannerActivity: AppCompatActivity() {
             try{ if(tag==null) Toast.makeText(context,Error_detected,Toast.LENGTH_LONG).show()
                 else{ viewModel.write(editMessage.text.toString(),tag!!)
                     Toast.makeText(context,Write_success,Toast.LENGTH_LONG).show() }
-            }catch(e: IOException){ Toast.makeText(context,IO_Write_error,Toast.LENGTH_LONG).show()
-                e.printStackTrace()
-            }catch(e: FormatException){ Toast.makeText(context,Format_Write_error,Toast.LENGTH_LONG).show()
-                e.printStackTrace() }
+            }catch(e1: IOException){ Toast.makeText(context,IO_Write_error,Toast.LENGTH_LONG).show()
+                e1.printStackTrace()
+            }catch(e2: FormatException){ Toast.makeText(context,Format_Write_error,Toast.LENGTH_LONG).show()
+                e2.printStackTrace() }
             viewModel.displayReportNotification(context) } }
 
     override fun onPause() {

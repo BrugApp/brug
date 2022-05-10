@@ -27,24 +27,13 @@ object PaymentRepository {
 
     fun paymentRequest(): IsReadyToPayRequest{ //this method should be private but we need to test it
         //version & parameter choices described here: https://developers.google.com/pay/api/android/reference/request-objects
-
-        val jsonDerulo = JSONObject()
-            .put("apiVersion",2)
-            .put("apiVersionMinor",0)
-            .put("merchantInfo",JSONObject().put("merchantName","Unlost"))
-            .put("allowedPaymentMethods",JSONArray().put(JSONObject()
-                .put("type","CARD")
-                .put("parameters",JSONObject()
-                    .put("allowedAuthMethods",JSONArray().put("PAN_ONLY").put("CRYPTOGRAM_3DS"))
-                    .put("allowedCardNetworks",JSONArray().put("AMEX").put("DISCOVER").put("INTERAC").put("JCB").put("MASTERCARD").put("MIR").put("VISA")))
+        val jsonDerulo = JSONObject().put("apiVersion",2).put("apiVersionMinor",0).put("merchantInfo",JSONObject().put("merchantName","Unlost")).put("allowedPaymentMethods",JSONArray().put(JSONObject()
+                .put("type","CARD").put("parameters",JSONObject()
+                    .put("allowedAuthMethods",JSONArray().put("PAN_ONLY").put("CRYPTOGRAM_3DS")).put("allowedCardNetworks",JSONArray().put("AMEX").put("DISCOVER").put("INTERAC").put("JCB").put("MASTERCARD").put("MIR").put("VISA")))
                 .put("tokenizationSpecification",JSONObject()
-                    .put("type","PAYMENT_GATEWAY")
-                    .put("parameters",JSONObject().put("gateway",gateway).put("gatewayMerchantId",gatewayMerchantId))))
-            )
+                    .put("type","PAYMENT_GATEWAY").put("parameters",JSONObject().put("gateway",gateway).put("gatewayMerchantId",gatewayMerchantId)))))
             .put("transactionInfo",JSONObject()
-                .put("totalPriceStatus","FINAL")
-                .put("totalPrice","12.34")
-                .put("currencyCode",currency))
+                .put("totalPriceStatus","FINAL").put("totalPrice","12.34").put("currencyCode",currency))
         return IsReadyToPayRequest.fromJson(jsonDerulo.toString())
     }
 

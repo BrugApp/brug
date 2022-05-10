@@ -12,8 +12,8 @@ import android.nfc.*
 import android.nfc.tech.Ndef
 import android.util.Log
 import android.widget.TextView
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import java.io.IOException
@@ -25,9 +25,8 @@ private const val NFC_REQUEST_CODE = 1000101
 
 class NFCScanViewModel : ViewModel() {
     fun checkNFCPermission(context1: Context){
-        val permission = ContextCompat.checkSelfPermission(context1,Manifest.permission.NFC)
-        if(PackageManager.PERMISSION_DENIED == permission)
-            ActivityCompat.requestPermissions(context1 as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE) }
+        if(PackageManager.PERMISSION_DENIED == checkSelfPermission(context1,Manifest.permission.NFC))
+            requestPermissions(context1 as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE) }
 
     fun setupAdapter(this1: Context): NfcAdapter {
         return NfcAdapter.getDefaultAdapter(this1) }
