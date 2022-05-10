@@ -53,13 +53,9 @@ class NFCScannerActivity: AppCompatActivity() {
                     Toast.makeText(context,Write_success,Toast.LENGTH_LONG).show() }
             }catch(e: Exception){
                 when(e){
-                    is IOException, is FormatException ->{
-                        Toast.makeText(context,Write_error,Toast.LENGTH_LONG).show()
-                        e.printStackTrace()
-                    }
-                    else -> throw e
-                }
-            }
+                    is IOException, is FormatException ->{ Toast.makeText(context,Write_error,Toast.LENGTH_LONG).show()
+                        e.printStackTrace() }
+                    else -> throw e } }
             viewModel.displayReportNotification(context) } }
 
     override fun onPause() {
