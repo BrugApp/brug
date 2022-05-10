@@ -52,7 +52,6 @@ class QrCodeScannerActivityTest {
     //var permissionRule: GrantPermissionRule = GrantPermissionRule
     //    .grant(android.Manifest.permission.CAMERA)
 
-    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
 
     @Before
