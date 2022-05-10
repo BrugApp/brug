@@ -53,9 +53,11 @@ class NFCScanViewModel : ViewModel() {
     fun rawMessageToMessage(intent: Intent): Pair<Boolean,Array<NdefMessage>> {
         val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
         val messages: Array<NdefMessage> = arrayOf<NdefMessage>()
+        var bool: Boolean = false
             if (rawMessages!=null) {
                 messages = Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
-            } return Pair(rawMessages!=null,messages)
+                if(rawMessages!=null) bool=true
+            } return Pair(bool,messages)
     }
 
     private fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){
