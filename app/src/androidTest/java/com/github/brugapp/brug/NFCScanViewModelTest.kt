@@ -17,6 +17,15 @@ class NFCScanViewModelTest {
         val text = "hello"
         assertThat(viewModel.createRecord(text), IsNot(IsNull.nullValue()))
     }
+    
+    @Test
+    fun setupTagTest(){
+        val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
+        tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
+        assert(viewModel.setupTagTest()==tagDetected)
+     }
+
+     
 }
 /*- - - - - UI tests only work on physical devices: can't test emulator without NFC! - - - - - -
 @RunWith(AndroidJUnit4::class)
