@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -16,10 +15,8 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
-import android.provider.Settings.System.getString
 import android.util.Log
 import android.widget.TextView
-import androidx.compose.ui.res.stringResource
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
@@ -28,7 +25,6 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
@@ -41,32 +37,30 @@ import com.github.brugapp.brug.model.services.LocationService
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import com.mapbox.geojson.Point
-import kotlinx.coroutines.*
-import java.io.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileDescriptor
+import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
 import java.nio.channels.Channels
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 //TODO: NEEDS DOCUMENTATION
 class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
-    private lateinit var mediaRecorder : MediaRecorder
+    private lateinit var mediaRecorder: MediaRecorder
     private lateinit var mediaPlayer: MediaPlayer
-    private lateinit var audioPath : String
+    private lateinit var audioPath: String
+
     // Uri needed to retrieve image from camera after taking a picture
     private lateinit var imageUri: Uri
 
@@ -79,8 +73,8 @@ class ChatViewModel : ViewModel() {
         this.messages = messages
 
         // initiate arguments values for location messages
-        for (message in messages){
-            if(message is LocationMessage){
+        for (message in messages) {
+            if (message is LocationMessage) {
                 val url = getUrlForLocation(activity, message.location.toAndroidLocation())
                 runBlocking {
                     message.mapUrl = loadImageFromUrl(activity, url).toString()
@@ -91,13 +85,14 @@ class ChatViewModel : ViewModel() {
         this.adapter = ChatMessagesListAdapter(this, messages)
     }
 
-    private fun getUrlForLocation(activity: ChatActivity, location: Location): URL{
+    private fun getUrlForLocation(activity: ChatActivity, location: Location): URL {
         val lat = location.latitude.toString()
         val lon = location.longitude.toString()
         val baseUrl =
             "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(%7B%22type%22%3A%22Point%22%2C%22coordinates%22%3A%5B$lon%2C$lat%5D%7D)/"
         val posUrl = "$lon,$lat"
-        val endUrl = ",15/500x500?logo=false&attribution=false&access_token=" + activity.getString(R.string.mapbox_access_token)
+        val endUrl =
+            ",15/500x500?logo=false&attribution=false&access_token=" + activity.getString(R.string.mapbox_access_token)
         return URL(baseUrl + posUrl + endUrl)
     }
 
@@ -216,7 +211,7 @@ class ChatViewModel : ViewModel() {
                 }
             }.join()
             return Uri.fromFile(image)
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             println("Error when loading image from URL: $e")
             return createFakeImage(activity)!!
         }
@@ -369,7 +364,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun setupRecording(activity: ChatActivity){
+    fun setupRecording(activity: ChatActivity) {
 
         audioPath = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!.absolutePath +
                 "/audio" + DateService.fromLocalDateTime(LocalDateTime.now()) + ".3gp"
@@ -389,7 +384,7 @@ class ChatViewModel : ViewModel() {
     }
 
 
-    fun deleteAudio(){
+    fun deleteAudio() {
 
         mediaRecorder.reset()
         mediaRecorder.release()
@@ -404,12 +399,15 @@ class ChatViewModel : ViewModel() {
         mediaRecorder.release()
     }
 
-    fun sendAudio(activity: ChatActivity, convID: String,
-                  firestore: FirebaseFirestore,
-                  firebaseAuth: FirebaseAuth,
-                  firebaseStorage: FirebaseStorage){
+    fun sendAudio(
+        activity: ChatActivity, convID: String,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ) {
 
-        val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
+        val audioMessage = AudioMessage(
+            "Me", DateService.fromLocalDateTime(LocalDateTime.now()),
             "Audio", Uri.fromFile(File(audioPath)).toString(), audioPath
         )
         sendMessage(audioMessage, convID, activity, firestore, firebaseAuth, firebaseStorage)

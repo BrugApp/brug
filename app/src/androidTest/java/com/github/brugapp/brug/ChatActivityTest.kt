@@ -252,7 +252,7 @@ class ChatActivityTest {
             onView(withId(R.id.recordButton)).check(matches(isDisplayed()))
         }
     }
-    
+
     @Test
     fun initialChatSetupAfterAudio() {
         val context = ApplicationProvider.getApplicationContext<Context>()
