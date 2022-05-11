@@ -8,13 +8,20 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.ui.SignInActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.runBlocking
 
-class MyFCMMessagingService : FirebaseMessagingService() {
+class MyFCMMessagingService(
+    private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore) : FirebaseMessagingService() {
 
     /**
      * Called when message is received.
@@ -33,7 +40,15 @@ class MyFCMMessagingService : FirebaseMessagingService() {
      * the previous token had been compromised. Note that this is called when the
      * FCM registration token is initially generated so this is where you would retrieve the token.
      */
-    override fun onNewToken(token: String) {}
+    override fun onNewToken(token: String) {
+        Log.e("NEW TOKEN NOTIF", "Refreshed token: $token")
+        if(firebaseAuth.currentUser != null){
+            //TODO: CHANGE THE RUNBLOCKING INTO NON-BLOCKING CALL
+            runBlocking {
+                UserRepository.addNewDeviceTokenToUser(firebaseAuth.currentUser!!.uid, token, firestore)
+            }
+        }
+    }
 
 
     companion object {

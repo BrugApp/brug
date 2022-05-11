@@ -45,4 +45,14 @@ class  FirebaseFakeHelper {
         }
         return auth
     }
+
+//    fun providesMessaging(): FirebaseMessaging {
+//        val messaging = Firebase.messaging
+//        try {
+//            messaging.useEmulator("10.0.2.2", 7001) //TODO: FIGURE OUT HOW TO MOCK FIREBASE MESSAGING
+//        } catch (e: IllegalStateException) {
+//
+//        }
+//        return messaging
+//    }
 }

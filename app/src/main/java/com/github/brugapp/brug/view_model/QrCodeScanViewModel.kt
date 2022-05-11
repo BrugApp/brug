@@ -29,6 +29,7 @@ import com.github.brugapp.brug.model.services.LocationService
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -113,7 +114,8 @@ class QrCodeScanViewModel : ViewModel() {
             UserRepository.addUserFromAccount(
                 auth.uid,
                 BrugSignInAccount("Anonymous","User","",""),
-                firestore
+                firestore,
+                FirebaseMessaging.getInstance()
             )
         }
 

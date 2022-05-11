@@ -8,6 +8,7 @@ import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
@@ -15,12 +16,12 @@ import java.io.File
 
 private const val USERS_ASSETS = "users_assets/"
 private const val USERS_DB = "Users"
+private const val TOKENS_DB = "Devices"
 
 /**
  * Repository class handling bindings between the User objects in Firebase & in local.
  */
 object UserRepository {
-
     /**
      * Adds a new user after a new account has been created, if the authenticated one is not already present in the database.
      *
@@ -30,21 +31,28 @@ object UserRepository {
      * @return FirebaseResponse object, denoting if the new entry has correctly been added to the database
      */
     suspend fun addUserFromAccount(
-        authUID: String, account: SignInAccount, firestore: FirebaseFirestore
-    )
-            : FirebaseResponse {
+        authUID: String,
+        account: SignInAccount,
+        firestore: FirebaseFirestore,
+        firebaseMessaging: FirebaseMessaging
+    ): FirebaseResponse {
         val response = FirebaseResponse()
 
         try {
             val userDoc = firestore.collection(USERS_DB).document(authUID)
             if (!userDoc.get().await().exists()) {
-                firestore.collection(USERS_DB).document(authUID).set(
+                userDoc.set(
                     mapOf(
                         "first_name" to account.firstName,
                         "last_name" to account.lastName
                     )
                 ).await()
+
             }
+
+            // ADDS A NEW ENTRY IN THE DEVICE TOKENS LIST
+            val deviceToken = firebaseMessaging.token.await()
+            userDoc.collection(TOKENS_DB).document(deviceToken).set({})
 
             response.onSuccess = true
 
@@ -75,6 +83,50 @@ object UserRepository {
                     "last_name" to user.lastName
                 )
             ).await()
+            response.onSuccess = true
+        } catch (e: Exception) {
+            response.onError = e
+        }
+
+        return response
+    }
+
+    suspend fun addNewDeviceTokenToUser(uid: String, token: String, firestore: FirebaseFirestore): FirebaseResponse{
+        val response = FirebaseResponse()
+        try {
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            if(!userRef.get().await().exists()){
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+            // CHECK IF THE TOKEN DOESN'T ALREADY EXIST
+            val tokenRef = userRef.collection(TOKENS_DB).document(token)
+            if(!tokenRef.get().await().exists()){
+                userRef.collection(TOKENS_DB).document(token).set({})
+            }
+            response.onSuccess = true
+        } catch (e: Exception) {
+            response.onError = e
+        }
+
+        return response
+    }
+
+    suspend fun deleteDeviceTokenFromUser(uid: String, token: String, firestore: FirebaseFirestore): FirebaseResponse{
+        val response = FirebaseResponse()
+        try {
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            if(!userRef.get().await().exists()){
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+            // REMOVES THE TOKEN IF IT EXISTS
+            val tokenRef = userRef.collection(TOKENS_DB).document(token)
+            if(!tokenRef.get().await().exists()){
+                response.onError = Exception("Token doesn't exist")
+                return response
+            }
+            userRef.collection(TOKENS_DB).document(token).set({})
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e
@@ -188,16 +240,21 @@ object UserRepository {
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
-    )
-            : MyUser? {
+    ): MyUser? {
         try {
-            val userDoc = firestore.collection(USERS_DB).document(uid).get().await()
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            val userDoc = userRef.get().await()
             if (!userDoc.contains("first_name")
                 || !userDoc.contains("last_name")
             ) {
                 Log.e("FIREBASE ERROR", "Invalid User Format")
                 return null
             }
+
+            // RETRIEVE THE LIST OF DEVICE TOKENS
+            val tokensList = userRef.collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
+                tokenDoc.id
+            }.toMutableList()
 
             return if (userDoc.contains("user_icon")) {
                 val userIconPath: String? = downloadUserIconInTemp(
@@ -208,13 +265,15 @@ object UserRepository {
                     uid,
                     userDoc["first_name"] as String,
                     userDoc["last_name"] as String,
-                    userIconPath
+                    userIconPath,
+                    tokensList
                 )
             } else MyUser(
                 uid,
                 userDoc["first_name"] as String,
                 userDoc["last_name"] as String,
-                null
+                null,
+                tokensList
             )
 
         } catch (e: Exception) {
@@ -227,8 +286,7 @@ object UserRepository {
         uid: String, path: String,
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
-    )
-            : String? {
+    ): String? {
         try {
             val file = File.createTempFile(uid, ".jpg")
             // Downloading from Firebase Storage requires a signed-in user !

@@ -16,14 +16,19 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import java.io.File
 
+private const val USERS_DB = "Users"
 private const val MSG_DB = "Messages"
 private const val CONV_DB = "Conversations"
+private const val TOKENS_DB = "Devices"
 private const val CONV_ASSETS = "conversations_assets/"
+
 
 /**
  * Repository class handling bindings between the Message objects in Firebase & in local.
@@ -86,6 +91,22 @@ object MessageRepository {
             convRef.collection(MSG_DB)
                 .add(message)
                 .await()
+
+            // THEN, NOTIFY THE USER THAT A NEW MESSAGE HAS BEEN SENT
+            val notificationData = mapOf(
+                "title" to m.senderName, //TODO: CHECK IF WE MUST CHANGE THE NAME HERE
+                "body" to message["body"] as String
+            )
+            val otherUserID = parseConvUserNameFromID(convID, senderID)
+
+            firestore.collection(USERS_DB).document(otherUserID)
+                .collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
+                    val remoteMessage = RemoteMessage.Builder(tokenDoc.id)
+                    remoteMessage.data = notificationData
+                    Log.e("FIREBASE NOTIFICATIONS CHECK", remoteMessage.build().notification?.body ?: "EMPTY BODY")
+                    FirebaseMessaging.getInstance().send(remoteMessage.build())
+            }
+
             addResponse.onSuccess = true
         } catch (e: Exception) {
             Log.d("MessageRepository", e.toString())
@@ -243,6 +264,10 @@ object MessageRepository {
             Log.e("FIREBASE ERROR", e.message.toString())
             return null
         }
+    }
+
+    private fun parseConvUserNameFromID(convID: String, uid: String): String {
+        return convID.replace(uid, "", ignoreCase = false)
     }
 
 }

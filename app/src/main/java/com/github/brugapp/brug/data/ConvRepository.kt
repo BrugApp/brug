@@ -9,20 +9,20 @@ import com.github.brugapp.brug.model.services.DateService
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 
 private const val USERS_DB = "Users"
 private const val MSG_DB = "Messages"
 private const val CONV_REFS_DB = "Conv_Refs"
 private const val CONV_DB = "Conversations"
+private const val TOKENS_DB = "Devices"
 
 /**
  * Repository class handling bindings between the Conversation objects in Firebase & in local.
@@ -41,7 +41,7 @@ object ConvRepository {
         thisUID: String,
         uid: String,
         lostItemName: String,
-        firestore: FirebaseFirestore
+        firestore: FirebaseFirestore,
     ): FirebaseResponse {
         val response = FirebaseResponse()
         try {
@@ -75,6 +75,19 @@ object ConvRepository {
             // THEN ADD NEW CONV_REF ENTRY IN EACH USER'S CONV_REFS COLLECTION
             userRef.collection(CONV_REFS_DB).document(convID).set({}).await()
             otherUserRef.collection(CONV_REFS_DB).document(convID).set({}).await()
+
+
+            // FINALLY SEND A NOTIFICATION TO THE USER
+            val notificationData = mapOf(
+                "title" to "Item found !",
+                "body" to "Your item $lostItemName has been found !"
+            )
+            otherUserRef.collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
+                val remoteMessage = RemoteMessage.Builder(tokenDoc.id)
+                remoteMessage.data = notificationData
+                Log.e("FIREBASE NOTIFICATIONS CHECK", remoteMessage.build().notification?.body ?: "EMPTY BODY")
+                FirebaseMessaging.getInstance().send(remoteMessage.build())
+            }
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -196,42 +209,6 @@ object ConvRepository {
             }
         }
     }
-
-//    /**
-//     * Retrieves the list of Conversation of a user, given its user ID.
-//     *
-//     * @param uid the user ID
-//     *
-//     * @return List<Conversation> if the operation was successful, or a null value in case of error.
-//     */
-//    suspend fun getUserConvFromUID(
-//        uid: String, firestore: FirebaseFirestore,
-//        firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage
-//    ): List<Conversation>? {
-//        return try {
-//            val userRef = firestore.collection(USERS_DB).document(uid)
-//            if (!userRef.get().await().exists()) {
-//                Log.e("FIREBASE ERROR", "User doesn't exist")
-//                return null
-//            }
-//
-//            // awaitRealtime CHECKS FOR CHANGES RELATED TO THE LIST OF CONV_REFS,
-//            // AND TRIGGERS A GET REQUEST IF A CHANGE HAS BEEN DETECTED
-//            val convListResponse = userRef.collection(CONV_REFS_DB).awaitRealtime()
-//            if(convListResponse.packet != null){
-//                return convListResponse.packet.mapNotNull { convRef ->
-//                    getConvFromRefID(convRef.id, uid, firestore, firebaseAuth, firebaseStorage)
-//                }
-//            } else {
-//                Log.e("FIREBASE ERROR", convListResponse.error!!.message.toString())
-//                return listOf()
-//            }
-//
-//        } catch (e: Exception) {
-//            Log.e("FIREBASE ERROR", e.message.toString())
-//            null
-//        }
-//    }
 
     private suspend fun getConvFromRefID(
         convID: String, authUserID: String,

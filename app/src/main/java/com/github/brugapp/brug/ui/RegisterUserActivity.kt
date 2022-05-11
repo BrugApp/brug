@@ -14,6 +14,7 @@ import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.view_model.RegisterUserViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -60,7 +61,8 @@ class RegisterUserActivity : AppCompatActivity() {
                         newAccount,
                         passwdField.text.toString(),
                         firebaseAuth,
-                        firestore
+                        firestore,
+                        FirebaseMessaging.getInstance()
                     )
                 }
                 if (response.onSuccess) {

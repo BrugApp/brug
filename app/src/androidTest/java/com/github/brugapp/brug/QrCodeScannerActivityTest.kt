@@ -25,6 +25,7 @@ import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
@@ -53,6 +54,8 @@ class QrCodeScannerActivityTest {
     //    .grant(android.Manifest.permission.CAMERA)
 
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+
+//    private val firebaseMessaging: FirebaseMessaging = FirebaseFakeHelper.providesFirebaseMessaging()
 
     @Before
     fun setUp(){
@@ -102,7 +105,8 @@ class QrCodeScannerActivityTest {
             UserRepository.addUserFromAccount(
                 userID,
                 BrugSignInAccount("Test", "User", "", ""),
-                firestore
+                firestore,
+                FirebaseMessaging.getInstance()
             )
             ItemsRepository.addItemWithItemID(
                 MyItem("DummyItem", 0, "DummyDesc", true),
