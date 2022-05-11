@@ -1,17 +1,26 @@
 package com.github.brugapp.brug
 
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.NdefMessage
+import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.brugapp.brug.ui.NFCScannerActivity
 import com.github.brugapp.brug.view_model.NFCScanViewModel
+import com.google.common.io.Files.append
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.array
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
+import java.nio.charset.Charset
+import kotlin.experimental.and
 
 @RunWith(AndroidJUnit4::class)
 class NFCScanViewModelTest {
@@ -39,7 +48,30 @@ class NFCScanViewModelTest {
                 if(rawMessages!=null) bool=true
             } 
         assertThat(Pair(bool,messages),IsNot(IsNull.nullValue()))
-    } 
+    }
+
+    @Test
+    fun checkIntentActionTest(){
+        val intent = Intent()
+        assertThat (intent.action.equals(ACTION_TAG_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED),`is`(viewModel.checkIntentAction(intent)))
+    }
+
+    @Test
+    fun emptyMsgInitTextTest(){
+        var messages: Array<NdefMessage> = emptyArray()
+        var text: String = "test"
+        assertThat(viewModel.initText(messages),`is`(""))
+    }
+
+    @Test
+    fun nonEmptyMsgInitTextTest(){
+        var mockMessages: Array<NdefMessage> = arrayOf(NdefMessage(arrayOf(NdefRecord.createUri("hello"))))
+        val payload = mockMessages[0].records[0].payload
+        val textEncoding = if((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
+        val languageCodeLength = payload[0] and 63.toByte()
+        val text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
+        assertThat(viewModel.initText(mockMessages),`is`(text))
+    }
 
      
 }

@@ -25,7 +25,7 @@ open class NFCScannerActivity: AppCompatActivity() {
     private val viewModel: NFCScanViewModel by viewModels()
     private var writeMode: Boolean = false
     private var tag: Tag? = null
-    lateinit var adapter: NfcAdapter
+    var adapter: NfcAdapter? = null
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
     private lateinit var editMessage: TextView
@@ -64,10 +64,10 @@ open class NFCScannerActivity: AppCompatActivity() {
 
     private fun writeModeOff(){
         writeMode = true
-        adapter.disableForegroundDispatch(this) }
+        adapter!!.disableForegroundDispatch(this) }
 
     private fun writeModeOn(){
-        adapter.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null) }
+        adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null) }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

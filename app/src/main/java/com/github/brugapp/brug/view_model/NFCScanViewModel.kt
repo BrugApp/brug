@@ -35,7 +35,7 @@ class NFCScanViewModel : ViewModel() {
         val tagDetected = setupTag()
         return Pair(PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE),arrayOf(tagDetected)) }
 
-    fun setupTag(): IntentFilter { //testable
+    fun setupTag(): IntentFilter {
         val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
         return tagDetected
@@ -46,7 +46,7 @@ class NFCScanViewModel : ViewModel() {
             if(rawMessageToMessage(intent).first){
                 buildTagViews(nfcContents, rawMessageToMessage(intent).second) } } }
 
-    fun checkIntentAction(intent: Intent): Boolean { //testable
+    fun checkIntentAction(intent: Intent): Boolean {
         return (intent.action.equals(ACTION_TAG_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED))
     }
 
@@ -68,7 +68,7 @@ class NFCScanViewModel : ViewModel() {
             Log.e("UnsupportedEncoding",e.toString()) } }
     
     @Throws(UnsupportedEncodingException::class)
-    fun initText(messages: Array<NdefMessage>): String { //testable
+    fun initText(messages: Array<NdefMessage>): String {
         var text: String = ""
         if (messages==null|| messages.isEmpty()) return text
         val payload = messages[0].records[0].payload
@@ -102,8 +102,7 @@ class NFCScanViewModel : ViewModel() {
         val textLength = textBytes.size
 
         var payload: ByteArray = ByteArray(
-            langLength+textLength+1
-        )
+            langLength+textLength+1)
 
         payload[0] = langLength.toByte()
 
