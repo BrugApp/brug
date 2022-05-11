@@ -23,49 +23,68 @@ open class NFCScannerActivity: AppCompatActivity() {
     private val Write_success = "Text written successfully"
     private val Write_error = "Error occurred during writing, try again"
     private val viewModel: NFCScanViewModel by viewModels()
-    private var writeMode: Boolean = false
+    var writeMode: Boolean = false
     private var tag: Tag? = null
     var adapter: NfcAdapter? = null
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
-    private lateinit var editMessage: TextView
-    private lateinit var nfcContents: TextView
-    private lateinit var activateButton: Button
+    private var editMessage: TextView? = null
+    private var nfcContents: TextView? = null
+    private var activateButton: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nfc_scanner)
         viewModel.checkNFCPermission(this)
         adapter = viewModel.setupAdapter(this)
-        editMessage = findViewById<View>(R.id.edit_message) as TextView
-        nfcContents = findViewById<View>(R.id.nfcContents) as TextView
-        activateButton = findViewById<View>(R.id.buttonReportItem) as Button
+        findViews() //maybe return early if false
         if (adapter==null){ Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
             finish() }
         nfcIntent = viewModel.setupWritingTagFilters(this).first
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
-        activateButton.setOnClickListener{
+        activateButton!!.setOnClickListener{
             try{ if(tag==null) Toast.makeText(this,Error_detected,Toast.LENGTH_LONG).show()
-                else{ viewModel.write(editMessage.text.toString(),tag!!)
+                else{ viewModel.write(editMessage!!.text.toString(),tag!!)
                     Toast.makeText(this,Write_success,Toast.LENGTH_LONG).show() }
-            }catch(e: Exception){
-                when(e){ is IOException, is FormatException ->{ Toast.makeText(this,Write_error,Toast.LENGTH_LONG).show()
+            }catch(e: Exception){ when(e){ is IOException, is FormatException ->{ Toast.makeText(this,Write_error,Toast.LENGTH_LONG).show()
                         e.printStackTrace() }
                     else -> throw e } }
             viewModel.displayReportNotification(this) } }
 
+    fun findViews(): Boolean{
+        //returns true iff all textviews & buttons are found
+        //params: None
+        //use: abbreviates the onCreate method
+        editMessage = findViewById<View>(R.id.edit_message) as TextView?
+        nfcContents = findViewById<View>(R.id.nfcContents) as TextView?
+        activateButton = findViewById<View>(R.id.buttonReportItem) as Button?
+        return (editMessage!=null && nfcContents!=null && activateButton!=null)
+    }
     override fun onPause() { super.onPause()
         writeModeOff() }
 
     override fun onResume(){ super.onResume()
         writeModeOn() }
 
-    private fun writeModeOff(){ writeMode = true
-        adapter!!.disableForegroundDispatch(this) }
+    fun writeModeOff(){
+        //allows us to stop writing to NFC tag when app is paused
+        writeMode = true
 
-    private fun writeModeOn(){ adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null) }
+        if(adapter!=null) {
+            adapter!!.disableForegroundDispatch(this)
+        }
+
+    }
+
+    fun writeModeOn(){
+        //allows us to write to NFC tag as long as app is started/resumed
+        if(adapter!=null) {
+            adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null)
+        }
+
+    }
 
     override fun onNewIntent(intent: Intent) { super.onNewIntent(intent)
         setIntent(intent)
-        viewModel.readFromIntent(nfcContents,intent)
+        viewModel.readFromIntent(nfcContents!!,intent)
         if ((ACTION_TAG_DISCOVERED) == intent.action){ tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!! } }
 }
