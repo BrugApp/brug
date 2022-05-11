@@ -19,11 +19,24 @@ class NFCScanViewModelTest {
     }
     
     @Test
-    fun setupTagTest(){
+    fun setupTagTest() {
         val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
         assert(viewModel.setupTagTest()==tagDetected)
-     }
+    }
+
+    @Test
+    fun rawMessageToMessageTest() {
+        val intent = Intent(this,NFCScanViewModel::class.java)
+        val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
+        var messages: Array<NdefMessage> = arrayOf<NdefMessage>()
+        var bool: Boolean = false
+            if (rawMessages!=null) {
+                messages = Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
+                if(rawMessages!=null) bool=true
+            } 
+        assertThat(Pair(bool,messages),IsNot(IsNull.nullValue()))
+    } 
 
      
 }
