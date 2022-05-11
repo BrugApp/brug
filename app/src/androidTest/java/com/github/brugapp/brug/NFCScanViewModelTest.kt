@@ -1,5 +1,10 @@
 package com.github.brugapp.brug
 
+import android.content.Intent
+import android.content.IntentFilter
+import android.nfc.NdefMessage
+import android.nfc.NfcAdapter
+import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import org.hamcrest.MatcherAssert.assertThat
@@ -20,14 +25,12 @@ class NFCScanViewModelTest {
     
     @Test
     fun setupTagTest() {
-        val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
-        tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
-        assert(viewModel.setupTagTest()==tagDetected)
+        assert(viewModel.setupTag().hasCategory(Intent.CATEGORY_DEFAULT))
     }
 
     @Test
     fun rawMessageToMessageTest() {
-        val intent = Intent(this,NFCScanViewModel::class.java)
+        val intent = Intent()
         val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
         var messages: Array<NdefMessage> = arrayOf<NdefMessage>()
         var bool: Boolean = false

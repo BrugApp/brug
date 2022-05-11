@@ -18,14 +18,14 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import java.io.IOException
 
-class NFCScannerActivity: AppCompatActivity() {
+open class NFCScannerActivity: AppCompatActivity() {
     private val Error_detected = "No NFC was found!"
     private val Write_success = "Text written successfully"
     private val Write_error = "Error occurred during writing, try again"
     private val viewModel: NFCScanViewModel by viewModels()
     private var writeMode: Boolean = false
     private var tag: Tag? = null
-    private lateinit var adapter: NfcAdapter
+    lateinit var adapter: NfcAdapter
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
     private lateinit var editMessage: TextView
