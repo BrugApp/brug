@@ -92,21 +92,16 @@ class NFCScanViewModel : ViewModel() {
         //returns: String computed from the tag's NdefMessage Array
         //params: 'messages'  is an array of NdefMessages, a lightweight binary format for tags
         //use: converts NdefMessage Array into a String message understandable to humans
-
         var bugText : String = "null message error"
         var text: String = ""
-
         when {
             messages==null -> {
-
                 return bugText
             }
             messages.isEmpty() -> {
-
                 return text
             }
             else -> {
-
                 val payload = messages[0].records[0].payload
                 val textEncoding =
                     if ((payload[0] and 128.toByte()).toInt() == 0) {
