@@ -133,14 +133,11 @@ object MessageRepository {
                 )
 
             snapshot.contains("audio_url") ->
-                AudioMessage.fromMessage(
-                    message,
-                    downloadFileToTemp(
-                        snapshot["audio_url"] as String,
-                        firebaseAuth,
-                        firebaseStorage
-                    ).toString()
-                )
+
+                AudioMessage.fromMessage(message,
+                    downloadFileToTemp(snapshot["audio_url"] as String, firebaseAuth, firebaseStorage).toString(),
+                    downloadFileToTemp(snapshot["audio_url"] as String, firebaseAuth, firebaseStorage).toString())
+
             else -> TextMessage.fromMessage(message)
         }
     }
