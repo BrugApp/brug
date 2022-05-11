@@ -75,7 +75,7 @@ class NFCScanViewModelTest {
 
      
 }
-/*- - - - - UI tests only work on physical devices: can't test emulator without NFC! - - - - - -
+/*- - - - -these UI tests only work on physical devices: can't test emulator without NFC! - - - - -
 @RunWith(AndroidJUnit4::class)
 class NFCScannerActivityTest {
 

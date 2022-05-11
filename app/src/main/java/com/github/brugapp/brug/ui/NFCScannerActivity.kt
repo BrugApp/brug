@@ -32,8 +32,7 @@ open class NFCScannerActivity: AppCompatActivity() {
     private lateinit var nfcContents: TextView
     private lateinit var activateButton: Button
 
-    override fun onCreate(savedInstanceState: Bundle?){
-        super.onCreate(savedInstanceState)
+    override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nfc_scanner)
         viewModel.checkNFCPermission(this)
         adapter = viewModel.setupAdapter(this)
@@ -54,23 +53,18 @@ open class NFCScannerActivity: AppCompatActivity() {
                     else -> throw e } }
             viewModel.displayReportNotification(this) } }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onPause() { super.onPause()
         writeModeOff() }
 
-    override fun onResume(){
-        super.onResume()
+    override fun onResume(){ super.onResume()
         writeModeOn() }
 
-    private fun writeModeOff(){
-        writeMode = true
+    private fun writeModeOff(){ writeMode = true
         adapter!!.disableForegroundDispatch(this) }
 
-    private fun writeModeOn(){
-        adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null) }
+    private fun writeModeOn(){ adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null) }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
+    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent)
         setIntent(intent)
         viewModel.readFromIntent(nfcContents,intent)
         if ((ACTION_TAG_DISCOVERED) == intent.action){ tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!! } }
