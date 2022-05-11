@@ -96,18 +96,14 @@ class NFCScanViewModel : ViewModel() {
         var text: String = ""
         when {
             messages==null -> {
-                return bugText
-            }
+                return bugText}
             messages.isEmpty() -> {
-                return text
-            }
+                return text}
             else -> {
                 val payload = messages[0].records[0].payload
                 val textEncoding =
-                    if ((payload[0] and 128.toByte()).toInt() == 0) {
-                        Charset.forName("UTF-8")
-                    } else {
-                        Charset.forName("UTF-16")
+                    if ((payload[0] and 128.toByte()).toInt() == 0) {Charset.forName("UTF-8")
+                    } else {Charset.forName("UTF-16")
                     }
 
                 val languageCodeLength = payload[0] and 63.toByte()
