@@ -1,24 +1,18 @@
 package com.github.brugapp.brug
 
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.brugapp.brug.ui.NFCScannerActivity
 import com.github.brugapp.brug.view_model.NFCScanViewModel
-import com.google.common.io.Files.append
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
-import org.hamcrest.Matchers.array
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import java.nio.charset.Charset
 import kotlin.experimental.and
 
@@ -54,6 +48,12 @@ class NFCScanViewModelTest {
     fun checkIntentActionTest(){
         val intent = Intent()
         assertThat (intent.action.equals(ACTION_TAG_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)||intent.action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED),`is`(viewModel.checkIntentAction(intent)))
+    }
+
+    @Test
+    fun nullMsgInitTextTest(){
+        var bugtext: String = "null message error"
+        assertThat(viewModel.initText(null),`is`(bugtext))
     }
 
     @Test

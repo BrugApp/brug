@@ -24,15 +24,15 @@ open class NFCScannerActivity: AppCompatActivity() {
     private val Write_error = "Error occurred during writing, try again"
     private val viewModel: NFCScanViewModel by viewModels()
     var writeMode: Boolean = false
-    private var tag: Tag? = null
+    var tag: Tag? = null
     var adapter: NfcAdapter? = null
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
-    private var editMessage: TextView? = null
+    var editMessage: TextView? = null
     private var nfcContents: TextView? = null
     private var activateButton: Button? = null
 
-    override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
+    public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nfc_scanner)
         viewModel.checkNFCPermission(this)
         adapter = viewModel.setupAdapter(this)
@@ -54,15 +54,17 @@ open class NFCScannerActivity: AppCompatActivity() {
         //returns true iff all textviews & buttons are found
         //params: None
         //use: abbreviates the onCreate method
+
         editMessage = findViewById<View>(R.id.edit_message) as TextView?
         nfcContents = findViewById<View>(R.id.nfcContents) as TextView?
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button?
         return (editMessage!=null && nfcContents!=null && activateButton!=null)
+
     }
-    override fun onPause() { super.onPause()
+    public override fun onPause() { super.onPause()
         writeModeOff() }
 
-    override fun onResume(){ super.onResume()
+    public override fun onResume(){ super.onResume()
         writeModeOn() }
 
     fun writeModeOff(){
@@ -77,13 +79,14 @@ open class NFCScannerActivity: AppCompatActivity() {
 
     fun writeModeOn(){
         //allows us to write to NFC tag as long as app is started/resumed
+
         if(adapter!=null) {
             adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null)
         }
 
     }
 
-    override fun onNewIntent(intent: Intent) { super.onNewIntent(intent)
+    public override fun onNewIntent(intent: Intent) { super.onNewIntent(intent)
         setIntent(intent)
         viewModel.readFromIntent(nfcContents!!,intent)
         if ((ACTION_TAG_DISCOVERED) == intent.action){ tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!! } }

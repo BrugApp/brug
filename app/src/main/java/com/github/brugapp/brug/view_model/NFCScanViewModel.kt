@@ -38,6 +38,7 @@ class NFCScanViewModel : ViewModel() {
         //use: prepares the IntentFilter needed to produce the 2nd Pair element of setupWritingTagFilters
 
         val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
+
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
 
         return tagDetected
@@ -55,7 +56,9 @@ class NFCScanViewModel : ViewModel() {
         val isACTIONTECHDISCOVERED = intent.action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)
         val isACTIONNDEFDISCOVERED = intent.action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)
 
-        return (isACTIONTAGDISCOVERED||isACTIONTECHDISCOVERED||isACTIONNDEFDISCOVERED)
+        val isTagDiscovered = (isACTIONTAGDISCOVERED||isACTIONTECHDISCOVERED||isACTIONNDEFDISCOVERED)
+
+        return isTagDiscovered
     }
 
     fun rawMessageToMessage(intent: Intent): Pair<Boolean,Array<NdefMessage>> {
@@ -66,16 +69,16 @@ class NFCScanViewModel : ViewModel() {
         //use: sets up the data and conditions needed for calling buildTagViews
 
         val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-        var messages: Array<NdefMessage> = arrayOf<NdefMessage>()
+        var messages: Array<NdefMessage> = arrayOf()
         var bool: Boolean = false
 
         if (rawMessages!=null) {
             messages = Array<NdefMessage>(rawMessages!!.size) {
                     i -> rawMessages[i] as NdefMessage
             }
-            if(rawMessages!=null){
-                bool = true
-            }
+
+            bool = true
+
         }
 
         return Pair(bool,messages)
@@ -85,30 +88,45 @@ class NFCScanViewModel : ViewModel() {
     private fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){ try{ nfcContents.text = "Read Tag Contents:" + initText(messages) }catch (e : UnsupportedEncodingException){ Log.e("UnsupportedEncoding",e.toString()) } }
     
     @Throws(UnsupportedEncodingException::class)
-    fun initText(messages: Array<NdefMessage>): String {
+    fun initText(messages: Array<NdefMessage>?): String {
         //returns: String computed from the tag's NdefMessage Array
         //params: 'messages'  is an array of NdefMessages, a lightweight binary format for tags
         //use: converts NdefMessage Array into a String message understandable to humans
 
+        var bugText : String = "null message error"
         var text: String = ""
 
-        if (messages==null || messages.isEmpty()){
-            return text
-        }
+        when {
+            messages==null -> {
 
-        val payload = messages[0].records[0].payload
-        val textEncoding =
-            if((payload[0] and 128.toByte()).toInt() == 0){
-                Charset.forName("UTF-8")
-            } else{
-                Charset.forName("UTF-16")
+                return bugText
             }
+            messages.isEmpty() -> {
 
-        val languageCodeLength = payload[0] and 63.toByte()
+                return text
+            }
+            else -> {
 
-        text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
+                val payload = messages[0].records[0].payload
+                val textEncoding =
+                    if ((payload[0] and 128.toByte()).toInt() == 0) {
+                        Charset.forName("UTF-8")
+                    } else {
+                        Charset.forName("UTF-16")
+                    }
 
-        return text
+                val languageCodeLength = payload[0] and 63.toByte()
+
+                text = String(
+                    payload,
+                    languageCodeLength + 1,
+                    payload.size - languageCodeLength - 1,
+                    textEncoding
+                )
+
+                return text
+            }
+        }
     }
 
     @Throws(IOException::class, FormatException::class)
