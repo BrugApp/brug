@@ -62,14 +62,21 @@ class NFCScanViewModel : ViewModel() {
     }
 
     private fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){
-        if (messages==null|| messages.isEmpty()) return
+        try{ var text = initText(messages)
+            nfcContents.text = "Read Tag Contents: $text"
+        }catch (e : UnsupportedEncodingException){
+            Log.e("UnsupportedEncoding",e.toString()) } }
+    
+    @Throws(UnsupportedEncodingException::class)
+    fun initText(messages: Array<NdefMessage>): String { //testable
+        var text: String = ""
+        if (messages==null|| messages.isEmpty()) return text
         val payload = messages[0].records[0].payload
         val textEncoding = if((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
         val languageCodeLength = payload[0] and 63.toByte()
-        try{ var text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
-            nfcContents.text = "Read Tag Contents: $text"
-        }catch (e : UnsupportedEncodingException){
-            Log.e("UnsupportedEncodiyng",e.toString()) } }
+        text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
+        return text
+    }
 
     @Throws(IOException::class, FormatException::class)
     fun write(text: String, tag: Tag) {
@@ -79,7 +86,6 @@ class NFCScanViewModel : ViewModel() {
 
     @Throws(UnsupportedEncodingException::class)
     fun createRecord(text: String): NdefRecord {
-        
         //returns: an immutable NdefRecord
 
         //parameter: 'text' the string message we want to build the record from
