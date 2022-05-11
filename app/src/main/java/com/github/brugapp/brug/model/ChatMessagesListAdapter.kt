@@ -84,6 +84,10 @@ class ChatMessagesListAdapter(private val viewModel: ChatViewModel, private val 
         }
     }
 
+    fun getItem(position: Int): Message{
+        return messageList[position]
+    }
+
     class ViewHolder(itemView: View, listener: onItemClickListener) :
         RecyclerView.ViewHolder(itemView) {
         init {

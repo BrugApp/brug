@@ -7,6 +7,7 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
@@ -24,6 +25,8 @@ import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
@@ -97,8 +100,18 @@ class ChatActivity : AppCompatActivity() {
             override fun onItemClick(position: Int) {
                 if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
                     adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
-                )
-                    Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_SHORT).show()
+                ){
+                    val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
+                    startActivity(myIntent)
+                }
+                else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
+                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
+                ){
+                    val myIntent = Intent(this@ChatActivity, FullScreenImage::class.java)
+                    val message = adapter.getItem(position) as PicMessage
+                    myIntent.putExtra("messageUrl",  message.imgUrl)
+                    startActivity(myIntent)
+                }
             }
         })
 
