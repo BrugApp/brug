@@ -21,7 +21,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.MessageRepository
@@ -55,7 +54,7 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var convID: String
 
     private lateinit var buttonSendTextMessage: ImageButton
-    private lateinit var recordButton: RecordButton
+    private lateinit var recordButton: ImageButton
     private lateinit var messageLayout: LinearLayout
     private lateinit var audioRecMessage: TextView
     private lateinit var buttonSendAudio: ImageButton
@@ -97,7 +96,6 @@ class ChatActivity : AppCompatActivity() {
         buttonSendAudio = findViewById(R.id.buttonSendAudio)
 
         recordButton = findViewById(R.id.recordButton)
-        viewModel.setListenForRecord(recordButton, false)
         initRecordButton(viewModel)
 
         deleteAudio = findViewById(R.id.deleteAudio)
@@ -230,26 +228,12 @@ class ChatActivity : AppCompatActivity() {
             PackageManager.FEATURE_MICROPHONE)
     }*/
 
-
-    /*override fun onRequestPermissionsResult( // This should go to the bottom with the same function
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == RECORDING_REQUEST_CODE){
-            recordButton.isEnabled = true
-        }
-    }*/
-
     private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
 
-            model.setListenForRecord(recordButton, true)
-
             if (model.isAudioPermissionOk(this) && model.isExtStorageOk(this)) {
 
-                model.setupRecording()
+                model.setupRecording(this)
 
                 messageLayout.visibility = View.GONE
                 recordButton.visibility = View.GONE
@@ -277,7 +261,6 @@ class ChatActivity : AppCompatActivity() {
             audioRecMessage.visibility = View.GONE
             messageLayout.visibility = View.VISIBLE
             recordButton.visibility = View.VISIBLE
-            model.setListenForRecord(recordButton, false)
         }
     }
 
@@ -290,9 +273,8 @@ class ChatActivity : AppCompatActivity() {
             audioRecMessage.visibility = View.GONE
             messageLayout.visibility = View.VISIBLE
             recordButton.visibility = View.VISIBLE
-            model.setListenForRecord(recordButton, false)
 
-            model.sendAudio()
+            model.sendAudio(this, convID, firestore, firebaseAuth, firebaseStorage)
         }
     }
 

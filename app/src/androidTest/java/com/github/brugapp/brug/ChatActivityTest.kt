@@ -279,26 +279,6 @@ class ChatActivityTest {
         }
     }
 
-/*=======
-    fun sendCameraMessageOpensCamera() {
->>>>>>> main
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-        }
-
-<<<<<<< HEAD
-        val message = "Test text"
-
-=======
-        ActivityScenario.launch<Activity>(intent).use {
-            val expectedIntent: Matcher<Intent> = allOf(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
-            onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
-            intended(expectedIntent)
-        }
-    }*/
-
     @Test
     fun sendCameraMessageOpensCamera() {
         val context = ApplicationProvider.getApplicationContext<Context>()

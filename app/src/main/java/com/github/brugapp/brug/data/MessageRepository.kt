@@ -151,15 +151,15 @@ object MessageRepository {
             snapshot["body"] as String,
         )
 
-        return when {
+        when {
             snapshot.contains("location") ->
-                LocationMessage.fromMessage(
+                return LocationMessage.fromMessage(
                     message,
                     LocationService.fromGeoPoint(snapshot["location"] as GeoPoint)
                 )
 
             snapshot.contains("image_url") ->
-                PicMessage.fromMessage(
+                return PicMessage.fromMessage(
                     message,
                     downloadFileToTemp(
                         snapshot["image_url"] as String,
@@ -169,17 +169,17 @@ object MessageRepository {
                     ).toString()
                 )
 
-            snapshot.contains("audio_url") ->
-                AudioMessage.fromMessage(
-                    message,
-                    downloadFileToTemp(
-                        snapshot["audio_url"] as String,
-                        ".3gp",
-                        firebaseAuth,
-                        firebaseStorage
-                    ).toString()
-                )
-            else -> TextMessage.fromMessage(message)
+            snapshot.contains("audio_url") -> {
+                val audioFilePath = downloadFileToTemp(
+                    snapshot["audio_url"] as String,
+                    ".3gp",
+                    firebaseAuth,
+                    firebaseStorage
+                ).toString()
+                return AudioMessage.fromMessage(message, audioFilePath, audioFilePath)
+            }
+
+            else -> return TextMessage.fromMessage(message)
         }
     }
 

@@ -61,7 +61,7 @@ private val AUDIOMSG = AudioMessage(
     USER2.getFullName(),
     DateService.fromLocalDateTime(LocalDateTime.now()),
     "AudioMessage",
-    "")
+    "", "")
 
 
 class MessageRepositoryTest {
