@@ -79,7 +79,7 @@ class ChatActivityTest {
     private val convID = "0"
     private val dummyItemName = "DummyItem"
 
-    private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null)
+    private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null, mutableListOf())
 
     private val dummyDate = fromLocalDateTime(
         LocalDateTime.of(

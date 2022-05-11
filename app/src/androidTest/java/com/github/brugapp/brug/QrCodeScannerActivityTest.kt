@@ -105,8 +105,7 @@ class QrCodeScannerActivityTest {
             UserRepository.addUserFromAccount(
                 userID,
                 BrugSignInAccount("Test", "User", "", ""),
-                firestore,
-                FirebaseMessaging.getInstance()
+                firestore
             )
             ItemsRepository.addItemWithItemID(
                 MyItem("DummyItem", 0, "DummyDesc", true),

@@ -33,8 +33,7 @@ object UserRepository {
     suspend fun addUserFromAccount(
         authUID: String,
         account: SignInAccount,
-        firestore: FirebaseFirestore,
-        firebaseMessaging: FirebaseMessaging
+        firestore: FirebaseFirestore
     ): FirebaseResponse {
         val response = FirebaseResponse()
 
@@ -51,7 +50,7 @@ object UserRepository {
             }
 
             // ADDS A NEW ENTRY IN THE DEVICE TOKENS LIST
-            val deviceToken = firebaseMessaging.token.await()
+            val deviceToken = FirebaseMessaging.getInstance().token.await()
             userDoc.collection(TOKENS_DB).document(deviceToken).set({})
 
             response.onSuccess = true

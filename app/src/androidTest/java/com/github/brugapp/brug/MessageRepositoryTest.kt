@@ -42,7 +42,7 @@ private const val USER_ID2 = "USER2"
 private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
 private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
 
-private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null)
+private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null, mutableListOf())
 private const val DUMMY_ITEM_NAME = "AirPods Pro Max"
 
 private val TEXTMSG = TextMessage("Me",

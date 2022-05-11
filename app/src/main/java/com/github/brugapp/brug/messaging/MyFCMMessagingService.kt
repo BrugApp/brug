@@ -17,11 +17,18 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
-class MyFCMMessagingService(
-    private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore) : FirebaseMessagingService() {
+@AndroidEntryPoint
+class MyFCMMessagingService() : FirebaseMessagingService() {
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
 
     /**
      * Called when message is received.

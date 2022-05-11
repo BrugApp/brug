@@ -39,19 +39,19 @@ class UserRepositoryTest {
         assertThat(UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
         val user = UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage())
         assertThat(user, IsNot(IsNull.nullValue()))
-        assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null)))
+        assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())))
     }
 
     @Test
     fun updateUserFieldsOfInexistentUserReturnsError() = runBlocking {
-        val wrongUser = MyUser("WRONGUID", "BAD", "USER", null)
+        val wrongUser = MyUser("WRONGUID", "BAD", "USER", null, mutableListOf())
         assertThat(UserRepository.updateUserFields(wrongUser,FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun updateUserCorrectlyUpdatesUserFields() = runBlocking {
         UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore())
-        val updatedUser = MyUser(DUMMY_UID, "Bryan", "Kikou", null)
+        val updatedUser = MyUser(DUMMY_UID, "Bryan", "Kikou", null, mutableListOf())
         assertThat(UserRepository.updateUserFields(updatedUser,FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
 
         val user = UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage())

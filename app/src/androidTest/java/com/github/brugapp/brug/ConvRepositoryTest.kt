@@ -40,7 +40,7 @@ private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
 private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
 private val ACCOUNTWRONGCONV = BrugSignInAccount("", "", "", "")
 
-private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null)
+private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null, mutableListOf())
 private const val DUMMY_ITEM_NAME = "Airpods"
 
 class ConvRepositoryTest {

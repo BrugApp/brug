@@ -15,7 +15,7 @@ class ConversationTest {
     @Test
     fun initConvCorrectlyInitializesConversation() {
         val convID = "DUMMYID"
-        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null)
+        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
         val lostItemName = "DUMMYITEMNAME"
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
@@ -34,7 +34,7 @@ class ConversationTest {
     @Test
     fun compareIdenticalConversationsReturnsEquality() {
         val convID = "DUMMYID"
-        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null)
+        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
         val lostItemName = "DUMMYITEMNAME"
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
@@ -51,7 +51,7 @@ class ConversationTest {
     @Test
     fun compareAlmostIdenticalConversationsReturnsFalse() {
         val convID = "DUMMYID"
-        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null)
+        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
         val lostItemName = "DUMMYITEMNAME"
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(

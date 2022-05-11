@@ -15,7 +15,7 @@ class MyUserTest {
         val lastName = "Kikou"
         val userIconPath: String? = null
 
-        val user = MyUser(userID, firstName, lastName, userIconPath)
+        val user = MyUser(userID, firstName, lastName, userIconPath, mutableListOf())
         assertThat(user.uid, IsEqual(userID))
         assertThat(user.firstName, IsEqual(firstName))
         assertThat(user.lastName, IsEqual(lastName))
@@ -24,15 +24,15 @@ class MyUserTest {
 
     @Test
     fun comparingTwoIdenticalUsersReturnsEquality() {
-        val user1 = MyUser("DUMMYID", "Rayan", "Kikou", null)
-        val user2 = MyUser("DUMMYID", "Rayan", "Kikou", null)
+        val user1 = MyUser("DUMMYID", "Rayan", "Kikou", null, mutableListOf())
+        val user2 = MyUser("DUMMYID", "Rayan", "Kikou", null, mutableListOf())
         assertThat(user1, IsEqual(user2))
     }
 
     @Test
     fun comparingTwoAlmostIdenticalUsersReturnsFalse() {
-        val user1 = MyUser("DUMMYID", "Rayan", "Kikou", null)
-        val user2 = MyUser("DUMMYID2", "Rayan", "Kikou", null)
+        val user1 = MyUser("DUMMYID", "Rayan", "Kikou", null, mutableListOf())
+        val user2 = MyUser("DUMMYID2", "Rayan", "Kikou", null, mutableListOf())
         assertThat(user1, IsNot(IsEqual(user2)))
     }
 }
