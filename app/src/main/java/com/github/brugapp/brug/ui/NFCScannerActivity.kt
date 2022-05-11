@@ -58,7 +58,8 @@ open class NFCScannerActivity: AppCompatActivity() {
         editMessage = findViewById<View>(R.id.edit_message) as TextView?
         nfcContents = findViewById<View>(R.id.nfcContents) as TextView?
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button?
-        return (editMessage!=null && nfcContents!=null && activateButton!=null)
+
+        return editMessage!=null && nfcContents!=null && activateButton!=null
 
     }
     public override fun onPause() { super.onPause()
@@ -69,6 +70,7 @@ open class NFCScannerActivity: AppCompatActivity() {
 
     fun writeModeOff(){
         //allows us to stop writing to NFC tag when app is paused
+
         writeMode = true
 
         if(adapter!=null) {
@@ -86,8 +88,13 @@ open class NFCScannerActivity: AppCompatActivity() {
 
     }
 
-    public override fun onNewIntent(intent: Intent) { super.onNewIntent(intent)
+    public override fun onNewIntent(intent: Intent) {
+
+        super.onNewIntent(intent)
         setIntent(intent)
         viewModel.readFromIntent(nfcContents!!,intent)
-        if ((ACTION_TAG_DISCOVERED) == intent.action){ tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!! } }
+        if ((ACTION_TAG_DISCOVERED) == intent.action){
+            tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!!
+        }
+    }
 }
