@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.view_model
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -23,7 +24,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
-import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
@@ -96,6 +96,7 @@ class ChatViewModel : ViewModel() {
         if (firebaseAuth.currentUser == null) {
             Snackbar.make(
                 activity.findViewById(android.R.id.content),
+
                 "ERROR: You are no longer logged in ! Log in again to send the message.",
                 Snackbar.LENGTH_LONG
             )
@@ -262,6 +263,7 @@ class ChatViewModel : ViewModel() {
         return outputFile.toURI()
     }
 
+    @SuppressLint("MissingPermission")
     fun requestLocation(
         convID: String,
         activity: ChatActivity,
@@ -325,9 +327,10 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun setupRecording() {
+    fun setupRecording(activity: ChatActivity){
 
-        audioPath = Environment.getExternalStorageDirectory().absolutePath + "/Documents/audio.3gp"
+        audioPath = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!.absolutePath +
+                "/audio" + DateService.fromLocalDateTime(LocalDateTime.now()) + ".3gp"
 
         try {
             mediaRecorder = MediaRecorder()
@@ -335,7 +338,7 @@ class ChatViewModel : ViewModel() {
             mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
 
-            mediaRecorder.setOutputFile(audioPath)
+            mediaRecorder.setOutputFile(Uri.parse(audioPath).toString())
             mediaRecorder.prepare()
             mediaRecorder.start()
         } catch (e: Exception) {
@@ -343,11 +346,9 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun setListenForRecord(recordButton: RecordButton, bool: Boolean) {
-        recordButton.isListenForRecord = bool
-    }
 
-    fun deleteAudio() {
+    fun deleteAudio(){
+
         mediaRecorder.reset()
         mediaRecorder.release()
         val file = File(audioPath)
@@ -361,16 +362,15 @@ class ChatViewModel : ViewModel() {
         mediaRecorder.release()
     }
 
-    fun sendAudio() {
+    fun sendAudio(activity: ChatActivity, convID: String,
+                  firestore: FirebaseFirestore,
+                  firebaseAuth: FirebaseAuth,
+                  firebaseStorage: FirebaseStorage){
 
-        // TODO: modify this implementation to adapt it for Firestore
-        val audioMessage = AudioMessage(
-            "Me", DateService.fromLocalDateTime(LocalDateTime.now()),
-            "Audio", audioPath
+        val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
+            "Audio", Uri.fromFile(File(audioPath)).toString(), audioPath
         )
-
-        messages.add(audioMessage)
-        adapter.notifyItemInserted(messages.size - 1)
+        sendMessage(audioMessage, convID, activity, firestore, firebaseAuth, firebaseStorage)
     }
 
     // PERMISSIONS RELATED =======================================================
