@@ -35,26 +35,19 @@ open class NFCScannerActivity: AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nfc_scanner)
         viewModel.checkNFCPermission(this)
+        adapter = viewModel.setupAdapter(this)
         findViews() //maybe return early if false
-        nfcIntent = viewModel.setupWritingTagFilters(this).first
-        writingTagFilters = viewModel.setupWritingTagFilters(this).second
-        try{
-            adapter = viewModel.setupAdapter(this) //maybe try catch this
-        }catch(e: Exception){
-            Toast.makeText(this,"this device has no nfc adapter",Toast.LENGTH_SHORT).show()
-            finish()
-        }
-
         if (adapter==null){ Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
             finish() }
-
-        activateButton?.setOnClickListener{
+        nfcIntent = viewModel.setupWritingTagFilters(this).first
+        writingTagFilters = viewModel.setupWritingTagFilters(this).second
+        activateButton!!.setOnClickListener{
             try{ if(tag==null) Toast.makeText(this,Error_detected,Toast.LENGTH_LONG).show()
-                else{ viewModel.write(editMessage!!.text.toString(),tag!!)
-                    Toast.makeText(this,Write_success,Toast.LENGTH_LONG).show() }
+            else{ viewModel.write(editMessage!!.text.toString(),tag!!)
+                Toast.makeText(this,Write_success,Toast.LENGTH_LONG).show() }
             }catch(e: Exception){ when(e){ is IOException, is FormatException ->{ Toast.makeText(this,Write_error,Toast.LENGTH_LONG).show()
-                        e.printStackTrace() }
-                    else -> throw e } }
+                e.printStackTrace() }
+                else -> throw e } }
             viewModel.displayReportNotification(this) } }
 
     fun findViews(): Boolean{
@@ -69,32 +62,34 @@ open class NFCScannerActivity: AppCompatActivity() {
         return editMessage!=null && nfcContents!=null && activateButton!=null
 
     }
-    public override fun onPause() {
-        super.onPause()
-        writeModeOff()
-    }
+    public override fun onPause() { super.onPause()
+        writeModeOff() }
 
-    public override fun onResume(){
-        super.onResume()
-        writeModeOn()
-    }
+    public override fun onResume(){ super.onResume()
+        writeModeOn() }
 
     fun writeModeOff(){
         //allows us to stop writing to NFC tag when app is paused
 
         writeMode = true
-        adapter?.disableForegroundDispatch(this)
+
+        if(adapter!=null) {
+            adapter!!.disableForegroundDispatch(this)
+        }
 
     }
 
     fun writeModeOn(){
-
         //allows us to write to NFC tag as long as app is started/resumed
-        adapter?.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null)
+
+        if(adapter!=null) {
+            adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null)
+        }
 
     }
 
     public override fun onNewIntent(intent: Intent) {
+        //this allows us to assign a tag for a corresponding intent
 
         super.onNewIntent(intent)
         setIntent(intent)

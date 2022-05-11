@@ -1,5 +1,6 @@
 package com.github.brugapp.brug
 
+import android.content.Context
 import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NdefRecord

@@ -42,7 +42,7 @@ class NFCScanViewModel : ViewModel() {
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
 
         return tagDetected
-     }
+    }
 
     fun readFromIntent(nfcContents: TextView, intent: Intent){ if (checkIntentAction(intent)&&rawMessageToMessage(intent).first){ buildTagViews(nfcContents, rawMessageToMessage(intent).second) } }
 
@@ -63,8 +63,8 @@ class NFCScanViewModel : ViewModel() {
 
     fun rawMessageToMessage(intent: Intent): Pair<Boolean,Array<NdefMessage>> {
         //returns 2 objects:
-            //Boolean: this object checks if the extended data from intent is null
-            //Array<NdefMessage>: this object represented the extended data from intent
+        //Boolean: this object checks if the extended data from intent is null
+        //Array<NdefMessage>: this object represented the extended data from intent
         //params: 'intent' is used for getting extended data from this intent
         //use: sets up the data and conditions needed for calling buildTagViews
 
@@ -86,7 +86,7 @@ class NFCScanViewModel : ViewModel() {
 
     @SuppressLint("SetTextI18n")
     private fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){ try{ nfcContents.text = "Read Tag Contents:" + initText(messages) }catch (e : UnsupportedEncodingException){ Log.e("UnsupportedEncoding",e.toString()) } }
-    
+
     @Throws(UnsupportedEncodingException::class)
     fun initText(messages: Array<NdefMessage>?): String {
         //returns: String computed from the tag's NdefMessage Array

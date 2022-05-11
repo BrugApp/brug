@@ -1,6 +1,8 @@
 package com.github.brugapp.brug
 
 import android.app.Activity
+import android.app.PendingIntent.getActivity
+import android.content.Context
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.CreateNdefMessageCallback
@@ -15,6 +17,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.github.brugapp.brug.ui.NFCScannerActivity
+import com.github.brugapp.brug.view_model.NFCScanViewModel
 import com.google.protobuf.NullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
@@ -28,6 +31,8 @@ import org.mockito.internal.matchers.Null
 
 
 class NFCScannerActivityTest {
+    private val viewModel = NFCScanViewModel()
+
     @Test
      fun nfcScannerActivityMockTest() {
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
