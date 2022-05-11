@@ -7,4 +7,4 @@ data class Conversation(
     val userFields: MyUser,
     val lostItemName: String,
     val messages: MutableList<Message>
-): Serializable
+) : Serializable

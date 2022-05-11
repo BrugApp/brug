@@ -18,7 +18,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.devlomi.record_view.RecordButton
 import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
@@ -33,20 +32,41 @@ import com.github.brugapp.brug.view_model.ChatViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.time.LocalDateTime
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.AndroidEntryPoint
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.util.*
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var convID: String
 
     private lateinit var buttonSendTextMessage: ImageButton
-    private lateinit var recordButton: RecordButton
+    private lateinit var recordButton: ImageButton
     private lateinit var messageLayout: LinearLayout
     private lateinit var audioRecMessage: TextView
     private lateinit var buttonSendAudio: ImageButton
     private lateinit var deleteAudio: ImageButton
     private lateinit var textMessage: EditText
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+
+    @Inject
+    lateinit var firebaseStorage: FirebaseStorage
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
+
+    private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +92,6 @@ class ChatActivity : AppCompatActivity() {
         buttonSendAudio = findViewById(R.id.buttonSendAudio)
 
         recordButton = findViewById(R.id.recordButton)
-        viewModel.setListenForRecord(recordButton, false)
         initRecordButton(viewModel)
 
         deleteAudio = findViewById(R.id.deleteAudio)
@@ -137,7 +156,14 @@ class ChatActivity : AppCompatActivity() {
                 DateService.fromLocalDateTime(LocalDateTime.now()),
                 content
             )
-            viewModel.sendMessage(newMessage, convID, this)
+            viewModel.sendMessage(
+                newMessage,
+                convID,
+                this,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
 
             // Clear the message field
             this.findViewById<TextView>(R.id.editMessage).text = ""
@@ -172,7 +198,7 @@ class ChatActivity : AppCompatActivity() {
                 convID,
                 this,
                 fusedLocationClient,
-                locationManager
+                locationManager, firestore, firebaseAuth, firebaseStorage
             )
         }
     }
@@ -184,26 +210,12 @@ class ChatActivity : AppCompatActivity() {
             PackageManager.FEATURE_MICROPHONE)
     }*/
 
-
-    /*override fun onRequestPermissionsResult( // This should go to the bottom with the same function
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == RECORDING_REQUEST_CODE){
-            recordButton.isEnabled = true
-        }
-    }*/
-
     private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
 
-            model.setListenForRecord(recordButton, true)
-
             if (model.isAudioPermissionOk(this) && model.isExtStorageOk(this)) {
 
-                model.setupRecording()
+                model.setupRecording(this)
 
                 messageLayout.visibility = View.GONE
                 recordButton.visibility = View.GONE
@@ -231,7 +243,6 @@ class ChatActivity : AppCompatActivity() {
             audioRecMessage.visibility = View.GONE
             messageLayout.visibility = View.VISIBLE
             recordButton.visibility = View.VISIBLE
-            model.setListenForRecord(recordButton, false)
         }
     }
 
@@ -244,9 +255,8 @@ class ChatActivity : AppCompatActivity() {
             audioRecMessage.visibility = View.GONE
             messageLayout.visibility = View.VISIBLE
             recordButton.visibility = View.VISIBLE
-            model.setListenForRecord(recordButton, false)
 
-            model.sendAudio()
+            model.sendAudio(this, convID, firestore, firebaseAuth, firebaseStorage)
         }
     }
 
@@ -285,14 +295,14 @@ class ChatActivity : AppCompatActivity() {
                 val imageUri =
                     data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
                 viewModel.setImageUri(imageUri)
-                viewModel.sendPicMessage(this, convID)
+                viewModel.sendPicMessage(this, convID, firestore, firebaseAuth, firebaseStorage)
             } else if (requestCode == TAKE_PICTURE_REQUEST_CODE) {
                 // for the tests (use of stubs that store uri as extra)
                 val uriString = data?.extras?.getString(PIC_ATTACHMENT_INTENT_KEY)
                 if (uriString != null) {
                     viewModel.setImageUri(Uri.parse(uriString))
                 }
-                viewModel.sendPicMessage(this, convID)
+                viewModel.sendPicMessage(this, convID, firestore, firebaseAuth, firebaseStorage)
             }
         }
     }

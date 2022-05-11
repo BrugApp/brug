@@ -9,27 +9,22 @@ import android.widget.EditText
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import com.budiyev.android.codescanner.AutoFocusMode
-import com.budiyev.android.codescanner.CodeScanner
-import com.budiyev.android.codescanner.CodeScannerView
-import com.budiyev.android.codescanner.DecodeCallback
-import com.budiyev.android.codescanner.ErrorCallback
-import com.budiyev.android.codescanner.ScanMode
+import com.budiyev.android.codescanner.*
 import com.github.brugapp.brug.R
 
 private const val CAMERA_REQUEST_CODE = 101
 
-class QrCodeScanViewModel: ViewModel() {
+class QrCodeScanViewModel : ViewModel() {
 
     private lateinit var codeScanner: CodeScanner
 
-    fun checkPermission(context: Context){
+    fun checkPermission(context: Context) {
         val permission = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-        if ( permission == PackageManager.PERMISSION_DENIED)
+        if (permission == PackageManager.PERMISSION_DENIED)
             ActivityCompat
                 .requestPermissions(
                     context as Activity, arrayOf(Manifest.permission.CAMERA),
-                   CAMERA_REQUEST_CODE
+                    CAMERA_REQUEST_CODE
                 )
     }
 

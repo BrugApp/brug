@@ -18,7 +18,12 @@ class ItemsListAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.list_item_layout, parent, false)
-        return ListViewHolder(view, R.id.list_item_icon, R.id.list_item_title, R.id.list_item_desc) {
+        return ListViewHolder(
+            view,
+            R.id.list_item_icon,
+            R.id.list_item_title,
+            R.id.list_item_desc
+        ) {
             onItemClicked(itemsList[it])
         }
     }
