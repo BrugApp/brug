@@ -17,25 +17,27 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItem
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.Intents.intending
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
+import androidx.test.espresso.intent.matcher.IntentMatchers.*
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
-
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
+import com.github.brugapp.brug.ui.MapBoxActivity
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.anyOf
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -59,9 +61,12 @@ class ChatActivityTest {
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     @get:Rule
-    val permissionRuleAudio: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO)
+    val permissionRuleAudio: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO)
+
     @get:Rule
-    val permissionRuleExtStorage: GrantPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val permissionRuleExtStorage: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
     @get:Rule
     val permissionRuleCamera: GrantPermissionRule =
@@ -81,18 +86,20 @@ class ChatActivityTest {
         "USER1USER2",
         dummyUser,
         "DummyItem",
-        mutableListOf(Message(
-            dummyUser.getFullName(), dummyDate, "TestMessage"
-        ))
+        mutableListOf(
+            Message(
+                dummyUser.getFullName(), dummyDate, "TestMessage"
+            )
+        )
     )
 
     @Before
-    fun setUp(){
+    fun setUp() {
         Intents.init()
     }
 
     @After
-    fun cleanUp(){
+    fun cleanUp() {
         Intents.release()
     }
 
@@ -106,10 +113,14 @@ class ChatActivityTest {
 
         ActivityScenario.launch<Activity>(intent).use {
             val messagesList = onView(withId(R.id.messagesList))
-            messagesList.check(matches(
-                atPosition(0,
-                hasDescendant(withText("TestMessage"))
-                )))
+            messagesList.check(
+                matches(
+                    atPosition(
+                        0,
+                        hasDescendant(withText("TestMessage"))
+                    )
+                )
+            )
         }
     }
 
@@ -138,9 +149,8 @@ class ChatActivityTest {
         }
     }
 
-    //TODO: FIX THIS TEST WHEN DOING LOCATION PART
     @Test
-    fun sendLocationCorrectlyAddsNewMessage(){
+    fun sendLocationCorrectlyAddsNewMessage() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -151,9 +161,11 @@ class ChatActivityTest {
             val messagesList = onView(withId(R.id.messagesList))
             onView(withId(R.id.buttonSendLocalisation)).perform(click())
 
-//            messagesList.check(matches(
-//                atPosition(1, hasDescendant(withText("Location")))
-//            ))
+            messagesList.check(
+                matches(
+                    atPosition(1, hasDescendant(withContentDescription("location")))
+                )
+            )
         }
     }
 
@@ -233,12 +245,9 @@ class ChatActivityTest {
             onView(withId(R.id.recordButton)).check(matches(isDisplayed()))
         }
     }
-
-
-//<<<<<<< HEAD
-
+    
     @Test
-    fun initialChatSetupAfterAudio(){
+    fun initialChatSetupAfterAudio() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -254,26 +263,6 @@ class ChatActivityTest {
             onView(withId(R.id.recordButton)).check(matches(isDisplayed()))
         }
     }
-
-/*=======
-    fun sendCameraMessageOpensCamera() {
->>>>>>> main
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-        }
-
-<<<<<<< HEAD
-        val message = "Test text"
-
-=======
-        ActivityScenario.launch<Activity>(intent).use {
-            val expectedIntent: Matcher<Intent> = allOf(hasAction(MediaStore.ACTION_IMAGE_CAPTURE))
-            onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
-            intended(expectedIntent)
-        }
-    }*/
 
     @Test
     fun sendCameraMessageOpensCamera() {
@@ -354,7 +343,81 @@ class ChatActivityTest {
         }
     }
 
+    @Test
+    fun pressImageOpensFullScreenActivity() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
 
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            val cameraIntent: Matcher<Intent> = hasAction(MediaStore.ACTION_IMAGE_CAPTURE)
+            intending(cameraIntent).respondWith(storeImageAndSetResultStub())
+
+            onView(withId(R.id.buttonSendImagePerCamera)).perform(click())
+
+            val messagesList = onView(withId(R.id.messagesList))
+            messagesList.perform(
+                actionOnItem<RecyclerView.ViewHolder>(
+                    hasDescendant(withContentDescription("ImageSent")),
+                    click()
+                )
+            )
+
+            val expectedIntent: Matcher<Intent> = anyOf(
+                hasComponent(FullScreenImageTest::class.java.name),
+                hasExtraWithKey("messageUrl")
+            )
+            intended(expectedIntent)
+        }
+    }
+
+    @Test
+    fun pressLocationOpensMapActivity() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.buttonSendLocalisation)).perform(click())
+
+            val messagesList = onView(withId(R.id.messagesList))
+            messagesList.perform(
+                actionOnItem<RecyclerView.ViewHolder>(
+                    hasDescendant(withContentDescription("location")),
+                    click()
+                )
+            )
+
+            val expectedIntent: Matcher<Intent> = anyOf(
+                hasComponent(MapBoxActivity::class.java.name)
+            )
+            intended(expectedIntent)
+        }
+    }
+
+    // DISPLAY Tests
+    @Test
+    fun checkIfFieldsArePresent() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.editMessage)).check(matches(withHint("Message")))
+            onView(withId(R.id.buttonSendImage)).check(matches(withContentDescription("Send image")))
+            onView(withId(R.id.buttonSendImagePerCamera)).check(matches(withContentDescription("Send image via camera")))
+            onView(withId(R.id.buttonSendLocalisation)).check(matches(withContentDescription("Send localisation")))
+            onView(withId(R.id.buttonSendAudio)).check(matches(withContentDescription("sendAudio")))
+        }
+    }
+
+    // HELPER FUNCTIONS
     // Helper function to match inside a RecyclerView (from StackOverflow)
     private fun atPosition(position: Int, itemMatcher: Matcher<View?>): Matcher<View?> {
         return object : BoundedMatcher<View?, RecyclerView>(RecyclerView::class.java) {
@@ -372,6 +435,7 @@ class ChatActivityTest {
         }
     }
 
+    // Helper function to create and stub an image
     private fun storeImageAndSetResultStub(): Instrumentation.ActivityResult {
         // create bitmap
         // below is a base64 blue image
@@ -381,7 +445,7 @@ class ChatActivityTest {
         val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
 
         // create file
-        val imageFile = File.createTempFile("dummyIMG",".jpg")
+        val imageFile = File.createTempFile("dummyIMG", ".jpg")
 
         // store to outputstream
         val outputStream = FileOutputStream(imageFile)
@@ -394,78 +458,3 @@ class ChatActivityTest {
         return Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
     }
 }
-
-//TODO: OLD TESTS USING FIREBASE -> COMMENTED TO BE REUSED WHEN FINAL DB IS PROPERLY SETUP
-/*
-// DISPLAY Tests
-@Test
-fun checkIfReceiverFieldIsPresent() {
-    onView(withId(R.id.editName)).check(matches(withHint("Receiver")))
-}
-
-@Test
-fun checkIfMessageFieldIsPresent() {
-    onView(withId(R.id.editMessage)).check(matches(withHint("Message")))
-}
-
-@Test
-fun checkIfSendButtonIsPresent() {
-    onView(withId(R.id.buttonSendMessage)).check(matches(withText("Send")))
-}
-
-// FUNCTIONALITY Tests
-@Test
-fun sendAndRetrieveMessageWorks() {
-    onView(withId(R.id.editName)).perform(typeText("TestSender"))
-    closeSoftKeyboard()
-    onView(withId(R.id.editMessage)).perform(typeText("TestMessage"))
-    closeSoftKeyboard()
-
-    onView(withId(R.id.buttonSendMessage)).perform(click())
-
-    // Check the message
-    onData(
-        allOf(
-            `is`(instanceOf(Map::class.java)), hasEntry(
-                equalTo("STR"),
-                `is`("Sender: TestSender")
-            )
-        )
-    )
-}
-@Test
-fun sendAndRetrieveMessageWorks() {
-    // Enter data in fields
-    onView(withId(R.id.editName)).perform(typeText("TestSender"))
-    closeSoftKeyboard()
-    onView(withId(R.id.editMessage)).perform(typeText("TestMessage"))
-    closeSoftKeyboard()
-
-    var sendButton = onView(withId(R.id.buttonSendMessage)).perform(click())
-
-    // Check the message
-    onData(
-        allOf(
-            `is`(instanceOf(Map::class.java)), hasEntry(
-                equalTo("STR"),
-                `is`("Sender: TestSender")
-            )
-        )
-    )
-}
-
-@Test
-fun sendAndRetrieveLocalisationWorks() {
-    var sendLocalisationButton = onView(withId(R.id.buttonSendLocalisation)).perform(click())
-
-    // Check the localisation in message
-    onData(
-        allOf(
-            `is`(instanceOf(Map::class.java)), hasEntry(
-                equalTo("STR"),
-                `is`("Sender: Localisation service")
-            )
-        )
-    )
-}
-*/
