@@ -30,7 +30,6 @@ class MapsActivityTest {
         Intents.release()
     }
 
-
     @Test
     fun mapsActivityHasCorrectExtras(){
         val intent = Intent(ApplicationProvider.getApplicationContext(), MapsActivity::class.java).apply {

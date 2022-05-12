@@ -43,8 +43,8 @@ class MapBoxActivity : AppCompatActivity() {
     private val items: List<MyItem>? = runBlocking {
         Firebase.auth.uid?.let { ItemsRepository.getUserItemsFromUID(it) }
     }
-    private val lon = 18.06
-    private val lat = 59.31
+    private val lon = -122.084801
+    private val lat = 37.422131
     private val name = "iPhone"
 
     private lateinit var locationPermissionHelper: LocationPermissionHelper
@@ -62,11 +62,6 @@ class MapBoxActivity : AppCompatActivity() {
         locationPermissionHelper.checkPermissions {
             onMapReady()
         }
-
-
-//        val item = MyItem("iPhone", ItemType.Phone.ordinal, "", true)
-//        item.setLastLocation(lon, lat)
-//        items.add(item)
     }
 
     private fun onMapReady() {

@@ -3,6 +3,7 @@ package com.github.brugapp.brug.ui
 import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.databinding.ActivityNavigationToItemBinding
+import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.models.Bearing
 import com.mapbox.api.directions.v5.models.DirectionsRoute
 import com.mapbox.api.directions.v5.models.RouteOptions
@@ -104,6 +106,9 @@ class NavigationToItemActivity : AppCompatActivity() {
     private companion object {
         private const val BUTTON_ANIMATION_DURATION = 1500L
     }
+
+    private var destinationLatitude: Double? = null
+    private var destinationLongitude: Double? = null
 
     /**
      * Debug tool used to play, pause and seek route progress events that can be used to produce mocked location updates along the route.
@@ -415,16 +420,22 @@ class NavigationToItemActivity : AppCompatActivity() {
         setContentView(binding.root)
         mapboxMap = binding.mapView.getMapboxMap()
 
-        // initialize the location puck
+        binding.mapView.location.updateSettings {
+            this.enabled = true
+            this.pulsingEnabled = true
+            this.pulsingColor = Color.WHITE
+        }
+
+//        // initialize the location puck
         binding.mapView.location.apply {
-            this.locationPuck = LocationPuck2D(
-                bearingImage = ContextCompat.getDrawable(
-                    this@NavigationToItemActivity,
-                    R.drawable.circle
-                )
-            )
+//            this.locationPuck = LocationPuck2D(
+//                bearingImage = ContextCompat.getDrawable(
+//                    this@NavigationToItemActivity,
+//                    R.drawable.circle
+//                )
+//            )
             setLocationProvider(navigationLocationProvider)
-            enabled = true
+//            enabled = true
         }
 
         // initialize Mapbox Navigation
@@ -527,28 +538,22 @@ class NavigationToItemActivity : AppCompatActivity() {
         routeArrowView = MapboxRouteArrowView(routeArrowOptions)
 
         if (intent.extras != null) {
-            var destinationLatitude: Double?
-            var destinationLongitude: Double?
-
             (intent.extras!!.get(EXTRA_DESTINATION_LATITUDE) as Double?).apply {
                 destinationLatitude = this
             }
             (intent.extras!!.get(EXTRA_DESTINATION_LONGITUDE) as Double?).apply {
                 destinationLongitude = this
             }
-            destinationLongitude?.let { destinationLatitude?.let { it1 ->
-                findRoute(Point.fromLngLat(it, it1))
-            } }
         }
 
         // load map style
         mapboxMap.loadStyleUri(
             Style.MAPBOX_STREETS
         ) {
-            // add long click listener that search for a route to the clicked destination
-            binding.mapView.gestures.addOnMapLongClickListener { point ->
-                findRoute(point)
-                true
+            destinationLatitude?.let{ lat ->
+                destinationLongitude?.let { lon ->
+                    findRoute(Point.fromLngLat(lon, lat))
+                }
             }
         }
 
@@ -653,6 +658,7 @@ class NavigationToItemActivity : AppCompatActivity() {
                     )
                 )
                 .layersList(listOf(mapboxNavigation.getZLevel(), null))
+                .profile(DirectionsCriteria.PROFILE_WALKING)
                 .build(),
             object : NavigationRouterCallback {
                 override fun onRoutesReady(
@@ -665,13 +671,9 @@ class NavigationToItemActivity : AppCompatActivity() {
                 override fun onFailure(
                     reasons: List<RouterFailure>,
                     routeOptions: RouteOptions
-                ) {
-                    // no impl
-                }
+                ) {}
 
-                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {
-                    // no impl
-                }
+                override fun onCanceled(routeOptions: RouteOptions, routerOrigin: RouterOrigin) {}
             }
         )
     }

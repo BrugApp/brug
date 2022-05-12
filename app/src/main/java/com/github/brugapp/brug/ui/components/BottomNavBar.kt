@@ -32,7 +32,7 @@ class BottomNavBar {
                 }
                 R.id.chat_menu_button -> {
                     if(currentActivity is ItemsMenuActivity){
-                        currentActivity.startActivity(Intent(currentActivity, NavigationToItemActivity::class.java))
+                        currentActivity.startActivity(Intent(currentActivity, MapBoxActivity::class.java))
                     }
                     true
                 }
