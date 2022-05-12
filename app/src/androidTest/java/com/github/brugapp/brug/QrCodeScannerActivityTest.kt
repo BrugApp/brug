@@ -36,9 +36,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 
-private const val ERROR_STR = "ERROR: An error has occurred, try again."
-private const val SUCCESS_STR = "Thank you ! The user will be notified."
-
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
 class QrCodeScannerActivityTest {
@@ -71,14 +68,6 @@ class QrCodeScannerActivityTest {
     fun hintTextIsCorrect(){
         onView(withId(R.id.editTextReportItem))
             .check(matches((withHint("Report item…"))))
-    }
-
-    @Test
-    fun reportButtonDisplaysNotificationWithoutCrashing(){
-        onView(withId(R.id.buttonReportItem))
-            .perform(click())
-        NotificationManagerCompat.from(ApplicationProvider.getApplicationContext()).cancelAll()
-        Thread.sleep(1000)
     }
 
     @Test
