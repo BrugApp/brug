@@ -65,7 +65,7 @@ class QrCodeScannerActivityTest {
 
     @Test
     fun reportWithEmptyTextFieldReturnsErrorToast(){
-        val editTextItem = onView(withId(R.id.editTextReportItem))
+        val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText(""))
         onView(withId(R.id.buttonReportItem)).perform(click())
 
@@ -74,7 +74,7 @@ class QrCodeScannerActivityTest {
 
     @Test
     fun reportWithBadlyFormattedTextReturnsErrorToast() {
-        val editTextItem = onView(withId(R.id.editTextReportItem))
+        val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("abc"))
         onView(withId(R.id.buttonReportItem)).perform(click())
     }
@@ -98,7 +98,7 @@ class QrCodeScannerActivityTest {
             )
         }
 
-        val editTextItem = onView(withId(R.id.editTextReportItem))
+        val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("$userID:$itemID"))
         onView(withId(R.id.buttonReportItem)).perform(click())
         Thread.sleep(1000)

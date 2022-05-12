@@ -44,14 +44,14 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.codeScanner(this)
 
         //TODO: REMOVE THIS HARDCODED TEXT
-        findViewById<EditText>(R.id.editTextReportItem)//.setText("9fA9cFUJFcXnnUNfKUrGIKvMEDu2:2yl32B8cmEZEEGPaxbev")
+        findViewById<EditText>(R.id.edit_message)//.setText("9fA9cFUJFcXnnUNfKUrGIKvMEDu2:2yl32B8cmEZEEGPaxbev")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
             val context = this
             liveData(Dispatchers.IO){
                 emit(
                     viewModel.parseTextAndCreateConv(
-                        findViewById<EditText>(R.id.editTextReportItem).text,
+                        findViewById<EditText>(R.id.edit_message).text,
                         context,
                         firebaseAuth, firestore, firebaseStorage
                     )
