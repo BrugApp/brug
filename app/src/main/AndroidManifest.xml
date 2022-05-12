@@ -59,10 +59,6 @@
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
 
-<!--        <activity-->
-<!--            android:name=".ui.MapsActivity"-->
-<!--            android:exported="false"-->
-<!--            android:label="@string/title_activity_maps" />-->
         <activity
             android:name=".ui.ReportItemActivity"
             android:exported="false" />

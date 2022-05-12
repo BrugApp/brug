@@ -383,6 +383,7 @@ class ChatActivityTest {
         }
     }
 
+    // TEST COMMENTED AS IT CONSISTENTLY FAILS ON CIRRUS CI
 //    @Test
 //    fun pressLocationOpensMapActivity() {
 //        val context = ApplicationProvider.getApplicationContext<Context>()

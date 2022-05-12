@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.model
 
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.model.services.LocationService
 import java.io.Serializable
 
 class MyItem(
@@ -12,13 +13,13 @@ class MyItem(
 
     /* ITEM ID */
     private var itemID: String = ""
-    private var lastLocation: LonLatCoordinates? = null
+    private var lastLocation: LocationService? = null
 
-    fun getLastLocation(): LonLatCoordinates? {
+    fun getLastLocation(): LocationService? {
         return lastLocation
     }
     fun setLastLocation(lon: Double, lat: Double){
-        lastLocation = LonLatCoordinates(lon, lat)
+        lastLocation = LocationService(lat, lon)
     }
 
     fun setItemID(itemID: String) {

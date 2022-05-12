@@ -16,8 +16,8 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
 import com.github.brugapp.brug.databinding.SampleHelloWorldViewBinding
-import com.github.brugapp.brug.model.LonLatCoordinates
 import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
@@ -110,7 +110,7 @@ class MapBoxActivity : AppCompatActivity() {
                 val lastLocation = item.getLastLocation()
                 if (lastLocation != null) {
                     bitmapFromDrawableRes(this, icon)?.let { it ->
-                        val point: Point = Point.fromLngLat(lastLocation.lon, lastLocation.lat)
+                        val point: Point = Point.fromLngLat(lastLocation.getLongitude(), lastLocation.getLatitude())
 
                         val annotationPlugin = binding.mapView.annotations
                         val pointAnnotationOptions: PointAnnotationOptions =
@@ -151,14 +151,14 @@ class MapBoxActivity : AppCompatActivity() {
         }
     }
 
-    private fun setLinkWithNavigation(button: Button, mode: String, lastLocation: LonLatCoordinates) {
+    private fun setLinkWithNavigation(button: Button, mode: String, lastLocation: LocationService) {
         button.setOnClickListener {
             val myIntent = Intent(
                 this@MapBoxActivity,
                 NavigationToItemActivity::class.java
             ).apply {
-                putExtra(EXTRA_DESTINATION_LATITUDE, lastLocation.lat)
-                putExtra(EXTRA_DESTINATION_LONGITUDE, lastLocation.lon)
+                putExtra(EXTRA_DESTINATION_LATITUDE, lastLocation.getLatitude())
+                putExtra(EXTRA_DESTINATION_LONGITUDE, lastLocation.getLongitude())
                 putExtra(EXTRA_NAVIGATION_MODE, mode)
             }
             startActivity(myIntent)
