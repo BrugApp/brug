@@ -168,6 +168,9 @@ class ChatActivityTest {
             val messagesList = onView(withId(R.id.messagesList))
             onView(withId(R.id.buttonSendLocalisation)).perform(click())
 
+            // wait for the message to be uploaded
+            Thread.sleep(5000)
+
             messagesList.check(
                 matches(
                     atPosition(1, hasDescendant(withContentDescription("location")))
@@ -390,6 +393,9 @@ class ChatActivityTest {
 
         ActivityScenario.launch<Activity>(intent).use {
             onView(withId(R.id.buttonSendLocalisation)).perform(click())
+
+            // wait for the message to be uploaded
+            Thread.sleep(5000)
 
             val messagesList = onView(withId(R.id.messagesList))
             messagesList.perform(
