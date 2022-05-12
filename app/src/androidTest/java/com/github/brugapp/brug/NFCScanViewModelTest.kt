@@ -7,6 +7,8 @@ import android.nfc.NdefRecord
 import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.github.brugapp.brug.ui.NFCScannerActivity
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
@@ -14,6 +16,7 @@ import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import java.nio.charset.Charset
 import kotlin.experimental.and
 
@@ -72,6 +75,16 @@ class NFCScanViewModelTest {
         val languageCodeLength = payload[0] and 63.toByte()
         val text = String(payload,languageCodeLength+1,payload.size-languageCodeLength-1,textEncoding)
         assertThat(viewModel.initText(mockMessages),`is`(text))
+    }
+
+    @Test
+    fun testRecordCreation(){
+        val activity: NFCScannerActivity = Mockito.mock(NFCScannerActivity::class.java)
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val record = viewModel.createRecord("hello")
+        viewModel.checkNFCPermission(context)
+        viewModel.setupTag()
+        assertThat(record,`is`(viewModel.createRecord("hello")))
     }
 
      

@@ -4,10 +4,12 @@ import android.app.Activity
 import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Intent
+import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.CreateNdefMessageCallback
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
@@ -16,6 +18,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.platform.app.InstrumentationRegistry
 import com.github.brugapp.brug.ui.NFCScannerActivity
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import com.google.protobuf.NullValue
@@ -34,7 +37,7 @@ class NFCScannerActivityTest {
     private val viewModel = NFCScanViewModel()
 
     @Test
-     fun nfcScannerActivityMockTest() {
+     fun nfcTestAll() {
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
         val bundle = Bundle()
         mockActivity.onCreate(bundle)
@@ -45,6 +48,25 @@ class NFCScannerActivityTest {
         mockActivity.writeModeOn()
         val intent = Intent()
         mockActivity.onNewIntent(intent)
+
+        mockActivity.onCreate(null)
+
+        val record = viewModel.createRecord("hello")
+        val ndefArray = arrayOf(NdefMessage(record))
+        val activity = mockActivity
+        //val context = mockActivity.context
+        val context =  InstrumentationRegistry.getInstrumentation().getContext();//mock(Context::class.java)
+        activity.context = context
+        viewModel.checkNFCPermission(context)
+        //viewModel.setupAdapter(context)
+        //viewModel.setupWritingTagFilters(context)
+        viewModel.setupTag()
+        //viewModel.readFromIntent(activity.nfcContents!!,intent)
+        viewModel.checkIntentAction(intent)
+        viewModel.rawMessageToMessage(intent)
+        //viewModel.buildTagViews(activity.nfcContents!!, ndefArray)
+        viewModel.initText(ndefArray)
+        //viewModel.displayReportNotification(context)
         assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))}
     @Test
     fun writeModeOffTest(){
@@ -63,6 +85,8 @@ class NFCScannerActivityTest {
     @Test
     fun findViewsTest(){
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
+        //val editMessage = TextView(mockActivity.applicationContext)
+        //mockActivity.editMessage = editMessage
         assertThat(mockActivity.findViews(), `is`(false))
     }
 

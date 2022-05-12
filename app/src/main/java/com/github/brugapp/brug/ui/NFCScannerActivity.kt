@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.ui
 
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.nfc.FormatException
@@ -26,13 +27,15 @@ open class NFCScannerActivity: AppCompatActivity() {
     var writeMode: Boolean = false
     var tag: Tag? = null
     var adapter: NfcAdapter? = null
+    lateinit var context: Context
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
     var editMessage: TextView? = null
-    private var nfcContents: TextView? = null
+    var nfcContents: TextView? = null
     private var activateButton: Button? = null
 
     public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
+        context = this
         setContentView(R.layout.activity_nfc_scanner)
         viewModel.checkNFCPermission(this)
         adapter = viewModel.setupAdapter(this)
@@ -62,11 +65,15 @@ open class NFCScannerActivity: AppCompatActivity() {
         return editMessage!=null && nfcContents!=null && activateButton!=null
 
     }
-    public override fun onPause() { super.onPause()
-        writeModeOff() }
+    public override fun onPause() {
+        super.onPause()
+        writeModeOff()
+    }
 
-    public override fun onResume(){ super.onResume()
-        writeModeOn() }
+    public override fun onResume(){
+        super.onResume()
+        writeModeOn()
+    }
 
     fun writeModeOff(){
         //allows us to stop writing to NFC tag when app is paused
