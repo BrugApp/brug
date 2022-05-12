@@ -41,10 +41,10 @@ class SignInActivity : AppCompatActivity() {
             viewModel.goToDemoMode(this)
         }
 
-        findViewById<Button>(R.id.mapDemoButton).setOnClickListener {
-            val myIntent = Intent(this, NavigationMenuActivity::class.java)
-            startActivity(myIntent)
-        }
+//        findViewById<Button>(R.id.mapDemoButton).setOnClickListener {
+//            val myIntent = Intent(this, NavigationMenuActivity::class.java)
+//            startActivity(myIntent)
+//        }
     }
 
     override fun onStart() {
