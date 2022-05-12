@@ -92,6 +92,14 @@
             android:parentActivityName=".ui.ChatMenuActivity">
         </activity>
         <activity
+            android:name=".ui.FullScreenImage"
+            android:exported="true"
+            android:parentActivityName=".ui.ChatActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.ChatActivity" />
+        </activity>
+        <activity
             android:name=".ui.RegisterUserActivity"
             android:exported="false" />
         <activity
