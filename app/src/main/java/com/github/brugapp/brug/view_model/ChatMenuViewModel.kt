@@ -22,6 +22,7 @@ class ChatMenuViewModel : ViewModel() {
 
     fun setCallback(
         activity: AppCompatActivity,
+        isTest: Boolean,
         dragPair: Pair<Int, Int>,
         swipePair: Pair<Drawable, Int>,
         listAdapterPair: Pair<MutableList<Conversation>, ConversationListAdapter>,
@@ -37,54 +38,73 @@ class ChatMenuViewModel : ViewModel() {
             swipePair,
             listAdapterPair
         ) { delConv, position ->
-            liveData(Dispatchers.IO) {
-                emit(
-                    ConvRepository.deleteConversationFromID(
-                        delConv.convId,
-                        firebaseAuth.currentUser!!.uid,
-                        firestore
+            if(isTest){
+                listAdapterPair.first.removeAt(position)
+                listAdapterPair.second.notifyItemRemoved(position)
+
+                Snackbar.make(
+                    listView,
+                    CHAT_CHECK_TEXT,
+                    Snackbar.LENGTH_LONG
+                ).setAction("Undo") {
+                    listAdapterPair.first.add(position, delConv)
+                    listAdapterPair.second.notifyItemInserted(position)
+                }.show()
+            } else {
+                liveData(Dispatchers.IO) {
+                    emit(
+                        ConvRepository.deleteConversationFromID(
+                            delConv.convId,
+                            firebaseAuth.currentUser!!.uid,
+                            firestore
+                        )
                     )
-                )
-            }.observe(activity) { response ->
-                if (response.onSuccess) {
-                    listAdapterPair.first.removeAt(position)
-                    listAdapterPair.second.notifyItemRemoved(position)
+                }.observe(activity) { response ->
+                    if (response.onSuccess) {
+                        listAdapterPair.first.removeAt(position)
+                        listAdapterPair.second.notifyItemRemoved(position)
 
-                    Snackbar.make(
-                        listView,
-                        CHAT_CHECK_TEXT,
-                        Snackbar.LENGTH_LONG
-                    ).setAction("Undo") {
-                        liveData(Dispatchers.IO) {
-                            emit(
-                                ConvRepository.addNewConversation(
-                                    firebaseAuth.currentUser!!.uid,
-                                    delConv.userFields.uid,
-                                    delConv.lostItemName,
-                                    firestore
+                        Snackbar.make(
+                            listView,
+                            CHAT_CHECK_TEXT,
+                            Snackbar.LENGTH_LONG
+                        ).setAction("Undo") {
+                            liveData(Dispatchers.IO) {
+                                emit(
+                                    ConvRepository.addNewConversation(
+                                        firebaseAuth.currentUser!!.uid,
+                                        delConv.userFields.uid,
+                                        delConv.lostItemName,
+                                        firestore
+                                    )
                                 )
-                            )
-                        }.observe(activity) {
-                            if (!response.onSuccess) {
-                                Snackbar.make(
-                                    listView,
-                                    "ERROR: Unable to re-add requested conversation to database",
-                                    Snackbar.LENGTH_LONG
-                                ).show()
+                            }.observe(activity) {
+                                if (!response.onSuccess) {
+                                    Snackbar.make(
+                                        listView,
+                                        "ERROR: Unable to re-add requested conversation to database",
+                                        Snackbar.LENGTH_LONG
+                                    ).show()
+                                }
                             }
-                        }
 
-                        listAdapterPair.first.add(position, delConv)
-                        listAdapterPair.second.notifyItemInserted(position)
-                    }.show()
-                } else {
-                    Snackbar.make(
-                        listView,
-                        "ERROR: Unable to delete requested item from database",
-                        Snackbar.LENGTH_LONG
-                    ).show()
+                            listAdapterPair.first.add(position, delConv)
+                            listAdapterPair.second.notifyItemInserted(position)
+                        }.show()
+                    } else {
+                        Snackbar.make(
+                            listView,
+                            "ERROR: Unable to delete requested item from database",
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
+
         }
+    }
+
+    private fun callBackActions(){
+
     }
 }

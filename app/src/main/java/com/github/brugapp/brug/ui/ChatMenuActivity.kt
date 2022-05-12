@@ -14,17 +14,17 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.brugapp.brug.CONVERSATION_TEST_LIST_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ChatMenuViewModel
 import com.github.brugapp.brug.view_model.ConversationListAdapter
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -71,13 +71,22 @@ class ChatMenuActivity : AppCompatActivity() {
     }
 
     private fun initChatList() {
-        ConvRepository.getRealtimeConvsFromUID(
-            firebaseAuth.uid!!,
-            this,
-            firestore,
-            firebaseAuth,
-            firebaseStorage
-        )
+        val conversationTestList =
+            if(intent.extras != null && intent.extras!!.containsKey(CONVERSATION_TEST_LIST_KEY)){
+                intent.extras!!.get(CONVERSATION_TEST_LIST_KEY) as MutableList<Conversation>
+            } else null
+
+        if(conversationTestList == null) {
+            ConvRepository.getRealtimeConvsFromUID(
+                firebaseAuth.uid!!,
+                this,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
+        } else {
+            BrugDataCache.setConversationsList(conversationTestList)
+        }
         // GET ELEMENTS FROM CACHE
         BrugDataCache.getConversationList().observe(this){ conversations ->
 
@@ -106,6 +115,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
             val listCallback = viewModel.setCallback(
                 this,
+                conversationTestList != null,
                 dragPair,
                 swipePair,
                 listAdapterPair,
