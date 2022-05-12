@@ -26,6 +26,7 @@ import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -119,6 +120,9 @@ class ChatActivity : AppCompatActivity() {
                     adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
                 ) {
                     val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
+                    val message = adapter.getItem(position) as LocationMessage
+                    myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, message.location.toAndroidLocation().longitude)
+                    myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, message.location.toAndroidLocation().latitude)
                     startActivity(myIntent)
                 } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
                     adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
