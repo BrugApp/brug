@@ -68,7 +68,7 @@ class NFCScannerActivityTest {
         mockActivity.writeModeOn()
         assertThat(mockActivity.writeMode,`is`(false))
     }
-
+/*
     @Test
     fun findViewsTest(){
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
@@ -76,7 +76,7 @@ class NFCScannerActivityTest {
         //mockActivity.editMessage = editMessage
         assertThat(mockActivity.findViews(), `is`(false))
     }
-
+*/
     @Test
     fun onNewIntentTest(){
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
@@ -131,7 +131,7 @@ class NFCScannerActivityTest {
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
         val bundle = Bundle()
         mockActivity.onCreate(bundle)
-        mockActivity.findViews()
+        //mockActivity.findViews()
         mockActivity.onPause()
         mockActivity.onResume()
         mockActivity.writeModeOff()
