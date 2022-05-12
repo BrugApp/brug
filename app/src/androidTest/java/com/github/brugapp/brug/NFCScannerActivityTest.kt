@@ -113,7 +113,7 @@ class NFCScannerActivityTest {
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
         val bundle = Bundle()
         mockActivity.onCreate(bundle)
-        assertThat(mockActivity.editMessage,`is`(IsNull.nullValue()))
+        assertThat(mockActivity.adapter,`is`(IsNull.nullValue()))
     }
 
     @Test
