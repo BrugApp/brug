@@ -383,34 +383,34 @@ class ChatActivityTest {
         }
     }
 
-    @Test
-    fun pressLocationOpensMapActivity() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-        }
-
-        ActivityScenario.launch<Activity>(intent).use {
-            onView(withId(R.id.buttonSendLocalisation)).perform(click())
-
-            // wait for the message to be uploaded
-            Thread.sleep(5000)
-
-            val messagesList = onView(withId(R.id.messagesList))
-            messagesList.perform(
-                actionOnItem<RecyclerView.ViewHolder>(
-                    hasDescendant(withContentDescription("location")),
-                    click()
-                )
-            )
-
-            val expectedIntent: Matcher<Intent> = anyOf(
-                hasComponent(MapBoxActivity::class.java.name)
-            )
-            intended(expectedIntent)
-        }
-    }
+//    @Test
+//    fun pressLocationOpensMapActivity() {
+//        val context = ApplicationProvider.getApplicationContext<Context>()
+//
+//        val intent = Intent(context, ChatActivity::class.java).apply {
+//            putExtra(CHAT_INTENT_KEY, conversation)
+//        }
+//
+//        ActivityScenario.launch<Activity>(intent).use {
+//            onView(withId(R.id.buttonSendLocalisation)).perform(click())
+//
+//            // wait for the message to be uploaded
+//            Thread.sleep(5000)
+//
+//            val messagesList = onView(withId(R.id.messagesList))
+//            messagesList.perform(
+//                actionOnItem<RecyclerView.ViewHolder>(
+//                    hasDescendant(withContentDescription("location")),
+//                    click()
+//                )
+//            )
+//
+//            val expectedIntent: Matcher<Intent> = anyOf(
+//                hasComponent(MapBoxActivity::class.java.name)
+//            )
+//            intended(expectedIntent)
+//        }
+//    }
 
     // DISPLAY Tests
     @Test
