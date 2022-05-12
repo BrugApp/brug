@@ -25,7 +25,7 @@ class FirebaseAuthRepositoryTest {
         val dummyAccount = BrugSignInAccount("DUMMYFNAME", "DUMMYLNAME", "", TEST_USER_EMAIL)
         createAccout()
         //Why have we to create a account before ?
-        assertThat(FirebaseAuthRepository.createAuthAccount(dummyAccount, PASSWORD,FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
+        assertThat(FirebaseAuthRepository.createAuthAccount(dummyAccount, PASSWORD,FirebaseFakeHelper().providesAuth(), true, FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
     }
 
     private fun createAccout() {

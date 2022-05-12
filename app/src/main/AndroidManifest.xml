@@ -15,6 +15,9 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.NFC" />
+
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
     <application
         android:name=".BrugApp"
@@ -105,6 +108,19 @@
                 android:value=".ui.SignInActivity" />
         </activity>
         <activity
+            android:name=".ui.NFCScannerActivity"
+            android:exported="true"
+            android:parentActivityName=".ui.SignInActivity">
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.SignInActivity" />
+        </activity>
+        <activity
             android:name=".ui.ItemsMenuActivity"
             android:exported="false"
             android:label="@string/item_activity_title">
@@ -121,7 +137,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

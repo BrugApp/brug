@@ -11,22 +11,19 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.View
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
-import com.github.brugapp.brug.R
-import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
-import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
+import com.github.brugapp.brug.*
+import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.message_types.LocationMessage
+import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -107,12 +104,34 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(conversation: Conversation) {
-        val messageList = findViewById<RecyclerView>(R.id.messagesList)
-        viewModel.initViewModel(conversation.messages, this)
-        messageList.layoutManager = LinearLayoutManager(this)
+        val messagesTestList =
+            if(intent.extras != null && intent.extras!!.containsKey(MESSAGE_TEST_LIST_KEY)){
+                intent.extras!!.get(MESSAGE_TEST_LIST_KEY) as MutableList<Message>
+            } else null
 
-        val adapter = viewModel.getAdapter()
-        messageList.adapter = adapter
+        if(messagesTestList == null) {
+            MessageRepository.getRealtimeMessages(
+                conversation.convId,
+                conversation.userFields.getFullName(),
+                firebaseAuth.uid!!,
+                this,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
+        } else {
+            BrugDataCache.addMessageList(conversation.convId, messagesTestList)
+        }
+
+        BrugDataCache.getMessageList(conversation.convId).observe(this){ messages ->
+            findViewById<ProgressBar>(R.id.loadingMessages).visibility = View.GONE
+
+            val messageList = findViewById<RecyclerView>(R.id.messagesList)
+            viewModel.initViewModel(messages, this)
+            messageList.layoutManager = LinearLayoutManager(this)
+
+            val adapter = viewModel.getAdapter()
+            messageList.adapter = adapter
 
         adapter.setOnItemClickListener(object : ChatMessagesListAdapter.onItemClickListener {
             override fun onItemClick(position: Int) {
@@ -135,7 +154,9 @@ class ChatActivity : AppCompatActivity() {
             }
         })
 
-        scrollToBottom((adapter.itemCount) - 1)
+            scrollToBottom((adapter.itemCount) - 1)
+        }
+
 
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItemName
@@ -284,8 +305,10 @@ class ChatActivity : AppCompatActivity() {
     }
 
     fun scrollToBottom(position: Int) {
-        val rv = findViewById<View>(R.id.messagesList) as RecyclerView
-        rv.smoothScrollToPosition(position)
+        if(position > 0){
+            val rv = findViewById<View>(R.id.messagesList) as RecyclerView
+            rv.smoothScrollToPosition(position)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

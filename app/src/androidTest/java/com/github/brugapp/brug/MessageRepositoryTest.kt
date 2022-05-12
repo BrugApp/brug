@@ -5,7 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
@@ -19,11 +21,10 @@ import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.hamcrest.MatcherAssert.assertThat
@@ -41,7 +42,7 @@ private const val USER_ID2 = "USER2"
 private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
 private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
 
-private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null)
+private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null, mutableListOf())
 private const val DUMMY_ITEM_NAME = "AirPods Pro Max"
 
 private val TEXTMSG = TextMessage("Me",
@@ -59,8 +60,8 @@ private val LOCATIONMSG = LocationMessage(
 private val AUDIOMSG = AudioMessage(
     USER2.getFullName(),
     DateService.fromLocalDateTime(LocalDateTime.now()),
-    "LocationMessage",
-    "","")
+    "AudioMessage",
+    "", "")
 
 
 class MessageRepositoryTest {
@@ -70,8 +71,8 @@ class MessageRepositoryTest {
     private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
     private fun addUsersAndConv() = runBlocking {
-        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1,firestore)
-        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2,firestore)
+        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1, true, firestore)
+        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2, true, firestore)
         ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore)
     }
 
@@ -95,23 +96,39 @@ class MessageRepositoryTest {
 
     //TODO: FIX TEST
     @Test
-    fun addTextMessageCorrectlyAddsNewTextMessage() = runBlocking {
-        val response = MessageRepository.addMessageToConv(
-            TEXTMSG,
-            USER_ID1,
+    fun addTextMessageCorrectlyAddsNewTextMessage() {
+        val response = runBlocking {
+             MessageRepository.addMessageToConv(
+                TEXTMSG,
+                USER_ID1,
+                "${USER_ID1}${USER_ID2}",
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
+        }
+        assertThat(response.onSuccess, IsEqual(true))
+
+        val context = TestLifecycleOwner()
+
+        MessageRepository.getRealtimeMessages(
             "${USER_ID1}${USER_ID2}",
+            USER2.getFullName(),
+            USER_ID1,
+            context,
             firestore,
             firebaseAuth,
             firebaseStorage
-            )
-        assertThat(response.onSuccess, IsEqual(true))
+        )
 
-        val conv = ConvRepository.getUserConvFromUID(USER_ID1,
-            firestore,firebaseAuth,firebaseStorage)!!.filter {
-            it.convId == "${USER_ID1}${USER_ID2}"
+        runBlocking {
+            delay(1000)
         }
-        assertThat(conv.isNullOrEmpty(), IsEqual(false))
-        assertThat(conv[0].messages.contains(TEXTMSG), IsEqual(true))
+
+        val messagesList = BrugDataCache.getMessageList("${USER_ID1}${USER_ID2}")
+
+        assertThat(messagesList.value.isNullOrEmpty(), IsEqual(false))
+        assertThat(messagesList.value!!.contains(TEXTMSG), IsEqual(true))
     }
 
     @Test
@@ -126,12 +143,30 @@ class MessageRepositoryTest {
         )
         assertThat(response.onSuccess, IsEqual(true))
 
-        val conv = ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage)!!.filter {
-            it.convId == "${USER_ID1}${USER_ID2}"
-        }
-        assertThat(conv.isNullOrEmpty(), IsEqual(false))
 
-        assertThat(conv[0].messages.contains(LOCATIONMSG), IsEqual(true))
+        val context = TestLifecycleOwner()
+
+        MessageRepository.getRealtimeMessages(
+            "${USER_ID1}${USER_ID2}",
+            USER2.getFullName(),
+            USER_ID1,
+            context,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
+
+        runBlocking {
+            delay(1000)
+        }
+
+        val messagesList = BrugDataCache.getMessageList("${USER_ID1}${USER_ID2}")
+
+        assertThat(messagesList.value.isNullOrEmpty(), IsEqual(false))
+        for(value in messagesList.value!!){
+            Log.e("FIREBASE MESSAGE", value.toString())
+        }
+        assertThat(messagesList.value!!.contains(LOCATIONMSG), IsEqual(true))
     }
 
     @Test
@@ -189,11 +224,22 @@ class MessageRepositoryTest {
         )
         assertThat(response.onSuccess, IsEqual(true))
 
-        // CHECK IF MESSAGE HAS BEEN ADDED CORRECTLY
-        val conv = ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage)!!.filter {
-            it.convId == "${USER_ID1}${USER_ID2}"
-        }
-        assertThat(conv.isNullOrEmpty(), IsEqual(false))
+        val context = TestLifecycleOwner()
+
+        MessageRepository.getRealtimeMessages(
+            "${USER_ID1}${USER_ID2}",
+            "USERNAME",
+            USER_ID1,
+            context,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
+
+        delay(1000)
+
+        val messagesList = BrugDataCache.getMessageList("${USER_ID1}${USER_ID2}")
+        assertThat(messagesList.value.isNullOrEmpty(), IsEqual(false))
 //        val splitPath = filePath.toString().split("/")
 //        val firebasePicMessage = PicMessage(picMsg.senderName,
 //            picMsg.timestamp,

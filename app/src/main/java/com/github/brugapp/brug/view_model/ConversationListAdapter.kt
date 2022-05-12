@@ -46,10 +46,11 @@ class ConversationListAdapter(
             val bitmap = drawableIcon!!.toBitmap(USERPIC_LEN, USERPIC_LEN, Bitmap.Config.ARGB_8888)
             holder.icon.setImageBitmap(bitmap)
         }
+        val lastMessage = listElement.lastMessage
+
         val lastMessageBody =
-            if (listElement.messages.isEmpty()) "Empty Conversation"
+            if (lastMessage == null) "Empty Conversation"
             else {
-                val lastMessage = listElement.messages.last()
                 "${lastMessage.senderName}: ${lastMessage.body}"
             }
 

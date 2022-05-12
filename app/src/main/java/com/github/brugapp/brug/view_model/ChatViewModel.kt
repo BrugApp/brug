@@ -147,30 +147,6 @@ class ChatViewModel : ViewModel() {
     }
 
     // LOCATION RELATED
-    fun requestLocation(
-        activity: Activity,
-        fusedLocationClient: FusedLocationProviderClient,
-        locationManager: LocationManager
-    ) {
-        if (ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                activity.applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                activity,
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ),
-                LOCATION_REQUEST_CODE
-            )
-        }
-    }
-
     private fun sendLocationMessage(
         activity: ChatActivity,
         location: Location,
@@ -180,10 +156,12 @@ class ChatViewModel : ViewModel() {
         firebaseStorage: FirebaseStorage
     ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
+        val strMsg = textBox.text.toString().ifBlank { "📍 Location" }
+        val uri = createFakeImage(activity)
         val newMessage = LocationMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
-            textBox.text.toString(),
+            strMsg,
             LocationService.fromAndroidLocation(location)
         )
 
@@ -225,10 +203,12 @@ class ChatViewModel : ViewModel() {
         firebaseStorage: FirebaseStorage
     ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
+        val strMsg = textBox.text.toString().ifBlank { "📷 Image" }
+        //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
-            textBox.text.toString(),
+            strMsg,
             compressImage(activity, imageUri).toString()
         )
 

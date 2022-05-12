@@ -6,5 +6,5 @@ data class Conversation(
     val convId: String,
     val userFields: MyUser,
     val lostItemName: String,
-    val messages: MutableList<Message>
+    val lastMessage: Message?
 ) : Serializable

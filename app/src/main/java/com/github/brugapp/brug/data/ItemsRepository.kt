@@ -2,8 +2,10 @@ package com.github.brugapp.brug.data
 
 import android.util.Log
 import com.github.brugapp.brug.model.MyItem
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 
 private const val USERS_DB = "Users"
@@ -110,7 +112,6 @@ object ItemsRepository {
     ): FirebaseResponse {
         val response = FirebaseResponse()
 
-        //TODO: MAKE SURE THE ITEM ID IS RETRIEVED WITH ALL THE OTHER INFOS !
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
             if (!userRef.get().await().exists()) {
@@ -189,6 +190,28 @@ object ItemsRepository {
         return response
     }
 
+    suspend fun getSingleItemFromIDs(uid: String, itemID: String): MyItem? {
+        return try {
+            val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
+            if(!userRef.get().await().exists()){
+                Log.e("FIREBASE ERROR","User doesn't exist")
+                return null
+            }
+
+            val itemDoc = userRef.collection(ITEMS_DB).document(itemID).get().await()
+            if(!itemDoc.exists()){
+                Log.e("FIREBASE ERROR","Item doesn't exist")
+                return null
+            }
+
+            getItemFromDoc(itemDoc)
+
+        } catch(e: Exception) {
+            Log.e("FIREBASE ERROR", e.message.toString())
+            null
+        }
+    }
+
 
     /**
      * Retrieves the list of items belonging to a user, given its user ID.
@@ -216,7 +239,7 @@ object ItemsRepository {
     }
 
 
-    private fun getItemFromDoc(itemDoc: QueryDocumentSnapshot): MyItem? {
+    private fun getItemFromDoc(itemDoc: DocumentSnapshot): MyItem? {
         try {
             if (!itemDoc.contains("item_name")
                 || !itemDoc.contains("item_type")

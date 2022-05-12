@@ -57,6 +57,7 @@ class SignInActivityButtonTest {
         onView(withId(R.id.demo_button)).perform(click())
 
         //Thread.sleep(30000)
+        Thread.sleep(2000)
         intended(
             allOf(
                 toPackage("com.github.brugapp.brug"),
@@ -69,14 +70,18 @@ class SignInActivityButtonTest {
     @Test
     fun itemFoundButtonGoesToQRCodeScannerActivity() {
         onView(withId(R.id.qr_found_btn)).perform(click())
-
         intended(
             allOf(
                 toPackage("com.github.brugapp.brug"),
                 hasComponent(QrCodeScannerActivity::class.java.name)
             )
         )
-
     }
-
 }
+/*
+    @Test
+    fun nfcButtonGoesToNFCScannerActivity(){
+        onView(withId(R.id.nfc_found_btn)).perform(click())
+        intended(allOf(toPackage("com.github.brugapp.brug"), hasComponent(NFCScannerActivity::class.java.name)))
+    }
+}*/
