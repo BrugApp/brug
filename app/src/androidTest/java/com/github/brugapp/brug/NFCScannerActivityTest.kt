@@ -68,15 +68,7 @@ class NFCScannerActivityTest {
         mockActivity.writeModeOn()
         assertThat(mockActivity.writeMode,`is`(false))
     }
-/*
-    @Test
-    fun findViewsTest(){
-        val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
-        //val editMessage = TextView(mockActivity.applicationContext)
-        //mockActivity.editMessage = editMessage
-        assertThat(mockActivity.findViews(), `is`(false))
-    }
-*/
+
     @Test
     fun onNewIntentTest(){
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
@@ -182,14 +174,4 @@ class NFCScannerActivityTest {
             activateButton.check(matches(isDisplayed()))
         }
     }
-
-    /*
-    @Test
-    fun nonNullNfcAdapterTest() {
-        var mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
-        val adapter = NfcAdapter.getDefaultAdapter(mockActivity)
-        mockActivity.adapter = adapter
-        assertThat(mockActivity.adapter, isNotNull())
-    }
-     */
 }
