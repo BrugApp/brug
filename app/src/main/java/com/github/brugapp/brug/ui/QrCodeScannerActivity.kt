@@ -2,7 +2,6 @@ package com.github.brugapp.brug.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -12,14 +11,12 @@ import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
-
 
 //library found on github: https://github.com/yuriy-budiyev/code-scanner
 @AndroidEntryPoint
