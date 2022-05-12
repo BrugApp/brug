@@ -214,14 +214,13 @@ class ChatMenuActivityTest {
     @Test
     fun changingBottomNavBarMenuToMapGoesToActivity() {
         val chatMenuButton = onView(withId(R.id.item_map_button))
-        chatMenuButton.perform(click()).check(matches(isEnabled()))
+        chatMenuButton.perform(click())
         intended(hasComponent(MapBoxActivity::class.java.name))
     }
 
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-
         val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
