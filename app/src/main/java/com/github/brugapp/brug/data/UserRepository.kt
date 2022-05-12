@@ -93,6 +93,14 @@ object UserRepository {
         return response
     }
 
+    /**
+     * Adds a new device token to a user.
+     *
+     * @param uid the user id to which the token should be added
+     * @param token the token to add
+     *
+     * @return FirebaseResponse object, denoting if the operation has been successful or not
+     */
     suspend fun addNewDeviceTokenToUser(uid: String, token: String, firestore: FirebaseFirestore): FirebaseResponse{
         val response = FirebaseResponse()
         try {
@@ -114,6 +122,14 @@ object UserRepository {
         return response
     }
 
+    /**
+     * Deletes a device token from a user.
+     *
+     * @param uid the user id to which the token should be deleted
+     * @param token the token to delete
+     *
+     * @return FirebaseResponse object, denoting if the operation has been successful or not
+     */
     suspend fun deleteDeviceTokenFromUser(uid: String, token: String, firestore: FirebaseFirestore): FirebaseResponse{
         val response = FirebaseResponse()
         try {
