@@ -64,7 +64,7 @@ class QrCodeScanViewModel : ViewModel() {
             // HERE LIES THE CODE HANDLING WHAT HAPPENS AFTER SCANNING THE QR CODE
             decodeCallback = DecodeCallback {
                 activity.runOnUiThread {
-                    activity.findViewById<EditText>(R.id.editTextReportItem).setText(it.text)
+                    activity.findViewById<EditText>(R.id.edit_message).setText(it.text)
                 }
             }
             errorCallback = ErrorCallback {

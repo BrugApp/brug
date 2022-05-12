@@ -79,6 +79,11 @@ dependencies {
     //for Google Pay use:
     implementation 'com.google.android.gms:play-services-wallet:19.1.0'
 
+    // required if you want to use Mockito for unit tests
+    testImplementation 'org.mockito:mockito-core:2.24.5'
+    testImplementation 'org.mockito:mockito-inline:2.13.0'
+    androidTestImplementation 'org.mockito:mockito-android:2.24.5'
+
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     // ViewModel utilities for Compose

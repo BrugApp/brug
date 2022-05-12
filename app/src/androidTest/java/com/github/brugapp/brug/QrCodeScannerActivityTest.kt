@@ -59,7 +59,7 @@ class QrCodeScannerActivityTest {
 
     @Test
     fun hintTextIsCorrect(){
-        onView(withId(R.id.editTextReportItem))
+        onView(withId(R.id.edit_message))
             .check(matches((withHint("Report item…"))))
     }
 

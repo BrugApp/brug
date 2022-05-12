@@ -42,6 +42,11 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
+        findViewById<Button>(R.id.nfc_found_btn).setOnClickListener{
+            val myIntent = Intent(this,NFCScannerActivity::class.java)
+            startActivity(myIntent)
+        }
+
         // Set Listener for google sign in button
         findViewById<SignInButton>(R.id.sign_in_google_button).setOnClickListener {
             val signInIntent: Intent = viewModel.getSignInIntent()
@@ -93,9 +98,11 @@ class SignInActivity : AppCompatActivity() {
             startActivity(myIntent)
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
             findViewById<Button>(R.id.qr_found_btn).visibility = View.GONE
+            findViewById<Button>(R.id.nfc_found_btn).visibility = View.GONE
         } else {
             findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.VISIBLE
             findViewById<Button>(R.id.qr_found_btn).visibility = View.VISIBLE
+            findViewById<Button>(R.id.nfc_found_btn).visibility = View.VISIBLE
         }
     }
 
