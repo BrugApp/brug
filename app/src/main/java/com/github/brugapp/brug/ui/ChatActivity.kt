@@ -3,22 +3,21 @@ package com.github.brugapp.brug.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
 import android.view.View
-import android.widget.*
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
@@ -27,6 +26,7 @@ import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.TAKE_PICTURE_REQUEST_CODE
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
@@ -36,21 +36,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.ByteArrayOutputStream
-import java.io.File
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
-    private var LOCATION_REQUEST = 1
-    private lateinit var locationManager: LocationManager
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var convID: String
 
     private lateinit var buttonSendTextMessage: ImageButton
@@ -123,8 +117,17 @@ class ChatActivity : AppCompatActivity() {
             override fun onItemClick(position: Int) {
                 if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
                     adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
-                )
-                    Toast.makeText(this@ChatActivity, "Map pressed", Toast.LENGTH_SHORT).show()
+                ) {
+                    val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
+                    startActivity(myIntent)
+                } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
+                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
+                ) {
+                    val myIntent = Intent(this@ChatActivity, FullScreenImage::class.java)
+                    val message = adapter.getItem(position) as PicMessage
+                    myIntent.putExtra("messageUrl", message.imgUrl)
+                    startActivity(myIntent)
+                }
             }
         })
 
@@ -274,41 +277,6 @@ class ChatActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
             }
         })
-    }
-
-    @SuppressLint("NewApi")
-    fun createFakeImage(): Uri? {
-        val encodedImage =
-            "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
-        val decodedImage = Base64.getDecoder().decode(encodedImage)
-        val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
-
-        // store to outputstream
-        val outputStream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-
-        // create file name
-        val storageDir: File? = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        val imageFile = File.createTempFile(
-            "JPEG_${simpleDateFormat.format(Date())}_",
-            ".jpg",
-            storageDir
-        )
-
-        // get URI
-        val uri = FileProvider.getUriForFile(
-            this,
-            "com.github.brugapp.brug.fileprovider",
-            imageFile
-        )
-
-        // store bitmap to file
-        imageFile.writeBytes(outputStream.toByteArray())
-        outputStream.flush()
-        outputStream.close()
-
-        // return uri
-        return uri
     }
 
     fun scrollToBottom(position: Int) {

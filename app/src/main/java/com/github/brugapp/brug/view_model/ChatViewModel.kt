@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
@@ -40,24 +41,28 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileDescriptor
+import java.io.FileOutputStream
 import java.net.URI
+import java.net.URL
+import java.nio.channels.Channels
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 
-//TODO: NEEDS REFACTORING & DOCUMENTATION
+//TODO: NEEDS DOCUMENTATION
 class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder: MediaRecorder
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var audioPath: String
-    private lateinit var imageUri: Uri // NEEDED TO RETRIEVE THE IMAGE FROM THE CAMERA AFTER SNAPPING A PICTURE
 
-    //private val locationListener = LocationListener { sendLocation(it) }
-    private lateinit var activity: ChatActivity
+    // Uri needed to retrieve image from camera after taking a picture
+    private lateinit var imageUri: Uri
 
     //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
@@ -70,11 +75,25 @@ class ChatViewModel : ViewModel() {
         // initiate arguments values for location messages
         for (message in messages) {
             if (message is LocationMessage) {
-                message.mapUrl = activity.createFakeImage().toString()
+                val url = getUrlForLocation(activity, message.location.toAndroidLocation())
+                runBlocking {
+                    message.mapUrl = loadImageFromUrl(activity, url).toString()
+                }
             }
         }
 
         this.adapter = ChatMessagesListAdapter(this, messages)
+    }
+
+    private fun getUrlForLocation(activity: ChatActivity, location: Location): URL {
+        val lat = location.latitude.toString()
+        val lon = location.longitude.toString()
+        val baseUrl =
+            "https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/geojson(%7B%22type%22%3A%22Point%22%2C%22coordinates%22%3A%5B$lon%2C$lat%5D%7D)/"
+        val posUrl = "$lon,$lat"
+        val endUrl =
+            ",15/500x500?logo=false&attribution=false&access_token=" + activity.getString(R.string.mapbox_access_token)
+        return URL(baseUrl + posUrl + endUrl)
     }
 
     fun getAdapter(): ChatMessagesListAdapter {
@@ -133,7 +152,6 @@ class ChatViewModel : ViewModel() {
         fusedLocationClient: FusedLocationProviderClient,
         locationManager: LocationManager
     ) {
-        this.activity = activity as ChatActivity
         if (ContextCompat.checkSelfPermission(
                 activity.applicationContext,
                 Manifest.permission.ACCESS_COARSE_LOCATION
@@ -162,7 +180,6 @@ class ChatViewModel : ViewModel() {
         firebaseStorage: FirebaseStorage
     ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
-        val uri = activity.createFakeImage()
         val newMessage = LocationMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -170,13 +187,34 @@ class ChatViewModel : ViewModel() {
             LocationService.fromAndroidLocation(location)
         )
 
-        newMessage.mapUrl = activity.createFakeImage().toString()
+        // Get image from API or create stub one
+        val url = getUrlForLocation(activity, location)
+        newMessage.mapUrl = runBlocking { loadImageFromUrl(activity, url).toString() }
         sendMessage(newMessage, convID, activity, firestore, firebaseAuth, firebaseStorage)
 
         // Clear the message field
         textBox.text = ""
 
         adapter.notifyItemInserted(messages.size - 1)
+    }
+
+    private suspend fun loadImageFromUrl(activity: ChatActivity, url: URL): Uri {
+        try {
+            val image = createImageFile(activity)
+            viewModelScope.launch(Dispatchers.IO) {
+                url.openStream().use {
+                    Channels.newChannel(it).use { rbc ->
+                        FileOutputStream(image).use { fos ->
+                            fos.channel.transferFrom(rbc, 0, Long.MAX_VALUE)
+                        }
+                    }
+                }
+            }.join()
+            return Uri.fromFile(image)
+        } catch (e: Exception) {
+            println("Error when loading image from URL: $e")
+            return createFakeImage(activity)!!
+        }
     }
 
     fun sendPicMessage(
@@ -187,7 +225,6 @@ class ChatViewModel : ViewModel() {
         firebaseStorage: FirebaseStorage
     ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
-        //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -247,19 +284,19 @@ class ChatViewModel : ViewModel() {
     }
 
     private fun compressImage(activity: ChatActivity, uri: Uri): URI {
-        // open the image and resize it
         val imageBM = uriToBitmap(activity, uri)
         val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
+        return storeBitmap(activity, resized)
+    }
 
-        // store to new file
+    private fun storeBitmap(activity: ChatActivity, bitmap: Bitmap): URI {
         val outputStream = ByteArrayOutputStream()
-        resized.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         val outputFile = createImageFile(activity)
         outputFile.writeBytes(outputStream.toByteArray())
         outputStream.flush()
         outputStream.close()
 
-        // return uri of new file
         return outputFile.toURI()
     }
 
@@ -327,7 +364,7 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-    fun setupRecording(activity: ChatActivity){
+    fun setupRecording(activity: ChatActivity) {
 
         audioPath = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!.absolutePath +
                 "/audio" + DateService.fromLocalDateTime(LocalDateTime.now()) + ".3gp"
@@ -347,7 +384,7 @@ class ChatViewModel : ViewModel() {
     }
 
 
-    fun deleteAudio(){
+    fun deleteAudio() {
 
         mediaRecorder.reset()
         mediaRecorder.release()
@@ -362,15 +399,45 @@ class ChatViewModel : ViewModel() {
         mediaRecorder.release()
     }
 
-    fun sendAudio(activity: ChatActivity, convID: String,
-                  firestore: FirebaseFirestore,
-                  firebaseAuth: FirebaseAuth,
-                  firebaseStorage: FirebaseStorage){
+    fun sendAudio(
+        activity: ChatActivity, convID: String,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ) {
 
-        val audioMessage = AudioMessage("Me", DateService.fromLocalDateTime(LocalDateTime.now()),
+        val audioMessage = AudioMessage(
+            "Me", DateService.fromLocalDateTime(LocalDateTime.now()),
             "Audio", Uri.fromFile(File(audioPath)).toString(), audioPath
         )
         sendMessage(audioMessage, convID, activity, firestore, firebaseAuth, firebaseStorage)
+    }
+
+    // HELPERS METHODS =======================================================
+    @SuppressLint("NewApi")
+    fun createFakeImage(activity: ChatActivity): Uri? {
+        val encodedImage =
+            "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
+        val decodedImage = Base64.getDecoder().decode(encodedImage)
+        val image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
+
+        // store to outputstream
+        val outputStream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+
+        // create file
+        val imageFile = createImageFile(activity)
+
+        // get URI for file
+        val uri = FileProvider.getUriForFile(
+            activity,
+            "com.github.brugapp.brug.fileprovider",
+            imageFile
+        )
+
+        // store file
+        storeBitmap(activity, image)
+        return uri
     }
 
     // PERMISSIONS RELATED =======================================================
