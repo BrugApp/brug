@@ -41,7 +41,9 @@ open class NFCScannerActivity: AppCompatActivity() {
         adapter = viewModel.setupAdapter(this)
         findViews() //maybe return early if false
         if (adapter==null){ Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
-            finish() }
+
+            //finish()
+        }
         nfcIntent = viewModel.setupWritingTagFilters(this).first
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
         activateButton.setOnClickListener{

@@ -28,7 +28,7 @@ private const val NFC_REQUEST_CODE = 1000101
 class NFCScanViewModel : ViewModel() {
     fun checkNFCPermission(context1: Context){ if(PackageManager.PERMISSION_DENIED == checkSelfPermission(context1,Manifest.permission.NFC)) requestPermissions(context1 as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE) }
 
-    fun setupAdapter(this1: Context): NfcAdapter { return NfcAdapter.getDefaultAdapter(this1) }
+    fun setupAdapter(this1: Context): NfcAdapter? { return try{ NfcAdapter.getDefaultAdapter(this1) }catch(e: Exception){ null } }
 
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{ return Pair(PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE),arrayOf(setupTag())) }
 

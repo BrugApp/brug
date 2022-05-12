@@ -10,16 +10,22 @@ import android.nfc.NfcAdapter.CreateNdefMessageCallback
 import android.nfc.NfcAdapter.getDefaultAdapter
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
+import com.github.brugapp.brug.ui.ChatActivity
 import com.github.brugapp.brug.ui.NFCScannerActivity
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import com.google.protobuf.NullValue
@@ -27,6 +33,8 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
@@ -37,6 +45,15 @@ import org.mockito.internal.matchers.Null
 class NFCScannerActivityTest {
     private val viewModel = NFCScanViewModel()
 
+    @Before
+    fun setUp(){
+        Intents.init()
+    }
+
+    @After
+    fun cleanUp(){
+        Intents.release()
+    }
 
     @Test
     fun writeModeOffTest(){
@@ -134,6 +151,37 @@ class NFCScannerActivityTest {
         viewModel.rawMessageToMessage(intent)
         viewModel.initText(ndefArray)
         assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))}
+
+    @Test
+    fun testEditMessage(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NFCScannerActivity::class.java)
+        ActivityScenario.launch<Activity>(intent).use {
+                val editMessage = onView(withId(R.id.edit_message))
+                    editMessage.check(matches(isDisplayed()))
+            }
+    }
+
+    @Test
+    fun testNfcContents() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NFCScannerActivity::class.java)
+        ActivityScenario.launch<Activity>(intent).use {
+            val nfcContents = onView(withId(R.id.nfcContents))
+            nfcContents.check(matches(isEnabled()))
+        }
+    }
+
+    @Test
+    fun testActivateButton(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NFCScannerActivity::class.java)
+        ActivityScenario.launch<Activity>(intent).use {
+            val activateButton = onView(withId(R.id.buttonReportItem))
+            activateButton.perform(click())
+            activateButton.check(matches(isDisplayed()))
+        }
+    }
 
     /*
     @Test
