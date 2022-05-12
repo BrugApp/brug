@@ -10,13 +10,13 @@ class MyItem(val itemName: String,
 
     /* ITEM ID */
     private var itemID: String = ""
-    private var lastLocation: LonLatCorrdinates? = null
+    private var lastLocation: LonLatCoordinates? = null
 
-    fun getLastLocation(): LonLatCorrdinates? {
+    fun getLastLocation(): LonLatCoordinates? {
         return lastLocation
     }
     fun setLastLocation(lon: Double, lat: Double){
-        lastLocation = LonLatCorrdinates(lon, lat)
+        lastLocation = LonLatCoordinates(lon, lat)
     }
 
     fun setItemID(itemID: String){

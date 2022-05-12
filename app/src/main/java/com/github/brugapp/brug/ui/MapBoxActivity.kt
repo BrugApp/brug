@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
@@ -15,9 +16,11 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
 import com.github.brugapp.brug.databinding.SampleHelloWorldViewBinding
+import com.github.brugapp.brug.model.LonLatCoordinates
 import com.github.brugapp.brug.model.MyItem
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.Style
@@ -34,6 +37,7 @@ import java.lang.ref.WeakReference
 
 const val EXTRA_DESTINATION_LATITUDE = "com.github.brugapp.brug.DESTINATION_LATITUDE"
 const val EXTRA_DESTINATION_LONGITUDE = "com.github.brugapp.brug.DESTINATION_LONGITUDE"
+const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 
 class MapBoxActivity : AppCompatActivity() {
 
@@ -58,6 +62,7 @@ class MapBoxActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initItemsList()
+
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
         locationPermissionHelper.checkPermissions {
             onMapReady()
@@ -112,17 +117,11 @@ class MapBoxActivity : AppCompatActivity() {
                             }
                         )
                         SampleHelloWorldViewBinding.bind(viewAnnotation).apply {
-                            selectButton.setOnClickListener {
-                                val myIntent = Intent(
-                                    this@MapBoxActivity,
-                                    NavigationToItemActivity::class.java
-                                ).apply {
-                                    putExtra(EXTRA_DESTINATION_LATITUDE, lastLocation.lat)
-                                    putExtra(EXTRA_DESTINATION_LONGITUDE, lastLocation.lon)
-                                }
-                                startActivity(myIntent)
-                            }
+                            setLinkWithNavigation(walkButton, DirectionsCriteria.PROFILE_WALKING, lastLocation)
+                            setLinkWithNavigation(driveButton, DirectionsCriteria.PROFILE_DRIVING, lastLocation)
+                            itemNameOnMap.text = item.itemName
                         }
+                        viewAnnotation.toggleViewVisibility()
 
                         pointAnnotationManager.addClickListener { clickedAnnotation ->
                             if (pointAnnotation == clickedAnnotation) {
@@ -133,6 +132,20 @@ class MapBoxActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun setLinkWithNavigation(button: Button, mode: String, lastLocation: LonLatCoordinates) {
+        button.setOnClickListener {
+            val myIntent = Intent(
+                this@MapBoxActivity,
+                NavigationToItemActivity::class.java
+            ).apply {
+                putExtra(EXTRA_DESTINATION_LATITUDE, lastLocation.lat)
+                putExtra(EXTRA_DESTINATION_LONGITUDE, lastLocation.lon)
+                putExtra(EXTRA_NAVIGATION_MODE, mode)
+            }
+            startActivity(myIntent)
         }
     }
 

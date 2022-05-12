@@ -109,6 +109,7 @@ class NavigationToItemActivity : AppCompatActivity() {
 
     private var destinationLatitude: Double? = null
     private var destinationLongitude: Double? = null
+    private var navigationMode: String = DirectionsCriteria.PROFILE_DRIVING
 
     /**
      * Debug tool used to play, pause and seek route progress events that can be used to produce mocked location updates along the route.
@@ -544,6 +545,9 @@ class NavigationToItemActivity : AppCompatActivity() {
             (intent.extras!!.get(EXTRA_DESTINATION_LONGITUDE) as Double?).apply {
                 destinationLongitude = this
             }
+            (intent.extras!!.get(EXTRA_NAVIGATION_MODE) as String).apply {
+                navigationMode = this
+            }
         }
 
         // load map style
@@ -552,7 +556,7 @@ class NavigationToItemActivity : AppCompatActivity() {
         ) {
             destinationLatitude?.let{ lat ->
                 destinationLongitude?.let { lon ->
-                    findRoute(Point.fromLngLat(lon, lat))
+                    findRoute(Point.fromLngLat(lon, lat), navigationMode)
                 }
             }
         }
@@ -630,7 +634,7 @@ class NavigationToItemActivity : AppCompatActivity() {
         voiceInstructionsPlayer.shutdown()
     }
 
-    private fun findRoute(destination: Point) {
+    private fun findRoute(destination: Point, navigationMode: String) {
         val originLocation = navigationLocationProvider.lastLocation
         val originPoint = originLocation?.let {
             Point.fromLngLat(it.longitude, it.latitude)
@@ -658,7 +662,7 @@ class NavigationToItemActivity : AppCompatActivity() {
                     )
                 )
                 .layersList(listOf(mapboxNavigation.getZLevel(), null))
-                .profile(DirectionsCriteria.PROFILE_WALKING)
+                .profile(navigationMode)
                 .build(),
             object : NavigationRouterCallback {
                 override fun onRoutesReady(
