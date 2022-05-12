@@ -16,11 +16,4 @@ class LocationPermissionHelperTest {
     var mapBoxActivityRule = ActivityScenarioRule(MapBoxActivity::class.java)
 
     // We need to test permission granting but Location is granted by default making it untestable.
-
-    @Test
-    fun canSeeHintWhenCameraIsClicked() {
-        Espresso.onView(ViewMatchers.withId(R.id.mainCamera)).perform(ViewActions.click())
-        Espresso.onView(ViewMatchers.withId(R.id.editTextReportItem))
-            .check(ViewAssertions.matches((ViewMatchers.withHint("Report item…"))))
-    }
 }
