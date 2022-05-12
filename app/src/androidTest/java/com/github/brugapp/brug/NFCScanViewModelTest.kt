@@ -85,34 +85,5 @@ class NFCScanViewModelTest {
         viewModel.checkNFCPermission(context)
         viewModel.setupTag()
         assertThat(record,`is`(viewModel.createRecord("hello")))
-    }
-
-     
+    } 
 }
-/*- - - - -these UI tests only work on physical devices: can't test emulator without NFC! - - - - -
-@RunWith(AndroidJUnit4::class)
-class NFCScannerActivityTest {
-
-    private val myIntent = Intent(ApplicationProvider.getApplicationContext(), NFCScannerActivity::class.java)
-
-    @Test
-    fun correctTitleShown(){
-        ActivityScenario.launch<NFCScannerActivity>(myIntent).use {
-            onView(withId(R.id.nfcScanTitle)).check(matches(withText("NFC Scanner")))
-        }
-    }
-
-    @get:Rule
-    var nfcScannerActivityRule = ActivityScenarioRule(NFCScannerActivity::class.java)
-
-    @Test
-    fun correctHintText(){
-        onView(withId(R.id.edit_message)).check(matches((withHint("type something"))))
-    }
-
-    @Test
-    fun correctButton(){
-        onView(withId(R.id.buttonReportItem)).check(matches(withText("activate tag")))
-    }
-//- - - - - - - - - - - - - - - - -these tests work on physical devices - - - - - - - - - - - - - -
-*/
