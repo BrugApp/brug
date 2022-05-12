@@ -36,6 +36,15 @@ class NFCScannerActivityTest {
     @Test
      fun nfcScannerActivityMockTest() {
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
+        val bundle = Bundle()
+        mockActivity.onCreate(bundle)
+        mockActivity.findViews()
+        mockActivity.onPause()
+        mockActivity.onResume()
+        mockActivity.writeModeOff()
+        mockActivity.writeModeOn()
+        val intent = Intent()
+        mockActivity.onNewIntent(intent)
         assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))}
     @Test
     fun writeModeOffTest(){
