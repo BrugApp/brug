@@ -19,6 +19,7 @@ import com.github.brugapp.brug.databinding.SampleHelloWorldViewBinding
 import com.github.brugapp.brug.model.LonLatCoordinates
 import com.github.brugapp.brug.model.MyItem
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.geojson.Point
@@ -29,16 +30,18 @@ import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
-import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.viewannotation.viewAnnotationOptions
 import com.mapbox.navigation.ui.utils.internal.extensions.getBitmap
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import java.lang.ref.WeakReference
+import javax.inject.Inject
 
 const val EXTRA_DESTINATION_LATITUDE = "com.github.brugapp.brug.DESTINATION_LATITUDE"
 const val EXTRA_DESTINATION_LONGITUDE = "com.github.brugapp.brug.DESTINATION_LONGITUDE"
 const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 
+@AndroidEntryPoint
 class MapBoxActivity : AppCompatActivity() {
 
     private var items: List<MyItem>? = null
@@ -49,9 +52,12 @@ class MapBoxActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMapBoxBinding
 
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+
     //  GETS THE LIST OF ITEMS RELATED TO THE USER
     private fun initItemsList() = liveData(Dispatchers.IO){
-        emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid))
+        emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid, firestore))
     }.observe(this) { itemsList ->
         items = itemsList
     }

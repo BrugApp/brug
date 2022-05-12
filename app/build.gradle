@@ -63,7 +63,7 @@ dependencies {
     kapt 'com.android.databinding:compiler:3.1.4'
 
     // Mapbox dependencies
-    implementation 'com.mapbox.maps:android:10.5.0-beta.1'
+    implementation 'com.mapbox.maps:android:10.4.0'
     implementation 'com.mapbox.mapboxsdk:mapbox-android-core:5.0.1'
     implementation "com.google.android.gms:play-services-location:19.0.1"
     implementation "com.mapbox.navigation:ui-dropin:2.5.0-beta.1"
@@ -72,18 +72,17 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-testing:2.4.1'
     implementation 'androidx.preference:preference:1.2.0'
     implementation 'com.google.android.gms:play-services-maps:18.0.2'
-    def lifecycle_version = "2.5.0-alpha05"
+    def lifecycle_version = "2.5.0-beta01"
     def arch_version = "2.1.0"
-
-    //for AppCompat use:
-    //appcompat v26+ is highly recommended to support older APIs
-    //implementation 'com.devlomi.record-view:record-view:2.0.1'
 
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.github.JagarYousef:ChatVoicePlayer:1.1.0'
 
     //for AndroidX use:
     implementation 'com.github.3llomi:RecordView:3.1.1'
+
+    //for Google Pay use:
+    implementation 'com.google.android.gms:play-services-wallet:19.1.0'
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
@@ -186,6 +185,10 @@ dependencies {
 
     // To use Kotlin coroutines with Firebase API
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0'
+
+    // To use coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
 }
 configurations.all{
     resolutionStrategy {

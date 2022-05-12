@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.ui.*
 
 
-
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +20,6 @@ class MainActivity : AppCompatActivity() {
         triggerGoToActivity(R.id.mainCamera, QrCodeScannerActivity::class.java)
         triggerGoToActivity(R.id.chat, ChatActivity::class.java)
         triggerGoToActivity(R.id.signUpButton, RegisterUserActivity::class.java)
-//        triggerGoToActivity(R.id.mapButton, NavigationMenuActivity::class.java)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -41,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun <T> triggerGoToActivity(buttonId: Int, activity: Class<T>?) {
         findViewById<Button>(buttonId).setOnClickListener {
-            val myIntent = Intent(this, activity).apply {  }
+            val myIntent = Intent(this, activity).apply { }
             startActivity(myIntent)
         }
     }

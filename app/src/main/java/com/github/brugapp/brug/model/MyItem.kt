@@ -3,10 +3,12 @@ package com.github.brugapp.brug.model
 import com.github.brugapp.brug.R
 import java.io.Serializable
 
-class MyItem(val itemName: String,
-             val itemTypeID: Int,
-             val itemDesc: String,
-             private var isLost: Boolean): Serializable {
+class MyItem(
+    val itemName: String,
+    val itemTypeID: Int,
+    val itemDesc: String,
+    private var isLost: Boolean
+) : Serializable {
 
     /* ITEM ID */
     private var itemID: String = ""
@@ -19,7 +21,7 @@ class MyItem(val itemName: String,
         lastLocation = LonLatCoordinates(lon, lat)
     }
 
-    fun setItemID(itemID: String){
+    fun setItemID(itemID: String) {
         this.itemID = itemID
     }
 
@@ -33,13 +35,13 @@ class MyItem(val itemName: String,
     }
 
     private fun getRelatedItemType(): ItemType {
-        return if(0 <= itemTypeID && itemTypeID < ItemType.values().size)
+        return if (0 <= itemTypeID && itemTypeID < ItemType.values().size)
             ItemType.values()[itemTypeID]
         else ItemType.Other
     }
 
     /* ITEM STATE */
-    fun isLost(): Boolean{
+    fun isLost(): Boolean {
         return this.isLost
     }
 

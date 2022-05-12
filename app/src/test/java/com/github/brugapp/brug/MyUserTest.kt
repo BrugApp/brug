@@ -1,8 +1,5 @@
 package com.github.brugapp.brug
 
-import android.graphics.drawable.Drawable
-import androidx.core.content.ContextCompat
-import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.model.MyUser
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
@@ -16,13 +13,13 @@ class MyUserTest {
         val userID = "DUMMYID"
         val firstName = "Rayan"
         val lastName = "Kikou"
-        val userIcon: Drawable? = null
+        val userIconPath: String? = null
 
-        val user = MyUser(userID, firstName, lastName, userIcon)
+        val user = MyUser(userID, firstName, lastName, userIconPath)
         assertThat(user.uid, IsEqual(userID))
         assertThat(user.firstName, IsEqual(firstName))
         assertThat(user.lastName, IsEqual(lastName))
-        assertThat(user.getUserIcon(), IsNull.nullValue())
+        assertThat(user.getUserIconPath(), IsNull.nullValue())
     }
 
     @Test

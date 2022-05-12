@@ -1,12 +1,11 @@
 package com.github.brugapp.brug.model
 
-import android.util.Log
 import com.github.brugapp.brug.R
 import java.io.Serializable
-import java.lang.IllegalArgumentException
 
 class Item// Generate the id later
-    (private var name: String, private var description : String, private var id : String): Serializable {
+    (private var name: String, private var description: String, private var id: String) :
+    Serializable {
 
     // add QR code attribute
     // add last localization attribute
@@ -17,36 +16,36 @@ class Item// Generate the id later
     private var iconId: Int = 0
 
     init {
-        if(name.isBlank()){
+        if (name.isBlank()) {
             throw IllegalArgumentException("Invalid name")
         }
     }
 
-    fun isLost():Boolean{
+    fun isLost(): Boolean {
         return lost
     }
 
-    fun setLost(value:Boolean):Item{
+    fun setLost(value: Boolean): Item {
         this.lost = value
         return this
     }
 
-    fun getName() : String{
+    fun getName(): String {
         return name
     }
 
 
-    fun getId() : String{
+    fun getId(): String {
         return id
     }
 
-    fun getDescription() : String{
+    fun getDescription(): String {
         return description
     }
 
-    fun setName(name : String):Item{
+    fun setName(name: String): Item {
 
-        if(name.isBlank()){
+        if (name.isBlank()) {
             throw IllegalArgumentException("Invalid new name")
         }
 
@@ -54,7 +53,7 @@ class Item// Generate the id later
         return this
     }
 
-    fun setType(type: ItemType):Item{
+    fun setType(type: ItemType): Item {
         this.type = type
         iconId = when (type) {
             ItemType.Wallet -> R.drawable.ic_baseline_account_balance_wallet_24
@@ -66,11 +65,11 @@ class Item// Generate the id later
         return this
     }
 
-    fun getIcon():Int {
+    fun getIcon(): Int {
         return iconId
     }
 
-    fun setDescription(description : String) {
+    fun setDescription(description: String) {
         this.description = description
     }
 }

@@ -3,7 +3,11 @@ package com.github.brugapp.brug
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.MyItem
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
@@ -20,14 +24,20 @@ private const val ITEM_ID = "DUMMYITEMID"
 private var ITEM = MyItem("AirPods Pro Max", 0, "My Beloved AirPods", false)
 
 class ItemRepoTest {
+
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
+
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addUserAndItem() = runBlocking {
-        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT)
-        ItemsRepository.addItemToUser(ITEM, DUMMY_UID)
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,
+            firestore)
+        ItemsRepository.addItemToUser(ITEM, DUMMY_UID, firestore)
     }
 
     private fun wipeAllItems() = runBlocking {
-        ItemsRepository.deleteAllUserItems(DUMMY_UID)
+        ItemsRepository.deleteAllUserItems(DUMMY_UID, firestore)
     }
 
     @Before
@@ -42,18 +52,18 @@ class ItemRepoTest {
 
     @Test
     fun addItemWithIDToWrongUserReturnsError() = runBlocking {
-        assertThat(ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, "WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, "WRONGUID",firestore).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun addItemToWrongUserReturnsError() = runBlocking {
-        assertThat(ItemsRepository.addItemToUser(ITEM, "WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(ItemsRepository.addItemToUser(ITEM, "WRONGUID",firestore).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun addItemReturnsSuccessfully() = runBlocking {
-        val response = ItemsRepository.addItemToUser(ITEM, DUMMY_UID)
-        val list = ItemsRepository.getUserItemsFromUID(DUMMY_UID)
+        val response = ItemsRepository.addItemToUser(ITEM, DUMMY_UID,firestore)
+        val list = ItemsRepository.getUserItemsFromUID(DUMMY_UID,firestore)
 
         assertThat(response.onSuccess, IsEqual(true))
         assertThat(list.isNullOrEmpty(), IsEqual(false))
@@ -62,61 +72,61 @@ class ItemRepoTest {
 
     @Test
     fun updateItemOfNonExistentUserReturnsError() = runBlocking {
-        ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID)
+        ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
         val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID(ITEM_ID)
-        assertThat(ItemsRepository.updateItemFields(updatedItem, "WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(ItemsRepository.updateItemFields(updatedItem, "WRONGUID",firestore).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun updateNonExistentItemReturnsError() = runBlocking {
-        ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID)
+        ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
         val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID("WRONGITEMID")
-        assertThat(ItemsRepository.updateItemFields(updatedItem, DUMMY_UID).onError, IsNot(IsNull.nullValue()))
+        assertThat(ItemsRepository.updateItemFields(updatedItem, DUMMY_UID,firestore).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun updateItemReturnsSuccessfully() = runBlocking {
         ITEM.setItemID(ITEM_ID)
-        ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID)
+        ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
         val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID(ITEM_ID)
-        assertThat(ItemsRepository.updateItemFields(updatedItem, DUMMY_UID).onSuccess, IsEqual(true))
+        assertThat(ItemsRepository.updateItemFields(updatedItem, DUMMY_UID,firestore).onSuccess, IsEqual(true))
 
-        val items = ItemsRepository.getUserItemsFromUID(DUMMY_UID)
+        val items = ItemsRepository.getUserItemsFromUID(DUMMY_UID,firestore)
         assertThat(items.isNullOrEmpty(), IsEqual(false))
         assertThat(items!!.contains(updatedItem), IsEqual(true))
     }
 
     @Test
     fun deleteItemFromWrongUserReturnsError() = runBlocking {
-        assertThat(ItemsRepository.deleteItemFromUser(ITEM_ID, "WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(ItemsRepository.deleteItemFromUser(ITEM_ID, "WRONGUID",firestore).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun deleteWrongItemReturnsError() = runBlocking {
-        assertThat(ItemsRepository.deleteItemFromUser("WRONGITEMID", DUMMY_UID).onError, IsNot(IsNull.nullValue()))
+        assertThat(ItemsRepository.deleteItemFromUser("WRONGITEMID", DUMMY_UID,firestore).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun deleteItemReturnsSuccessfully() = runBlocking {
         ITEM.setItemID(ITEM_ID)
-        ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID)
-        assertThat(ItemsRepository.deleteItemFromUser(ITEM.getItemID(), DUMMY_UID).onSuccess, IsEqual(true))
-        val items = ItemsRepository.getUserItemsFromUID(DUMMY_UID)
+        ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
+        assertThat(ItemsRepository.deleteItemFromUser(ITEM.getItemID(), DUMMY_UID,firestore).onSuccess, IsEqual(true))
+        val items = ItemsRepository.getUserItemsFromUID(DUMMY_UID,firestore)
         assertThat(items, IsNot(IsNull.nullValue()))
         assertThat(items!!.contains(ITEM), IsEqual(false))
     }
 
     @Test
     fun deleteAllItemsOfWrongUserReturnsError() = runBlocking {
-        assertThat(ItemsRepository.deleteAllUserItems("WRONGUID").onError, IsNot(IsNull.nullValue()))
+        assertThat(ItemsRepository.deleteAllUserItems("WRONGUID",firestore).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun getItemsFromWrongUserReturnsNull() = runBlocking {
-        assertThat(ItemsRepository.getUserItemsFromUID("WRONGUID"), IsNull.nullValue())
+        assertThat(ItemsRepository.getUserItemsFromUID("WRONGUID",firestore), IsNull.nullValue())
     }
 
 }
