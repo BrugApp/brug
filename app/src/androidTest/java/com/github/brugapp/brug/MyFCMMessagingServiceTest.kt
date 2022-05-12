@@ -7,16 +7,14 @@ import com.google.firebase.messaging.RemoteMessage
 import org.junit.Test
 
 class MyFCMMessagingServiceTest {
-    private val firebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val firestore = FirebaseFakeHelper().providesFirestore()
 
     @Test
     fun onNewTokenDoesNothingYetTest() {
-        MyFCMMessagingService(firebaseAuth, firestore).onNewToken("")
+        MyFCMMessagingService().onNewToken("")
     }
 
     @Test
     fun onMessageReceivedDoesNotCrashIfNotificationIsNullTest() {
-        MyFCMMessagingService(firebaseAuth, firestore).onMessageReceived(RemoteMessage(Bundle.EMPTY))
+        MyFCMMessagingService().onMessageReceived(RemoteMessage(Bundle.EMPTY))
     }
 }

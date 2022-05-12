@@ -19,9 +19,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.runBlocking
 
-class MyFCMMessagingService(
-    private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore) : FirebaseMessagingService() {
+class MyFCMMessagingService : FirebaseMessagingService() {
 
     /**
      * Called when message is received.
@@ -42,6 +40,8 @@ class MyFCMMessagingService(
      */
     override fun onNewToken(token: String) {
         Log.e("NEW TOKEN NOTIF", "Refreshed token: $token")
+        val firebaseAuth = FirebaseAuth.getInstance()
+        val firestore = FirebaseFirestore.getInstance()
         if(firebaseAuth.currentUser != null){
             runBlocking {
                 UserRepository.addNewDeviceTokenToUser(firebaseAuth.currentUser!!.uid, token, firestore)
