@@ -7,6 +7,7 @@ import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.CreateNdefMessageCallback
+import android.nfc.NfcAdapter.getDefaultAdapter
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -36,38 +37,7 @@ import org.mockito.internal.matchers.Null
 class NFCScannerActivityTest {
     private val viewModel = NFCScanViewModel()
 
-    @Test
-     fun nfcTestAll() {
-        val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
-        val bundle = Bundle()
-        mockActivity.onCreate(bundle)
-        mockActivity.findViews()
-        mockActivity.onPause()
-        mockActivity.onResume()
-        mockActivity.writeModeOff()
-        mockActivity.writeModeOn()
-        val intent = Intent()
-        mockActivity.onNewIntent(intent)
 
-        mockActivity.onCreate(null)
-
-        val record = viewModel.createRecord("hello")
-        val ndefArray = arrayOf(NdefMessage(record))
-        val activity = mockActivity
-        //val context = mockActivity.context
-        val context =  InstrumentationRegistry.getInstrumentation().getContext();//mock(Context::class.java)
-        activity.context = context
-        viewModel.checkNFCPermission(context)
-        //viewModel.setupAdapter(context)
-        //viewModel.setupWritingTagFilters(context)
-        viewModel.setupTag()
-        //viewModel.readFromIntent(activity.nfcContents!!,intent)
-        viewModel.checkIntentAction(intent)
-        viewModel.rawMessageToMessage(intent)
-        //viewModel.buildTagViews(activity.nfcContents!!, ndefArray)
-        viewModel.initText(ndefArray)
-        //viewModel.displayReportNotification(context)
-        assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))}
     @Test
     fun writeModeOffTest(){
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
@@ -128,6 +98,42 @@ class NFCScannerActivityTest {
         mockActivity.onCreate(bundle)
         assertThat(mockActivity.editMessage,`is`(IsNull.nullValue()))
     }
+
+    @Test
+    fun mockAdapter(){
+        val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
+        mockActivity.onCreate(null)
+        //mockActivity.adapter = mock(NfcAdapter::class.java)
+        mockActivity.writeModeOff()
+        mockActivity.writeModeOn()
+        assertThat(mockActivity.adapter,`is`(IsNull.nullValue()))
+    }
+
+    @Test
+    fun nfcTestAll() {
+        val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
+        val bundle = Bundle()
+        mockActivity.onCreate(bundle)
+        mockActivity.findViews()
+        mockActivity.onPause()
+        mockActivity.onResume()
+        mockActivity.writeModeOff()
+        mockActivity.writeModeOn()
+        val intent = Intent()
+        mockActivity.onNewIntent(intent)
+        mockActivity.onCreate(null)
+
+        val record = viewModel.createRecord("hello")
+        val ndefArray = arrayOf(NdefMessage(record))
+        val activity = mockActivity
+        val context =  InstrumentationRegistry.getInstrumentation().getContext();//mock(Context::class.java)
+        activity.context = context
+        viewModel.checkNFCPermission(context)
+        viewModel.setupTag()
+        viewModel.checkIntentAction(intent)
+        viewModel.rawMessageToMessage(intent)
+        viewModel.initText(ndefArray)
+        assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))}
 
     /*
     @Test
