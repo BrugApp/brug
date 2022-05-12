@@ -53,9 +53,6 @@ class ConvRepositoryTest {
         UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1, true, firestore)
         UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2, true, firestore)
         UserRepository.addUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV, true, firestore)
-
-//        UserRepo.addAuthUser(USER2)
-//        UserRepo.addAuthUser(USERWITHWRONGCONV)
     }
 
     @Before
@@ -72,7 +69,6 @@ class ConvRepositoryTest {
     fun addNewConvCorrectlyReturns() = runBlocking {
         assertThat(ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore).onSuccess, IsEqual(true))
         val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM_NAME, null)
-//        val convList = ConvRepository.getUserConvFromUID(USER_ID1, firestore,firebaseAuth,firebaseStorage)
 
         val context = TestLifecycleOwner()
         ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)
@@ -80,7 +76,6 @@ class ConvRepositoryTest {
         val convList = BrugDataCache.getConversationList()
         assertThat(convList.value.isNullOrEmpty(), IsEqual(false))
 
-//        assertThat(convList.value.isNullOrEmpty(), IsEqual(false))
         val conv = convList.value!!.last()
         assertThat(conv.convId, IsEqual(conversation.convId))
         assertThat(conv.lostItemName, IsEqual(conversation.lostItemName))
@@ -97,7 +92,6 @@ class ConvRepositoryTest {
             delay(1000)
         }
         assertThat(BrugDataCache.getConversationList().value, IsEqual(mutableListOf()))
-//        assertThat(ConvRepository.getUserConvFromUID("WRONGCONVID",firestore,firebaseAuth,firebaseStorage), IsNull.nullValue())
     }
 
     @Test
@@ -109,7 +103,6 @@ class ConvRepositoryTest {
             delay(1000)
         }
         assertThat(BrugDataCache.getConversationList().value, IsEqual(mutableListOf()))
-//        assertThat(ConvRepository.getUserConvFromUID(USERWRONGCONV_ID,firestore,firebaseAuth,firebaseStorage), IsEqual(listOf()))
     }
 
     @Test
@@ -121,7 +114,6 @@ class ConvRepositoryTest {
         }
         assertThat(BrugDataCache.getConversationList().value, IsNot(IsNull.nullValue()))
 
-//        assertThat(ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage), IsNot(IsNull.nullValue()))
     }
 
     @Test
@@ -163,7 +155,6 @@ class ConvRepositoryTest {
         delay(1000)
         assertThat(BrugDataCache.getConversationList().value, IsNot(IsNull.nullValue()))
 
-//        assertThat(ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage), IsNot(IsNull.nullValue()))
         firebaseAuth.signOut()
     }
 

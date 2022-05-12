@@ -129,12 +129,6 @@ class MessageRepositoryTest {
 
         assertThat(messagesList.value.isNullOrEmpty(), IsEqual(false))
         assertThat(messagesList.value!!.contains(TEXTMSG), IsEqual(true))
-
-//        val conv = ConvRepository.getUserConvFromUID(USER_ID1,
-//            firestore,firebaseAuth,firebaseStorage)!!.filter {
-//            it.convId == "${USER_ID1}${USER_ID2}"
-//        }
-
     }
 
     @Test
@@ -168,9 +162,6 @@ class MessageRepositoryTest {
 
         val messagesList = BrugDataCache.getMessageList("${USER_ID1}${USER_ID2}")
 
-//        val conv = ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage)!!.filter {
-//            it.convId == "${USER_ID1}${USER_ID2}"
-//        }
         assertThat(messagesList.value.isNullOrEmpty(), IsEqual(false))
         for(value in messagesList.value!!){
             Log.e("FIREBASE MESSAGE", value.toString())
@@ -232,11 +223,6 @@ class MessageRepositoryTest {
             firebaseStorage
         )
         assertThat(response.onSuccess, IsEqual(true))
-
-        // CHECK IF MESSAGE HAS BEEN ADDED CORRECTLY
-//        val conv = ConvRepository.getUserConvFromUID(USER_ID1,firestore,firebaseAuth,firebaseStorage)!!.filter {
-//            it.convId == "${USER_ID1}${USER_ID2}"
-//        }
 
         val context = TestLifecycleOwner()
 

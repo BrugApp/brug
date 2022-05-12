@@ -45,14 +45,7 @@ class QrCodeScannerActivityTest {
     @get:Rule
     var qrCodeScannerActivityRule = ActivityScenarioRule(QrCodeScannerActivity::class.java)
 
-    //https://stackoverflow.com/questions/33929937/android-marshmallow-test-permissions-with-espresso
-    //@get:Rule
-    //var permissionRule: GrantPermissionRule = GrantPermissionRule
-    //    .grant(android.Manifest.permission.CAMERA)
-
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
-
-//    private val firebaseMessaging: FirebaseMessaging = FirebaseFakeHelper.providesFirebaseMessaging()
 
     @Before
     fun setUp(){
