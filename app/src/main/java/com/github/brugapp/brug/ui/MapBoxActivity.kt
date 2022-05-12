@@ -45,8 +45,8 @@ const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 class MapBoxActivity : AppCompatActivity() {
 
     private var items: List<MyItem>? = null
-    private val lon = -122.084801
-    private val lat = 37.422131
+    private var lon = -122.07131270212334
+    private var lat = 37.411793498806624
 
     private lateinit var locationPermissionHelper: LocationPermissionHelper
 
@@ -60,6 +60,7 @@ class MapBoxActivity : AppCompatActivity() {
         emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid, firestore))
     }.observe(this) { itemsList ->
         items = itemsList
+        addIcons()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,6 +69,15 @@ class MapBoxActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         initItemsList()
+
+        if (intent.extras != null) {
+            (intent.extras!!.get(EXTRA_DESTINATION_LATITUDE) as Double?)?.apply {
+                lat = this
+            }
+            (intent.extras!!.get(EXTRA_DESTINATION_LONGITUDE) as Double?)?.apply {
+                lon = this
+            }
+        }
 
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
         locationPermissionHelper.checkPermissions {

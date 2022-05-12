@@ -121,6 +121,8 @@ class ChatActivity : AppCompatActivity() {
                 ) {
                     val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
                     val message = adapter.getItem(position) as LocationMessage
+                    println(message.location.toAndroidLocation().longitude)
+                    println(message.location.toAndroidLocation().latitude)
                     myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, message.location.toAndroidLocation().longitude)
                     myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, message.location.toAndroidLocation().latitude)
                     startActivity(myIntent)

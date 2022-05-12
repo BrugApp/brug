@@ -447,7 +447,7 @@ class NavigationToItemActivity : AppCompatActivity() {
                 NavigationOptions.Builder(this.applicationContext)
                     .accessToken(getString(R.string.mapbox_access_token))
                     // comment out the location engine setting block to disable simulation
-                    .locationEngine(replayLocationEngine)
+//                    .locationEngine(replayLocationEngine)
                     .build()
             )
         }
