@@ -44,16 +44,15 @@ private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null
 private const val DUMMY_ITEM_NAME = "Airpods"
 
 class ConvRepositoryTest {
-
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val firebaseStorage:FirebaseStorage = FirebaseFakeHelper().providesStorage()
+    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addTestUsers() = runBlocking{
-        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1,firestore)
-        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2,firestore)
-        UserRepository.addUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV,firestore)
+        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1, true, firestore)
+        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2, true, firestore)
+        UserRepository.addUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV, true, firestore)
 
 //        UserRepo.addAuthUser(USER2)
 //        UserRepo.addAuthUser(USERWITHWRONGCONV)

@@ -128,9 +128,9 @@ class ChatMenuActivityTest {
     private fun createConv() {
         runBlocking {
             UserRepository
-                .addUserFromAccount(test_user_uid, ACCOUNT1, firestore)
+                .addUserFromAccount(test_user_uid, ACCOUNT1, true, firestore)
             UserRepository
-                .addUserFromAccount(interlocutor_uid, ACCOUNT2, firestore)
+                .addUserFromAccount(interlocutor_uid, ACCOUNT2, true, firestore)
             val result = ConvRepository.addNewConversation(
                 test_user_uid,
                 interlocutor_uid,

@@ -20,6 +20,7 @@ object FirebaseAuthRepository {
         account: SignInAccount,
         passwd: String,
         mAuth: FirebaseAuth,
+        isTest: Boolean,
         firestore: FirebaseFirestore
     ): FirebaseResponse {
         val response = FirebaseResponse()
@@ -30,7 +31,7 @@ object FirebaseAuthRepository {
                 return response
             }
 
-            return UserRepository.addUserFromAccount(newAuthEntry.user!!.uid, account, firestore)
+            return UserRepository.addUserFromAccount(newAuthEntry.user!!.uid, account, isTest, firestore)
         } catch (e: Exception) {
             response.onError = e
         }

@@ -8,20 +8,34 @@ import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 
 private const val DUMMY_UID = "AUTHUSERID"
+private const val DEVICE_TOKEN = "siuiwaduaiwniuhaiuJJKJKi"
 private val DUMMY_ACCOUNT = BrugSignInAccount("Rayan", "Kikou", "", "")
 
 class UserRepositoryTest {
+
+    @Before
+    fun setUp() {
+        runBlocking { UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, FirebaseFakeHelper().providesFirestore()) }
+    }
+
+    @After
+    fun cleanUp(){
+        runBlocking {
+            UserRepository.deleteDeviceTokenFromUser(DUMMY_UID, DEVICE_TOKEN, FirebaseFakeHelper().providesFirestore())
+            UserRepository.deleteUserFromID(DUMMY_UID, FirebaseFakeHelper().providesFirestore())
+        }
+    }
 
     val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     @Test
@@ -36,7 +50,7 @@ class UserRepositoryTest {
 
     @Test
     fun addAuthUserCorrectlyAddsUser() = runBlocking {
-        assertThat(UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
+        assertThat(UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
         val user = UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage())
         assertThat(user, IsNot(IsNull.nullValue()))
         assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())))
@@ -50,10 +64,27 @@ class UserRepositoryTest {
 
     @Test
     fun updateUserCorrectlyUpdatesUserFields() = runBlocking {
-        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore())
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, FirebaseFakeHelper().providesFirestore())
         val updatedUser = MyUser(DUMMY_UID, "Bryan", "Kikou", null, mutableListOf())
         assertThat(UserRepository.updateUserFields(updatedUser,FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
 
+        val user = UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage())
+        assertThat(user, IsNot(IsNull.nullValue()))
+        assertThat(user, IsEqual(updatedUser))
+    }
+
+    @Test
+    fun addDeviceTokenToInexistentUserReturnsError() = runBlocking {
+        val wrongUser = MyUser("WRONGUID", "BAD", "USER", null, mutableListOf())
+        assertThat(UserRepository.addNewDeviceTokenToUser(wrongUser.uid, DEVICE_TOKEN,FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun addDeviceTokenToExistentUserReturnsSuccessfully() = runBlocking {
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, FirebaseFakeHelper().providesFirestore())
+        assertThat(UserRepository.addNewDeviceTokenToUser(DUMMY_UID, DEVICE_TOKEN, FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
+
+        val updatedUser = MyUser(DUMMY_UID, "Rayan", "Kikou", null, mutableListOf(DEVICE_TOKEN))
         val user = UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage())
         assertThat(user, IsNot(IsNull.nullValue()))
         assertThat(user, IsEqual(updatedUser))
@@ -109,7 +140,7 @@ class UserRepositoryTest {
         val uid = authUser!!.uid
         assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
         assertThat(firebaseAuth.currentUser!!.uid, IsEqual(uid))
-        UserRepository.addUserFromAccount(uid, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore())
+        UserRepository.addUserFromAccount(uid, DUMMY_ACCOUNT, true, FirebaseFakeHelper().providesFirestore())
         val response = UserRepository.updateUserIcon(uid, drawable!!,FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage(),FirebaseFakeHelper().providesFirestore())
         Log.d("TEST", "updateUserIconWithAuthCorrectlyUpdatesIcon: $response")
         assertThat(response.onError, IsNull.nullValue())
@@ -137,7 +168,7 @@ class UserRepositoryTest {
 
     @Test
     fun deleteUserReturnsSuccessfully() = runBlocking {
-        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,FirebaseFakeHelper().providesFirestore())
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, FirebaseFakeHelper().providesFirestore())
 //        UserRepo.addAuthUser(DUMMY_USER)
         assertThat(UserRepository.deleteUserFromID(DUMMY_UID, FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
         assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage()), IsNull.nullValue())
@@ -146,5 +177,23 @@ class UserRepositoryTest {
     @Test
     fun deleteInexistentUserReturnsError() = runBlocking {
         assertThat(UserRepository.deleteUserFromID("WRONGUID",FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun deleteDeviceTokenFromExistingUserReturnsSuccessfully() = runBlocking {
+        val userWithoutToken = MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())
+        val userWithToken = MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf(DEVICE_TOKEN))
+
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, FirebaseFakeHelper().providesFirestore())
+        UserRepository.addNewDeviceTokenToUser(DUMMY_UID, DEVICE_TOKEN, FirebaseFakeHelper().providesFirestore())
+        assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage()), IsEqual(userWithToken))
+//        UserRepo.addAuthUser(DUMMY_USER)
+        assertThat(UserRepository.deleteDeviceTokenFromUser(DUMMY_UID, DEVICE_TOKEN, FirebaseFakeHelper().providesFirestore()).onSuccess, IsEqual(true))
+        assertThat(UserRepository.getMinimalUserFromUID(DUMMY_UID,FirebaseFakeHelper().providesFirestore(),FirebaseFakeHelper().providesAuth(),FirebaseFakeHelper().providesStorage()), IsEqual(userWithoutToken))
+    }
+
+    @Test
+    fun deleteDeviceTokenFromInexistentUserReturnsError() = runBlocking {
+        assertThat(UserRepository.deleteDeviceTokenFromUser("WRONGUID", DEVICE_TOKEN, FirebaseFakeHelper().providesFirestore()).onError, IsNot(IsNull.nullValue()))
     }
 }

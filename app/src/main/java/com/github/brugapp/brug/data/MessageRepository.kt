@@ -18,6 +18,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.RemoteMessage
+import com.google.firebase.messaging.ktx.remoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -101,10 +102,13 @@ object MessageRepository {
 
             firestore.collection(USERS_DB).document(otherUserID)
                 .collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
-                    val remoteMessage = RemoteMessage.Builder(tokenDoc.id)
-                    remoteMessage.data = notificationData
-                    Log.e("FIREBASE NOTIFICATIONS CHECK", remoteMessage.build().notification?.body ?: "EMPTY BODY")
-                    FirebaseMessaging.getInstance().send(remoteMessage.build())
+                    FirebaseMessaging.getInstance().send(
+                        remoteMessage("290986483284@fcm.googleapis.com"){
+                            messageId = tokenDoc.id
+                            addData("title", m.senderName)
+                            addData("body", m.body)
+                        }
+                    )
             }
 
             addResponse.onSuccess = true

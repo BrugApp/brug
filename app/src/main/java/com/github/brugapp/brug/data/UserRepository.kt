@@ -33,6 +33,7 @@ object UserRepository {
     suspend fun addUserFromAccount(
         authUID: String,
         account: SignInAccount,
+        isTest: Boolean,
         firestore: FirebaseFirestore
     ): FirebaseResponse {
         val response = FirebaseResponse()
@@ -49,9 +50,11 @@ object UserRepository {
 
             }
 
-            // ADDS A NEW ENTRY IN THE DEVICE TOKENS LIST
-            val deviceToken = FirebaseMessaging.getInstance().token.await()
-            userDoc.collection(TOKENS_DB).document(deviceToken).set({})
+            if(!isTest){
+                // ADDS A NEW ENTRY IN THE DEVICE TOKENS LIST
+                val deviceToken = FirebaseMessaging.getInstance().token.await()
+                userDoc.collection(TOKENS_DB).document(deviceToken).set({})
+            }
 
             response.onSuccess = true
 
@@ -101,7 +104,7 @@ object UserRepository {
             // CHECK IF THE TOKEN DOESN'T ALREADY EXIST
             val tokenRef = userRef.collection(TOKENS_DB).document(token)
             if(!tokenRef.get().await().exists()){
-                userRef.collection(TOKENS_DB).document(token).set({})
+                userRef.collection(TOKENS_DB).document(token).set({}).await()
             }
             response.onSuccess = true
         } catch (e: Exception) {
@@ -125,7 +128,7 @@ object UserRepository {
                 response.onError = Exception("Token doesn't exist")
                 return response
             }
-            userRef.collection(TOKENS_DB).document(token).set({})
+            userRef.collection(TOKENS_DB).document(token).delete().await()
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e

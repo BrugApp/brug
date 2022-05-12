@@ -61,8 +61,8 @@ class RegisterUserActivity : AppCompatActivity() {
                         newAccount,
                         passwdField.text.toString(),
                         firebaseAuth,
-                        firestore,
-                        FirebaseMessaging.getInstance()
+                        false,
+                        firestore
                     )
                 }
                 if (response.onSuccess) {

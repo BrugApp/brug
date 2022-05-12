@@ -122,7 +122,7 @@ class ProfileUserTest {
             ).await()
             testUserUid = firebaseAuth.currentUser!!.uid
                 UserRepository
-                    .addUserFromAccount(testUserUid, ACCOUNT1, firestore)
+                    .addUserFromAccount(testUserUid, ACCOUNT1, true, firestore)
         }
     }
 

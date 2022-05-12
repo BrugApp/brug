@@ -71,8 +71,8 @@ class MessageRepositoryTest {
     private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
     private fun addUsersAndConv() = runBlocking {
-        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1,firestore)
-        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2,firestore)
+        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1, true, firestore)
+        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2, true, firestore)
         ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore)
     }
 

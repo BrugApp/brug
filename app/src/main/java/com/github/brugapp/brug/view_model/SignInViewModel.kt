@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.view_model
 
 import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.*
@@ -47,8 +48,8 @@ class SignInViewModel @Inject constructor(
             return UserRepository.addUserFromAccount(
                 firebaseAuthResponse.user!!.uid,
                 BrugSignInAccount("Unlost", "DemoUser", "", ""),
-                firestore,
-                FirebaseMessaging.getInstance()
+                false,
+                firestore
             ).onSuccess
         }
         return false
@@ -70,14 +71,14 @@ class SignInViewModel @Inject constructor(
         // We also get the credential of the account
         // to add it to the database part handling authentication
         val credential = credentialGetter.getCredential(account.idToken)
-        val userID = getAuth().signInWithCredential(credential)
+        val userID = getAuth().signInWithCredential(credential) ?: return false
 
         // Finally, add the account if it isn't already in the database
         return UserRepository.addUserFromAccount(
             userID,
             account,
-            firestore,
-            FirebaseMessaging.getInstance()
+            false,
+            firestore
         ).onSuccess
     }
 
@@ -85,14 +86,16 @@ class SignInViewModel @Inject constructor(
      * Performs a sign out operation on the currently connected Firebase account.
      */
     suspend fun signOut(firestore: FirebaseFirestore) {
-        val deviceToken = FirebaseMessaging.getInstance().token.await()
-        UserRepository.deleteDeviceTokenFromUser(
-            auth.uid!!,
-            deviceToken,
-            firestore
-        )
-        signInClient.signOut()
-        auth.signOut()
+        if(auth.uid != null){
+            val deviceToken = FirebaseMessaging.getInstance().token.await()
+            UserRepository.deleteDeviceTokenFromUser(
+                auth.uid!!,
+                deviceToken,
+                firestore
+            )
+            signInClient.signOut()
+            auth.signOut()
+        }
     }
 
     fun getAuth(): AuthDatabase {

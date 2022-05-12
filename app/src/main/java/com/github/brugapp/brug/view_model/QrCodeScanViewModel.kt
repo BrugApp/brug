@@ -114,9 +114,8 @@ class QrCodeScanViewModel : ViewModel() {
             UserRepository.addUserFromAccount(
                 auth.uid,
                 BrugSignInAccount("Anonymous","User","",""),
-                firestore,
-                FirebaseMessaging.getInstance()
-            )
+                false,
+                firestore)
         }
 
         val (userID, itemID) = qrText.toString().split(":")

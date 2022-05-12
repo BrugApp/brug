@@ -14,6 +14,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.RemoteMessage
+import com.google.firebase.messaging.ktx.remoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -78,15 +79,14 @@ object ConvRepository {
 
 
             // FINALLY SEND A NOTIFICATION TO THE USER
-            val notificationData = mapOf(
-                "title" to "Item found !",
-                "body" to "Your item $lostItemName has been found !"
-            )
             otherUserRef.collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
-                val remoteMessage = RemoteMessage.Builder(tokenDoc.id)
-                remoteMessage.data = notificationData
-                Log.e("FIREBASE NOTIFICATIONS CHECK", remoteMessage.build().notification?.body ?: "EMPTY BODY")
-                FirebaseMessaging.getInstance().send(remoteMessage.build())
+                FirebaseMessaging.getInstance().send(
+                    remoteMessage("290986483284@fcm.googleapis.com"){
+                        messageId = tokenDoc.id
+                        addData("title", "Item Found !")
+                        addData("body", "Your item $lostItemName has been found !")
+                    }
+                )
             }
 
             response.onSuccess = true

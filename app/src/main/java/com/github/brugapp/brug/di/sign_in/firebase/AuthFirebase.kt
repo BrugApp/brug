@@ -17,8 +17,17 @@ class AuthFirebase(firebaseAuth: FirebaseAuth) : AuthDatabase() {
         auth.signOut()
     }
 
-    override suspend fun signInWithCredential(credential: AuthCredential?): String {
-        return auth.signInWithCredential(credential!!).await().user!!.uid
+    override suspend fun signInWithCredential(credential: AuthCredential?): String? {
+        return try {
+            val result = auth.signInWithCredential(credential!!).await()
+            if(result.user != null){
+                result.user!!.uid
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
 //            .addOnCompleteListener(activity) { task ->
 //                if (task.isSuccessful) {
 //                    // Sign in success, update UI with the signed-in user's information

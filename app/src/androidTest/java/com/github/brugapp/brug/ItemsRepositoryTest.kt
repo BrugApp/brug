@@ -31,8 +31,7 @@ class ItemRepoTest {
 
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addUserAndItem() = runBlocking {
-        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT,
-            firestore)
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, firestore)
         ItemsRepository.addItemToUser(ITEM, DUMMY_UID, firestore)
     }
 
