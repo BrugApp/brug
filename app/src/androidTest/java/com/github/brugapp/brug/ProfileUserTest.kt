@@ -163,13 +163,13 @@ class ProfileUserTest {
     @Test
     fun correctNameIsDisplayed(){
         val name: String = TEST_USERNAME//MockDatabase.currentUser.getFirstName() + " " + MockDatabase.currentUser.getLastName()
-        //Thread.sleep(3000)
+        Thread.sleep(3000)
         onView(withId(R.id.username)).check(matches(withText(name)))
     }
 
     @Test
     fun initProfilePictureAndChange(){
-        //Thread.sleep(3000)
+        Thread.sleep(3000)
         correctProfilePictureDisplayed()
         cleanUp()
         setUp()
@@ -178,7 +178,7 @@ class ProfileUserTest {
 
 
     private fun correctProfilePictureDisplayed(){
-        //Thread.sleep(3000)
+        Thread.sleep(3000)
         onView(withId(R.id.imgProfile)).check(matches(withDrawable(R.mipmap.ic_launcher_round)))
     }
 
