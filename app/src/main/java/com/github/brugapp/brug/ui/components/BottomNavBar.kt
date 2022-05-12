@@ -18,7 +18,7 @@ class BottomNavBar {
         bottomBar.setOnItemSelectedListener {
             when(it.itemId){
                 R.id.items_list_menu_button -> {
-                    if(currentActivity is ChatMenuActivity){
+                    if(currentActivity is ChatMenuActivity || currentActivity is MapBoxActivity){
                         currentActivity.startActivity(Intent(currentActivity, ItemsMenuActivity::class.java))
                     }
                     true
@@ -31,7 +31,13 @@ class BottomNavBar {
                     true
                 }
                 R.id.chat_menu_button -> {
-                    if(currentActivity is ItemsMenuActivity){
+                    if(currentActivity is ItemsMenuActivity || currentActivity is MapBoxActivity){
+                        currentActivity.startActivity(Intent(currentActivity, ChatMenuActivity::class.java))
+                    }
+                    true
+                }
+                R.id.item_map_button -> {
+                    if(currentActivity is ItemsMenuActivity || currentActivity is MapBoxActivity){
                         currentActivity.startActivity(Intent(currentActivity, MapBoxActivity::class.java))
                     }
                     true

@@ -7,6 +7,12 @@
         android:title="@string/myitems" />
 
     <item
+        android:id="@+id/item_map_button"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_location_on_24"
+        android:title="@string/map" />
+
+    <item
         android:id="@+id/qr_scan_menu_button"
         android:enabled="true"
         android:icon="@drawable/ic_baseline_camera_24"
@@ -17,4 +23,5 @@
         android:enabled="true"
         android:icon="@drawable/ic_baseline_chat_24"
         android:title="@string/chat" />
+
 </menu>
