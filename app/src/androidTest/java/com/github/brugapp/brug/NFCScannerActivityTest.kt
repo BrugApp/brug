@@ -75,9 +75,15 @@ class NFCScannerActivityTest {
     }
 
     @Test
-    fun onPauseThenResumeTest(){
+    fun onPauseTest(){
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
         mockActivity.onPause()
+        assertThat(mockActivity.writeMode,`is`(false))
+    }
+
+    @Test
+    fun onResumeTest(){
+        val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
         mockActivity.onResume()
         assertThat(mockActivity.writeMode,`is`(false))
     }
