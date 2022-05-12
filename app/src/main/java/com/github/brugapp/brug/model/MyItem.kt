@@ -2,6 +2,9 @@ package com.github.brugapp.brug.model
 
 import com.github.brugapp.brug.R
 import java.io.Serializable
+import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyItem(
     val itemName: String,
@@ -12,6 +15,53 @@ class MyItem(
 
     /* ITEM ID */
     private var itemID: String = ""
+
+    private var isDeleted: Boolean = false
+
+    private val emptyDate = "EMPTY"
+
+    private var deletedWhen:String = emptyDate
+
+
+    fun getIsDeleted(): Boolean {
+        return isDeleted
+    }
+
+    private val datePattern:String = "dd/MM/yyyy"
+
+    fun setDeleted(deleted: Boolean) {
+        //if(!isDeleted && deleted) setDeletedWhen()
+        isDeleted = deleted
+    }
+
+
+    private fun setDeletedWhen() {
+        val dateFormat = SimpleDateFormat(datePattern,Locale.US)
+        deletedWhen = dateFormat.format(Date())
+    }
+
+    fun setDeletedWhen(date:String) {
+        deletedWhen = date
+    }
+
+    fun isTooOld(): Boolean {
+        return if(isDeleted) {
+            val dateFormat = SimpleDateFormat(datePattern, Locale.US)
+            val date = Date()
+            //get 6 months ago
+            val sixMonthsAgo = dateFormat.format(date.time - (1000L * 60L * 60L * 24L * 30L * 6L))
+            deletedWhen < sixMonthsAgo
+        }else {
+            false
+        }
+    }
+
+
+    fun getDeletedWhen(): String {
+        if(deletedWhen.isEmpty()) return emptyDate
+        return deletedWhen
+    }
+
 
     fun setItemID(itemID: String) {
         this.itemID = itemID

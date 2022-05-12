@@ -3,6 +3,7 @@ package com.github.brugapp.brug.model
 import com.github.brugapp.brug.R
 import java.io.Serializable
 
+@Deprecated("Use MyItem instead")
 class Item// Generate the id later
     (private var name: String, private var description: String, private var id: String) :
     Serializable {

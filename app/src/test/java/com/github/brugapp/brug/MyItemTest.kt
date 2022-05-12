@@ -1,5 +1,6 @@
 package com.github.brugapp.brug
 
+import android.util.Log
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import org.hamcrest.MatcherAssert.assertThat
@@ -114,6 +115,16 @@ class MyItemTest {
         val item1 = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
         val item2 = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", true)
         assertThat(item1, IsNot(IsEqual(item2)))
+    }
+
+    @Test
+    fun itemCanBeDeleted() {
+        val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        item.setDeleted(true)
+        assertThat(item.getIsDeleted(), IsEqual(true))
+        val different = item.getDeletedWhen() != ""
+        println( item.getDeletedWhen())
+        assertThat(different,IsEqual(true))
     }
 
 }

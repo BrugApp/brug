@@ -1,5 +1,6 @@
 package com.github.brugapp.brug
 
+import android.util.Log
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
@@ -26,8 +27,6 @@ private var ITEM = MyItem("AirPods Pro Max", 0, "My Beloved AirPods", false)
 class ItemRepoTest {
 
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
-    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addUserAndItem() = runBlocking {
@@ -47,7 +46,7 @@ class ItemRepoTest {
 
     @After
     fun cleanUp() {
-        wipeAllItems()
+        //wipeAllItems()
     }
 
     @Test
@@ -56,18 +55,35 @@ class ItemRepoTest {
     }
 
     @Test
+    fun deletedItemAppearsInDeletedList() = runBlocking {
+        val item = MyItem("Wagwan",0,"Yuth",false)
+        item.setDeleted(true)
+        item.setDeletedWhen("11/11/11")
+        ItemsRepository.addItemToUser(item, DUMMY_UID,firestore)
+        //ItemsRepository.deleteItemFromUser(item.getItemID(), DUMMY_UID, firestore,true)
+        val list = ItemsRepository.getUserItemsFromUID(DUMMY_UID,firestore)
+        val deletedList = ItemsRepository.getUserDeletedItemsFromUid(DUMMY_UID, firestore)
+        Log.d("deletedList",deletedList.toString())
+        Log.d("list",list.toString())
+        assertThat(deletedList!!.size, IsEqual(1))
+        assertThat(deletedList[0] == item, IsEqual(true))
+    }
+
+    @Test
     fun addItemToWrongUserReturnsError() = runBlocking {
         assertThat(ItemsRepository.addItemToUser(ITEM, "WRONGUID",firestore).onError, IsNot(IsNull.nullValue()))
     }
 
+
+
     @Test
     fun addItemReturnsSuccessfully() = runBlocking {
-        val response = ItemsRepository.addItemToUser(ITEM, DUMMY_UID,firestore)
+        val item = MyItem("Clef de Voiture", 0, "No Joke", false)
+        val response = ItemsRepository.addItemToUser(item, DUMMY_UID,firestore)
         val list = ItemsRepository.getUserItemsFromUID(DUMMY_UID,firestore)
 
         assertThat(response.onSuccess, IsEqual(true))
         assertThat(list.isNullOrEmpty(), IsEqual(false))
-//        assertThat(ItemsRepo.getUserItemsFromUID(USER.uid)!!.contains(ITEM), IsEqual(true))
     }
 
     @Test
@@ -91,6 +107,7 @@ class ItemRepoTest {
         ITEM.setItemID(ITEM_ID)
         ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
         val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        updatedItem.setDeleted(true)
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.updateItemFields(updatedItem, DUMMY_UID,firestore).onSuccess, IsEqual(true))
 
@@ -128,5 +145,7 @@ class ItemRepoTest {
     fun getItemsFromWrongUserReturnsNull() = runBlocking {
         assertThat(ItemsRepository.getUserItemsFromUID("WRONGUID",firestore), IsNull.nullValue())
     }
+
+
 
 }

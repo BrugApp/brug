@@ -40,7 +40,7 @@ class ItemsMenuViewModel : ViewModel() {
             liveData(Dispatchers.IO) {
                 emit(
                     ItemsRepository.deleteItemFromUser(
-                        deletedItem.getItemID(), firebaseAuth.currentUser!!.uid, firestore
+                        deletedItem.getItemID(), firebaseAuth.currentUser!!.uid, firestore,true
                     )
                 )
             }.observe(activity) { response ->
