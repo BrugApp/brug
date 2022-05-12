@@ -60,9 +60,9 @@ open class NFCScannerActivity: AppCompatActivity() {
         //params: None
         //use: abbreviates the onCreate method
 
-        findViewById<View>(R.id.edit_message)?.let{ editMessage = findViewById<View>(R.id.edit_message) as TextView }
-        findViewById<View>(R.id.nfcContents)?.let{ nfcContents = findViewById<View>(R.id.nfcContents) as TextView }
-        findViewById<View>(R.id.buttonReportItem)?.let{activateButton = findViewById<View>(R.id.buttonReportItem) as Button }
+        editMessage = findViewById<View>(R.id.edit_message) as TextView
+        nfcContents = findViewById<View>(R.id.nfcContents) as TextView
+        activateButton = findViewById<View>(R.id.buttonReportItem) as Button
 
         return editMessage!=null && nfcContents!=null && activateButton!=null
 
