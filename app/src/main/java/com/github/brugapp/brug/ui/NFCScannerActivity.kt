@@ -30,9 +30,9 @@ open class NFCScannerActivity: AppCompatActivity() {
     lateinit var context: Context
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
-    var editMessage: TextView? = null
-    var nfcContents: TextView? = null
-    private var activateButton: Button? = null
+    lateinit var editMessage: TextView
+    lateinit var nfcContents: TextView
+    private lateinit var activateButton: Button
 
     public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         context = this
@@ -44,9 +44,9 @@ open class NFCScannerActivity: AppCompatActivity() {
             finish() }
         nfcIntent = viewModel.setupWritingTagFilters(this).first
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
-        activateButton!!.setOnClickListener{
+        activateButton.setOnClickListener{
             try{ if(tag==null) Toast.makeText(this,Error_detected,Toast.LENGTH_LONG).show()
-            else{ viewModel.write(editMessage!!.text.toString(),tag!!)
+            else{ viewModel.write(editMessage.text.toString(),tag!!)
                 Toast.makeText(this,Write_success,Toast.LENGTH_LONG).show() }
             }catch(e: Exception){ when(e){ is IOException, is FormatException ->{ Toast.makeText(this,Write_error,Toast.LENGTH_LONG).show()
                 e.printStackTrace() }
@@ -58,9 +58,9 @@ open class NFCScannerActivity: AppCompatActivity() {
         //params: None
         //use: abbreviates the onCreate method
 
-        editMessage = findViewById<View>(R.id.edit_message) as TextView?
-        nfcContents = findViewById<View>(R.id.nfcContents) as TextView?
-        activateButton = findViewById<View>(R.id.buttonReportItem) as Button?
+        editMessage = findViewById<View>(R.id.edit_message) as TextView
+        nfcContents = findViewById<View>(R.id.nfcContents) as TextView
+        activateButton = findViewById<View>(R.id.buttonReportItem) as Button
 
         return editMessage!=null && nfcContents!=null && activateButton!=null
 
