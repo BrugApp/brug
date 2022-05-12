@@ -101,7 +101,7 @@ class QrCodeScannerActivityTest {
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("$userID:$itemID"))
         onView(withId(R.id.buttonReportItem)).perform(click())
-        Thread.sleep(1000)
+        Thread.sleep(3000)
         intended(
             IntentMatchers.hasComponent(SignInActivity::class.java.name)
         )
