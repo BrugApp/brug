@@ -29,6 +29,7 @@ import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
@@ -40,6 +41,7 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.anyOf
+import org.hamcrest.Matchers.array
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -82,7 +84,7 @@ class ChatActivityTest {
     private val convID = "0"
     private val dummyItemName = "DummyItem"
 
-    private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null)
+    private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null, mutableListOf())
 
     private val dummyDate = fromLocalDateTime(
         LocalDateTime.of(
@@ -93,10 +95,14 @@ class ChatActivityTest {
         "USER1USER2",
         dummyUser,
         "DummyItem",
-        mutableListOf(
-            Message(
-                dummyUser.getFullName(), dummyDate, "TestMessage"
-            )
+        Message(
+            dummyUser.getFullName(), dummyDate, "TestMessage"
+        )
+    )
+
+    private val messagesList = arrayListOf(
+        TextMessage(
+            dummyUser.getFullName(), dummyDate, "TestMessage"
         )
     )
 
@@ -116,6 +122,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -139,6 +146,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -162,6 +170,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -185,6 +194,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -199,6 +209,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -214,6 +225,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -229,6 +241,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         val message = "Test text"
@@ -245,6 +258,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         val message = "Test text"
@@ -262,6 +276,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         val message = "Test text"
@@ -280,6 +295,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -295,6 +311,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -310,6 +327,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -334,6 +352,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -359,6 +378,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -389,6 +409,7 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
         ActivityScenario.launch<Activity>(intent).use {
@@ -419,6 +440,8 @@ class ChatActivityTest {
 
         val intent = Intent(context, ChatActivity::class.java).apply {
             putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
+
         }
 
         ActivityScenario.launch<Activity>(intent).use {

@@ -12,6 +12,8 @@ const val TAKE_PICTURE_REQUEST_CODE = 1
 const val SELECT_PICTURE_REQUEST_CODE = 10
 const val RECORDING_REQUEST_CODE = 3000
 const val STORAGE_REQUEST_CODE = 2000
+const val MESSAGE_TEST_LIST_KEY = "MessageTestList"
+const val CONVERSATION_TEST_LIST_KEY = "ConvTestList"
 
 @HiltAndroidApp
 class BrugApp : Application()

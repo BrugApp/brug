@@ -1,22 +1,16 @@
 package com.github.brugapp.brug.view_model
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
-import com.github.brugapp.brug.model.MyUser
-import com.github.brugapp.brug.ui.ItemsMenuActivity
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -27,130 +21,85 @@ class SignInViewModel @Inject constructor(
     private val signInResultHandler: SignInResultHandler,
     lastSignedInAccount: SignInAccount?,
     private val auth: AuthDatabase,
-    private val credentialGetter: SignInCredentialGetter
+    private val credentialGetter: SignInCredentialGetter,
 ) : ViewModel() {
 
-    // Check for existing Sign In account, if the user is already signed in
-    // the SignInAccount will be non-null.
-    //private var currentUser: MyUser? = createNewBrugUser(lastSignedInAccount,) //= createNewBrugUser(lastSignedInAccount)
-    private var currentUser: MyUser? = null //= createNewBrugUser(lastSignedInAccount)
-
-    fun handleSignInResult(
-        it: Intent?,
-        firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth,
-        firebaseStorage: FirebaseStorage
-    ): AuthCredential? {
-        val currentAccount = signInResultHandler.handleSignInResult(it)
-        currentUser = createNewBrugUser(currentAccount, firestore, firebaseAuth, firebaseStorage)
-        return credentialGetter.getCredential(currentAccount?.idToken)
-    }
-
+    /**
+     * Getter for the sign-in intent.
+     * @return Intent the sign in intent
+     */
     fun getSignInIntent(): Intent {
         return signInClient.signInIntent
     }
 
-    fun signOut() {
-        signInClient.signOut()
-        auth.signOut()
-        currentUser = null
-    }
-
-    fun goToDemoMode(
-        activity: AppCompatActivity,
+    /**
+     * Creates a demo user account in the database, if it is not already present.
+     *
+     * @return Boolean value denoting the state of the sign in procedure (true if successfull, false otherwise)
+     */
+    suspend fun goToDemoMode(
         firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth,
-        firebaseStorage: FirebaseStorage
-    ) {
-        liveData(Dispatchers.IO) {
-            emit(
-                firebaseAuth.signInWithEmailAndPassword(
-                    "unlost.app@gmail.com",
-                    "brugsdpProject1"
-                ).await()
-            )
-        }.observe(activity) { result ->
-            if (result.user != null) {
-                if (runBlocking {
-                        UserRepository.getMinimalUserFromUID(
-                            result.user!!.uid,
-                            firestore,
-                            firebaseAuth,
-                            firebaseStorage
-                        )
-                    } == null) {
-                    runBlocking {
-                        UserRepository.addUserFromAccount(
-                            firebaseAuth.currentUser!!.uid,
-                            BrugSignInAccount(
-                                "Unlost",
-                                "DemoUser",
-                                "",
-                                ""
-                            ), firestore
-                        )
-                    }
-                }
+        firebaseAuth: FirebaseAuth
+    ): Boolean {
+        val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
+            "unlost.app@gmail.com",
+            "brugsdpProject1").await()
 
-                activity.startActivity(
-                    Intent(
-                        activity.applicationContext,
-                        ItemsMenuActivity::class.java
-                    )
-                )
-            } else {
-                Snackbar.make(
-                    activity.findViewById(android.R.id.content),
-                    "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG
-                )
-                    .show()
-            }
+        if(firebaseAuthResponse.user != null){
+            return UserRepository.addUserFromAccount(
+                firebaseAuthResponse.user!!.uid,
+                BrugSignInAccount("Unlost", "DemoUser", "", ""),
+                false,
+                firestore
+            ).onSuccess
         }
+        return false
     }
 
+    /**
+     * Creates a new user account upon signing into the app, if the account is not already present in the database.
+     *
+     * @param it the intent holding the result of the sign in procedure
+     *
+     * @return Boolean value denoting the state of the sign in procedure (true if successful, false otherwise)
+     */
+    suspend fun createNewBrugAccount(
+        it: Intent?,
+        firestore: FirebaseFirestore
+    ): Boolean {
+        // First we get the account from the account provider (i.e., Google or Unlost)
+        val account = signInResultHandler.handleSignInResult(it) ?: return false
+        // We also get the credential of the account
+        // to add it to the database part handling authentication
+        val credential = credentialGetter.getCredential(account.idToken)
+        val userID = getAuth().signInWithCredential(credential) ?: return false
 
-    // return new Brug User from SignInAccount
-    private fun createNewBrugUser(
-        account: SignInAccount?,
-        firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth,
-        firebaseStorage: FirebaseStorage
-    ): MyUser? {
-        if (account == null || auth.uid == null) return null
-        return runBlocking {
-            val user = UserRepository.getMinimalUserFromUID(
+        // Finally, add the account if it isn't already in the database
+        return UserRepository.addUserFromAccount(
+            userID,
+            account,
+            false,
+            firestore
+        ).onSuccess
+    }
+
+    /**
+     * Performs a sign out operation on the currently connected Firebase account.
+     */
+    suspend fun signOut(firestore: FirebaseFirestore) {
+        if(auth.uid != null){
+            val deviceToken = FirebaseMessaging.getInstance().token.await()
+            UserRepository.deleteDeviceTokenFromUser(
                 auth.uid!!,
-                firestore,
-                firebaseAuth,
-                firebaseStorage
+                deviceToken,
+                firestore
             )
-            if (user == null) {
-                val response = UserRepository.addUserFromAccount(auth.uid!!, account, firestore)
-                if (response.onSuccess) {
-                    UserRepository.getMinimalUserFromUID(
-                        auth.uid!!,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
-            }
-            null
+            signInClient.signOut()
+            auth.signOut()
+            // Reset all cached data
+            BrugDataCache.resetConversationsList()
+            BrugDataCache.resetMessages()
         }
-
-//        return FirebaseHelper.createUserInFirestoreIfAbsent(auth.uid, account)
-//        val firstName = account.firstName
-//        val lastName = account.lastName
-//        val email = account.email
-//        val idToken = account.idToken
-//        if (firstName == null || lastName == null || email == null || idToken == null) return null
-//        return User(
-//            firstName,
-//            lastName,
-//            email,
-//            idToken,
-//            null
-//        )
     }
 
     fun getAuth(): AuthDatabase {

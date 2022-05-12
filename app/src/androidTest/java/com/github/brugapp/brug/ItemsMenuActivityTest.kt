@@ -82,9 +82,9 @@ class ItemsMenuActivityTest {
         runBlocking {
             firebaseAuth.signInWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
             TEST_USER_UID = firebaseAuth.currentUser!!.uid
-            UserRepository.addUserFromAccount(TEST_USER_UID, ACCOUNT1,firestore)
+            UserRepository.addUserFromAccount(TEST_USER_UID, ACCOUNT1, true, firestore)
             for(item in ITEMS){
-                ItemsRepository.addItemToUser(item, TEST_USER_UID,firestore)
+                ItemsRepository.addItemToUser(item, TEST_USER_UID, firestore)
             }
         }
     }

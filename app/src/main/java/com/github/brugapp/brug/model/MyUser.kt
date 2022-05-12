@@ -1,13 +1,13 @@
 package com.github.brugapp.brug.model
 
-import android.graphics.drawable.Drawable
 import java.io.Serializable
 
 data class MyUser(
     val uid: String,
     val firstName: String,
     val lastName: String,
-    private var userIconPath: String?
+    private var userIconPath: String?,
+    val tokenList: MutableList<String>
 ): Serializable {
 
     fun getFullName(): String {

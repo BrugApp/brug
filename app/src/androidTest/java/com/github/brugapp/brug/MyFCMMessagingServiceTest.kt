@@ -1,6 +1,7 @@
 package com.github.brugapp.brug
 
 import android.os.Bundle
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.junit.Test
