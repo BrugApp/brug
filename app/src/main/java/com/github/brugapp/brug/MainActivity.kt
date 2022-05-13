@@ -20,7 +20,6 @@ class MainActivity : AppCompatActivity() {
         triggerGoToActivity(R.id.mainCamera, QrCodeScannerActivity::class.java)
         triggerGoToActivity(R.id.chat, ChatActivity::class.java)
         triggerGoToActivity(R.id.signUpButton, RegisterUserActivity::class.java)
-        triggerGoToActivity(R.id.mapButton, NavigationMenuActivity::class.java)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

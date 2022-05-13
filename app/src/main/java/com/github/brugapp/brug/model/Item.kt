@@ -74,4 +74,3 @@ class Item// Generate the id later
     }
 }
 
-enum class ItemType { Wallet, Keys, CarKeys, Phone, Other }

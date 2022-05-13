@@ -1,40 +1,84 @@
 package com.github.brugapp.brug.ui
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
+import com.github.brugapp.brug.databinding.SampleHelloWorldViewBinding
+import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.services.LocationService
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
-import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
+import com.mapbox.maps.ViewAnnotationAnchor
+import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.viewannotation.viewAnnotationOptions
+import com.mapbox.navigation.ui.utils.internal.extensions.getBitmap
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import java.lang.ref.WeakReference
+import javax.inject.Inject
 
-var mapView: MapView? = null
+const val EXTRA_DESTINATION_LATITUDE = "com.github.brugapp.brug.DESTINATION_LATITUDE"
+const val EXTRA_DESTINATION_LONGITUDE = "com.github.brugapp.brug.DESTINATION_LONGITUDE"
+const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 
+@AndroidEntryPoint
 class MapBoxActivity : AppCompatActivity() {
 
-    private val items: ArrayList<Item> = ArrayList()
-    private val lon = 18.06
-    private val lat = 59.31
-    private val name = "iPhone"
+    private var items: List<MyItem>? = null
+    private var lon = -122.07131270212334
+    private var lat = 37.411793498806624
 
     private lateinit var locationPermissionHelper: LocationPermissionHelper
 
+    private lateinit var binding: ActivityMapBoxBinding
+
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+
+    //  GETS THE LIST OF ITEMS RELATED TO THE USER
+    private fun initItemsList() = liveData(Dispatchers.IO){
+        emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid, firestore))
+    }.observe(this) { itemsList ->
+        items = itemsList
+        onMapReady()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_map_box)
-        mapView = findViewById(R.id.mapView)
+        binding = ActivityMapBoxBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        initItemsList()
+
+        if (intent.extras != null) {
+            (intent.extras!!.get(EXTRA_DESTINATION_LATITUDE) as Double?)?.apply {
+                lat = this
+            }
+            (intent.extras!!.get(EXTRA_DESTINATION_LONGITUDE) as Double?)?.apply {
+                lon = this
+            }
+        }
+
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
         locationPermissionHelper.checkPermissions {
             onMapReady()
@@ -42,50 +86,94 @@ class MapBoxActivity : AppCompatActivity() {
     }
 
     private fun onMapReady() {
-        mapView?.getMapboxMap()?.setCamera(
+        binding.mapView.getMapboxMap().setCamera(
             CameraOptions.Builder().center(Point.fromLngLat(lon, lat))
                 .build()
         )
-        mapView?.getMapboxMap()?.loadStyleUri(
+        binding.mapView.getMapboxMap().loadStyleUri(
             Style.MAPBOX_STREETS,
         ) {
-            addAnnotationToMap()
+            addIcons()
         }
     }
 
-    private fun addAnnotationToMap() {
+    private fun addIcons() {
+        var x = 0
         // Create an instance of the Annotation API and get the PointAnnotationManager.
-        bitmapFromDrawableRes(
-            this@MapBoxActivity,
-            R.drawable.phone_png
-        )?.let {
-            val annotationApi = mapView?.annotations
-            val pointAnnotationManager = annotationApi?.createPointAnnotationManager()
-            // Set options for the resulting symbol layer.
-            val pointAnnotationOptions: PointAnnotationOptions = PointAnnotationOptions()
-                // Define a geographic coordinate.
-                .withPoint(Point.fromLngLat(lon, lat))
-                // Specify the bitmap you assigned to the point annotation
-                // The bitmap will be added to map style automatically.
-                .withIconImage(it)
-                .withIconSize(0.8)
-//                .withTextField(name)
-//                .withTextOffset(listOf(0.0, 3.0))
-//                .withTextColor(Color.RED)
-            // Add the resulting pointAnnotation to the map.
-            pointAnnotationManager?.create(pointAnnotationOptions)
+        if (items != null) {
+            for (item in items!!) {
+                if (x == 0) {
+                    item.setLastLocation(lon, lat)
+                    x = 1
+                }
+                @DrawableRes val icon: Int = item.getRelatedIcon()
+                val lastLocation = item.getLastLocation()
+                if (lastLocation != null) {
+                    bitmapFromDrawableRes(this, icon)?.let { it ->
+                        val point: Point = Point.fromLngLat(lastLocation.getLongitude(), lastLocation.getLatitude())
+
+                        val annotationPlugin = binding.mapView.annotations
+                        val pointAnnotationOptions: PointAnnotationOptions =
+                            PointAnnotationOptions()
+                                .withPoint(point)
+                                .withIconImage(it)
+                                .withIconAnchor(IconAnchor.BOTTOM)
+                                .withDraggable(true)
+                        val pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
+                        val pointAnnotation = pointAnnotationManager.create(pointAnnotationOptions)
+
+                        val viewAnnotationManager = binding.mapView.viewAnnotationManager
+                        val viewAnnotation = viewAnnotationManager.addViewAnnotation(
+                            resId = R.layout.sample_hello_world_view,
+                            options = viewAnnotationOptions {
+                                geometry(point)
+                                associatedFeatureId(pointAnnotation.featureIdentifier)
+                                anchor(ViewAnnotationAnchor.BOTTOM)
+                                offsetY((pointAnnotation.iconImageBitmap?.height!!).toInt())
+                            }
+                        )
+                        SampleHelloWorldViewBinding.bind(viewAnnotation).apply {
+                            setLinkWithNavigation(walkButton, DirectionsCriteria.PROFILE_WALKING, lastLocation)
+                            setLinkWithNavigation(driveButton, DirectionsCriteria.PROFILE_DRIVING, lastLocation)
+                            itemNameOnMap.text = item.itemName
+                        }
+                        viewAnnotation.toggleViewVisibility()
+
+                        pointAnnotationManager.addClickListener { clickedAnnotation ->
+                            if (pointAnnotation == clickedAnnotation) {
+                                viewAnnotation.toggleViewVisibility()
+                            }
+                            true
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    private fun setLinkWithNavigation(button: Button, mode: String, lastLocation: LocationService) {
+        button.setOnClickListener {
+            val myIntent = Intent(
+                this@MapBoxActivity,
+                NavigationToItemActivity::class.java
+            ).apply {
+                putExtra(EXTRA_DESTINATION_LATITUDE, lastLocation.getLatitude())
+                putExtra(EXTRA_DESTINATION_LONGITUDE, lastLocation.getLongitude())
+                putExtra(EXTRA_NAVIGATION_MODE, mode)
+            }
+            startActivity(myIntent)
+        }
+    }
+
+    private fun View.toggleViewVisibility() {
+        visibility = if (visibility == View.VISIBLE) View.GONE else View.VISIBLE
     }
 
     private fun bitmapFromDrawableRes(context: Context, @DrawableRes resourceId: Int) =
         convertDrawableToBitmap(AppCompatResources.getDrawable(context, resourceId))
 
     private fun convertDrawableToBitmap(sourceDrawable: Drawable?): Bitmap? {
-        if (sourceDrawable == null || sourceDrawable !is BitmapDrawable) {
-            return null
-        } else {
-            return sourceDrawable.bitmap
-        }
+        return sourceDrawable?.getBitmap()
     }
 
     override fun onRequestPermissionsResult(

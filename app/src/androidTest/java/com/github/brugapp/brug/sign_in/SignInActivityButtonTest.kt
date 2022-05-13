@@ -9,11 +9,11 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
-import com.google.firebase.auth.ktx.auth
+import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.ui.QrCodeScannerActivity
+import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
@@ -66,17 +66,6 @@ class SignInActivityButtonTest {
         )
     }
 
-    @Test
-    fun mapDemoButtonGoesToNavigationMenuActivity() {
-        onView(withId(R.id.mapDemoButton)).perform(click())
-
-        intended(
-            allOf(
-                toPackage("com.github.brugapp.brug"),
-                hasComponent(NavigationMenuActivity::class.java.name)
-            )
-        )
-    }
 
     @Test
     fun itemFoundButtonGoesToQRCodeScannerActivity() {
