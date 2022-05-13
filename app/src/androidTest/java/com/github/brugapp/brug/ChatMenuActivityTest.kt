@@ -143,6 +143,7 @@ class ChatMenuActivityTest {
     fun changingBottomNavBarMenuToMapGoesToActivity() {
         val chatMenuButton = onView(withId(R.id.item_map_button))
         chatMenuButton.perform(click())
+        Thread.sleep(5000)
         intended(hasComponent(MapBoxActivity::class.java.name))
     }
 
