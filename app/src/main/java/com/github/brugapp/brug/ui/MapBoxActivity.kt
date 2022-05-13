@@ -60,7 +60,7 @@ class MapBoxActivity : AppCompatActivity() {
         emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid, firestore))
     }.observe(this) { itemsList ->
         items = itemsList
-        addIcons()
+        onMapReady()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
