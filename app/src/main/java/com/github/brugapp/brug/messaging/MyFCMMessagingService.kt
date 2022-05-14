@@ -145,7 +145,7 @@ class MyFCMMessagingService : FirebaseMessagingService() {
 
         @Throws(IOException::class)
         private fun postToFCM(bodyString: String?): String {
-            val serverKey = "AAAAQ8AlXlQ:APA91bEJrVgKZHChdKAX6WqE4SC5TC4D-SOyp2hbkEraorJQMUH0CSPQZJfRPYRHmgPEpc72fWkhE2LkhenusGKYXEVVz8u5ywmiuU025HQVPQ78c22Yhfp7E06fK43t4ax6Alh3zsR_"
+            val serverKey = ""
             val body: RequestBody = bodyString.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
             val request: Request = Request.Builder()
                 .url(FCM_MESSAGE_URL)

@@ -104,7 +104,7 @@ object MessageRepository {
                             tokenDoc.id
                         }.toTypedArray()
                 )
-                MyFCMMessagingService.sendNotificationMessage(jsonArray, m.senderName, m.body)
+                MyFCMMessagingService.sendNotificationMessage(jsonArray, firebaseAuth.currentUser!!.displayName, m.body)
             }
 
             addResponse.onSuccess = true
