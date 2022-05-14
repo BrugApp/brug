@@ -148,7 +148,15 @@ class ConvRepositoryTest {
         )
         fos.close()
 
-        assertThat(MessageRepository.addMessageToConv(picMessage, USER_ID1,"${USER_ID1}${USER_ID2}",firestore, firebaseAuth, firebaseStorage).onSuccess, IsEqual(true))
+        assertThat(MessageRepository.addMessageToConv(
+            picMessage,
+            false,
+            USER_ID1,
+            "${USER_ID1}${USER_ID2}",
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        ).onSuccess, IsEqual(true))
 
         val context = TestLifecycleOwner()
         ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)

@@ -3,6 +3,7 @@ package com.github.brugapp.brug.data
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
+import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.services.DateService
@@ -12,12 +13,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.RemoteMessage
-import com.google.firebase.messaging.ktx.remoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import org.json.JSONArray
 
 private const val USERS_DB = "Users"
 private const val MSG_DB = "Messages"
@@ -79,15 +78,16 @@ object ConvRepository {
 
 
             // FINALLY SEND A NOTIFICATION TO THE USER
-            otherUserRef.collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
-                FirebaseMessaging.getInstance().send(
-                    remoteMessage("290986483284@fcm.googleapis.com"){
-                        messageId = tokenDoc.id
-                        addData("title", "Item Found !")
-                        addData("body", "Your item $lostItemName has been found !")
-                    }
-                )
-            }
+            val jsonArray = JSONArray(
+                otherUserRef.collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
+                    tokenDoc.id
+                }.toTypedArray()
+            )
+            MyFCMMessagingService.sendNotificationMessage(
+                jsonArray,
+                "New Item Found",
+                "Your item $lostItemName has been found !"
+            )
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -279,14 +279,4 @@ object ConvRepository {
     private fun parseConvUserNameFromID(convID: String, uid: String): String {
         return convID.replace(uid, "", ignoreCase = false)
     }
-
-//    @OptIn(ExperimentalCoroutinesApi::class)
-//    private suspend fun Query.awaitRealtime() = suspendCancellableCoroutine<QueryResponse> { continuation ->
-//        addSnapshotListener { value, error ->
-//            if (error == null && continuation.isActive)
-//                continuation.resume(QueryResponse(value, null), null)
-//            else if (error != null && continuation.isActive)
-//                continuation.resume(QueryResponse(null, error), null)
-//        }
-//    }
 }

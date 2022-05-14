@@ -85,12 +85,13 @@ class MessageRepositoryTest {
     fun addMessageToWrongConvReturnsError() = runBlocking {
         val response = MessageRepository.addMessageToConv(
             TEXTMSG,
+            false,
             USER_ID1,
             "WRONGCONVID",
             firestore,
             firebaseAuth,
             firebaseStorage
-            )
+        )
         assertThat(response.onError, IsNot(IsNull.nullValue()))
     }
 
@@ -99,13 +100,14 @@ class MessageRepositoryTest {
     fun addTextMessageCorrectlyAddsNewTextMessage() {
         val response = runBlocking {
              MessageRepository.addMessageToConv(
-                TEXTMSG,
-                USER_ID1,
-                "${USER_ID1}${USER_ID2}",
-                firestore,
-                firebaseAuth,
-                firebaseStorage
-            )
+                 TEXTMSG,
+                 false,
+                 USER_ID1,
+                 "${USER_ID1}${USER_ID2}",
+                 firestore,
+                 firebaseAuth,
+                 firebaseStorage
+             )
         }
         assertThat(response.onSuccess, IsEqual(true))
 
@@ -135,6 +137,7 @@ class MessageRepositoryTest {
     fun addLocationMessageCorrectlyAddsNewLocationMessage() = runBlocking {
         val response = MessageRepository.addMessageToConv(
             LOCATIONMSG,
+            false,
             USER_ID2,
             "${USER_ID1}${USER_ID2}",
             firestore,
@@ -179,6 +182,7 @@ class MessageRepositoryTest {
 
         val response = MessageRepository.addMessageToConv(
             picMsg,
+            false,
             USER_ID1,
             "${USER_ID1}${USER_ID2}",
             firestore,
@@ -216,6 +220,7 @@ class MessageRepositoryTest {
         // ADD MESSAGE TO DATABASE & IMAGE TO STORAGE + SIGNOUT
         val response = MessageRepository.addMessageToConv(
             picMsg,
+            false,
             USER_ID1,
             "${USER_ID1}${USER_ID2}",
             firestore,
@@ -254,6 +259,7 @@ class MessageRepositoryTest {
     fun addAudioMessageWithoutLoginReturnsError() = runBlocking {
         val response = MessageRepository.addMessageToConv(
             AUDIOMSG,
+            false,
             USER2.uid,
             "${USER_ID1}${USER_ID2}",
             firestore,

@@ -18,6 +18,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.coroutines.runBlocking
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.IOException
 
 class MyFCMMessagingService : FirebaseMessagingService() {
 
@@ -105,6 +114,46 @@ class MyFCMMessagingService : FirebaseMessagingService() {
                 )
                 notificationManager.createNotificationChannel(channel)
             }
+        }
+
+
+        // PART HANDLING SENDING NOTIFICATION MESSAGES
+        private const val FCM_MESSAGE_URL = "https://fcm.googleapis.com/fcm/send"
+        var mClient: OkHttpClient = OkHttpClient()
+        fun sendNotificationMessage(
+            recipients: JSONArray?,
+            title: String?,
+            body: String?
+        ): String? {
+            try {
+                val root = JSONObject()
+                val notification = JSONObject()
+                notification.put("body", body)
+                notification.put("title", title)
+//            val data = JSONObject()
+//            root.put("data", data)
+                root.put("notification", notification)
+                root.put("registration_ids", recipients)
+                val result = postToFCM(root.toString())
+                Log.d("NOTIFICATION RESULT", "Result: $result")
+                return result
+            } catch (e: Exception) {
+                Log.e("NOTIFICATION ERROR", e.message.toString())
+            }
+            return null
+        }
+
+        @Throws(IOException::class)
+        private fun postToFCM(bodyString: String?): String {
+            val serverKey = "AAAAQ8AlXlQ:APA91bEJrVgKZHChdKAX6WqE4SC5TC4D-SOyp2hbkEraorJQMUH0CSPQZJfRPYRHmgPEpc72fWkhE2LkhenusGKYXEVVz8u5ywmiuU025HQVPQ78c22Yhfp7E06fK43t4ax6Alh3zsR_"
+            val body: RequestBody = bodyString.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+            val request: Request = Request.Builder()
+                .url(FCM_MESSAGE_URL)
+                .post(body)
+                .addHeader("Authorization", "key=$serverKey")
+                .build()
+            val response: Response = mClient.newCall(request).execute()
+            return response.body?.string() ?: "NO RESPONSE FOUND !!"
         }
     }
 

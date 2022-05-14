@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -41,7 +40,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.codeScanner(this)
 
         //TODO: REMOVE THIS HARDCODED TEXT
-        findViewById<EditText>(R.id.edit_message)
+        findViewById<EditText>(R.id.edit_message).setText("J7jDsvME15fNKvLssZ9bezpABHn2:hUTO3g0hKamHlHJkh5iR")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
             val context = this
@@ -66,7 +65,6 @@ class QrCodeScannerActivity : AppCompatActivity() {
                     Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
                 }
             }
-//            displayReportNotification()
         }
     }
 
@@ -80,12 +78,4 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.releaseResources()
         super.onPause()
     }
-
-    private fun displayReportNotification() {
-        MyFCMMessagingService.sendNotification(
-            this, "Item found",
-            "One of your Items was found !"
-        )
-    }
-
 }

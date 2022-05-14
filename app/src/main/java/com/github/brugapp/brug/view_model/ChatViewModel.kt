@@ -125,6 +125,7 @@ class ChatViewModel : ViewModel() {
                 emit(
                     MessageRepository.addMessageToConv(
                         message,
+                        false,
                         firebaseAuth.currentUser!!.uid,
                         convID,
                         firestore,

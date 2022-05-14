@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
+import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
@@ -16,12 +17,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.RemoteMessage
-import com.google.firebase.messaging.ktx.remoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import org.json.JSONArray
 import java.io.File
 
 private const val USERS_DB = "Users"
@@ -46,6 +45,7 @@ object MessageRepository {
      */
     suspend fun addMessageToConv(
         m: Message,
+        forLostNotification: Boolean,
         senderID: String,
         convID: String,
         firestore: FirebaseFirestore,
@@ -93,22 +93,18 @@ object MessageRepository {
                 .add(message)
                 .await()
 
-            // THEN, NOTIFY THE USER THAT A NEW MESSAGE HAS BEEN SENT
-            val notificationData = mapOf(
-                "title" to m.senderName, //TODO: CHECK IF WE MUST CHANGE THE NAME HERE
-                "body" to message["body"] as String
-            )
-            val otherUserID = parseConvUserNameFromID(convID, senderID)
-
-            firestore.collection(USERS_DB).document(otherUserID)
-                .collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
-                    FirebaseMessaging.getInstance().send(
-                        remoteMessage("290986483284@fcm.googleapis.com"){
-                            messageId = tokenDoc.id
-                            addData("title", m.senderName)
-                            addData("body", m.body)
-                        }
-                    )
+            // THEN, NOTIFY THE USER THAT A NEW MESSAGE HAS BEEN SENT,
+            // ONLY IF THE MESSAGE IS NOT ONE OF THOSE THAT ARE SENT
+            // WHEN SCANNING THE QR CODE
+            if(!forLostNotification) {
+                val otherUserID = parseConvUserNameFromID(convID, senderID)
+                val jsonArray = JSONArray(
+                    firestore.collection(USERS_DB).document(otherUserID)
+                        .collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
+                            tokenDoc.id
+                        }.toTypedArray()
+                )
+                MyFCMMessagingService.sendNotificationMessage(jsonArray, m.senderName, m.body)
             }
 
             addResponse.onSuccess = true
@@ -273,5 +269,4 @@ object MessageRepository {
     private fun parseConvUserNameFromID(convID: String, uid: String): String {
         return convID.replace(uid, "", ignoreCase = false)
     }
-
 }
