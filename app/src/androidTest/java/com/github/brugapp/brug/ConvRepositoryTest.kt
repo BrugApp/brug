@@ -4,9 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ApplicationProvider
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
@@ -50,9 +49,24 @@ class ConvRepositoryTest {
 
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addTestUsers() = runBlocking{
-        UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1, true, firestore)
-        UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2, true, firestore)
-        UserRepository.addUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV, true, firestore)
+        UserRepository.addUserFromAccount(
+            USER_ID1,
+            ACCOUNT1,
+            true,
+            firestore
+        )
+        UserRepository.addUserFromAccount(
+            USER_ID2,
+            ACCOUNT2,
+            true,
+            firestore
+        )
+        UserRepository.addUserFromAccount(
+            USERWRONGCONV_ID,
+            ACCOUNTWRONGCONV,
+            true,
+            firestore
+        )
     }
 
     @Before
@@ -62,18 +76,33 @@ class ConvRepositoryTest {
 
     @Test
     fun addConvToInexistentUsersReturnsError() = runBlocking {
-        assertThat(ConvRepository.addNewConversation("WRONGUID", USER_ID2, DUMMY_ITEM_NAME,firestore).onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.addNewConversation(
+            "WRONGUID",
+            USER_ID2,
+            DUMMY_ITEM_NAME,
+            firestore
+        ).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun addNewConvCorrectlyReturns() = runBlocking {
-        assertThat(ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore).onSuccess, IsEqual(true))
+        assertThat(ConvRepository.addNewConversation(
+            USER_ID1,
+            USER_ID2,
+            DUMMY_ITEM_NAME,
+            firestore
+        ).onSuccess, IsEqual(true))
         val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM_NAME, null)
 
-        val context = TestLifecycleOwner()
-        ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)
+        val convList = MutableLiveData<MutableList<Conversation>>()
+        ConvRepository.getRealtimeConvsFromUID(
+            USER_ID1,
+            convList,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
         delay(1000)
-        val convList = BrugDataCache.getConversationList()
         assertThat(convList.value.isNullOrEmpty(), IsEqual(false))
 
         val conv = convList.value!!.last()
@@ -84,35 +113,51 @@ class ConvRepositoryTest {
 
     @Test
     fun getConvsFromNonexistentUserReturnsNull() {
-        BrugDataCache.resetConversationsList()
-        val context = TestLifecycleOwner()
+        val convList = MutableLiveData<MutableList<Conversation>>()
         val wrongConvID = "WRONGCONVID"
-        ConvRepository.getRealtimeConvsFromUID(wrongConvID, context, firestore, firebaseAuth, firebaseStorage)
+        ConvRepository.getRealtimeConvsFromUID(
+            wrongConvID,
+            convList,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
         runBlocking {
-            delay(1000)
+            delay(2000)
         }
-        assertThat(BrugDataCache.getConversationList().value, IsEqual(mutableListOf()))
+        assertThat(convList.value, IsNull.nullValue())
     }
 
     @Test
     fun getBadlyFormattedConvsReturnsEmptyList() {
-        BrugDataCache.resetConversationsList()
-        val context = TestLifecycleOwner()
-        ConvRepository.getRealtimeConvsFromUID(USERWRONGCONV_ID, context, firestore, firebaseAuth, firebaseStorage)
+        val convList = MutableLiveData<MutableList<Conversation>>()
+        ConvRepository.getRealtimeConvsFromUID(
+            USERWRONGCONV_ID,
+            convList,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
         runBlocking {
             delay(1000)
         }
-        assertThat(BrugDataCache.getConversationList().value, IsEqual(mutableListOf()))
+        assertThat(convList.value, IsEqual(mutableListOf()))
     }
 
     @Test
     fun getConvsFromValidUserCorrectlyReturnsSuccessfully() {
-        val context = TestLifecycleOwner()
-        ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)
+        val convList = MutableLiveData<MutableList<Conversation>>()
+        ConvRepository.getRealtimeConvsFromUID(
+            USER_ID1,
+            convList,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
         runBlocking {
             delay(1000)
         }
-        assertThat(BrugDataCache.getConversationList().value, IsNot(IsNull.nullValue()))
+        assertThat(convList.value, IsNot(IsNull.nullValue()))
 
     }
 
@@ -126,13 +171,18 @@ class ConvRepositoryTest {
         val password ="123456"
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
         firebaseAuth.createUserWithEmailAndPassword(email,password).await()
-        val authUser =firebaseAuth
+        val authUser = firebaseAuth
             .signInWithEmailAndPassword(email, password)
             .await()
             .user
         assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
         assertThat(firebaseAuth.currentUser!!.uid, IsEqual(authUser!!.uid))
-        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore)
+        ConvRepository.addNewConversation(
+            USER_ID1,
+            USER_ID2,
+            DUMMY_ITEM_NAME,
+            firestore
+        )
 
         val file = File.createTempFile("tempIMG", ".jpg")
         val fos = FileOutputStream(file)
@@ -148,39 +198,76 @@ class ConvRepositoryTest {
         )
         fos.close()
 
-        assertThat(MessageRepository.addMessageToConv(picMessage, USER_ID1,"${USER_ID1}${USER_ID2}",firestore, firebaseAuth, firebaseStorage).onSuccess, IsEqual(true))
+        assertThat(MessageRepository.addMessageToConv(
+            picMessage,
+            "DUMMYNAME",
+            USER_ID1,
+            "${USER_ID1}${USER_ID2}",
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        ).onSuccess, IsEqual(true))
 
-        val context = TestLifecycleOwner()
-        ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)
+        val convList = MutableLiveData<MutableList<Conversation>>()
+        ConvRepository.getRealtimeConvsFromUID(
+            USER_ID1,
+            convList,
+            firestore,
+            firebaseAuth,
+            firebaseStorage
+        )
         delay(1000)
-        assertThat(BrugDataCache.getConversationList().value, IsNot(IsNull.nullValue()))
+        assertThat(convList.value, IsNot(IsNull.nullValue()))
 
         firebaseAuth.signOut()
     }
 
     @Test
     fun deleteNonexistentConvReturnsError() = runBlocking {
-        assertThat(ConvRepository.deleteConversationFromID("WRONGCONVID", USER_ID1,firestore).onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.deleteConversationFromID(
+            "WRONGCONVID",
+            USER_ID1,
+            firestore
+        ).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun deleteConvNotBelongingToUserReturnsError() = runBlocking {
-        assertThat(ConvRepository.deleteConversationFromID("${USER_ID1}${USER_ID2}", "WRONGUID",firestore).onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.deleteConversationFromID(
+            "${USER_ID1}${USER_ID2}",
+            "WRONGUID",
+            firestore
+        ).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun deleteValidConvReturnsSuccessfully() = runBlocking {
-        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore)
-        assertThat(ConvRepository.deleteConversationFromID("${USER_ID1}${USER_ID2}", USER_ID1,firestore).onSuccess, IsEqual(true))
+        ConvRepository.addNewConversation(
+            USER_ID1,
+            USER_ID2,
+            DUMMY_ITEM_NAME,
+            firestore
+        )
+        assertThat(ConvRepository.deleteConversationFromID(
+            "${USER_ID1}${USER_ID2}",
+            USER_ID1,
+            firestore
+        ).onSuccess, IsEqual(true))
     }
 
     @Test
     fun deleteAllConvsFromInexistentUserReturnsError() = runBlocking {
-        assertThat(ConvRepository.deleteAllUserConversations("WRONGUID",firestore).onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.deleteAllUserConversations(
+            "WRONGUID",
+            firestore
+        ).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun deleteAllConvsFromValidUserReturnsSuccessfully() = runBlocking {
-        assertThat(ConvRepository.deleteAllUserConversations(USER_ID1,firestore).onSuccess, IsEqual(true))
+        assertThat(ConvRepository.deleteAllUserConversations(
+            USER_ID1,
+            firestore
+        ).onSuccess, IsEqual(true))
     }
 }

@@ -74,7 +74,7 @@ class ProfileSettingsFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         liveData(Dispatchers.IO) {
             emit(
-                UserRepository.getMinimalUserFromUID(
+                UserRepository.getUserFromUID(
                     firebaseAuth.currentUser!!.uid,
                     firestore,
                     firebaseAuth,

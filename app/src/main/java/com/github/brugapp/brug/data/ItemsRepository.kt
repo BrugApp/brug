@@ -4,6 +4,7 @@ import android.util.Log
 import com.github.brugapp.brug.model.MyItem
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -179,7 +180,11 @@ object ItemsRepository {
             }
 
             userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
-                deleteItemFromUser(item.id, uid, firestore)
+                deleteItemFromUser(
+                    item.id,
+                    uid,
+                    firestore
+                )
             }
 
             response.onSuccess = true

@@ -66,7 +66,6 @@ class QrCodeScannerActivity : AppCompatActivity() {
                     Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
                 }
             }
-//            displayReportNotification()
         }
     }
 

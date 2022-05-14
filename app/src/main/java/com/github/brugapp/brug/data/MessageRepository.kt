@@ -2,7 +2,7 @@ package com.github.brugapp.brug.data
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
@@ -16,9 +16,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.QueryDocumentSnapshot
-import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.RemoteMessage
-import com.google.firebase.messaging.ktx.remoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
@@ -46,6 +43,7 @@ object MessageRepository {
      */
     suspend fun addMessageToConv(
         m: Message,
+        senderName: String,
         senderID: String,
         convID: String,
         firestore: FirebaseFirestore,
@@ -93,27 +91,17 @@ object MessageRepository {
                 .add(message)
                 .await()
 
-            // THEN, NOTIFY THE USER THAT A NEW MESSAGE HAS BEEN SENT
-            val notificationData = mapOf(
-                "title" to m.senderName, //TODO: CHECK IF WE MUST CHANGE THE NAME HERE
-                "body" to message["body"] as String
-            )
-            val otherUserID = parseConvUserNameFromID(convID, senderID)
-
-            firestore.collection(USERS_DB).document(otherUserID)
-                .collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
-                    FirebaseMessaging.getInstance().send(
-                        remoteMessage("290986483284@fcm.googleapis.com"){
-                            messageId = tokenDoc.id
-                            addData("title", m.senderName)
-                            addData("body", m.body)
-                        }
-                    )
-            }
+            // ADD THE TEXT OF THE LAST SENT MESSAGE IN THE DOCUMENT OF THE CONVERSATION
+            convRef.update(
+                mapOf(
+                    "last_sender_name" to senderName,
+                    "last_message_text" to m.body
+                )
+            ).await()
 
             addResponse.onSuccess = true
         } catch (e: Exception) {
-            Log.d("MessageRepository", e.toString())
+            Log.d("FIREBASE ERROR - MessageRepository:", e.toString())
             addResponse.onError = e
         }
         return addResponse
@@ -127,12 +115,18 @@ object MessageRepository {
      * @param convID the conversation ID
      * @param convUserName the name of the interlocutor
      * @param authUserID the UID of the authenticated user
-     * @param context (needed to be able to execute a Coroutine outside a Coroutine Context) - the activity which will observe the data
      *
      * @return nothing, but sets the list of messages into the cache to be accessed by the ChatActivity
      */
-    fun getRealtimeMessages(convID: String, convUserName: String, authUserID: String, context: LifecycleOwner,
-                            firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage) {
+    fun getRealtimeMessages(
+        convID: String,
+        convUserName: String,
+        authUserID: String,
+        observableList: MutableLiveData<MutableList<Message>>,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ) {
         firestore.collection(CONV_DB).document(convID).collection(MSG_DB).addSnapshotListener { value, error ->
             if(value != null && error == null){
                 liveData(Dispatchers.IO){
@@ -141,9 +135,9 @@ object MessageRepository {
                             getMessageFromSnapshot(messageSnapshot, convUserName, authUserID, firebaseStorage, firebaseAuth)
                         }.sortedBy { it.timestamp.getSeconds() }
                     )
-                }.observe(context){ list ->
+                }.observeForever{ list ->
                     Log.e("FIREBASE STATE", "ADDING MESSAGES TO LIST")
-                    BrugDataCache.addMessageList(convID, list.toMutableList())
+                    observableList.postValue(list.toMutableList())
                 }
             } else {
                 Log.e("FIREBASE ERROR", error?.message.toString())
@@ -273,5 +267,4 @@ object MessageRepository {
     private fun parseConvUserNameFromID(convID: String, uid: String): String {
         return convID.replace(uid, "", ignoreCase = false)
     }
-
 }

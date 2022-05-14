@@ -8,6 +8,7 @@ import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.model.MyUser
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Source
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
@@ -17,6 +18,7 @@ import java.io.File
 private const val USERS_ASSETS = "users_assets/"
 private const val USERS_DB = "Users"
 private const val TOKENS_DB = "Devices"
+//private const val TIMEOUT_VAL = 2000
 
 /**
  * Repository class handling bindings between the User objects in Firebase & in local.
@@ -47,12 +49,12 @@ object UserRepository {
                         "last_name" to account.lastName
                     )
                 ).await()
-
             }
 
             if(!isTest){
                 // ADDS A NEW ENTRY IN THE DEVICE TOKENS LIST
                 val deviceToken = FirebaseMessaging.getInstance().token.await()
+                Log.e("TOKEN FEEDBACK", deviceToken)
                 userDoc.collection(TOKENS_DB).document(deviceToken).set({})
             }
 
@@ -101,7 +103,11 @@ object UserRepository {
      *
      * @return FirebaseResponse object, denoting if the operation has been successful or not
      */
-    suspend fun addNewDeviceTokenToUser(uid: String, token: String, firestore: FirebaseFirestore): FirebaseResponse{
+    suspend fun addNewDeviceTokenToUser(
+        uid: String,
+        token: String,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse{
         val response = FirebaseResponse()
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
@@ -130,7 +136,11 @@ object UserRepository {
      *
      * @return FirebaseResponse object, denoting if the operation has been successful or not
      */
-    suspend fun deleteDeviceTokenFromUser(uid: String, token: String, firestore: FirebaseFirestore): FirebaseResponse{
+    suspend fun deleteDeviceTokenFromUser(
+        uid: String,
+        token: String,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse{
         val response = FirebaseResponse()
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
@@ -162,8 +172,11 @@ object UserRepository {
      * @return FirebaseResponse object, denoting if the upload + update to Firebase was successful
      */
     suspend fun updateUserIcon(
-        uid: String, newIcon: Drawable,
-        auth: FirebaseAuth, firebaseStorage: FirebaseStorage, firestore: FirebaseFirestore
+        uid: String,
+        newIcon: Drawable,
+        auth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage,
+        firestore: FirebaseFirestore
     ): FirebaseResponse {
         val response = FirebaseResponse()
         try {
@@ -253,7 +266,7 @@ object UserRepository {
      *
      * @return MyUser object instantiated with the parameters held in Firebase, or a null value in case of error
      */
-    suspend fun getMinimalUserFromUID(
+    suspend fun getUserFromUID(
         uid: String,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
@@ -274,26 +287,20 @@ object UserRepository {
                 tokenDoc.id
             }.toMutableList()
 
-            return if (userDoc.contains("user_icon")) {
-                val userIconPath: String? = downloadUserIconInTemp(
+            val userIconPath = if (userDoc.contains("user_icon")) {
+                downloadUserIconInTemp(
                     uid, userDoc["user_icon"] as String,
                     firebaseAuth, firebaseStorage
                 )
-                MyUser(
+            } else null
+
+            return MyUser(
                     uid,
                     userDoc["first_name"] as String,
                     userDoc["last_name"] as String,
                     userIconPath,
                     tokensList
                 )
-            } else MyUser(
-                uid,
-                userDoc["first_name"] as String,
-                userDoc["last_name"] as String,
-                null,
-                tokensList
-            )
-
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             return null

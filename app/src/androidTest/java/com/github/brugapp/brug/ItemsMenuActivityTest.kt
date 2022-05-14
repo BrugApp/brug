@@ -1,7 +1,8 @@
 package com.github.brugapp.brug
 
+import android.app.Activity
+import android.app.Instrumentation
 import android.content.Intent
-import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -9,6 +10,8 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.Intents.intending
+import androidx.test.espresso.intent.matcher.ComponentNameMatchers
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -17,22 +20,18 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
-import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsEqual
-import org.junit.*
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
 
@@ -43,16 +42,12 @@ private const val LIST_VIEW_ID: String = "$APP_PACKAGE_NAME:id/items_listview"
 private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/list_item_title"
 private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 
-
-private val ITEMS = listOf(
+private val ITEMS = arrayListOf(
     MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false),
     MyItem("Wallet", ItemType.Wallet.ordinal, "With all my belongings", false),
     MyItem("Car Keys", ItemType.CarKeys.ordinal, "Lamborghini Aventador LP-780-4", false),
     MyItem("Keys", ItemType.Keys.ordinal, "Home keys", true)
 )
-
-private var TEST_USER_UID = ""
-
 
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
@@ -61,56 +56,19 @@ class ItemsMenuActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
-    private val firebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val firestore = FirebaseFakeHelper().providesFirestore()
-    private  val TEST_EMAIL ="test@ItemsMenu.com"
-    private  val TEST_PASSWORD = "123456"
-    private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
-    companion object {
-        var firstTime = true
-    }
-
-    private fun createTestUser(){
-        runBlocking {
-            if(firstTime){
-                firebaseAuth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
-                firstTime = false
-            }
-        }
-    }
-    private fun signInTestUser() {
-        runBlocking {
-            firebaseAuth.signInWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
-            TEST_USER_UID = firebaseAuth.currentUser!!.uid
-            UserRepository.addUserFromAccount(TEST_USER_UID, ACCOUNT1, true, firestore)
-            for(item in ITEMS){
-                ItemsRepository.addItemToUser(item, TEST_USER_UID, firestore)
-            }
-        }
-    }
-
-    private fun wipeAllItemsAndSignOut() {
-        runBlocking {
-            ItemsRepository.deleteAllUserItems(TEST_USER_UID, firestore)
-        }
-        firebaseAuth.signOut()
-    }
-
     @Before
     fun setUp() {
         Intents.init()
-        createTestUser()
-        signInTestUser()
         val intent = Intent(
             ApplicationProvider.getApplicationContext(),
             ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
         ActivityScenario.launch<ItemsMenuActivity>(intent)
     }
 
     @After
     fun cleanUp() {
         Intents.release()
-        wipeAllItemsAndSignOut()
     }
 
     @Test
@@ -129,6 +87,18 @@ class ItemsMenuActivityTest {
 
     @Test
     fun changingBottomNavBarMenuToChatGoesToActivity() {
+        intending(
+            hasComponent(
+                ComponentNameMatchers.hasClassName(
+                    ChatMenuActivity::class.java.name
+                )
+            )
+        ).respondWith(
+            Instrumentation.ActivityResult(
+                Activity.RESULT_OK,
+                Intent().putExtra(CONVERSATION_TEST_LIST_KEY, arrayListOf<Conversation>())
+            )
+        )
         val chatMenuButton = onView(withId(R.id.chat_menu_button))
         chatMenuButton.perform(click()).check(matches(isEnabled()))
         intended(hasComponent(ChatMenuActivity::class.java.name))

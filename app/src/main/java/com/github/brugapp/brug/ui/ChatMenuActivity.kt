@@ -10,13 +10,13 @@ import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.CONVERSATION_TEST_LIST_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.ui.components.BottomNavBar
@@ -71,6 +71,8 @@ class ChatMenuActivity : AppCompatActivity() {
     }
 
     private fun initChatList() {
+        val observableList = MutableLiveData<MutableList<Conversation>>()
+
         val conversationTestList =
             if(intent.extras != null && intent.extras!!.containsKey(CONVERSATION_TEST_LIST_KEY)){
                 intent.extras!!.get(CONVERSATION_TEST_LIST_KEY) as MutableList<Conversation>
@@ -79,17 +81,16 @@ class ChatMenuActivity : AppCompatActivity() {
         if(conversationTestList == null) {
             ConvRepository.getRealtimeConvsFromUID(
                 firebaseAuth.uid!!,
-                this,
+                observableList,
                 firestore,
                 firebaseAuth,
                 firebaseStorage
             )
         } else {
-            BrugDataCache.setConversationsList(conversationTestList)
+            observableList.postValue(conversationTestList)
         }
         // GET ELEMENTS FROM CACHE
-        BrugDataCache.getConversationList().observe(this){ conversations ->
-
+        observableList.observe(this){ conversations ->
             findViewById<ProgressBar>(R.id.loadingConvs).visibility = View.GONE
             val listView = findViewById<RecyclerView>(R.id.chat_listview)
             val listViewAdapter = ConversationListAdapter(conversations) { clickedConv ->

@@ -6,6 +6,7 @@ import android.text.InputFilter.LengthFilter
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
@@ -14,7 +15,7 @@ import com.github.brugapp.brug.view_model.AddItemViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 const val DESCRIPTION_LIMIT = 60
@@ -73,7 +74,7 @@ class AddItemActivity : AppCompatActivity() {
                 false
             )
 
-            runBlocking {
+            viewModel.viewModelScope.launch {
                 ItemsRepository.addItemToUser(
                     newItem,
                     firebaseAuth.currentUser!!.uid,

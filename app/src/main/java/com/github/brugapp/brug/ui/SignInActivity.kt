@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.di.sign_in.DatabaseUser
 import com.github.brugapp.brug.view_model.SignInViewModel
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -75,29 +77,13 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if (intent.extras != null) {
-            val signOutNeeded: Boolean = intent.extras!!.get(EXTRA_SIGN_OUT) as Boolean
-            if (signOutNeeded) {
-                runBlocking { viewModel.signOut(firestore) }
+        if(viewModel.getAuth().currentUser != null){
+            if(intent.extras != null && intent.extras!!.containsKey(EXTRA_SIGN_OUT)){
+                viewModel.viewModelScope.launch { viewModel.signOut(firestore) }
+            } else {
+                val myIntent = Intent(this, ItemsMenuActivity::class.java)
+                startActivity(myIntent)
             }
-        }
-        val currentUser = viewModel.getAuth().currentUser
-        updateUI(currentUser)
-    }
-
-    private fun updateUI(user: DatabaseUser?) {
-        // If already signed-in display welcome message and sign out button
-        if (user != null) {
-            findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
-            val myIntent = Intent(this, ItemsMenuActivity::class.java)
-            startActivity(myIntent)
-            findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.GONE
-            findViewById<Button>(R.id.qr_found_btn).visibility = View.GONE
-            findViewById<Button>(R.id.nfc_found_btn).visibility = View.GONE
-        } else {
-            findViewById<SignInButton>(R.id.sign_in_google_button).visibility = View.VISIBLE
-            findViewById<Button>(R.id.qr_found_btn).visibility = View.VISIBLE
-            findViewById<Button>(R.id.nfc_found_btn).visibility = View.VISIBLE
         }
     }
 

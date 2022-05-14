@@ -57,7 +57,10 @@ class MapBoxActivity : AppCompatActivity() {
 
     //  GETS THE LIST OF ITEMS RELATED TO THE USER
     private fun initItemsList() = liveData(Dispatchers.IO){
-        emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid, firestore))
+        emit(ItemsRepository.getUserItemsFromUID(
+            Firebase.auth.currentUser!!.uid,
+            firestore
+        ))
     }.observe(this) { itemsList ->
         items = itemsList
         onMapReady()

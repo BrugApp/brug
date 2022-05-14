@@ -115,32 +115,28 @@ class ChatViewModel : ViewModel() {
         if (firebaseAuth.currentUser == null) {
             Snackbar.make(
                 activity.findViewById(android.R.id.content),
-
                 "ERROR: You are no longer logged in ! Log in again to send the message.",
                 Snackbar.LENGTH_LONG
-            )
-                .show()
+            ).show()
         } else {
-            liveData(Dispatchers.IO) {
-                emit(
-                    MessageRepository.addMessageToConv(
-                        message,
-                        firebaseAuth.currentUser!!.uid,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
+            viewModelScope.launch {
+                val response = MessageRepository.addMessageToConv(
+                    message,
+                    firebaseAuth.currentUser!!.displayName!!,
+                    firebaseAuth.uid!!,
+                    convID,
+                    firestore,
+                    firebaseAuth,
+                    firebaseStorage
                 )
-            }.observe(activity) { response ->
-                if (response.onError != null) {
+
+                if(response.onError != null){
                     Log.e("FIREBASE ERROR", response.onError!!.message.toString())
                     Snackbar.make(
                         activity.findViewById(android.R.id.content),
                         "ERROR: Unable to register the new message in the database",
                         Snackbar.LENGTH_LONG
-                    )
-                        .show()
+                    ).show()
                 }
             }
         }
@@ -157,7 +153,6 @@ class ChatViewModel : ViewModel() {
     ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val strMsg = textBox.text.toString().ifBlank { "📍 Location" }
-        val uri = createFakeImage(activity)
         val newMessage = LocationMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),

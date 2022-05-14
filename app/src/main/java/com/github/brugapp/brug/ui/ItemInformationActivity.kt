@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
@@ -18,7 +18,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val NOT_IMPLEMENTED: String = "no information yet"
@@ -51,16 +51,14 @@ class ItemInformationActivity : AppCompatActivity() {
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
-            liveData(Dispatchers.IO) {
-                emit(
-                    ItemsRepository.updateItemFields(
-                        item,
-                        firebaseAuth.currentUser!!.uid,
-                        firestore
-                    )
-                )
-            }.observe(this) { response ->
-                val feedbackStr = if (response.onSuccess) {
+            viewModel.viewModelScope.launch {
+                val response = ItemsRepository.updateItemFields(
+                    item,
+                    firebaseAuth.currentUser!!.uid,
+                    firestore
+                ).onSuccess
+
+                val feedbackStr = if (response) {
                     "Item state has been successfully changed"
                 } else {
                     "ERROR: Item state couldn't be saved"

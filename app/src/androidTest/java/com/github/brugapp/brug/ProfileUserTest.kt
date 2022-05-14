@@ -122,7 +122,12 @@ class ProfileUserTest {
             ).await()
             testUserUid = firebaseAuth.currentUser!!.uid
                 UserRepository
-                    .addUserFromAccount(testUserUid, ACCOUNT1, true, firestore)
+                    .addUserFromAccount(
+                        testUserUid,
+                        ACCOUNT1,
+                        true,
+                        firestore
+                    )
         }
     }
 
@@ -130,7 +135,8 @@ class ProfileUserTest {
         runBlocking {
             UserRepository
                 .resetUserIcon(
-                    testUserUid,firestore)
+                    testUserUid, firestore
+                )
         }
         firebaseAuth.signOut()
     }
@@ -189,7 +195,12 @@ class ProfileUserTest {
 
 //        DUMMY_USER.setUserIcon(drawable)
         val response = runBlocking { UserRepository.updateUserIcon(
-            firebaseAuth.currentUser!!.uid, drawable!!,firebaseAuth,firebaseStorage,firestore) }
+            firebaseAuth.currentUser!!.uid,
+            drawable!!,
+            firebaseAuth,
+            firebaseStorage,
+            firestore
+        ) }
         assertThat(response.onSuccess, IsEqual(true))
 //        MockDatabase.currentUser.setProfilePicture(drawable)
 

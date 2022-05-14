@@ -16,12 +16,8 @@ import androidx.lifecycle.ViewModel
 import com.budiyev.android.codescanner.*
 import com.github.brugapp.brug.LOCATION_REQUEST_CODE
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ConvRepository
-import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.data.MessageRepository
-import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
-import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -29,7 +25,6 @@ import com.github.brugapp.brug.model.services.LocationService
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -115,7 +110,8 @@ class QrCodeScanViewModel : ViewModel() {
                 auth.uid,
                 BrugSignInAccount("Anonymous","User","",""),
                 false,
-                firestore)
+                firestore
+            )
         }
 
         val (userID, itemID) = qrText.toString().split(":")
@@ -139,7 +135,7 @@ class QrCodeScanViewModel : ViewModel() {
                                      firestore: FirebaseFirestore,
                                      firebaseAuth: FirebaseAuth,
                                      firebaseStorage: FirebaseStorage): Boolean {
-        val senderName = if(isAnonymous) "Anonymous User" else "Me"
+        val senderName = if(isAnonymous) "Anonymous User" else firebaseAuth.currentUser!!.displayName!!
 
         // Getting the location and sending the message
         requestLocationPermissions(context)
@@ -162,6 +158,7 @@ class QrCodeScanViewModel : ViewModel() {
 
         return MessageRepository.addMessageToConv(
             textMessage,
+            senderName,
             senderID,
             convID,
             firestore,
@@ -171,7 +168,10 @@ class QrCodeScanViewModel : ViewModel() {
     }
 
     private suspend fun getItemNameForNewConversation(userID: String, itemID: String): String? {
-        return ItemsRepository.getSingleItemFromIDs(userID, itemID)?.itemName
+        return ItemsRepository.getSingleItemFromIDs(
+            userID,
+            itemID
+        )?.itemName
     }
 
 
@@ -228,9 +228,12 @@ class QrCodeScanViewModel : ViewModel() {
         runBlocking {
             MessageRepository.addMessageToConv(
                 locationMessage,
+                senderName,
                 authUID,
                 convID,
-                firestore, firebaseAuth, firebaseStorage
+                firestore,
+                firebaseAuth,
+                firebaseStorage
             )
         }
     }

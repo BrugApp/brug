@@ -44,7 +44,11 @@ class MyFCMMessagingService : FirebaseMessagingService() {
         val firestore = FirebaseFirestore.getInstance()
         if(firebaseAuth.currentUser != null){
             runBlocking {
-                UserRepository.addNewDeviceTokenToUser(firebaseAuth.currentUser!!.uid, token, firestore)
+                UserRepository.addNewDeviceTokenToUser(
+                    firebaseAuth.currentUser!!.uid,
+                    token,
+                    firestore
+                )
             }
         }
     }
