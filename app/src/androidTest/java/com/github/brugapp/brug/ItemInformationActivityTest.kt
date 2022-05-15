@@ -34,8 +34,9 @@ private const val TOGGLE_SWITCH_ID: String = "$APP_PACKAGE_NAME:id/isLostSwitch"
 @RunWith(AndroidJUnit4::class)
 class ItemInformationActivityTest {
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val str = "no information yet"
     private val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        .setLastLocation(6.61,46.51)
+
 
     @get:Rule
     var rule = HiltAndroidRule(this)
@@ -61,8 +62,8 @@ class ItemInformationActivityTest {
 
     @Test
     fun noLocationAndOwnerAndDateYet() {
-        onView(withId(R.id.item_last_location)).check(matches(withText(str)))
-        onView(withId(R.id.item_owner)).check(matches(withText(str)))
+        val ouchy = "Av. Emile-Henri-Jaques-Dalcroze 7, 1007 Lausanne, Switzerland"
+        onView(withId(R.id.item_last_location)).check(matches(withText(ouchy)))
     }
 
     @Test
@@ -83,5 +84,40 @@ class ItemInformationActivityTest {
         val switchVal = device.findObject(UiSelector().resourceId(TOGGLE_SWITCH_ID)).click()
         assertThat(switchVal, IsEqual(true))
         firebaseAuth.signOut()
+    }
+}
+@HiltAndroidTest
+@RunWith(AndroidJUnit4::class)
+class LocationTest {
+    private val myItem = MyItem("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
+
+    @get:Rule
+    var rule = HiltAndroidRule(this)
+
+    fun setUp(item:MyItem) {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ItemInformationActivity::class.java)
+        intent.putExtra(ITEM_INTENT_KEY, item)
+        ActivityScenario.launch<ItemInformationActivity>(intent)
+    }
+
+    @Test
+    fun correctLocationDisplayed() {
+        setUp(myItem)
+        onView(withId(R.id.item_last_location)).check(matches(withText("Not available")))
+    }
+
+    @Test
+    fun correctLocationDisplayedAfterBadLocationUpdate() {
+        myItem.setLastLocation(0.0,0.0) // set bad location
+        setUp(myItem)
+        onView(withId(R.id.item_last_location)).check(matches(withText("Not available")))
+    }
+
+    @Test
+    fun locationDoesntExist(){
+        myItem.setLastLocation(1000.0,10000.0) // set bad location (out of map) => exception
+        setUp(myItem)
+        onView(withId(R.id.item_last_location)).check(matches(withText("Not available")))
     }
 }
