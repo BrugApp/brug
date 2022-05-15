@@ -79,16 +79,16 @@ class QrCodeScanViewModel : ViewModel() {
                             context: Activity,
                             firebaseAuth: FirebaseAuth,
                             firestore: FirebaseFirestore,
-                            firebaseStorage: FirebaseStorage): Boolean {
+                            firebaseStorage: FirebaseStorage): String {
 
         if(qrText.isBlank() || !qrText.contains(":")){
-            return false
+            return "ERROR: The item ID is badly formatted or is blank."
         } else {
             val isAnonymous = firebaseAuth.currentUser == null
             val convID = createNewConversation(isAnonymous, qrText, firebaseAuth, firestore)
             return if (convID == null) {
                 if(isAnonymous) firebaseAuth.signOut()
-                false
+                "ERROR: The user/item don't exist, or you already notified the user for this object."
             } else {
                 val hasSentMessages = sendMessages(
                     firebaseAuth.currentUser!!.uid,
@@ -99,7 +99,8 @@ class QrCodeScanViewModel : ViewModel() {
                 )
 
                 if(isAnonymous) firebaseAuth.signOut()
-                hasSentMessages
+                if(hasSentMessages) "Thank you ! The user will be notified."
+                else "ERROR: Unable to send the messages to the user. Please send him a new message yourself."
             }
 
         }

@@ -47,10 +47,12 @@ object ConvRepository {
         try {
             //FIRST CHECK IF THE USERS EXIST OR NOT
             val userRef = firestore.collection(USERS_DB).document(thisUID)
-            if (!userRef.get().await().exists()) {
+            val userDoc = userRef.get().await()
+            if (!userDoc.exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
+            val userName = "${userDoc["first_name"] as String} ${userDoc["last_name"] as String}"
 
             val otherUserRef = firestore.collection(USERS_DB).document(uid)
             if (!otherUserRef.get().await().exists()) {
@@ -86,7 +88,7 @@ object ConvRepository {
             MyFCMMessagingService.sendNotificationMessage(
                 jsonArray,
                 "New Item Found",
-                "Your item $lostItemName has been found !"
+                "User $userName has found your item $lostItemName !"
             )
 
             response.onSuccess = true

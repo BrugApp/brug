@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -15,9 +16,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 //library found on github: https://github.com/yuriy-budiyev/code-scanner
+private const val SUCCESS_TEXT = "Thank you ! The user will be notified."
+
 @AndroidEntryPoint
 class QrCodeScannerActivity : AppCompatActivity() {
 
@@ -40,11 +44,12 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.codeScanner(this)
 
         //TODO: REMOVE THIS HARDCODED TEXT
-        findViewById<EditText>(R.id.edit_message).setText("J7jDsvME15fNKvLssZ9bezpABHn2:hUTO3g0hKamHlHJkh5iR")
+        findViewById<EditText>(R.id.edit_message).setText("J7jDsvME15fNKvLssZ9bezpABHn2:9m7SvfslSij6f7iplq68")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
             val context = this
-            liveData(Dispatchers.IO){
+
+            liveData(Dispatchers.IO) {
                 emit(
                     viewModel.parseTextAndCreateConv(
                         findViewById<EditText>(R.id.edit_message).text,
@@ -52,17 +57,15 @@ class QrCodeScannerActivity : AppCompatActivity() {
                         firebaseAuth, firestore, firebaseStorage
                     )
                 )
-            }.observe(context){ successState ->
-                if(successState){
-                    Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
+            }.observe(context){ result ->
+                Toast.makeText(context, result, Toast.LENGTH_LONG).show()
+                if(result == SUCCESS_TEXT){
                     val myIntent =
                         if(firebaseAuth.currentUser == null)
-                            Intent(this, SignInActivity::class.java)
+                            Intent(context, SignInActivity::class.java)
                         else
-                            Intent(this, ChatMenuActivity::class.java)
-                        startActivity(myIntent)
-                } else {
-                    Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
+                            Intent(context, ChatMenuActivity::class.java)
+                    startActivity(myIntent)
                 }
             }
         }
