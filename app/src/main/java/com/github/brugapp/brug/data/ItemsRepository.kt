@@ -1,3 +1,4 @@
+
 package com.github.brugapp.brug.data
 
 import android.util.Log
@@ -42,7 +43,9 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_latitude" to item.getLastLocation()?.getLatitude(),
+                    "last_longitude" to item.getLastLocation()?.getLongitude()
                 )
             ).await()
 
@@ -86,14 +89,16 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_latitude" to item.getLastLocation()?.getLatitude(),
+                    "last_longitude" to item.getLastLocation()?.getLongitude()
                 )
             ).await()
+
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e
         }
-
         return response
     }
 
@@ -156,10 +161,11 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_latitude" to item.getLastLocation()?.getLatitude(),
+                    "last_longitude" to item.getLastLocation()?.getLongitude()
                 )
             ).await()
-
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e
@@ -181,12 +187,10 @@ object ItemsRepository {
             userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
                 deleteItemFromUser(item.id, uid, firestore)
             }
-
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e
         }
-
         return response
     }
 
@@ -212,7 +216,6 @@ object ItemsRepository {
         }
     }
 
-
     /**
      * Retrieves the list of items belonging to a user, given its user ID.
      *
@@ -231,7 +234,6 @@ object ItemsRepository {
             userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
                 getItemFromDoc(item)
             }
-
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             null
@@ -245,6 +247,8 @@ object ItemsRepository {
                 || !itemDoc.contains("item_type")
                 || !itemDoc.contains("item_description")
                 || !itemDoc.contains("is_lost")
+                || !itemDoc.contains("last_longitude")
+                || !itemDoc.contains("last_latitude")
             ) {
                 Log.e("FIREBASE ERROR", "Invalid Item Format")
                 return null
@@ -257,6 +261,11 @@ object ItemsRepository {
                 itemDoc["is_lost"] as Boolean
             )
             item.setItemID(itemDoc.id)
+            val lat = itemDoc["last_latitude"] as Double?
+            val lon = itemDoc["last_longitude"] as Double?
+            if (lat != null && lon != null){
+                item.setLastLocation(lon, lat)
+            }
             return item
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
