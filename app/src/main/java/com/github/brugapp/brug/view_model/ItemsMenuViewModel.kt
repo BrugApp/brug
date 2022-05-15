@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.ITEMS_DELETE_TEXT
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -28,10 +28,10 @@ class ItemsMenuViewModel : ViewModel() {
         isTest: Boolean,
         dragPair: Pair<Int, Int>,
         swipePair: Pair<Drawable, Int>,
-        listAdapterPair: Pair<MutableList<MyItem>, ItemsListAdapter>,
+        listAdapterPair: Pair<MutableList<Item>, ItemsListAdapter>,
         firebaseAuth: FirebaseAuth,
         firestore: FirebaseFirestore
-    ): ListCallback<MyItem> {
+    ): ListCallback<Item> {
 
         val listView = activity.findViewById<RecyclerView>(R.id.items_listview)
 

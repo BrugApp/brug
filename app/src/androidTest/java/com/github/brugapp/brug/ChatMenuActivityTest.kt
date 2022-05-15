@@ -22,7 +22,7 @@ import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.*
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -83,7 +83,7 @@ class ChatMenuActivityTest {
         }
     }
 
-    private val convUser = MyUser("DUMMYUID", "Firstname", "Lastname", null, mutableListOf())
+    private val convUser = User("DUMMYUID", "Firstname", "Lastname", null, mutableListOf())
     private val convList = arrayListOf(
         Conversation("CONVID", convUser, "LOSTITEM", null),
         Conversation("CONVID", convUser, "LOSTITEM", null),

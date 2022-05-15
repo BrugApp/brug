@@ -2,7 +2,7 @@ package com.github.brugapp.brug
 
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.model.services.DateService
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
@@ -15,7 +15,7 @@ class ConversationTest {
     @Test
     fun initConvCorrectlyInitializesConversation() {
         val convID = "DUMMYID"
-        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
+        val userFields = User("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
         val lostItemName = "DUMMYITEMNAME"
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
@@ -34,7 +34,7 @@ class ConversationTest {
     @Test
     fun compareIdenticalConversationsReturnsEquality() {
         val convID = "DUMMYID"
-        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
+        val userFields = User("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
         val lostItemName = "DUMMYITEMNAME"
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
@@ -51,7 +51,7 @@ class ConversationTest {
     @Test
     fun compareAlmostIdenticalConversationsReturnsFalse() {
         val convID = "DUMMYID"
-        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
+        val userFields = User("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
         val lostItemName = "DUMMYITEMNAME"
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(

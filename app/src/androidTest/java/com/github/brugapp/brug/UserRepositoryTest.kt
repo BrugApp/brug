@@ -6,7 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -85,12 +85,12 @@ class UserRepositoryTest {
             FirebaseFakeHelper().providesStorage()
         )
         assertThat(user, IsNot(IsNull.nullValue()))
-        assertThat(user, IsEqual(MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())))
+        assertThat(user, IsEqual(User(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())))
     }
 
     @Test
     fun updateUserFieldsOfInexistentUserReturnsError() = runBlocking {
-        val wrongUser = MyUser("WRONGUID", "BAD", "USER", null, mutableListOf())
+        val wrongUser = User("WRONGUID", "BAD", "USER", null, mutableListOf())
         assertThat(UserRepository.updateUserFields(
             wrongUser,
             FirebaseFakeHelper().providesFirestore()
@@ -105,7 +105,7 @@ class UserRepositoryTest {
             true,
             FirebaseFakeHelper().providesFirestore()
         )
-        val updatedUser = MyUser(DUMMY_UID, "Bryan", "Kikou", null, mutableListOf())
+        val updatedUser = User(DUMMY_UID, "Bryan", "Kikou", null, mutableListOf())
         assertThat(UserRepository.updateUserFields(
             updatedUser,
             FirebaseFakeHelper().providesFirestore()
@@ -123,7 +123,7 @@ class UserRepositoryTest {
 
     @Test
     fun addDeviceTokenToInexistentUserReturnsError() = runBlocking {
-        val wrongUser = MyUser("WRONGUID", "BAD", "USER", null, mutableListOf())
+        val wrongUser = User("WRONGUID", "BAD", "USER", null, mutableListOf())
         assertThat(UserRepository.addNewDeviceTokenToUser(
             wrongUser.uid,
             DEVICE_TOKEN,
@@ -145,7 +145,7 @@ class UserRepositoryTest {
             FirebaseFakeHelper().providesFirestore()
         ).onSuccess, IsEqual(true))
 
-        val updatedUser = MyUser(DUMMY_UID, "Rayan", "Kikou", null, mutableListOf(DEVICE_TOKEN))
+        val updatedUser = User(DUMMY_UID, "Rayan", "Kikou", null, mutableListOf(DEVICE_TOKEN))
         val user = UserRepository.getUserFromUID(
             DUMMY_UID,
             FirebaseFakeHelper().providesFirestore(),
@@ -297,8 +297,8 @@ class UserRepositoryTest {
 
     @Test
     fun deleteDeviceTokenFromExistingUserReturnsSuccessfully() = runBlocking {
-        val userWithoutToken = MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())
-        val userWithToken = MyUser(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf(DEVICE_TOKEN))
+        val userWithoutToken = User(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())
+        val userWithToken = User(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf(DEVICE_TOKEN))
 
         UserRepository.addUserFromAccount(
             DUMMY_UID,

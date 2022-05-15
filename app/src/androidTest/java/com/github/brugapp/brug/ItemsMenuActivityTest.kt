@@ -22,7 +22,7 @@ import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.*
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -43,10 +43,10 @@ private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/list_item_title"
 private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 
 private val ITEMS = arrayListOf(
-    MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false),
-    MyItem("Wallet", ItemType.Wallet.ordinal, "With all my belongings", false),
-    MyItem("Car Keys", ItemType.CarKeys.ordinal, "Lamborghini Aventador LP-780-4", false),
-    MyItem("Keys", ItemType.Keys.ordinal, "Home keys", true)
+    Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false),
+    Item("Wallet", ItemType.Wallet.ordinal, "With all my belongings", false),
+    Item("Car Keys", ItemType.CarKeys.ordinal, "Lamborghini Aventador LP-780-4", false),
+    Item("Keys", ItemType.Keys.ordinal, "Home keys", true)
 )
 
 @RunWith(AndroidJUnit4::class)

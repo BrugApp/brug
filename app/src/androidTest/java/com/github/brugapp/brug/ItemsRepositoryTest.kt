@@ -4,7 +4,7 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -21,7 +21,7 @@ private const val DUMMY_UID = "USER1"
 private val DUMMY_ACCOUNT = BrugSignInAccount("Rayan", "Kikou", "", "")
 
 private const val ITEM_ID = "DUMMYITEMID"
-private var ITEM = MyItem("AirPods Pro Max", 0, "My Beloved AirPods", false)
+private var ITEM = Item("AirPods Pro Max", 0, "My Beloved AirPods", false)
 
 class ItemRepoTest {
 
@@ -105,7 +105,7 @@ class ItemRepoTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.updateItemFields(
             updatedItem,
@@ -122,7 +122,7 @@ class ItemRepoTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID("WRONGITEMID")
         assertThat(ItemsRepository.updateItemFields(
             updatedItem,
@@ -140,7 +140,7 @@ class ItemRepoTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.updateItemFields(
             updatedItem,

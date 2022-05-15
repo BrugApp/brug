@@ -12,7 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -37,7 +37,7 @@ class ItemInformationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
-        val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
+        val item = intent.extras!!.get(ITEM_INTENT_KEY) as Item
 
         val textSet: HashMap<String, String> = viewModel.getText(item, firebaseAuth)
         setTextAllView(textSet)
@@ -46,7 +46,7 @@ class ItemInformationActivity : AppCompatActivity() {
         qrCodeButton()
     }
 
-    private fun setSwitch(item: MyItem, firebaseAuth: FirebaseAuth) {
+    private fun setSwitch(item: Item, firebaseAuth: FirebaseAuth) {
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->

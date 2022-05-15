@@ -12,7 +12,7 @@ import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.google.firebase.auth.FirebaseAuth
@@ -39,7 +39,7 @@ private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
 private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
 private val ACCOUNTWRONGCONV = BrugSignInAccount("", "", "", "")
 
-private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null, mutableListOf())
+private val USER2 = User(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null, mutableListOf())
 private const val DUMMY_ITEM_NAME = "Airpods"
 
 class ConvRepositoryTest {

@@ -16,15 +16,16 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class QrCodeShowActivityTest{
-    private val item = Item("Phone","Samsung Galaxy S22","23")
-    private val code:String = "0:23"
-    private val user= User("Brug","App","wagwan@email.ch","0",null)
+    private val item = Item("Phone",0, "Samsung Galaxy S22",false)
+    private val code: String = "0:23"
+    private val user = User("0", "Brug","App",null, mutableListOf())
 
     private val infoListIntent = Intent(
         ApplicationProvider.getApplicationContext(),
         QrCodeShowActivity::class.java
     ).apply {
-        putExtra("qrId", user.getId()+":"+item.getId())
+        item.setItemID("23")
+        putExtra("qrId", user.uid+":"+item.getItemID())
     }
 
     @Test

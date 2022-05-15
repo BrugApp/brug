@@ -16,7 +16,7 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
 import com.github.brugapp.brug.databinding.SampleHelloWorldViewBinding
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -44,7 +44,7 @@ const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 @AndroidEntryPoint
 class MapBoxActivity : AppCompatActivity() {
 
-    private var items: List<MyItem>? = null
+    private var items: List<Item>? = null
     private var lon = -122.07131270212334
     private var lat = 37.411793498806624
 

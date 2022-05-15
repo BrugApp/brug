@@ -4,14 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 
 /**
  * Custom adapter class for the RecyclerView lists in ItemsMenuActivity
  */
 class ItemsListAdapter(
-    private val itemsList: MutableList<MyItem>,
-    private val onItemClicked: (MyItem) -> Unit
+    private val itemsList: MutableList<Item>,
+    private val onItemClicked: (Item) -> Unit
 ) : RecyclerView.Adapter<ListViewHolder>() {
 
     // Creates new views

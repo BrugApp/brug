@@ -13,7 +13,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.ItemInformationActivity
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -35,7 +35,7 @@ private const val TOGGLE_SWITCH_ID: String = "$APP_PACKAGE_NAME:id/isLostSwitch"
 class ItemInformationActivityTest {
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val str = "no information yet"
-    private val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+    private val item = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
 
     @get:Rule
     var rule = HiltAndroidRule(this)

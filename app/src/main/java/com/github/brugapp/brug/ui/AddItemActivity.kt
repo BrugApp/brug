@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.view_model.AddItemViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -67,7 +67,7 @@ class AddItemActivity : AppCompatActivity() {
     ) {
         if (viewModel.verifyForm(itemNameHelper, itemName)) {
 //               user.addItemToList(newItem)
-            val newItem = MyItem(
+            val newItem = Item(
                 itemName.text.toString(),
                 itemType.selectedItemId.toInt(),
                 itemDesc.text.toString(),

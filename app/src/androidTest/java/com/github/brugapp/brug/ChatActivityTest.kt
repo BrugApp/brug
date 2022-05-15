@@ -28,12 +28,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
-import com.github.brugapp.brug.ui.MapBoxActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.CoreMatchers.not
@@ -41,7 +40,6 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.anyOf
-import org.hamcrest.Matchers.array
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -84,7 +82,7 @@ class ChatActivityTest {
     private val convID = "0"
     private val dummyItemName = "DummyItem"
 
-    private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null, mutableListOf())
+    private val dummyUser = User("USER1", "Rayan", "Kikou", null, mutableListOf())
 
     private val dummyDate = fromLocalDateTime(
         LocalDateTime.of(

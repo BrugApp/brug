@@ -5,10 +5,9 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import com.github.brugapp.brug.di.sign_in.SignInAccount
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Source
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
@@ -73,7 +72,7 @@ object UserRepository {
      *
      * @return FirebaseResponse object, denoting if the entry to update has correctly been updated in Firebase
      */
-    suspend fun updateUserFields(user: MyUser, firestore: FirebaseFirestore): FirebaseResponse {
+    suspend fun updateUserFields(user: User, firestore: FirebaseFirestore): FirebaseResponse {
         val response = FirebaseResponse()
         try {
             val userRef = firestore.collection(USERS_DB).document(user.uid)
@@ -271,7 +270,7 @@ object UserRepository {
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
-    ): MyUser? {
+    ): User? {
         try {
             val userRef = firestore.collection(USERS_DB).document(uid)
             val userDoc = userRef.get().await()
@@ -294,7 +293,7 @@ object UserRepository {
                 )
             } else null
 
-            return MyUser(
+            return User(
                     uid,
                     userDoc["first_name"] as String,
                     userDoc["last_name"] as String,

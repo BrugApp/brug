@@ -19,7 +19,7 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.firestore.FirebaseFirestore
@@ -88,7 +88,7 @@ class QrCodeScannerActivityTest {
                 firestore
             )
             ItemsRepository.addItemWithItemID(
-                MyItem("DummyItem", 0, "DummyDesc", true),
+                Item("DummyItem", 0, "DummyDesc", true),
                 itemID,
                 userID,
                 firestore

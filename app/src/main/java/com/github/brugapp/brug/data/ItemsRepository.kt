@@ -1,10 +1,9 @@
 package com.github.brugapp.brug.data
 
 import android.util.Log
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -25,7 +24,7 @@ object ItemsRepository {
      * @return FirebaseResponse object denoting if the action was successful
      */
     suspend fun addItemToUser(
-        item: MyItem,
+        item: Item,
         uid: String,
         firestore: FirebaseFirestore
     ): FirebaseResponse {
@@ -64,7 +63,7 @@ object ItemsRepository {
      * @return FirebaseResponse object denoting if the action was successful
      */
     suspend fun updateItemFields(
-        item: MyItem,
+        item: Item,
         uid: String,
         firestore: FirebaseFirestore
     ): FirebaseResponse {
@@ -138,7 +137,7 @@ object ItemsRepository {
 
     /* RESERVED FOR TESTS */
     suspend fun addItemWithItemID(
-        item: MyItem,
+        item: Item,
         itemID: String,
         uid: String,
         firestore: FirebaseFirestore
@@ -195,7 +194,7 @@ object ItemsRepository {
         return response
     }
 
-    suspend fun getSingleItemFromIDs(uid: String, itemID: String): MyItem? {
+    suspend fun getSingleItemFromIDs(uid: String, itemID: String): Item? {
         return try {
             val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
@@ -225,7 +224,7 @@ object ItemsRepository {
      *
      * @return List<MyItem> containing all the user's items, or a null value in case of error.
      */
-    suspend fun getUserItemsFromUID(uid: String, firestore: FirebaseFirestore): List<MyItem>? {
+    suspend fun getUserItemsFromUID(uid: String, firestore: FirebaseFirestore): List<Item>? {
         return try {
             val userRef = firestore.collection(USERS_DB).document(uid)
             if (!userRef.get().await().exists()) {
@@ -244,7 +243,7 @@ object ItemsRepository {
     }
 
 
-    private fun getItemFromDoc(itemDoc: DocumentSnapshot): MyItem? {
+    private fun getItemFromDoc(itemDoc: DocumentSnapshot): Item? {
         try {
             if (!itemDoc.contains("item_name")
                 || !itemDoc.contains("item_type")
@@ -255,7 +254,7 @@ object ItemsRepository {
                 return null
             }
 
-            val item = MyItem(
+            val item = Item(
                 itemDoc["item_name"] as String,
                 (itemDoc["item_type"] as Long).toInt(),
                 itemDoc["item_description"] as String,
