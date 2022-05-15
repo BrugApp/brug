@@ -63,9 +63,6 @@
             android:resource="@color/colorAccent" />
 
         <activity
-            android:name=".ui.ReportItemActivity"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity
