@@ -15,10 +15,10 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.*
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
@@ -104,33 +104,34 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun initMessageList(conversation: Conversation) {
-        val observableList = MutableLiveData<MutableList<Message>>()
-
         val messagesTestList =
             if(intent.extras != null && intent.extras!!.containsKey(MESSAGE_TEST_LIST_KEY)){
                 intent.extras!!.get(MESSAGE_TEST_LIST_KEY) as MutableList<Message>
             } else null
+
+        BrugDataCache.initMessageListInCache(conversation.convId)
 
         if(messagesTestList == null) {
             MessageRepository.getRealtimeMessages(
                 conversation.convId,
                 conversation.userFields.getFullName(),
                 firebaseAuth.uid!!,
-                observableList,
                 firestore,
                 firebaseAuth,
                 firebaseStorage
             )
         } else {
-            observableList.postValue(messagesTestList)
+            BrugDataCache.setMessageListInCache(conversation.convId, messagesTestList)
         }
 
-        observableList.observe(this){ messages ->
+        BrugDataCache.getCachedMessageList(conversation.convId).observe(this){ messages ->
             findViewById<ProgressBar>(R.id.loadingMessages).visibility = View.GONE
 
             val messageList = findViewById<RecyclerView>(R.id.messagesList)
             viewModel.initViewModel(messages, this)
-            messageList.layoutManager = LinearLayoutManager(this)
+            val layoutManager = LinearLayoutManager(this)
+            layoutManager.stackFromEnd = true
+            messageList.layoutManager = layoutManager
 
             val adapter = viewModel.getAdapter()
             messageList.adapter = adapter
@@ -155,7 +156,7 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
         })
-            scrollToBottom((adapter.itemCount) - 1)
+//            scrollToBottom((adapter.itemCount) - 1)
         }
 
         inflateActionBar(

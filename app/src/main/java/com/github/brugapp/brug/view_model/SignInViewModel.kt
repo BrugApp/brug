@@ -2,6 +2,7 @@ package com.github.brugapp.brug.view_model
 
 import android.content.Intent
 import androidx.lifecycle.ViewModel
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
@@ -41,7 +42,7 @@ class SignInViewModel @Inject constructor(
     ): Boolean {
         val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
             "unlost.app@gmail.com",
-            "brugsdpProject1").await()
+            "123456").await()
 
         if(firebaseAuthResponse.user != null){
             return UserRepository.addUserFromAccount(
@@ -94,7 +95,15 @@ class SignInViewModel @Inject constructor(
             )
             signInClient.signOut()
             auth.signOut()
+            resetCachedData()
         }
+    }
+
+    private fun resetCachedData() {
+        BrugDataCache.resetCachedUser()
+        BrugDataCache.resetCachedItems()
+        BrugDataCache.resetCachedConversations()
+        BrugDataCache.resetCachedMessagesLists()
     }
 
     fun getAuth(): AuthDatabase {

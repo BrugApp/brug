@@ -122,6 +122,7 @@ class QrCodeScanViewModel : ViewModel() {
             firebaseAuth.currentUser!!.uid,
             userID,
             lostItemName,
+            null,
             firestore
         )
 

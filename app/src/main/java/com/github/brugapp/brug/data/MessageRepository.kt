@@ -122,7 +122,6 @@ object MessageRepository {
         convID: String,
         convUserName: String,
         authUserID: String,
-        observableList: MutableLiveData<MutableList<Message>>,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
@@ -137,7 +136,7 @@ object MessageRepository {
                     )
                 }.observeForever{ list ->
                     Log.e("FIREBASE STATE", "ADDING MESSAGES TO LIST")
-                    observableList.postValue(list.toMutableList())
+                    BrugDataCache.setMessageListInCache(convID, list.toMutableList())
                 }
             } else {
                 Log.e("FIREBASE ERROR", error?.message.toString())

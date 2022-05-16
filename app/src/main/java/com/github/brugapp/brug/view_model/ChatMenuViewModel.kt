@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.ui.CHAT_CHECK_TEXT
@@ -15,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
-private const val CHAT_ERROR_TEXT ="ERROR: Unable to save your changes remotely. Try again later."
+private const val CHAT_ERROR_TEXT = "ERROR: Unable to save your changes remotely. Try again later."
 
 /**
  * ViewModel of the Chat Menu UI, handling its UI logic.
@@ -53,6 +54,7 @@ class ChatMenuViewModel : ViewModel() {
             }
             listAdapterPair.first.removeAt(position)
             listAdapterPair.second.notifyItemRemoved(position)
+            BrugDataCache.deleteCachedMessageList(delConv.convId)
 
             Snackbar.make(
                 listView,
@@ -65,6 +67,7 @@ class ChatMenuViewModel : ViewModel() {
                             firebaseAuth.currentUser!!.uid,
                             delConv.userFields.uid,
                             delConv.lostItemName,
+                            delConv.lastMessage,
                             firestore
                         ).onSuccess
 
@@ -76,6 +79,7 @@ class ChatMenuViewModel : ViewModel() {
 
                 listAdapterPair.first.add(position, delConv)
                 listAdapterPair.second.notifyItemInserted(position)
+                BrugDataCache.initMessageListInCache(delConv.convId)
             }.show()
         }
     }

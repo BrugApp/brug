@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.components.BottomNavBar
@@ -69,15 +70,13 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // ONLY GETS THE LIST OF ITEMS RELATED TO THE USER, NOT THE FULL USER PROFILE !
     private fun initItemsList() {
-        val observableList = MutableLiveData<MutableList<Item>>()
-
         val itemsTestList =
             if(intent.extras != null && intent.extras!!.containsKey(ITEMS_TEST_LIST_KEY)){
                 intent.extras!!.get(ITEMS_TEST_LIST_KEY) as MutableList<Item>
             } else null
 
         viewModel.viewModelScope.launch {
-            observableList.postValue(
+            BrugDataCache.setItemsInCache(
                 itemsTestList ?:
                 (ItemsRepository.getUserItemsFromUID(
                     firebaseAuth.currentUser!!.uid,
@@ -86,7 +85,7 @@ class ItemsMenuActivity : AppCompatActivity() {
             )
         }
 
-        observableList.observe(this) { itemsList ->
+        BrugDataCache.getCachedItems().observe(this) { itemsList ->
             findViewById<ProgressBar>(R.id.loadingItems).visibility = View.GONE
             val list = if (itemsList.isNullOrEmpty()) mutableListOf() else itemsList.toMutableList()
 

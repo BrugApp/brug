@@ -37,6 +37,7 @@ object ConvRepository {
         thisUID: String,
         uid: String,
         lostItemName: String,
+        lastMessage: Message?,
         firestore: FirebaseFirestore,
     ): FirebaseResponse {
         val response = FirebaseResponse()
@@ -63,10 +64,16 @@ object ConvRepository {
                 return response
             }
 
-            // FIRST ADD AN ENTRY IN THE CONVERSATIONS COLLECTION
-            Firebase.firestore.collection(CONV_DB).document(convID).set(mapOf(
+            val convFields = mutableMapOf(
                 "lost_item_name" to lostItemName
-            )).await()
+            )
+            if(lastMessage != null){
+                convFields["last_sender_name"] = lastMessage.senderName
+                convFields["last_message_text"] = lastMessage.body
+            }
+
+            // FIRST ADD AN ENTRY IN THE CONVERSATIONS COLLECTION
+            Firebase.firestore.collection(CONV_DB).document(convID).set(convFields).await()
 
             // THEN ADD NEW CONV_REF ENTRY IN EACH USER'S CONV_REFS COLLECTION
             userRef.collection(CONV_REFS_DB).document(convID).set({}).await()
@@ -168,7 +175,6 @@ object ConvRepository {
      */
     fun getRealtimeConvsFromUID(
         uid: String,
-        observableList: MutableLiveData<MutableList<Conversation>>,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
@@ -192,7 +198,7 @@ object ConvRepository {
                                     },
                                 )
                             }.observeForever { list ->
-                                observableList.postValue(list.toMutableList())
+                                BrugDataCache.setConversationsInCache(list.toMutableList())
                             }
                         } else {
                             Log.e("FIREBASE ERROR", error?.message.toString())
