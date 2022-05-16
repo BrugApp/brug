@@ -6,13 +6,11 @@ import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
-import com.github.brugapp.brug.data.BrugDataCache
-import com.github.brugapp.brug.data.ConvRepository
-import com.github.brugapp.brug.data.MessageRepository
-import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -41,7 +39,7 @@ private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
 private val ACCOUNTWRONGCONV = BrugSignInAccount("", "", "", "")
 
 private val USER2 = MyUser(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null, mutableListOf())
-private const val DUMMY_ITEM_NAME = "Airpods"
+private val DUMMY_ITEM = MyItem("Airpods", 0, "DUMMYDESC", false)
 
 class ConvRepositoryTest {
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
@@ -52,23 +50,25 @@ class ConvRepositoryTest {
     private fun addTestUsers() = runBlocking{
         UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1, true, firestore)
         UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2, true, firestore)
+        ItemsRepository.addItemWithItemID(DUMMY_ITEM, "DUMMYID", USER_ID1, firestore)
         UserRepository.addUserFromAccount(USERWRONGCONV_ID, ACCOUNTWRONGCONV, true, firestore)
     }
 
     @Before
     fun setUp() {
+        DUMMY_ITEM.setItemID("DUMMYID")
         addTestUsers()
     }
 
     @Test
     fun addConvToInexistentUsersReturnsError() = runBlocking {
-        assertThat(ConvRepository.addNewConversation("WRONGUID", USER_ID2, DUMMY_ITEM_NAME,firestore).onError, IsNot(IsNull.nullValue()))
+        assertThat(ConvRepository.addNewConversation("WRONGUID", USER_ID2, "WRONGUID:${DUMMY_ITEM.getItemID()}",firestore).onError, IsNot(IsNull.nullValue()))
     }
 
     @Test
     fun addNewConvCorrectlyReturns() = runBlocking {
-        assertThat(ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore).onSuccess, IsEqual(true))
-        val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM_NAME, null)
+        assertThat(ConvRepository.addNewConversation(USER_ID1, USER_ID2, "$USER_ID1:${DUMMY_ITEM.getItemID()}",firestore).onSuccess, IsEqual(true))
+        val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM, null)
 
         val context = TestLifecycleOwner()
         ConvRepository.getRealtimeConvsFromUID(USER_ID1, context, firestore, firebaseAuth, firebaseStorage)
@@ -78,7 +78,7 @@ class ConvRepositoryTest {
 
         val conv = convList.value!!.last()
         assertThat(conv.convId, IsEqual(conversation.convId))
-        assertThat(conv.lostItemName, IsEqual(conversation.lostItemName))
+        assertThat(conv.lostItem, IsEqual(conversation.lostItem))
         assertThat(conv.userFields, IsEqual(conversation.userFields))
     }
 
@@ -132,7 +132,7 @@ class ConvRepositoryTest {
             .user
         assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
         assertThat(firebaseAuth.currentUser!!.uid, IsEqual(authUser!!.uid))
-        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore)
+        ConvRepository.addNewConversation(USER_ID1, USER_ID2, "$USER_ID1:${DUMMY_ITEM.getItemID()}",firestore)
 
         val file = File.createTempFile("tempIMG", ".jpg")
         val fos = FileOutputStream(file)
@@ -170,7 +170,7 @@ class ConvRepositoryTest {
 
     @Test
     fun deleteValidConvReturnsSuccessfully() = runBlocking {
-        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore)
+        ConvRepository.addNewConversation(USER_ID1, USER_ID2, "$USER_ID1:${DUMMY_ITEM.getItemID()}",firestore)
         assertThat(ConvRepository.deleteConversationFromID("${USER_ID1}${USER_ID2}", USER_ID1,firestore).onSuccess, IsEqual(true))
     }
 

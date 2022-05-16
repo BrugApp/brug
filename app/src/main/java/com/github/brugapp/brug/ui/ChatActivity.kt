@@ -160,7 +160,7 @@ class ChatActivity : AppCompatActivity() {
 
 
         inflateActionBar(
-            conversation.userFields.getFullName(), conversation.lostItemName
+            conversation.userFields.getFullName(), conversation.lostItem.itemName
         )
     }
 
