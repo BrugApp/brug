@@ -3,8 +3,10 @@ package com.github.brugapp.brug
 import android.app.Activity
 import android.app.Instrumentation
 import android.content.Intent
+import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -16,6 +18,8 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
@@ -24,10 +28,13 @@ import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.ui.*
+import com.github.brugapp.brug.ui.components.BottomNavBar
+import com.google.common.base.CharMatcher.`is`
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import org.hamcrest.Matchers
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
@@ -226,6 +233,30 @@ class ChatMenuActivityTest {
         assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
     }
 
+    //TODO: USE CACHE FOR ITEMS HERE !
+    @Test
+    fun chatIconOnNavBar() {
+        signInTestUser()
+
+        onView(withId(R.id.items_list_menu_button)).perform(click())
+
+        Espresso.pressBack()
+        val selectedItem = BottomNavBar().getSelectedItem(getActivityInstance()!!)
+        assertThat(selectedItem, Matchers.`is`(R.id.chat_menu_button))
+
+        signOut()
+    }
+
+    private fun getActivityInstance(): Activity? {
+        val currentActivity = arrayOf<Activity?>(null)
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(Runnable {
+            val resumedActivity =
+                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+            val it: Iterator<Activity> = resumedActivity.iterator()
+            currentActivity[0] = it.next()
+        })
+        return currentActivity[0]
+    }
 
     // Companion functions
     private fun isKeyboardOpenedShellCheck(): Boolean {

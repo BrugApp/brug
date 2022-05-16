@@ -1,9 +1,10 @@
 package com.github.brugapp.brug
 
+import android.app.Activity
 import android.content.Intent
-import android.util.Log
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -14,6 +15,9 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
@@ -24,12 +28,12 @@ import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.github.brugapp.brug.ui.components.BottomNavBar
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsEqual
 import org.junit.*
@@ -284,5 +288,25 @@ class ItemsMenuActivityTest {
                 hasComponent(AddItemActivity::class.java.name)
             )
         )
+    }
+
+    @Test
+    fun itemIconOnNavBar() {
+        onView(withId(R.id.chat_menu_button)).perform(click())
+        Espresso.pressBack()
+
+        val selectedItem = BottomNavBar().getSelectedItem(getActivityInstance()!!)
+        assertThat(selectedItem, `is`(R.id.items_list_menu_button))
+    }
+
+    private fun getActivityInstance(): Activity? {
+        val currentActivity = arrayOf<Activity?>(null)
+        getInstrumentation().runOnMainSync(Runnable {
+            val resumedActivity =
+                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+            val it: Iterator<Activity> = resumedActivity.iterator()
+            currentActivity[0] = it.next()
+        })
+        return currentActivity[0]
     }
 }
