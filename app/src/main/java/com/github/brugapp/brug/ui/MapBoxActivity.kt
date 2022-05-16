@@ -11,7 +11,9 @@ import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
@@ -56,14 +58,16 @@ class MapBoxActivity : AppCompatActivity() {
     lateinit var firestore: FirebaseFirestore
 
     //  GETS THE LIST OF ITEMS RELATED TO THE USER
-    private fun initItemsList() = liveData(Dispatchers.IO){
-        emit(ItemsRepository.getUserItemsFromUID(
+    private fun initItemsList() {
+        ItemsRepository.getRealtimeUserItemsFromUID(
             Firebase.auth.currentUser!!.uid,
             firestore
-        ))
-    }.observe(this) { itemsList ->
-        items = itemsList
-        onMapReady()
+        )
+
+        BrugDataCache.getCachedItems().observe(this) { itemsList ->
+            items = itemsList
+            onMapReady()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -218,32 +218,6 @@ object ItemsRepository {
         }
     }
 
-
-    /**
-     * Retrieves the list of items belonging to a user, given its user ID.
-     *
-     * @param uid the user ID
-     *
-     * @return List<MyItem> containing all the user's items, or a null value in case of error.
-     */
-    @Deprecated("This method is now deprecated. Use the getRealtimeUserItemsFromUID instead.")
-    suspend fun getUserItemsFromUID(uid: String, firestore: FirebaseFirestore): List<Item>? {
-        return try {
-            val userRef = firestore.collection(USERS_DB).document(uid)
-            if (!userRef.get().await().exists()) {
-                Log.e("FIREBASE ERROR", "User doesn't exist")
-                return null
-            }
-
-            userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
-                getItemFromDoc(item)
-            }
-
-        } catch (e: Exception) {
-            Log.e("FIREBASE ERROR", e.message.toString())
-            null
-        }
-    }
     /**
      * Retrieves the list of items belonging to a user in real-time and saves it to the cache,
      * given a user ID.
