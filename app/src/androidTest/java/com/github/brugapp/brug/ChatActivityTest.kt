@@ -28,6 +28,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
@@ -92,7 +93,7 @@ class ChatActivityTest {
     private val conversation = Conversation(
         "USER1USER2",
         dummyUser,
-        "DummyItem",
+        MyItem("DummyItem", 0, "DUMMYDESC", false),
         Message(
             dummyUser.getFullName(), dummyDate, "TestMessage"
         )
