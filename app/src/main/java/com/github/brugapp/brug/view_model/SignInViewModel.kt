@@ -9,6 +9,7 @@ import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -38,7 +39,8 @@ class SignInViewModel @Inject constructor(
      */
     suspend fun goToDemoMode(
         firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
     ): Boolean {
         val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
             "unlost.app@gmail.com",
@@ -64,7 +66,9 @@ class SignInViewModel @Inject constructor(
      */
     suspend fun createNewBrugAccount(
         it: Intent?,
-        firestore: FirebaseFirestore
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
     ): Boolean {
         // First we get the account from the account provider (i.e., Google or Unlost)
         val account = signInResultHandler.handleSignInResult(it) ?: return false

@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.DatabaseUser
 import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
@@ -64,7 +66,7 @@ class SignInActivity : AppCompatActivity() {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
             // ONLY FOR DEMO MODE
             liveData(Dispatchers.IO){
-                emit(viewModel.goToDemoMode(firestore, firebaseAuth))
+                emit(viewModel.goToDemoMode(firestore, firebaseAuth, firebaseStorage))
             }.observe(this){ result ->
                 if(result) startActivity(Intent(this, ItemsMenuActivity::class.java))
                 else Snackbar.make(
@@ -93,7 +95,7 @@ class SignInActivity : AppCompatActivity() {
             if (it.resultCode == Activity.RESULT_OK) {
                 // CALL FUNCTION TO CREATE USER & GO TO ITEMSMENUACTIVITY
                 liveData(Dispatchers.IO){
-                    emit(viewModel.createNewBrugAccount(it.data, firestore))
+                    emit(viewModel.createNewBrugAccount(it.data, firestore, firebaseAuth, firebaseStorage))
                 }.observe(this){ result ->
                     if(result) startActivity(Intent(this, ItemsMenuActivity::class.java))
                     else Snackbar.make(
