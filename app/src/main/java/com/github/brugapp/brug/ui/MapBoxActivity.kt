@@ -103,7 +103,7 @@ class MapBoxActivity : AppCompatActivity() {
         if (items != null) {
             for (item in items!!) {
                 if (x == 0) {
-                    item.setLastLocation(lon, lat)
+                    if (item.getLastLocation() == null) item.setLastLocation(lon, lat)
                     x = 1
                 }
                 @DrawableRes val icon: Int = item.getRelatedIcon()
