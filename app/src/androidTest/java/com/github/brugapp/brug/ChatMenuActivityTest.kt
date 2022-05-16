@@ -108,8 +108,6 @@ class ChatMenuActivityTest {
         ActivityScenario.launch<ChatMenuActivity>(intent)
     }
 
-
-
     @After
     fun cleanUp() {
         Intents.release()
