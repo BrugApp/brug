@@ -74,7 +74,7 @@ class ChatMenuViewModel : ViewModel() {
                                     ConvRepository.addNewConversation(
                                         firebaseAuth.currentUser!!.uid,
                                         delConv.userFields.uid,
-                                        delConv.lostItemName,
+                                        delConv.lostItem.getItemID(),
                                         firestore
                                     )
                                 )

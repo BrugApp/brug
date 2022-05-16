@@ -41,7 +41,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.codeScanner(this)
 
         //TODO: REMOVE THIS HARDCODED TEXT
-        findViewById<EditText>(R.id.edit_message)
+        findViewById<EditText>(R.id.edit_message).setText("84suOx4k0feEMUkjgEAeYrpWvlf1:GC1bZYp7AfVoQOo5u9uY")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
             val context = this
