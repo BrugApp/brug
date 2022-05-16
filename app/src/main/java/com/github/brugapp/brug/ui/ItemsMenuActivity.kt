@@ -75,14 +75,12 @@ class ItemsMenuActivity : AppCompatActivity() {
                 intent.extras!!.get(ITEMS_TEST_LIST_KEY) as MutableList<Item>
             } else null
 
-        viewModel.viewModelScope.launch {
-            BrugDataCache.setItemsInCache(
-                itemsTestList ?:
-                (ItemsRepository.getUserItemsFromUID(
-                    firebaseAuth.currentUser!!.uid,
-                    firestore
-                ) ?: listOf()).toMutableList()
-            )
+        if(itemsTestList == null){
+                ItemsRepository.getRealtimeUserItemsFromUID(
+                    firebaseAuth.uid!!,
+                    firestore)
+        } else {
+            BrugDataCache.setItemsInCache(itemsTestList)
         }
 
         BrugDataCache.getCachedItems().observe(this) { itemsList ->
@@ -99,10 +97,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
             listView.layoutManager = LinearLayoutManager(this)
 
-            val dragPair = Pair(
-                ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-                ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
-            )
+            val dragPair = Pair(0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT))
 
             val swipePair = Pair(
                 ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24)!!,

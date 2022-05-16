@@ -1,11 +1,13 @@
 package com.github.brugapp.brug.data
 
 import android.util.Log
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Item
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 
 private const val USERS_DB = "Users"
@@ -224,6 +226,7 @@ object ItemsRepository {
      *
      * @return List<MyItem> containing all the user's items, or a null value in case of error.
      */
+    @Deprecated("This method is now deprecated. Use the getRealtimeUserItemsFromUID instead.")
     suspend fun getUserItemsFromUID(uid: String, firestore: FirebaseFirestore): List<Item>? {
         return try {
             val userRef = firestore.collection(USERS_DB).document(uid)
@@ -239,6 +242,37 @@ object ItemsRepository {
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             null
+        }
+    }
+    /**
+     * Retrieves the list of items belonging to a user in real-time and saves it to the cache,
+     * given a user ID.
+     *
+     * @param uid the user ID
+     *
+     */
+    fun getRealtimeUserItemsFromUID(uid: String, firestore: FirebaseFirestore) {
+        val userRef = firestore.collection(USERS_DB).document(uid)
+        userRef.get().addOnCompleteListener { task ->
+            if(task.isSuccessful){
+                userRef.collection(ITEMS_DB).addSnapshotListener { value, error ->
+                    if(value != null && error == null){
+                        liveData(Dispatchers.IO){
+                            emit(
+                                value.mapNotNull { itemDoc ->
+                                    getItemFromDoc(itemDoc)
+                                }
+                            )
+                        }.observeForever { list ->
+                            BrugDataCache.setItemsInCache(list.toMutableList())
+                        }
+                    } else {
+                        Log.e("FIREBASE ERROR", error?.message.toString())
+                    }
+                }
+            } else {
+                Log.e("FIREBASE ERROR", task.exception?.message.toString())
+            }
         }
     }
 

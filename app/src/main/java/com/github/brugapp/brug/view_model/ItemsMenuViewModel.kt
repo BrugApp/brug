@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.ITEMS_DELETE_TEXT
@@ -54,6 +55,7 @@ class ItemsMenuViewModel : ViewModel() {
                     }
                 }
             }
+
             listAdapterPair.first.removeAt(position)
             listAdapterPair.second.notifyItemRemoved(position)
 

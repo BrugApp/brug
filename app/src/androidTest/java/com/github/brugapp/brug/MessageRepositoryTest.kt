@@ -5,14 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
-import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
@@ -31,6 +30,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -75,12 +75,17 @@ class MessageRepositoryTest {
     private fun addUsersAndConv() = runBlocking {
         UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1, true, firestore)
         UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2, true, firestore)
-        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME,firestore)
+        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME, null, firestore)
     }
 
     @Before
     fun setUp(){
         addUsersAndConv()
+    }
+
+    @After
+    fun cleanUp(){
+        BrugDataCache.resetCachedMessagesLists()
     }
 
     @Test
@@ -100,6 +105,8 @@ class MessageRepositoryTest {
     //TODO: FIX TEST
     @Test
     fun addTextMessageCorrectlyAddsNewTextMessage() {
+        BrugDataCache.initMessageListInCache("${USER_ID1}${USER_ID2}")
+
         val response = runBlocking {
              MessageRepository.addMessageToConv(
                  TEXTMSG,
@@ -113,12 +120,10 @@ class MessageRepositoryTest {
         }
         assertThat(response.onSuccess, IsEqual(true))
 
-        val messageList = MutableLiveData<MutableList<Message>>()
         MessageRepository.getRealtimeMessages(
             "${USER_ID1}${USER_ID2}",
             USER2.getFullName(),
             USER_ID1,
-            messageList,
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -128,12 +133,14 @@ class MessageRepositoryTest {
             delay(1000)
         }
 
-        assertThat(messageList.value.isNullOrEmpty(), IsEqual(false))
-        assertThat(messageList.value!!.contains(TEXTMSG), IsEqual(true))
+        assertThat(BrugDataCache.getCachedMessageList("${USER_ID1}${USER_ID2}").value.isNullOrEmpty(), IsEqual(false))
+        assertThat(BrugDataCache.getCachedMessageList("${USER_ID1}${USER_ID2}").value!!.contains(TEXTMSG), IsEqual(true))
     }
 
     @Test
     fun addLocationMessageCorrectlyAddsNewLocationMessage() = runBlocking {
+        BrugDataCache.initMessageListInCache("${USER_ID1}${USER_ID2}")
+
         val response = MessageRepository.addMessageToConv(
             LOCATIONMSG,
             USER2.getFullName(),
@@ -146,12 +153,10 @@ class MessageRepositoryTest {
         assertThat(response.onSuccess, IsEqual(true))
 
 
-        val messageList = MutableLiveData<MutableList<Message>>()
         MessageRepository.getRealtimeMessages(
             "${USER_ID1}${USER_ID2}",
             USER2.getFullName(),
             USER_ID1,
-            messageList,
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -161,11 +166,11 @@ class MessageRepositoryTest {
             delay(1000)
         }
 
-        assertThat(messageList.value.isNullOrEmpty(), IsEqual(false))
-        for(value in messageList.value!!){
+        assertThat(BrugDataCache.getCachedMessageList("${USER_ID1}${USER_ID2}").value.isNullOrEmpty(), IsEqual(false))
+        for(value in BrugDataCache.getCachedMessageList("${USER_ID1}${USER_ID2}").value!!){
             Log.e("FIREBASE MESSAGE", value.toString())
         }
-        assertThat(messageList.value!!.contains(LOCATIONMSG), IsEqual(true))
+        assertThat(BrugDataCache.getCachedMessageList("${USER_ID1}${USER_ID2}").value!!.contains(LOCATIONMSG), IsEqual(true))
     }
 
     @Test
@@ -191,6 +196,8 @@ class MessageRepositoryTest {
 
     @Test
     fun addPicMessageWithLoginCorrectlyAddsPicMessage() = runBlocking {
+        BrugDataCache.initMessageListInCache("${USER_ID1}${USER_ID2}")
+
         // CREATE IMAGE & MESSAGE
         val filePath = getUriOfFileWithImg(R.drawable.ic_baseline_delete_24)
         assertThat(filePath, IsNot(IsNull.nullValue()))
@@ -223,20 +230,18 @@ class MessageRepositoryTest {
         )
         assertThat(response.onSuccess, IsEqual(true))
 
-        val messageList = MutableLiveData<MutableList<Message>>()
         MessageRepository.getRealtimeMessages(
             "${USER_ID1}${USER_ID2}",
             "USERNAME",
             USER_ID1,
-            messageList,
             firestore,
             firebaseAuth,
             firebaseStorage
         )
 
-        delay(1000)
+        delay(2000)
 
-        assertThat(messageList.value.isNullOrEmpty(), IsEqual(false))
+        assertThat(BrugDataCache.getCachedMessageList("${USER_ID1}${USER_ID2}").value.isNullOrEmpty(), IsEqual(false))
 //        val splitPath = filePath.toString().split("/")
 //        val firebasePicMessage = PicMessage(picMsg.senderName,
 //            picMsg.timestamp,

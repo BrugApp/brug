@@ -4,8 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.MutableLiveData
 import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
@@ -25,6 +25,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -72,6 +73,7 @@ class ConvRepositoryTest {
     @Before
     fun setUp() {
         addTestUsers()
+        BrugDataCache.resetCachedConversations()
     }
 
     @Test
@@ -80,6 +82,7 @@ class ConvRepositoryTest {
             "WRONGUID",
             USER_ID2,
             DUMMY_ITEM_NAME,
+            null,
             firestore
         ).onError, IsNot(IsNull.nullValue()))
     }
@@ -90,22 +93,21 @@ class ConvRepositoryTest {
             USER_ID1,
             USER_ID2,
             DUMMY_ITEM_NAME,
+            null,
             firestore
         ).onSuccess, IsEqual(true))
         val conversation = Conversation("${USER_ID1}${USER_ID2}", USER2, DUMMY_ITEM_NAME, null)
 
-        val convList = MutableLiveData<MutableList<Conversation>>()
         ConvRepository.getRealtimeConvsFromUID(
             USER_ID1,
-            convList,
             firestore,
             firebaseAuth,
             firebaseStorage
         )
         delay(1000)
-        assertThat(convList.value.isNullOrEmpty(), IsEqual(false))
+        assertThat(BrugDataCache.getCachedConversations().value.isNullOrEmpty(), IsEqual(false))
 
-        val conv = convList.value!!.last()
+        val conv = BrugDataCache.getCachedConversations().value!!.last()
         assertThat(conv.convId, IsEqual(conversation.convId))
         assertThat(conv.lostItemName, IsEqual(conversation.lostItemName))
         assertThat(conv.userFields, IsEqual(conversation.userFields))
@@ -113,11 +115,9 @@ class ConvRepositoryTest {
 
     @Test
     fun getConvsFromNonexistentUserReturnsNull() {
-        val convList = MutableLiveData<MutableList<Conversation>>()
         val wrongConvID = "WRONGCONVID"
         ConvRepository.getRealtimeConvsFromUID(
             wrongConvID,
-            convList,
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -125,15 +125,13 @@ class ConvRepositoryTest {
         runBlocking {
             delay(2000)
         }
-        assertThat(convList.value, IsNull.nullValue())
+        assertThat(BrugDataCache.getCachedConversations().value, IsEqual(mutableListOf()))
     }
 
     @Test
     fun getBadlyFormattedConvsReturnsEmptyList() {
-        val convList = MutableLiveData<MutableList<Conversation>>()
         ConvRepository.getRealtimeConvsFromUID(
             USERWRONGCONV_ID,
-            convList,
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -141,15 +139,13 @@ class ConvRepositoryTest {
         runBlocking {
             delay(1000)
         }
-        assertThat(convList.value, IsEqual(mutableListOf()))
+        assertThat(BrugDataCache.getCachedConversations().value, IsEqual(mutableListOf()))
     }
 
     @Test
     fun getConvsFromValidUserCorrectlyReturnsSuccessfully() {
-        val convList = MutableLiveData<MutableList<Conversation>>()
         ConvRepository.getRealtimeConvsFromUID(
             USER_ID1,
-            convList,
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -157,8 +153,7 @@ class ConvRepositoryTest {
         runBlocking {
             delay(1000)
         }
-        assertThat(convList.value, IsNot(IsNull.nullValue()))
-
+        assertThat(BrugDataCache.getCachedConversations().value, IsNot(IsNull.nullValue()))
     }
 
     @Test
@@ -181,6 +176,7 @@ class ConvRepositoryTest {
             USER_ID1,
             USER_ID2,
             DUMMY_ITEM_NAME,
+            null,
             firestore
         )
 
@@ -208,16 +204,14 @@ class ConvRepositoryTest {
             firebaseStorage
         ).onSuccess, IsEqual(true))
 
-        val convList = MutableLiveData<MutableList<Conversation>>()
         ConvRepository.getRealtimeConvsFromUID(
             USER_ID1,
-            convList,
             firestore,
             firebaseAuth,
             firebaseStorage
         )
         delay(1000)
-        assertThat(convList.value, IsNot(IsNull.nullValue()))
+        assertThat(BrugDataCache.getCachedConversations().value, IsNot(IsNull.nullValue()))
 
         firebaseAuth.signOut()
     }
@@ -246,6 +240,7 @@ class ConvRepositoryTest {
             USER_ID1,
             USER_ID2,
             DUMMY_ITEM_NAME,
+            null,
             firestore
         )
         assertThat(ConvRepository.deleteConversationFromID(
