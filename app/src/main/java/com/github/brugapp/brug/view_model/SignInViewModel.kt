@@ -43,7 +43,7 @@ class SignInViewModel @Inject constructor(
     ): Boolean {
         val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
             "unlost.app@gmail.com",
-            "brugsdpProject1").await()
+            "123456").await()
 
         if(firebaseAuthResponse.user != null){
             return UserRepository.addUserFromAccount(
