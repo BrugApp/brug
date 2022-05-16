@@ -236,6 +236,7 @@ class ChatMenuActivityTest {
     //TODO: USE CACHE FOR ITEMS HERE !
     @Test
     fun chatIconOnNavBar() {
+        createTestUser()
         signInTestUser()
 
         onView(withId(R.id.items_list_menu_button)).perform(click())
