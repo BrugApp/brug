@@ -49,7 +49,7 @@ class SignInActivityButtonTest {
     @Test
     fun demoButtonGoesToItemsMenuActivity() {
         val email = "unlost.app@gmail.com"
-        val password = "brugsdpProject1"
+        val password = "123456"
         runBlocking {
             firebaseAuth.createUserWithEmailAndPassword(email,password).await()
         }
