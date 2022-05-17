@@ -70,6 +70,11 @@ class ChatMenuActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onResume() {
+        super.onResume()
+        BottomNavBar().setDefaultSelectedItem(this, R.id.chat_menu_button)
+    }
+
     private fun initChatList() {
         val conversationTestList =
             if(intent.extras != null && intent.extras!!.containsKey(CONVERSATION_TEST_LIST_KEY)){
