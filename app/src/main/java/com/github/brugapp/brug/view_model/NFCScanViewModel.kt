@@ -23,10 +23,12 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.LOCATION_REQUEST_CODE
 import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.messaging.MyFCMMessagingService
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -236,8 +238,22 @@ class NFCScanViewModel : ViewModel() {
             UserRepository.addUserFromAccount(auth.uid, BrugSignInAccount("Anonymous","User","",""), false, firestore)
         }
         val (userID, itemID) = nfcText.toString().split(":")
-        val response = ConvRepository.addNewConversation(firebaseAuth.currentUser!!.uid, userID, "$userID:$itemID", firestore)
-        return if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
+        //val doc = await firestore.collection('collection_name').doc('doc_id').get();
+        val item = ItemsRepository.getSingleItemFromIDs(userID, itemID)
+        if(item == null){
+            ItemsRepository.addItemToUser(MyItem("default item name",itemID.toInt(),"default description",false),userID,firestore)
+            return firebaseAuth.currentUser!!.uid + userID
+        }else {
+            val response = ConvRepository.addNewConversation(
+                firebaseAuth.currentUser!!.uid,
+                userID,
+                "$userID:$itemID",
+                firestore
+            )
+            return if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
+        }
+
+
     }
 
     /**
