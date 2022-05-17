@@ -18,6 +18,8 @@ import com.github.brugapp.brug.LOCATION_REQUEST_CODE
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -115,13 +117,11 @@ class QrCodeScanViewModel : ViewModel() {
         }
 
         val (userID, itemID) = qrText.toString().split(":")
-
-        val lostItemName = getItemNameForNewConversation(userID, itemID) ?: return null
 //        val convID = firebaseAuth.currentUser!!.uid + itemID
         val response = ConvRepository.addNewConversation(
             firebaseAuth.currentUser!!.uid,
             userID,
-            lostItemName,
+            "$userID:$itemID",
             null,
             firestore
         )
@@ -168,11 +168,11 @@ class QrCodeScanViewModel : ViewModel() {
         ).onSuccess
     }
 
-    private suspend fun getItemNameForNewConversation(userID: String, itemID: String): String? {
+    private suspend fun getItemForNewConversation(userID: String, itemID: String): Item? {
         return ItemsRepository.getSingleItemFromIDs(
             userID,
             itemID
-        )?.itemName
+        )
     }
 
 

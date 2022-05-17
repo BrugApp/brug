@@ -6,12 +6,10 @@ import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
-import com.github.brugapp.brug.data.BrugDataCache
-import com.github.brugapp.brug.data.ConvRepository
-import com.github.brugapp.brug.data.MessageRepository
-import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.model.message_types.AudioMessage
 import com.github.brugapp.brug.model.message_types.LocationMessage
@@ -43,7 +41,8 @@ private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
 private val ACCOUNT2 = BrugSignInAccount("Hamza", "Hassoune", "", "")
 
 private val USER2 = User(USER_ID2, ACCOUNT2.firstName, ACCOUNT2.lastName, null, mutableListOf())
-private const val DUMMY_ITEM_NAME = "AirPods Pro Max"
+private const val DUMMY_ITEM_ID = "DUMMYITEMID"
+private val DUMMY_ITEM = Item("AirPods Pro Max", 0, "DUMMYDESC", false)
 
 private val TEXTMSG = TextMessage("Me",
     DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -75,7 +74,9 @@ class MessageRepositoryTest {
     private fun addUsersAndConv() = runBlocking {
         UserRepository.addUserFromAccount(USER_ID1, ACCOUNT1, true, firestore)
         UserRepository.addUserFromAccount(USER_ID2, ACCOUNT2, true, firestore)
-        ConvRepository.addNewConversation(USER_ID1, USER_ID2, DUMMY_ITEM_NAME, null, firestore)
+        DUMMY_ITEM.setItemID(DUMMY_ITEM_ID)
+        ItemsRepository.addItemWithItemID(DUMMY_ITEM, DUMMY_ITEM_ID, USER_ID1, firestore)
+        ConvRepository.addNewConversation(USER_ID1, USER_ID2, "$USER_ID1:${DUMMY_ITEM.getItemID()}", null, firestore)
     }
 
     @Before

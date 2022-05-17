@@ -15,7 +15,7 @@ import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
-import com.github.brugapp.brug.databinding.SampleHelloWorldViewBinding
+import com.github.brugapp.brug.databinding.OnItemMapClickViewBinding
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -122,7 +122,7 @@ class MapBoxActivity : AppCompatActivity() {
 
                         val viewAnnotationManager = binding.mapView.viewAnnotationManager
                         val viewAnnotation = viewAnnotationManager.addViewAnnotation(
-                            resId = R.layout.sample_hello_world_view,
+                            resId = R.layout.on_item_map_click_view,
                             options = viewAnnotationOptions {
                                 geometry(point)
                                 associatedFeatureId(pointAnnotation.featureIdentifier)
@@ -130,7 +130,7 @@ class MapBoxActivity : AppCompatActivity() {
                                 offsetY((pointAnnotation.iconImageBitmap?.height!!).toInt())
                             }
                         )
-                        SampleHelloWorldViewBinding.bind(viewAnnotation).apply {
+                        OnItemMapClickViewBinding.bind(viewAnnotation).apply {
                             setLinkWithNavigation(walkButton, DirectionsCriteria.PROFILE_WALKING, lastLocation)
                             setLinkWithNavigation(driveButton, DirectionsCriteria.PROFILE_DRIVING, lastLocation)
                             itemNameOnMap.text = item.itemName

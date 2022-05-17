@@ -29,14 +29,14 @@ object ConvRepository {
      *
      * @param thisUID the user ID of the current user
      * @param uid the user ID of the other interlocutor
-     * @param lostItemName the name of the lost item
+     * @param lostItemID the ID of the item belonging to a user, formatted as follows : userID:itemID
      *
      * @return FirebaseResponse object denoting if the action was successful
      */
     suspend fun addNewConversation(
         thisUID: String,
         uid: String,
-        lostItemName: String,
+        lostItemID: String,
         lastMessage: Message?,
         firestore: FirebaseFirestore,
     ): FirebaseResponse {
@@ -55,17 +55,28 @@ object ConvRepository {
                 return response
             }
 
-            val convID = "$thisUID$uid"
+            val convID1 = "$thisUID$uid"
+            val convID2 = "$uid$thisUID"
 
-            // CHECK IF THE CONVERSATION FOR THE OBJECT DOESN'T ALREADY EXIST
-            val convDoc = Firebase.firestore.collection(CONV_DB).document(convID).get().await()
-            if(convDoc.exists() && convDoc.contains("lost_item_name") && convDoc["lost_item_name"] == lostItemName){
+            // CHECK IF THE ITEM EXISTS IN THE DATABASE OR NOT
+            val (userID, itemID) = lostItemID.split(":")
+            val item = ItemsRepository.getSingleItemFromIDs(userID, itemID)
+            if(item == null){
+                response.onError = Exception("Item doesn't exist")
+                return response
+            }
+
+            // CHECK IF THE CONVERSATION FOR THE OBJECT DOESN'T ALREADY EXIST (tests for both ID combinations)
+            val convDoc1 = Firebase.firestore.collection(CONV_DB).document(convID1).get().await()
+            val convDoc2 = Firebase.firestore.collection(CONV_DB).document(convID2).get().await()
+            if((convDoc1.exists() && convDoc1.contains("lost_item_id") && convDoc1["lost_item_id"] == lostItemID)
+                || (convDoc2.exists() && convDoc2.contains("lost_item_id") && convDoc2["lost_item_id"] == lostItemID)){
                 response.onError = Exception("The conversation for this object already exists")
                 return response
             }
 
             val convFields = mutableMapOf(
-                "lost_item_name" to lostItemName
+                "lost_item_id" to lostItemID
             )
             if(lastMessage != null){
                 convFields["last_sender_name"] = lastMessage.senderName
@@ -73,11 +84,11 @@ object ConvRepository {
             }
 
             // FIRST ADD AN ENTRY IN THE CONVERSATIONS COLLECTION
-            Firebase.firestore.collection(CONV_DB).document(convID).set(convFields).await()
+            Firebase.firestore.collection(CONV_DB).document(convID1).set(convFields).await()
 
             // THEN ADD NEW CONV_REF ENTRY IN EACH USER'S CONV_REFS COLLECTION
-            userRef.collection(CONV_REFS_DB).document(convID).set({}).await()
-            otherUserRef.collection(CONV_REFS_DB).document(convID).set({}).await()
+            userRef.collection(CONV_REFS_DB).document(convID1).set({}).await()
+            otherUserRef.collection(CONV_REFS_DB).document(convID1).set({}).await()
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -223,8 +234,8 @@ object ConvRepository {
             val convSnapshot = firestore.collection(CONV_DB).document(convID).get().await()
 
             // MAYBE TOO HARSH OF A CONDITION
-            if (!convSnapshot.contains("lost_item_name")) {
-                Log.e("FIREBASE ERROR", "Invalid Conversation Format")
+            if (!convSnapshot.contains("lost_item_id")) {
+                Log.e("FIREBASE ERROR", "Invalid Conversation Format - Item ID not found")
                 return null
             }
 
@@ -236,8 +247,14 @@ object ConvRepository {
                 firebaseStorage
             ) ?: return null
 
-            //FETCH LOSTITEMNAME
-            val lostItemName = convSnapshot["lost_item_name"] as String
+            //FETCH LOST ITEM
+            val (userID, itemID) = (convSnapshot["lost_item_id"] as String).split(":")
+            val item = ItemsRepository.getSingleItemFromIDs(userID, itemID)
+            if(item == null){
+                Log.e("FIREBASE ERROR", "Item not found")
+                return null
+            }
+
 
             //FETCH INFOS RELATED TO THE LAST SENT MESSAGE (HERE TO REDUCE NUMBER OF FIREBASE QUERIES)
             val lastMessage =
@@ -249,7 +266,7 @@ object ConvRepository {
                     )
                 } else null
 
-            return Conversation(convID, userFields, lostItemName, lastMessage)
+            return Conversation(convID, userFields, item, lastMessage)
         } catch(e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             return null

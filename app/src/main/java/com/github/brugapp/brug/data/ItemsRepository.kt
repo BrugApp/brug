@@ -1,3 +1,4 @@
+
 package com.github.brugapp.brug.data
 
 import android.util.Log
@@ -5,6 +6,7 @@ import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Item
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +46,8 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
                 )
             ).await()
 
@@ -88,14 +91,15 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
                 )
             ).await()
+
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e
         }
-
         return response
     }
 
@@ -158,7 +162,8 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
                 )
             ).await()
 
@@ -187,12 +192,10 @@ object ItemsRepository {
                     firestore
                 )
             }
-
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e
         }
-
         return response
     }
 
@@ -257,6 +260,7 @@ object ItemsRepository {
                 || !itemDoc.contains("item_type")
                 || !itemDoc.contains("item_description")
                 || !itemDoc.contains("is_lost")
+                || !itemDoc.contains("last_location")
             ) {
                 Log.e("FIREBASE ERROR", "Invalid Item Format")
                 return null
@@ -269,6 +273,10 @@ object ItemsRepository {
                 itemDoc["is_lost"] as Boolean
             )
             item.setItemID(itemDoc.id)
+            val location = itemDoc["last_location"] as GeoPoint?
+            if (location != null){
+                item.setLastLocation(location.longitude, location.latitude)
+            }
             return item
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())

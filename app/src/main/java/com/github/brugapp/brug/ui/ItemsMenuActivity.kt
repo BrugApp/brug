@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -59,6 +60,11 @@ class ItemsMenuActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         customTopBar.inflateTopBar(menuInflater, menu, ITEMS_SEARCH_HINT)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        BottomNavBar().setDefaultSelectedItem(this, R.id.items_list_menu_button)
     }
 
     // For the settings icon on top bar

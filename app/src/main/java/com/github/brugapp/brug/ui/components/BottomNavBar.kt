@@ -14,7 +14,6 @@ class BottomNavBar {
             is ChatMenuActivity -> bottomBar.selectedItemId = R.id.chat_menu_button
         }
 
-
         bottomBar.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.items_list_menu_button -> {
@@ -60,5 +59,15 @@ class BottomNavBar {
                 else -> false
             }
         }
+    }
+
+    fun setDefaultSelectedItem(currentActivity: Activity, itemId : Int){
+        val bottomBar = currentActivity.findViewById<NavigationBarView>(R.id.bottom_navigation)
+        bottomBar.selectedItemId = itemId
+    }
+
+    fun getSelectedItem(currentActivity: Activity) : Int {
+        val bottomBar = currentActivity.findViewById<NavigationBarView>(R.id.bottom_navigation)
+        return bottomBar.selectedItemId
     }
 }

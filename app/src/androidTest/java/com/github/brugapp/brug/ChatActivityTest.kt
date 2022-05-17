@@ -26,15 +26,20 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -92,7 +97,7 @@ class ChatActivityTest {
     private val conversation = Conversation(
         "USER1USER2",
         dummyUser,
-        "DummyItem",
+        Item("DummyItem", 0, "DUMMYDESC", false),
         Message(
             dummyUser.getFullName(), dummyDate, "TestMessage"
         )
@@ -399,36 +404,42 @@ class ChatActivityTest {
         }
     }
 
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     // TEST COMMENTED AS IT CONSISTENTLY FAILS ON CIRRUS CI
-//    @Test
-//    fun pressLocationOpensMapActivity() {
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//
-//        val intent = Intent(context, ChatActivity::class.java).apply {
-//            putExtra(CHAT_INTENT_KEY, conversation)
-//            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
-//        }
-//
-//        ActivityScenario.launch<Activity>(intent).use {
-//            onView(withId(R.id.buttonSendLocalisation)).perform(click())
-//
-//            // wait for the message to be uploaded
-//            Thread.sleep(5000)
-//
-//            val messagesList = onView(withId(R.id.messagesList))
-//            messagesList.perform(
-//                actionOnItem<RecyclerView.ViewHolder>(
-//                    hasDescendant(withContentDescription("location")),
-//                    click()
-//                )
-//            )
-//
+    @Test
+    fun pressLocationOpensMapActivity() {
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("goat@efgh.com", "123456").await()
+            firebaseAuth.signInWithEmailAndPassword("goat@efgh.com", "123456").await()
+        }
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.buttonSendLocalisation)).perform(click())
+
+            // wait for the message to be uploaded
+            Thread.sleep(5000)
+
+            val messagesList = onView(withId(R.id.messagesList))
+            messagesList.perform(
+                actionOnItem<RecyclerView.ViewHolder>(
+                    hasDescendant(withContentDescription("location")),
+                    click()
+                )
+            )
+
 //            val expectedIntent: Matcher<Intent> = anyOf(
 //                hasComponent(MapBoxActivity::class.java.name)
 //            )
 //            intended(expectedIntent)
-//        }
-//    }
+            firebaseAuth.signOut()
+        }
+    }
 
     // DISPLAY Tests
     @Test
