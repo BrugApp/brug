@@ -257,8 +257,13 @@ class MessageRepositoryTest {
 
     @Test
     fun addAudioMessageWithoutLoginReturnsError() = runBlocking {
+        val audioMsg = AudioMessage(USER2.getFullName(),
+            DateService.fromLocalDateTime(LocalDateTime.now()),
+            "AudioMessage",
+            "", "")
+
         val response = MessageRepository.addMessageToConv(
-            AUDIOMSG,
+            audioMsg,
             USER2.getFullName(),
             USER2.uid,
             "${USER_ID1}${USER_ID2}",
@@ -270,6 +275,36 @@ class MessageRepositoryTest {
         assertThat(response.onError, IsNot(IsNull.nullValue()))
         assertThat(response.onError!!.message, IsEqual("Unable to upload file"))
     }
+
+//    @Test
+//    fun addAudioMessageWithLoginReturnsSuccessfully() = runBlocking {
+//        firebaseAuth.createUserWithEmailAndPassword(userEmail, "123456").await()
+//        val authUser = firebaseAuth
+//            .signInWithEmailAndPassword(userEmail, "123456")
+//            .await()
+//            .user
+//        assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
+//        assertThat(firebaseAuth.currentUser!!.uid, IsEqual(authUser!!.uid))
+//
+//        val dummyAudioMessage = File.createTempFile("DUMMYAUDIOFILE", ".3gp")
+//
+//        val audioMsg = AudioMessage(USER2.getFullName(),
+//            DateService.fromLocalDateTime(LocalDateTime.now()),
+//            "AudioMessage",
+//            Uri.fromFile(dummyAudioMessage).toString(), Uri.fromFile(dummyAudioMessage).toString())
+//
+//        val response = MessageRepository.addMessageToConv(
+//            audioMsg,
+//            USER2.getFullName(),
+//            USER2.uid,
+//            "${USER_ID1}${USER_ID2}",
+//            firestore,
+//            firebaseAuth,
+//            firebaseStorage
+//        )
+//
+//        assertThat(response.onError, IsNull.nullValue())
+//    }
 
 
     private fun getUriOfFileWithImg(drawableID: Int): Uri? = try {
