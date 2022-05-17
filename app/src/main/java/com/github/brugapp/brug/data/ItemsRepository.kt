@@ -1,9 +1,12 @@
+
 package com.github.brugapp.brug.data
 
 import android.util.Log
 import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
@@ -42,7 +45,8 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
                 )
             ).await()
 
@@ -86,14 +90,15 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
                 )
             ).await()
+
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e
         }
-
         return response
     }
 
@@ -156,7 +161,8 @@ object ItemsRepository {
                     "item_name" to item.itemName,
                     "item_type" to item.itemTypeID,
                     "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost()
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
                 )
             ).await()
 
@@ -181,12 +187,10 @@ object ItemsRepository {
             userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
                 deleteItemFromUser(item.id, uid, firestore)
             }
-
             response.onSuccess = true
         } catch (e: Exception) {
             response.onError = e
         }
-
         return response
     }
 
@@ -212,7 +216,6 @@ object ItemsRepository {
         }
     }
 
-
     /**
      * Retrieves the list of items belonging to a user, given its user ID.
      *
@@ -231,7 +234,6 @@ object ItemsRepository {
             userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
                 getItemFromDoc(item)
             }
-
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
             null
@@ -245,6 +247,7 @@ object ItemsRepository {
                 || !itemDoc.contains("item_type")
                 || !itemDoc.contains("item_description")
                 || !itemDoc.contains("is_lost")
+                || !itemDoc.contains("last_location")
             ) {
                 Log.e("FIREBASE ERROR", "Invalid Item Format")
                 return null
@@ -257,6 +260,10 @@ object ItemsRepository {
                 itemDoc["is_lost"] as Boolean
             )
             item.setItemID(itemDoc.id)
+            val location = itemDoc["last_location"] as GeoPoint?
+            if (location != null){
+                item.setLastLocation(location.longitude, location.latitude)
+            }
             return item
         } catch (e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())
