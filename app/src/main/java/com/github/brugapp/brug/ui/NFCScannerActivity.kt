@@ -54,6 +54,13 @@ open class NFCScannerActivity: AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+    /**
+     * To test the report item functionality:
+     * 1) sign in to unlost.app account
+     * 2) input the following text: 9fA9cFUJFcXnnUNfKUrGIKvMEDu2:2yl32B8cmEZEEGPaxbev
+     * 3) press the button
+     * @param savedInstanceState
+     */
     public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         context = this
         setContentView(R.layout.activity_nfc_scanner)
