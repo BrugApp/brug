@@ -15,7 +15,7 @@
     <string name="scanme">Scan QR</string>
     <string name="chat">Chat</string>
     <string name="add_new_item">Add new item…</string>
-    <string name="item_activity_title">My items</string>
+    <string name="item_activity_title">Your Items</string>
     <string name="settings_icon_name">Settings</string>
     <string name="search_item">Search</string>
     <string name="search_item_hint">Search item name…</string>
@@ -89,4 +89,14 @@
     <string name="content_description_close">ez</string>
     <string name="map">Map</string>
     <string name="fullscreen_description">Image displayed in fullscreen</string>
+    <string name="title_activity_qr_code_show">Your Item\'s QRCode</string>
+    <string name="title_activity_map">Your Items\' Last Positions</string>
+    <string name="title_activity_add_item">Add a New Item</string>
+    <string name="title_activity_chat">Chat</string>
+    <string name="title_activity_image">Image</string>
+    <string name="title_register_user">Register</string>
+    <string name="title_activity_profile_picture">Set A New Profile Picture</string>
+    <string name="title_activity_scan_qr_code">Scan A QRCode</string>
+    <string name="title_activity_nfc">Scan an NFC Tag</string>
+    <string name="title_activity_item_information">Item Information</string>
 </resources>
