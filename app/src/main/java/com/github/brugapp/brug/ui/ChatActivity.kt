@@ -34,9 +34,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -61,8 +59,6 @@ class ChatActivity : AppCompatActivity() {
 
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
-
-    private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,6 +112,7 @@ class ChatActivity : AppCompatActivity() {
                 conversation.convId,
                 conversation.userFields.getFullName(),
                 firebaseAuth.uid!!,
+                this,
                 firestore,
                 firebaseAuth,
                 firebaseStorage

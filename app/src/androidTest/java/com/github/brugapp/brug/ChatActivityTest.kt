@@ -277,8 +277,6 @@ class ChatActivityTest {
             putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
 
-        val message = "Test text"
-
         ActivityScenario.launch<Activity>(intent).use {
             onView(withId(R.id.recordButton)).perform(click())
             Thread.sleep(1000)

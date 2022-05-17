@@ -10,15 +10,12 @@ import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.lifecycle.liveData
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
 import com.github.brugapp.brug.databinding.SampleHelloWorldViewBinding
-import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -35,7 +32,6 @@ import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
 import com.mapbox.maps.viewannotation.viewAnnotationOptions
 import com.mapbox.navigation.ui.utils.internal.extensions.getBitmap
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
@@ -45,8 +41,6 @@ const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 
 @AndroidEntryPoint
 class MapBoxActivity : AppCompatActivity() {
-
-    private var items: List<Item>? = null
     private var lon = -122.07131270212334
     private var lat = 37.411793498806624
 
@@ -64,10 +58,7 @@ class MapBoxActivity : AppCompatActivity() {
             firestore
         )
 
-        BrugDataCache.getCachedItems().observe(this) { itemsList ->
-            items = itemsList
-            onMapReady()
-        }
+        onMapReady()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,8 +98,8 @@ class MapBoxActivity : AppCompatActivity() {
     private fun addIcons() {
         var x = 0
         // Create an instance of the Annotation API and get the PointAnnotationManager.
-        if (items != null) {
-            for (item in items!!) {
+        BrugDataCache.getCachedItems().observe(this){ items ->
+            for (item in items) {
                 if (x == 0) {
                     item.setLastLocation(lon, lat)
                     x = 1

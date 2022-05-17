@@ -124,6 +124,7 @@ class MessageRepositoryTest {
             "${USER_ID1}${USER_ID2}",
             USER2.getFullName(),
             USER_ID1,
+            null,
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -157,6 +158,7 @@ class MessageRepositoryTest {
             "${USER_ID1}${USER_ID2}",
             USER2.getFullName(),
             USER_ID1,
+            null,
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -210,7 +212,7 @@ class MessageRepositoryTest {
 
 
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
-        val user = firebaseAuth.createUserWithEmailAndPassword(userEmail, "123456").await()
+        firebaseAuth.createUserWithEmailAndPassword(userEmail, "123456").await()
         val authUser = firebaseAuth
             .signInWithEmailAndPassword(userEmail, "123456")
             .await()
@@ -234,6 +236,7 @@ class MessageRepositoryTest {
             "${USER_ID1}${USER_ID2}",
             "USERNAME",
             USER_ID1,
+            null,
             firestore,
             firebaseAuth,
             firebaseStorage
