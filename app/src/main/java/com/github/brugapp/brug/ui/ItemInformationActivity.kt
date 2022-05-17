@@ -48,10 +48,10 @@ class ItemInformationActivity : AppCompatActivity() {
 
         setSwitch(item, firebaseAuth)
         //if user click on the localisation textview, we will open the map
-        findViewById<TextView>(R.id.item_last_location).setOnClickListener {
-            val intent = Intent(this, MapBoxActivity::class.java)
-            val localisation = item.getLastLocation()
-            if(localisation != null) {
+        val localisation = item.getLastLocation()
+        if(localisation != null) {
+            findViewById<TextView>(R.id.item_last_location).setOnClickListener {
+                val intent = Intent(this, MapBoxActivity::class.java)
                 intent.putExtra(ITEM_INTENT_KEY, item)
                 intent.putExtra(EXTRA_DESTINATION_LONGITUDE, localisation.getLongitude())
                 intent.putExtra(EXTRA_DESTINATION_LATITUDE, localisation.getLatitude())

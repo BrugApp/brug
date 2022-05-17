@@ -6,9 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.intent.Intents.intended
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,7 +16,6 @@ import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.ItemInformationActivity
-import com.github.brugapp.brug.ui.MapBoxActivity
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -69,12 +65,7 @@ class ItemInformationActivityTest {
     fun noLocationAndOwnerAndDateYet() {
         val ouchy = "Av. Emile-Henri-Jaques-Dalcroze 7, 1007 Lausanne, Switzerland"
         onView(withId(R.id.item_last_location)).check(matches(withText(ouchy)))
-        //click textview to open map
-        onView(withId(R.id.item_last_location)).perform(click())
-        //check if activity MapboxActivity is opened
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        //close map
-        device.pressBack()
+        //onView(withId(R.id.item_last_location)).perform(click())
     }
 
     @Test
@@ -97,38 +88,4 @@ class ItemInformationActivityTest {
         firebaseAuth.signOut()
     }
 }
-@HiltAndroidTest
-@RunWith(AndroidJUnit4::class)
-class LocationTest {
-    private val myItem = MyItem("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
 
-    @get:Rule
-    var rule = HiltAndroidRule(this)
-
-    fun setUp(item:MyItem) {
-        val intent =
-            Intent(ApplicationProvider.getApplicationContext(), ItemInformationActivity::class.java)
-        intent.putExtra(ITEM_INTENT_KEY, item)
-        ActivityScenario.launch<ItemInformationActivity>(intent)
-    }
-
-    @Test
-    fun correctLocationDisplayed() {
-        setUp(myItem)
-        onView(withId(R.id.item_last_location)).check(matches(withText("Not available")))
-    }
-
-    @Test
-    fun correctLocationDisplayedAfterBadLocationUpdate() {
-        myItem.setLastLocation(0.0,0.0) // set bad location
-        setUp(myItem)
-        onView(withId(R.id.item_last_location)).check(matches(withText("Not available")))
-    }
-
-    @Test
-    fun locationDoesntExist(){
-        myItem.setLastLocation(1000.0,10000.0) // set bad location (out of map) => exception
-        setUp(myItem)
-        onView(withId(R.id.item_last_location)).check(matches(withText("Not available")))
-    }
-}
