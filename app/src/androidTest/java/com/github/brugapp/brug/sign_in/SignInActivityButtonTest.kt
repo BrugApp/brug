@@ -46,25 +46,24 @@ class SignInActivityButtonTest {
         firebaseAuth.signOut()
     }
 
-    //@Test
-    //fun demoButtonGoesToItemsMenuActivity() {
-    //    val email = "unlost.app@gmail.com"
-    //    val password = "brugsdpProject1"
-    //    runBlocking {
-    //        firebaseAuth.createUserWithEmailAndPassword(email,password).await()
-    //    }
+    @Test
+    fun demoButtonGoesToItemsMenuActivity() {
+        val email = "unlost.app@gmail.com"
+        val password = "123456"
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword(email,password).await()
+        }
 
-    //    onView(withId(R.id.demo_button)).perform(click())
+        onView(withId(R.id.demo_button)).perform(click())
 
-    //    //Thread.sleep(30000)
-    //    Thread.sleep(2000)
-    //    intended(
-    //        allOf(
-    //            toPackage("com.github.brugapp.brug"),
-    //            hasComponent(ItemsMenuActivity::class.java.name)
-    //        )
-    //    )
-    //}
+        Thread.sleep(2000)
+        intended(
+            allOf(
+                toPackage("com.github.brugapp.brug"),
+                hasComponent(ItemsMenuActivity::class.java.name)
+            )
+        )
+    }
 
 
     @Test

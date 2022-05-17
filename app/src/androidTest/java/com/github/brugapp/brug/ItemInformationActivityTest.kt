@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
@@ -63,18 +64,24 @@ class ItemInformationActivityTest {
 
     @Test
     fun noLocationAndOwnerAndDateYet() {
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("abcd@efgh.com", "123456").await()
+            firebaseAuth.signInWithEmailAndPassword("abcd@efgh.com", "123456").await()
+        }
         val ouchy = "Av. Emile-Henri-Jaques-Dalcroze 7, 1007 Lausanne, Switzerland"
         onView(withId(R.id.item_last_location)).check(matches(withText(ouchy)))
-        //onView(withId(R.id.item_last_location)).perform(click())
+        onView(withId(R.id.item_last_location)).perform(click())
+        firebaseAuth.signOut()
     }
 
     @Test
     fun declaredItemAsLost() {
         runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("test@unlost.com", "123456").await()
             firebaseAuth.signInWithEmailAndPassword(
                 "test@unlost.com",
                 "123456"
-            )
+            ).await()
         }
         assertThat(
             item.isLost(),
