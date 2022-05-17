@@ -27,6 +27,7 @@ import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyItem
@@ -36,8 +37,11 @@ import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDat
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
 import com.github.brugapp.brug.ui.MapBoxActivity
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -404,9 +408,14 @@ class ChatActivityTest {
         }
     }
 
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     // TEST COMMENTED AS IT CONSISTENTLY FAILS ON CIRRUS CI
     @Test
     fun pressLocationOpensMapActivity() {
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("goat@efgh.com", "123456").await()
+            firebaseAuth.signInWithEmailAndPassword("goat@efgh.com", "123456").await()
+        }
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -432,6 +441,7 @@ class ChatActivityTest {
 //                hasComponent(MapBoxActivity::class.java.name)
 //            )
 //            intended(expectedIntent)
+            firebaseAuth.signOut()
         }
     }
 
