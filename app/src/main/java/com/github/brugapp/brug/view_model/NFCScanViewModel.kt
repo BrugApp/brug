@@ -14,7 +14,6 @@ import android.location.LocationManager
 import android.nfc.*
 import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import android.nfc.tech.Ndef
-import android.text.Editable
 import android.util.Log
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
@@ -66,18 +65,12 @@ class NFCScanViewModel : ViewModel() {
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{ return Pair(PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE),arrayOf(setupTag())) }
 
     /**
-     *
-     * @return IntentFilter
+     * @use prepares the IntentFilter needed to produce the 2nd Pair element of setupWritingTagFilters
+     * @return IntentFilter with an added default category
      */
     fun setupTag(): IntentFilter {
-        //returns: IntentFilter with an added default category
-        //params: none
-        //use: prepares the IntentFilter needed to produce the 2nd Pair element of setupWritingTagFilters
-
         val tagDetected = IntentFilter(ACTION_TAG_DISCOVERED)
-
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT)
-
         return tagDetected
     }
 
@@ -88,86 +81,64 @@ class NFCScanViewModel : ViewModel() {
     fun readFromIntent(nfcContents: TextView, intent: Intent){ if (checkIntentAction(intent)&&rawMessageToMessage(intent).first){ buildTagViews(nfcContents, rawMessageToMessage(intent).second) } }
 
     /**
-     * @param intent
-     * @return
+     * @use combines 3 condition checks into a single boolean for calling readFromIntent
+     * @param intent used to get the associated action for testing if tag is discovered
+     * @return true when the intent action corresponds to a tag being discovered false otherwise
      */
     fun checkIntentAction(intent: Intent): Boolean {
-        //returns: true when the intent action corresponds to a tag being discovered
-        //         false otherwise
-        //params: 'intent' used to get the associated action for testing if tag is discovered
-        //use: combines 3 condition checks into a single boolean for calling readFromIntent
-
         val isACTIONTAGDISCOVERED = intent.action.equals(ACTION_TAG_DISCOVERED)
         val isACTIONTECHDISCOVERED = intent.action.equals(NfcAdapter.ACTION_TECH_DISCOVERED)
         val isACTIONNDEFDISCOVERED = intent.action.equals(NfcAdapter.ACTION_NDEF_DISCOVERED)
-
-        val isTagDiscovered = (isACTIONTAGDISCOVERED||isACTIONTECHDISCOVERED||isACTIONNDEFDISCOVERED)
-
-        return isTagDiscovered
+        return (isACTIONTAGDISCOVERED || isACTIONTECHDISCOVERED || isACTIONNDEFDISCOVERED)
     }
 
     /**
-     * @param intent
-     * @return
+     * @use sets up the data and conditions needed for calling buildTagViews
+     * @param intent used for getting extended data from this intent
+     * @return Boolean: this object checks if the extended data from intent is null
+     * @return Array<NdefMessage>: this object represented the extended data from intent
      */
     fun rawMessageToMessage(intent: Intent): Pair<Boolean,Array<NdefMessage>> {
-        //returns 2 objects:
-        //Boolean: this object checks if the extended data from intent is null
-        //Array<NdefMessage>: this object represented the extended data from intent
-        //params: 'intent' is used for getting extended data from this intent
-        //use: sets up the data and conditions needed for calling buildTagViews
 
         val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
         var messages: Array<NdefMessage> = arrayOf()
-        var bool: Boolean = false
+        var bool = false
 
-        if (rawMessages!=null) { messages = Array<NdefMessage>(rawMessages!!.size) {
-                i -> rawMessages[i] as NdefMessage
-        }
-
+        if (rawMessages!=null) {
+            messages = Array(rawMessages.size) { i -> rawMessages[i] as NdefMessage }
             bool = true
-
         }
-
         return Pair(bool,messages)
     }
 
     /**
+     * @use converts NdefMessage Array into a String message understandable to humans
      * @param nfcContents
-     * @param messages
+     * @param messages is an array of NdefMessages, a lightweight binary format for tags
+     * @return String computed from the tag's NdefMessage Array
      */
     @SuppressLint("SetTextI18n")
     fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){ try{ nfcContents.text = "Read Tag Contents:" + initText(messages) }catch (e : UnsupportedEncodingException){ Log.e("UnsupportedEncoding",e.toString()) } }
 
     @Throws(UnsupportedEncodingException::class)
     fun initText(messages: Array<NdefMessage>?): String {
-        //returns: String computed from the tag's NdefMessage Array
-        //params: 'messages'  is an array of NdefMessages, a lightweight binary format for tags
-        //use: converts NdefMessage Array into a String message understandable to humans
-        var bugText : String = "null message error"
+        val bugText : String = "null message error"
         var text: String = ""
-        when {
+        return when {
             messages==null -> {
-                return bugText}
+                bugText
+            }
             messages.isEmpty() -> {
-                return text}
+                text
+            }
             else -> {
                 val payload = messages[0].records[0].payload
                 val textEncoding =
-                    if ((payload[0] and 128.toByte()).toInt() == 0) {Charset.forName("UTF-8")
-                    } else {Charset.forName("UTF-16")
-                    }
-
+                    if ((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8")
+                    else Charset.forName("UTF-16")
                 val languageCodeLength = payload[0] and 63.toByte()
-
-                text = String(
-                    payload,
-                    languageCodeLength + 1,
-                    payload.size - languageCodeLength - 1,
-                    textEncoding
-                )
-
-                return text
+                text = String(payload, languageCodeLength + 1, payload.size - languageCodeLength - 1, textEncoding)
+                text
             }
         }
     }
@@ -202,6 +173,7 @@ class NFCScanViewModel : ViewModel() {
     }
 
     /**
+     * @use notify owner that their item is found
      * @param this1
      */
     fun displayReportNotification(this1: Context) { MyFCMMessagingService.sendNotification(this1, "Item found", "One of your items was found!") }
@@ -221,11 +193,11 @@ class NFCScanViewModel : ViewModel() {
                 if(isAnonymous) firebaseAuth.signOut()
                 hasSentMessages
             }
-
         }
     }
 
     /**
+     * @use if item exists we notify owner, else we add item to user's item collection
      * @param isAnonymous
      * @param nfcText
      * @param firebaseAuth
@@ -237,23 +209,15 @@ class NFCScanViewModel : ViewModel() {
             val auth = firebaseAuth.signInAnonymously().await().user ?: return null
             UserRepository.addUserFromAccount(auth.uid, BrugSignInAccount("Anonymous","User","",""), false, firestore)
         }
-        val (userID, itemID) = nfcText.toString().split(":")
-        //val doc = await firestore.collection('collection_name').doc('doc_id').get();
+        val (userID, itemID) = nfcText.split(":")
         val item = ItemsRepository.getSingleItemFromIDs(userID, itemID)
-        if(item == null){
-            ItemsRepository.addItemToUser(MyItem("default item name",itemID.toInt(),"default description",false),userID,firestore)
-            return firebaseAuth.currentUser!!.uid + userID
+        return if(item == null){
+            ItemsRepository.addItemWithItemID(MyItem("default item name",itemID.toInt(),"default description",false),itemID,userID,firestore)
+            firebaseAuth.currentUser!!.uid + userID
         }else {
-            val response = ConvRepository.addNewConversation(
-                firebaseAuth.currentUser!!.uid,
-                userID,
-                "$userID:$itemID",
-                firestore
-            )
-            return if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
+            val response = ConvRepository.addNewConversation(firebaseAuth.currentUser!!.uid, userID, "$userID:$itemID", firestore)
+            if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
         }
-
-
     }
 
     /**
@@ -303,8 +267,8 @@ class NFCScanViewModel : ViewModel() {
             } else { // Launch the locationListener (updates every 1000 ms)
                 val locationGpsProvider = LocationManager.GPS_PROVIDER
                 locationManager.requestLocationUpdates(locationGpsProvider, 50, 0.1f) {
-                    sendLocationMessage(senderName, it, convID, authUID, firestore, firebaseAuth, firebaseStorage) }
-
+                    sendLocationMessage(senderName, it, convID, authUID, firestore, firebaseAuth, firebaseStorage)
+                }
                 // Stop the update as we only want it once (at least for now)
                 locationManager.removeUpdates {
                     sendLocationMessage(senderName, it, convID, authUID, firestore, firebaseAuth, firebaseStorage) } } }
