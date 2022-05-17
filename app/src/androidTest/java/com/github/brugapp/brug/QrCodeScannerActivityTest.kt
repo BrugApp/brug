@@ -73,6 +73,12 @@ class QrCodeScannerActivityTest {
     }
 
     @Test
+    fun canSeeHintWhenCameraIsClicked() {
+        onView(withId(R.id.edit_message))
+            .check(matches((withHint("Report item…"))))
+    }
+
+    @Test
     fun reportWithBadlyFormattedTextReturnsErrorToast() {
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("abc"))
