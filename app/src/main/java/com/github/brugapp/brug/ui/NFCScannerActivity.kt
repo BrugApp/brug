@@ -11,19 +11,30 @@ import android.nfc.Tag
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.view_model.NFCScanViewModel
+import com.github.brugapp.brug.view_model.QrCodeScanViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import java.io.IOException
+import javax.inject.Inject
 
+@AndroidEntryPoint
 open class NFCScannerActivity: AppCompatActivity() {
     private val Error_detected = "No NFC was found!"
     private val Write_success = "Text written successfully"
     private val Write_error = "Error occurred during writing, try again"
     private val viewModel: NFCScanViewModel by viewModels()
+    private val qrviewModel: QrCodeScanViewModel by viewModels()
     var writeMode: Boolean = false
     var tag: Tag? = null
     var adapter: NfcAdapter? = null
@@ -34,6 +45,15 @@ open class NFCScannerActivity: AppCompatActivity() {
     lateinit var nfcContents: TextView
     private lateinit var activateButton: Button
 
+    @Inject
+    lateinit var firestore: FirebaseFirestore
+
+    @Inject
+    lateinit var firebaseStorage: FirebaseStorage
+
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
+
     public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         context = this
         setContentView(R.layout.activity_nfc_scanner)
@@ -41,7 +61,6 @@ open class NFCScannerActivity: AppCompatActivity() {
         adapter = viewModel.setupAdapter(this)
         findViews() //maybe return early if false
         if (adapter==null){ Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
-
             //finish()
         }
         nfcIntent = viewModel.setupWritingTagFilters(this).first
@@ -53,7 +72,22 @@ open class NFCScannerActivity: AppCompatActivity() {
             }catch(e: Exception){ when(e){ is IOException, is FormatException ->{ Toast.makeText(this,Write_error,Toast.LENGTH_LONG).show()
                 e.printStackTrace() }
                 else -> throw e } }
-            viewModel.displayReportNotification(this) } }
+            viewModel.displayReportNotification(this)
+            val newcontext = this
+            liveData(Dispatchers.IO){
+                emit(viewModel.parseTextAndCreateConv(editMessage.text.toString(), newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
+                if(successState){
+                    Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
+                    val myIntent =
+                        if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java)
+                        else Intent(this, ChatMenuActivity::class.java)
+                    startActivity(myIntent)
+                } else {
+                    Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     fun findViews(): Boolean{
         //returns true iff all textviews & buttons are found
@@ -65,8 +99,8 @@ open class NFCScannerActivity: AppCompatActivity() {
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button
 
         return editMessage!=null && nfcContents!=null && activateButton!=null
-
     }
+
     public override fun onPause() {
         super.onPause()
         writeModeOff()
