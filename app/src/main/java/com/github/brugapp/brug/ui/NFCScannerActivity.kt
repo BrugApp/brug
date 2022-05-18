@@ -81,8 +81,9 @@ open class NFCScannerActivity: AppCompatActivity() {
                 else -> throw e } }
             viewModel.displayReportNotification(this)
             val newcontext = this
+            val fakeEditText = editMessage as EditText
             liveData(Dispatchers.IO){
-                emit(viewModel.parseTextAndCreateConv(editMessage.text.toString(), newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
+                emit(qrviewModel.parseTextAndCreateConv(fakeEditText.text, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
                 if(successState){
                     Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
                     val myIntent =
