@@ -1,53 +1,49 @@
 package com.github.brugapp.brug
 
 import android.app.Activity
-import android.app.PendingIntent.getActivity
 import android.content.Context
 import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
-import android.nfc.NfcAdapter.CreateNdefMessageCallback
-import android.nfc.NfcAdapter.getDefaultAdapter
 import android.os.Bundle
-import android.view.View
-import android.widget.Button
-import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.ViewInteraction
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
-import com.github.brugapp.brug.ui.ChatActivity
+import androidx.test.rule.ActivityTestRule
 import com.github.brugapp.brug.ui.NFCScannerActivity
 import com.github.brugapp.brug.view_model.NFCScanViewModel
-import com.google.protobuf.NullValue
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.`is`
-import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
-import org.mockito.Mockito.*
-import org.mockito.internal.matchers.Null
+import org.mockito.Mockito.mock
 
-
+@HiltAndroidTest
 class NFCScannerActivityTest {
     private val viewModel = NFCScanViewModel()
+
+    private val targetContext: Context = InstrumentationRegistry.getInstrumentation().targetContext
+
+    @get:Rule(order = 0)
+    var hiltRule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
+    var testRule = ActivityTestRule(NFCScannerActivity::class.java, false, false)
 
     @Before
     fun setUp(){
         Intents.init()
+        testRule.launchActivity(Intent(targetContext, NFCScannerActivity::class.java))
     }
 
     @After
@@ -134,15 +130,16 @@ class NFCScannerActivityTest {
 
         val record = viewModel.createRecord("hello")
         val ndefArray = arrayOf(NdefMessage(record))
-        val activity = mockActivity
-        val context =  InstrumentationRegistry.getInstrumentation().getContext();//mock(Context::class.java)
-        activity.context = context
+        val context = InstrumentationRegistry.getInstrumentation().context;//mock(Context::class.java)
+        mockActivity.context = context
         viewModel.checkNFCPermission(context)
         viewModel.setupTag()
         viewModel.checkIntentAction(intent)
         viewModel.rawMessageToMessage(intent)
         viewModel.initText(ndefArray)
-        assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))}
+        assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))
+    }
+
 
     @Test
     fun testEditMessage(){
@@ -173,5 +170,13 @@ class NFCScannerActivityTest {
             activateButton.perform(click())
             activateButton.check(matches(isDisplayed()))
         }
+    }
+
+    @Test
+    fun testNewIntent(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NFCScannerActivity::class.java)
+        testRule.activity.runOnUiThread { testRule.activity.onNewIntent(intent) }
+        testRule.activity.onNewIntent(intent)
     }
 }

@@ -39,11 +39,11 @@ class NFCScanViewModelTest {
     fun rawMessageToMessageTest() {
         val intent = Intent()
         val rawMessages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-        var messages: Array<NdefMessage> = arrayOf<NdefMessage>()
-        var bool: Boolean = false
+        var messages: Array<NdefMessage> = arrayOf()
+        var bool = false
             if (rawMessages!=null) {
-                messages = Array<NdefMessage>(rawMessages!!.size) { i -> rawMessages[i] as NdefMessage }
-                if(rawMessages!=null) bool=true
+                messages = Array(rawMessages.size) { i -> rawMessages[i] as NdefMessage }
+                bool=true
             } 
         assertThat(Pair(bool,messages),IsNot(IsNull.nullValue()))
     }
@@ -56,20 +56,19 @@ class NFCScanViewModelTest {
 
     @Test
     fun nullMsgInitTextTest(){
-        var bugtext: String = "null message error"
+        val bugtext = "null message error"
         assertThat(viewModel.initText(null),`is`(bugtext))
     }
 
     @Test
     fun emptyMsgInitTextTest(){
-        var messages: Array<NdefMessage> = emptyArray()
-        var text: String = "test"
+        val messages: Array<NdefMessage> = emptyArray()
         assertThat(viewModel.initText(messages),`is`(""))
     }
 
     @Test
     fun nonEmptyMsgInitTextTest(){
-        var mockMessages: Array<NdefMessage> = arrayOf(NdefMessage(arrayOf(NdefRecord.createUri("hello"))))
+        val mockMessages: Array<NdefMessage> = arrayOf(NdefMessage(arrayOf(NdefRecord.createUri("hello"))))
         val payload = mockMessages[0].records[0].payload
         val textEncoding = if((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
         val languageCodeLength = payload[0] and 63.toByte()
@@ -79,7 +78,7 @@ class NFCScanViewModelTest {
 
     @Test
     fun testRecordCreation(){
-        val activity: NFCScannerActivity = Mockito.mock(NFCScannerActivity::class.java)
+        Mockito.mock(NFCScannerActivity::class.java)
         val context = InstrumentationRegistry.getInstrumentation().context
         val record = viewModel.createRecord("hello")
         viewModel.checkNFCPermission(context)
