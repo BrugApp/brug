@@ -1,7 +1,6 @@
 package com.github.brugapp.brug.data
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
@@ -265,8 +264,6 @@ object ConvRepository {
                         convSnapshot["last_message_text"] as String
                     )
                 } else null
-
-            Log.e("CONVLASTMESSAGE", lastMessage?.body.toString())
 
             return Conversation(convID, userFields, item, lastMessage)
         } catch(e: Exception) {

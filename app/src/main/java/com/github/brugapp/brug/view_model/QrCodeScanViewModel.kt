@@ -161,7 +161,7 @@ class QrCodeScanViewModel : ViewModel() {
 
 
     @SuppressLint("MissingPermission")
-    suspend fun getLastLocation(context: Activity): LocationService? {
+    private suspend fun getLastLocation(context: Activity): LocationService? {
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         if (checkLocationPermissions(context)) {
             requestLocationPermissions(context)
@@ -182,34 +182,28 @@ class QrCodeScanViewModel : ViewModel() {
         authUID: String,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
-        firebaseStorage: FirebaseStorage): Boolean{
+        firebaseStorage: FirebaseStorage): Boolean {
 
-        val textMessage = TextMessage(
-            senderName,
-            DateService.fromLocalDateTime(LocalDateTime.now()),
-            "Hey ! I just found your item, I have sent you my location so that you know where it was."
-        )
+        val timestamp = DateService.fromLocalDateTime(LocalDateTime.now())
 
-        val response = MessageRepository.addMessageToConv(
-            textMessage, senderName, authUID, convID,
-            firestore, firebaseAuth, firebaseStorage
-        ).onSuccess
-
-        if(response){
-            val locationMessage = LocationMessage(
-                    senderName,
-                    DateService.fromLocalDateTime(LocalDateTime.now()),
+        return listOf(
+            TextMessage(
+                senderName,
+                timestamp,
+                "Hey ! I just found your item, I have sent you my location so that you know where it was."
+            ),
+            LocationMessage(
+                senderName,
+                timestamp,
                 "📍 Location",
-                    location
+                location
             )
-
-            return MessageRepository.addMessageToConv(
-                locationMessage, senderName, authUID, convID,
+        ).map { message ->
+            MessageRepository.addMessageToConv(
+                message, senderName, authUID, convID,
                 firestore, firebaseAuth, firebaseStorage
             ).onSuccess
-        }
-
-        return response
+        }.all { result -> result }
     }
 
     private fun requestLocationPermissions(context: Activity) {
@@ -239,6 +233,4 @@ class QrCodeScanViewModel : ViewModel() {
     fun releaseResources() {
         codeScanner.releaseResources()
     }
-
-
 }
