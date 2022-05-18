@@ -7,7 +7,7 @@ check_android_task:
     CC_TEST_REPORTER_ID: ENCRYPTED[!857be41d18fb18e2075930ad631d44da7bd45bc5e8dc8b76d7e849b42029770b2ec932e7bf0f2aa82ac0c709d83a61e3!]
     MAPBOX_DOWNLOADS_TOKEN: ENCRYPTED[!00c0062e8ea015ddf9c72087132f075c8f372f229d5b6e4a712077c8f6260d318a54cb0aea910716efc1d45afd07c77e!]
     GOOGLE_MAPS_API_KEY: ENCRYPTED[!1686d62ddc14b25975155359b8c8eda037b2f8e159f590c3993051181a686a0fefdd760f0fac2cb09336df10fe7cc01c!]
-    FCM_TOKEN: ENCRYPTED[!d1e78b53ea8f90c06b93e0a711df68e76b4dfeb825dc4ce17b4f0f7e19b10301a22b17d80122414a629fe6395c3a6110!]
+    FCM_TOKEN: ENCRYPTED[!4c606afed2cd106b59a712536a95a67aaf44624ea0bf82f9e79b067d32e2183c1498c181c404df7d41e2c2204109069f!]
     PRE_BUILD: "\ngradle.projectsEvaluated { preBuild.dependsOn('mapsApiKey'); preBuild.dependsOn('accessToken'); preBuild.dependsOn('fcmToken');}"
   container:
     image: reactivecircus/android-emulator-$API_LEVEL:latest
