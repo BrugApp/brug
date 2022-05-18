@@ -56,7 +56,6 @@ class SignInActivityButtonTest {
 
         onView(withId(R.id.demo_button)).perform(click())
 
-        //Thread.sleep(30000)
         Thread.sleep(2000)
         intended(
             allOf(
