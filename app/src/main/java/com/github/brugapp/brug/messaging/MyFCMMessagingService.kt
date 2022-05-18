@@ -10,6 +10,7 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.github.brugapp.brug.BuildConfig.FIREBASE_NOTIFICATION_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.ui.SignInActivity
@@ -145,7 +146,7 @@ class MyFCMMessagingService : FirebaseMessagingService() {
 
         @Throws(IOException::class)
         private fun postToFCM(bodyString: String?): String {
-            val serverKey = ""
+            val serverKey = FIREBASE_NOTIFICATION_KEY
             val body: RequestBody = bodyString.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
             val request: Request = Request.Builder()
                 .url(FCM_MESSAGE_URL)
