@@ -77,13 +77,17 @@ open class NFCScannerActivity: AppCompatActivity() {
             }catch(e: Exception){ when(e){ is IOException, is FormatException ->{ Toast.makeText(this,Write_error,Toast.LENGTH_LONG).show()
                 e.printStackTrace() }else -> throw e } }
             viewModel.displayReportNotification(this)
-            val newcontext = this
-            liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv((editMessage as EditText).text, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
-                if(successState){
-                    Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
-                    val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
-                    startActivity(myIntent)
-                } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show() } }
+            nfcLinks()
+    }
+        
+    fun nfcLinks() {
+        val newcontext = this
+        liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv((editMessage as EditText).text, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
+            if(successState){
+                Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
+                val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
+                startActivity(myIntent)
+            } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show() } }
     }
 
     /**
