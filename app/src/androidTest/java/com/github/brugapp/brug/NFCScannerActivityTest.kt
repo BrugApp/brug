@@ -171,4 +171,12 @@ class NFCScannerActivityTest {
             activateButton.check(matches(isDisplayed()))
         }
     }
+
+    @Test
+    fun testNewIntent(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NFCScannerActivity::class.java)
+        testRule.activity.runOnUiThread { testRule.activity.onNewIntent(intent) }
+        testRule.activity.onNewIntent(intent)
+    }
 }

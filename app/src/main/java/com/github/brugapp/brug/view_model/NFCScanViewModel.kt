@@ -122,23 +122,17 @@ class NFCScanViewModel : ViewModel() {
 
     @Throws(UnsupportedEncodingException::class)
     fun initText(messages: Array<NdefMessage>?): String {
-        val bugText : String = "null message error"
-        var text: String = ""
+        val bugText = "null message error"
+        val text = ""
         return when {
-            messages==null -> {
-                bugText
-            }
-            messages.isEmpty() -> {
-                text
-            }
+            messages==null -> { bugText }
+            messages.isEmpty() -> { text }
             else -> {
                 val payload = messages[0].records[0].payload
                 val textEncoding =
-                    if ((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8")
-                    else Charset.forName("UTF-16")
+                    if ((payload[0] and 128.toByte()).toInt() == 0) Charset.forName("UTF-8") else Charset.forName("UTF-16")
                 val languageCodeLength = payload[0] and 63.toByte()
-                text = String(payload, languageCodeLength + 1, payload.size - languageCodeLength - 1, textEncoding)
-                text
+                String(payload, languageCodeLength + 1, payload.size - languageCodeLength - 1, textEncoding)
             }
         }
     }
@@ -164,12 +158,11 @@ class NFCScanViewModel : ViewModel() {
         val langBytes = lang.toByteArray()
         val langLength = langBytes.size
         val textLength = textBytes.size
-        var payload: ByteArray = ByteArray(langLength+textLength+1)
+        val payload = ByteArray(langLength+textLength+1)
         payload[0] = langLength.toByte()
         System.arraycopy(langBytes, 0, payload, 1, langLength)
         System.arraycopy(textBytes, 0, payload, 1 + langLength, textLength)
         return NdefRecord(NdefRecord.TNF_WELL_KNOWN, NdefRecord.RTD_TEXT, byteArrayOf(), payload)
-
     }
 
     /**
@@ -177,5 +170,4 @@ class NFCScanViewModel : ViewModel() {
      * @param this1
      */
     fun displayReportNotification(this1: Context) { MyFCMMessagingService.sendNotification(this1, "Item found", "One of your items was found!") }
-
 }

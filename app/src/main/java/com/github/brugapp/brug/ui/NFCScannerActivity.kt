@@ -67,9 +67,7 @@ open class NFCScannerActivity: AppCompatActivity() {
         viewModel.checkNFCPermission(this)
         adapter = viewModel.setupAdapter(this)
         findViews() //maybe return early if false
-        if (adapter==null){ Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show()
-            //finish()
-        }
+        if (adapter==null) Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show() //if (adapter==null) finish()
         nfcIntent = viewModel.setupWritingTagFilters(this).first
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
         activateButton.setOnClickListener{
@@ -85,14 +83,11 @@ open class NFCScannerActivity: AppCompatActivity() {
                     Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
                     val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
                     startActivity(myIntent)
-                } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
-            }
-        }
+                } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show() } }
     }
 
     /**
      * abbreviates the onCreate method by finding buttons & textviews
-     *
      * @return true iff all textviews & buttons are found
      */
     fun findViews(): Boolean{
