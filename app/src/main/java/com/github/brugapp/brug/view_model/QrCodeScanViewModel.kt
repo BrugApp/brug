@@ -120,15 +120,14 @@ class QrCodeScanViewModel : ViewModel() {
         }
 
         val (userID, itemID) = qrText.toString().split(":")
-//        val convID = firebaseAuth.currentUser!!.uid + itemID
-        val response = ConvRepository.addNewConversation(
-            firebaseAuth.currentUser!!.uid,
-            userID,
-            "$userID:$itemID",
-            firestore
-        )
-
-        return if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
+        val item = ItemsRepository.getSingleItemFromIDs(userID, itemID)
+        return if(item == null){
+            ItemsRepository.addItemWithItemID(MyItem("default item name",itemID.toInt(),"default description",false),itemID,userID,firestore)
+            firebaseAuth.currentUser!!.uid + userID
+        }else {
+            val response = ConvRepository.addNewConversation(firebaseAuth.currentUser!!.uid, userID, "$userID:$itemID", firestore)
+            if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
+        }
     }
 
     private suspend fun sendMessages(senderID: String,
