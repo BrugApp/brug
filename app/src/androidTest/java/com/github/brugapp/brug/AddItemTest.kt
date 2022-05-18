@@ -60,7 +60,7 @@ class AddItemTest {
     private fun createUser(){
         runBlocking{
             if(firstTime) {
-                firebaseAuth.createUserWithEmailAndPassword("test@unlost.com", "123456").await()
+                firebaseAuth.createUserWithEmailAndPassword("addItem@unlost.com", "123456").await()
                 firstTime = false
             }
         }
@@ -68,7 +68,7 @@ class AddItemTest {
     private fun signInTestUser() {
         runBlocking {
             firebaseAuth.signInWithEmailAndPassword(
-                "test@unlost.com",
+                "addItem@unlost.com",
                 "123456").await()
         }
     }

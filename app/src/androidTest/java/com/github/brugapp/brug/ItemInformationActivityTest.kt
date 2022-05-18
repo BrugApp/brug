@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -19,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
@@ -34,8 +36,9 @@ private const val TOGGLE_SWITCH_ID: String = "$APP_PACKAGE_NAME:id/isLostSwitch"
 @RunWith(AndroidJUnit4::class)
 class ItemInformationActivityTest {
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val str = "no information yet"
     private val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        .setLastLocation(6.61,46.51)
+
 
     @get:Rule
     var rule = HiltAndroidRule(this)
@@ -61,17 +64,24 @@ class ItemInformationActivityTest {
 
     @Test
     fun noLocationAndOwnerAndDateYet() {
-        onView(withId(R.id.item_last_location)).check(matches(withText(str)))
-        onView(withId(R.id.item_owner)).check(matches(withText(str)))
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("abcd@efgh.com", "123456").await()
+            firebaseAuth.signInWithEmailAndPassword("abcd@efgh.com", "123456").await()
+        }
+        val ouchy = "Av. Emile-Henri-Jaques-Dalcroze 7, 1007 Lausanne, Switzerland"
+        onView(withId(R.id.item_last_location)).check(matches(withText(ouchy)))
+        onView(withId(R.id.item_last_location)).perform(click())
+        firebaseAuth.signOut()
     }
 
     @Test
     fun declaredItemAsLost() {
         runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("test@unlost.com", "123456").await()
             firebaseAuth.signInWithEmailAndPassword(
                 "test@unlost.com",
                 "123456"
-            )
+            ).await()
         }
         assertThat(
             item.isLost(),
@@ -85,3 +95,4 @@ class ItemInformationActivityTest {
         firebaseAuth.signOut()
     }
 }
+
