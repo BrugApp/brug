@@ -32,7 +32,7 @@ import org.mockito.Mockito.mock
 class NFCScannerActivityTest {
     private val viewModel = NFCScanViewModel()
 
-    val targetContext: Context = InstrumentationRegistry.getInstrumentation().targetContext
+    private val targetContext: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
     @get:Rule(order = 0)
     var hiltRule = HiltAndroidRule(this)
@@ -130,15 +130,15 @@ class NFCScannerActivityTest {
 
         val record = viewModel.createRecord("hello")
         val ndefArray = arrayOf(NdefMessage(record))
-        val activity = mockActivity
-        val context =  InstrumentationRegistry.getInstrumentation().getContext();//mock(Context::class.java)
-        activity.context = context
+        val context = InstrumentationRegistry.getInstrumentation().context;//mock(Context::class.java)
+        mockActivity.context = context
         viewModel.checkNFCPermission(context)
         viewModel.setupTag()
         viewModel.checkIntentAction(intent)
         viewModel.rawMessageToMessage(intent)
         viewModel.initText(ndefArray)
-        assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))}
+        assertThat(mockActivity.adapter, `is`(IsNull.nullValue()))
+    }
 
 
     @Test

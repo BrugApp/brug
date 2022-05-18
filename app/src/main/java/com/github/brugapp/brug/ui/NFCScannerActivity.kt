@@ -77,36 +77,31 @@ open class NFCScannerActivity: AppCompatActivity() {
             else{ viewModel.write(editMessage.text.toString(),tag!!)
                 Toast.makeText(this,Write_success,Toast.LENGTH_LONG).show() }
             }catch(e: Exception){ when(e){ is IOException, is FormatException ->{ Toast.makeText(this,Write_error,Toast.LENGTH_LONG).show()
-                e.printStackTrace() }
-                else -> throw e } }
+                e.printStackTrace() }else -> throw e } }
             viewModel.displayReportNotification(this)
             val newcontext = this
-            val fakeEditText = editMessage as EditText
-            liveData(Dispatchers.IO){
-                emit(qrviewModel.parseTextAndCreateConv(fakeEditText.text, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
+            liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv((editMessage as EditText).text, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
                 if(successState){
                     Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
-                    val myIntent =
-                        if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java)
-                        else Intent(this, ChatMenuActivity::class.java)
+                    val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
                     startActivity(myIntent)
-                } else {
-                    Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
-                }
+                } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
             }
         }
     }
 
+    /**
+     * abbreviates the onCreate method by finding buttons & textviews
+     *
+     * @return true iff all textviews & buttons are found
+     */
     fun findViews(): Boolean{
-        //returns true iff all textviews & buttons are found
-        //params: None
-        //use: abbreviates the onCreate method
 
         editMessage = findViewById<View>(R.id.edit_message) as TextView
         nfcContents = findViewById<View>(R.id.nfcContents) as TextView
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button
 
-        return editMessage!=null && nfcContents!=null && activateButton!=null
+        return ::editMessage.isInitialized && ::nfcContents.isInitialized && ::activateButton.isInitialized
     }
 
     public override fun onPause() {
@@ -119,8 +114,11 @@ open class NFCScannerActivity: AppCompatActivity() {
         writeModeOn()
     }
 
+    /**
+     * allows us to stop writing to NFC tag when app is paused
+     *
+     */
     fun writeModeOff(){
-        //allows us to stop writing to NFC tag when app is paused
 
         writeMode = true
 
@@ -130,8 +128,11 @@ open class NFCScannerActivity: AppCompatActivity() {
 
     }
 
+    /**
+     * allows us to write to NFC tag as long as app is started/resumed
+     *
+     */
     fun writeModeOn(){
-        //allows us to write to NFC tag as long as app is started/resumed
 
         if(adapter!=null) {
             adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null)
@@ -139,12 +140,15 @@ open class NFCScannerActivity: AppCompatActivity() {
 
     }
 
+    /**
+     * allows us to assign a tag for a corresponding intent
+     *
+     * @param intent
+     */
     public override fun onNewIntent(intent: Intent) {
-        //this allows us to assign a tag for a corresponding intent
-
         super.onNewIntent(intent)
         setIntent(intent)
-        viewModel.readFromIntent(nfcContents!!,intent)
+        viewModel.readFromIntent(nfcContents,intent)
         if ((ACTION_TAG_DISCOVERED) == intent.action){
             tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!!
         }
