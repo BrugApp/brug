@@ -16,6 +16,7 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.*
@@ -40,6 +41,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -76,14 +78,11 @@ class ChatActivity : AppCompatActivity() {
         val conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
         convID = conversation.convId
 
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         buttonSendTextMessage = findViewById(R.id.buttonSendMessage)
 
         initMessageList(conversation)
         initSendTextMessageButton()
-        initSendLocationButton(locationManager, fusedLocationClient)
+        initSendLocationButton(conversation)
         initSendImageCameraButton()
         initSendImageButton()
 
@@ -141,33 +140,28 @@ class ChatActivity : AppCompatActivity() {
             val adapter = viewModel.getAdapter()
             messageList.adapter = adapter
 
-        adapter.setOnItemClickListener(object : ChatMessagesListAdapter.onItemClickListener {
-            override fun onItemClick(position: Int) {
-                if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
-                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
-                ) {
-                    val message = adapter.getItem(position) as LocationMessage
-                    val lon = message.location.toAndroidLocation().longitude
-                    val lat = message.location.toAndroidLocation().latitude
-                    liveData(Dispatchers.IO) {
-                        conversation.lostItem.setLastLocation(lon, lat)
-                        emit(ItemsRepository.updateItemFields(conversation.lostItem, firebaseAuth.currentUser!!.uid, firestore))
-                    }.observe(this@ChatActivity){}
-                    val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
-                    myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
-                    myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
-                    startActivity(myIntent)
-                } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
-                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
-                ) {
-                    val myIntent = Intent(this@ChatActivity, FullScreenImage::class.java)
-                    val message = adapter.getItem(position) as PicMessage
-                    myIntent.putExtra("messageUrl", message.imgUrl)
-                    startActivity(myIntent)
+            adapter.setOnItemClickListener(object : ChatMessagesListAdapter.onItemClickListener {
+                override fun onItemClick(position: Int) {
+                    if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
+                        adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
+                    ) {
+                        val message = adapter.getItem(position) as LocationMessage
+                        val lon = message.location.toAndroidLocation().longitude
+                        val lat = message.location.toAndroidLocation().latitude
+                        val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
+                        myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
+                        myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
+                        startActivity(myIntent)
+                    } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
+                        adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
+                    ) {
+                        val myIntent = Intent(this@ChatActivity, FullScreenImage::class.java)
+                        val message = adapter.getItem(position) as PicMessage
+                        myIntent.putExtra("messageUrl", message.imgUrl)
+                        startActivity(myIntent)
+                    }
                 }
-            }
-        })
-//            scrollToBottom((adapter.itemCount) - 1)
+            })
         }
 
         inflateActionBar(
@@ -222,18 +216,13 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendLocationButton(
-        locationManager: LocationManager,
-        fusedLocationClient: FusedLocationProviderClient
-    ) {
+    private fun initSendLocationButton(conversation: Conversation) {
         val buttonSendLocationMsg = findViewById<ImageButton>(R.id.buttonSendLocalisation)
         buttonSendLocationMsg.setOnClickListener {
-            viewModel.requestLocation(
-                convID,
-                this,
-                fusedLocationClient,
-                locationManager, firestore, firebaseAuth, firebaseStorage
-            )
+            val activity = this
+            viewModel.viewModelScope.launch {
+                viewModel.sendLocationMessage(activity, conversation.convId, firestore, firebaseAuth, firebaseStorage)
+            }
         }
     }
 

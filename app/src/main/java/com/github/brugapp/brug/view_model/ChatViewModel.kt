@@ -38,6 +38,7 @@ import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.model.services.LocationService
 import com.github.brugapp.brug.ui.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -45,6 +46,7 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileDescriptor
@@ -73,22 +75,6 @@ class ChatViewModel : ViewModel() {
 
     fun initViewModel(messages: MutableList<Message>, activity: ChatActivity) {
         this.messages = messages
-
-        // initiate arguments values for location messages
-//        messages.map { message ->
-//            if(message is LocationMessage){
-//                val url = getUrlForLocation(activity, message.location.toAndroidLocation())
-//                liveData(Dispatchers.IO) {
-//                    emit(loadImageFromUrl(message.timestamp, url))
-//                }.observe(activity){ mapImgUri ->
-//                    if(message.getImageUri().value == null){
-//                        message.setImageUri(mapImgUri)
-//                    }
-//                }
-//            }
-//            message
-//        }
-
         this.adapter = ChatMessagesListAdapter(this, messages)
     }
 
@@ -127,18 +113,20 @@ class ChatViewModel : ViewModel() {
             ).show()
         } else {
             viewModelScope.launch {
-                val response = MessageRepository.addMessageToConv(
-                    message,
-                    firebaseAuth.currentUser!!.displayName!!,
-                    firebaseAuth.uid!!,
-                    convID,
-                    firestore,
-                    firebaseAuth,
-                    firebaseStorage
-                )
+                val error = if(firebaseAuth.currentUser!!.displayName != null){
+                    MessageRepository.addMessageToConv(
+                        message,
+                        firebaseAuth.currentUser!!.displayName!!,
+                        firebaseAuth.uid!!,
+                        convID,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    ).onError
+                } else Exception("ERROR: The user name isn't available, aborting.")
 
-                if(response.onError != null){
-                    Log.e("FIREBASE ERROR", response.onError!!.message.toString())
+                if(error != null){
+                    Log.e("FIREBASE ERROR", error.message.toString())
                     Snackbar.make(
                         activity.findViewById(android.R.id.content),
                         "ERROR: Unable to register the new message in the database",
@@ -150,9 +138,8 @@ class ChatViewModel : ViewModel() {
     }
 
     // LOCATION RELATED
-    private fun sendLocationMessage(
+    suspend fun sendLocationMessage(
         activity: ChatActivity,
-        location: Location,
         convID: String,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
@@ -161,15 +148,17 @@ class ChatViewModel : ViewModel() {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val strMsg = textBox.text.toString().ifBlank { "📍 Location" }
         val timestamp = DateService.fromLocalDateTime(LocalDateTime.now())
+
+        val location = getLocation(activity)
         val newMessage = LocationMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             strMsg,
-            LocationService.fromAndroidLocation(location)
+            location
         )
 
         // Get image from API or create stub one
-        val url = getUrlForLocation(activity, location)
+        val url = getUrlForLocation(activity, location.toAndroidLocation())
         liveData(Dispatchers.IO) {
             emit(loadImageFromUrl(timestamp, url))
         }.observe(activity) { mapImgUri ->
@@ -211,7 +200,6 @@ class ChatViewModel : ViewModel() {
     ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val strMsg = textBox.text.toString().ifBlank { "📷 Image" }
-        //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -288,67 +276,13 @@ class ChatViewModel : ViewModel() {
     }
 
     @SuppressLint("MissingPermission")
-    fun requestLocation(
-        convID: String,
-        activity: ChatActivity,
-        fusedLocationClient: FusedLocationProviderClient,
-        locationManager: LocationManager,
-        firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth,
-        firebaseStorage: FirebaseStorage
-    ) {
-        if (ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+    suspend fun getLocation(activity: ChatActivity): LocationService {
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
+        if(!checkLocationPermissions(activity)){
             requestLocationPermissions(activity)
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
-            if (lastKnownLocation != null) {
-                sendLocationMessage(
-                    activity,
-                    lastKnownLocation,
-                    convID,
-                    firestore,
-                    firebaseAuth,
-                    firebaseStorage
-                )
-            } else {
-                // Launch the locationListener (updates every 1000 ms)
-                val locationGpsProvider = LocationManager.GPS_PROVIDER
-                locationManager.requestLocationUpdates(
-                    locationGpsProvider,
-                    50,
-                    0.1f
-                ) {
-                    sendLocationMessage(
-                        activity,
-                        it,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
-
-                // Stop the update as we only want it once (at least for now)
-                locationManager.removeUpdates {
-                    sendLocationMessage(
-                        activity,
-                        it,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
-            }
-        }
+        return LocationService.fromAndroidLocation(fusedLocationClient.lastLocation.await())
     }
 
     fun setupRecording(activity: ChatActivity) {
@@ -443,6 +377,17 @@ class ChatViewModel : ViewModel() {
             Array(1) { Manifest.permission.WRITE_EXTERNAL_STORAGE },
             STORAGE_REQUEST_CODE
         )
+    }
+
+    private fun checkLocationPermissions(context: Activity): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) != PackageManager.PERMISSION_GRANTED
+
     }
 
     private fun requestLocationPermissions(activity: Activity) {

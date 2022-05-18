@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.view_model
 
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
@@ -39,6 +40,7 @@ class ChatMenuViewModel : ViewModel() {
             swipePair,
             listAdapterPair
         ) { delConv, position ->
+            Log.e("CONVDELETECHECK", delConv.lastMessage?.body.toString())
             if(!isTest){
                 viewModelScope.launch {
                     val result = ConvRepository.deleteConversationFromID(
@@ -52,6 +54,7 @@ class ChatMenuViewModel : ViewModel() {
                     }
                 }
             }
+
             listAdapterPair.first.removeAt(position)
             listAdapterPair.second.notifyItemRemoved(position)
             BrugDataCache.deleteCachedMessageList(delConv.convId)
@@ -62,11 +65,14 @@ class ChatMenuViewModel : ViewModel() {
                 Snackbar.LENGTH_LONG
             ).setAction("Undo") {
                 if(!isTest) {
+                    val lastMessage = delConv.lastMessage
+                    Log.e("CONVUNDOCHECK", lastMessage?.body.toString())
                     viewModelScope.launch {
+                        val itemID = "${delConv.userFields.uid}:${delConv.lostItem.getItemID()}"
                         val result = ConvRepository.addNewConversation(
                             firebaseAuth.currentUser!!.uid,
                             delConv.userFields.uid,
-                            delConv.lostItem.getItemID(),
+                            itemID,
                             delConv.lastMessage,
                             firestore
                         ).onSuccess

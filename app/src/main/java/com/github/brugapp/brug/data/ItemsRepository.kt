@@ -4,6 +4,7 @@ package com.github.brugapp.brug.data
 import android.util.Log
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
@@ -41,17 +42,52 @@ object ItemsRepository {
                 return response
             }
 
-            userRef.collection(ITEMS_DB).add(
-                mapOf(
-                    "item_name" to item.itemName,
-                    "item_type" to item.itemTypeID,
-                    "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost(),
-                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
-                )
-            ).await()
+            val map = mutableMapOf<String, Any>(
+                "item_name" to item.itemName,
+                "item_type" to item.itemTypeID,
+                "item_description" to item.itemDesc,
+                "is_lost" to item.isLost(),
+            )
+            if(item.getLastLocation() != null){
+                map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
+            }
+
+            userRef.collection(ITEMS_DB).add(map).await()
 
             response.onSuccess = true
+        } catch (e: Exception) {
+            response.onError = e
+        }
+
+        return response
+    }
+
+    suspend fun addLastLocation(
+        uid: String,
+        itemID: String,
+        lastLocation: LocationService,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse {
+        val response = FirebaseResponse()
+        try {
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            if (!userRef.get().await().exists()) {
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            val itemRef = userRef.collection(ITEMS_DB).document(itemID)
+            if (!itemRef.get().await().exists()) {
+                response.onError = Exception("Item doesn't exist")
+                return response
+            }
+
+            itemRef.update(mapOf(
+                "last_location" to lastLocation.toFirebaseGeoPoint()
+            )).await()
+
+            response.onSuccess = true
+
         } catch (e: Exception) {
             response.onError = e
         }
@@ -86,15 +122,17 @@ object ItemsRepository {
                 return response
             }
 
-            itemRef.update(
-                mapOf(
-                    "item_name" to item.itemName,
-                    "item_type" to item.itemTypeID,
-                    "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost(),
-                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
-                )
-            ).await()
+            val map = mutableMapOf<String, Any>(
+                "item_name" to item.itemName,
+                "item_type" to item.itemTypeID,
+                "item_description" to item.itemDesc,
+                "is_lost" to item.isLost(),
+            )
+            if(item.getLastLocation() != null){
+                map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
+            }
+
+            itemRef.update(map).await()
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -157,15 +195,17 @@ object ItemsRepository {
                 return response
             }
 
-            userRef.collection(ITEMS_DB).document(itemID).set(
-                mapOf(
-                    "item_name" to item.itemName,
-                    "item_type" to item.itemTypeID,
-                    "item_description" to item.itemDesc,
-                    "is_lost" to item.isLost(),
-                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
-                )
-            ).await()
+            val map = mutableMapOf<String, Any>(
+                "item_name" to item.itemName,
+                "item_type" to item.itemTypeID,
+                "item_description" to item.itemDesc,
+                "is_lost" to item.isLost(),
+            )
+            if(item.getLastLocation() != null){
+                map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
+            }
+
+            userRef.collection(ITEMS_DB).document(itemID).set(map).await()
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -260,7 +300,6 @@ object ItemsRepository {
                 || !itemDoc.contains("item_type")
                 || !itemDoc.contains("item_description")
                 || !itemDoc.contains("is_lost")
-                || !itemDoc.contains("last_location")
             ) {
                 Log.e("FIREBASE ERROR", "Invalid Item Format")
                 return null
@@ -273,8 +312,8 @@ object ItemsRepository {
                 itemDoc["is_lost"] as Boolean
             )
             item.setItemID(itemDoc.id)
-            val location = itemDoc["last_location"] as GeoPoint?
-            if (location != null){
+            if(itemDoc.contains("last_location")){
+                val location = itemDoc["last_location"] as GeoPoint
                 item.setLastLocation(location.longitude, location.latitude)
             }
             return item

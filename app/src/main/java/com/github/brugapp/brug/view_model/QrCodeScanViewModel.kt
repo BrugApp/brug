@@ -5,8 +5,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationManager
 import android.text.Editable
 import android.util.Log
 import android.widget.EditText
@@ -19,7 +17,6 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -28,7 +25,6 @@ import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 
@@ -87,8 +83,8 @@ class QrCodeScanViewModel : ViewModel() {
                 if(isAnonymous) firebaseAuth.signOut()
                 false
             } else {
-                val hasSentMessages = sendMessages(
-                    firebaseAuth.currentUser!!.uid,
+                val hasSentMessages = sendMessagesAndUpdateLastLocation(
+                    qrText.toString(),
                     convID,
                     isAnonymous,
                     context,
@@ -98,7 +94,6 @@ class QrCodeScanViewModel : ViewModel() {
                 if(isAnonymous) firebaseAuth.signOut()
                 hasSentMessages
             }
-
         }
     }
 
@@ -116,12 +111,11 @@ class QrCodeScanViewModel : ViewModel() {
             )
         }
 
-        val (userID, itemID) = qrText.toString().split(":")
-//        val convID = firebaseAuth.currentUser!!.uid + itemID
+        val userID = qrText.toString().split(":")[0]
         val response = ConvRepository.addNewConversation(
             firebaseAuth.currentUser!!.uid,
             userID,
-            "$userID:$itemID",
+            qrText.toString(),
             null,
             firestore
         )
@@ -129,114 +123,93 @@ class QrCodeScanViewModel : ViewModel() {
         return if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
     }
 
-    private suspend fun sendMessages(senderID: String,
-                                     convID: String,
-                                     isAnonymous: Boolean,
-                                     context: Activity,
-                                     firestore: FirebaseFirestore,
-                                     firebaseAuth: FirebaseAuth,
-                                     firebaseStorage: FirebaseStorage): Boolean {
-        val senderName = if(isAnonymous) "Anonymous User" else firebaseAuth.currentUser!!.displayName!!
+    private suspend fun sendMessagesAndUpdateLastLocation(
+        itemID: String,
+        convID: String,
+        isAnonymous: Boolean,
+        context: Activity,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ): Boolean {
+        val senderName = if (isAnonymous) "Anonymous User" else firebaseAuth.currentUser!!.displayName!!
 
-        // Getting the location and sending the message
-        requestLocationPermissions(context)
-        getLocationAndSendMessage(
+        // Getting the location
+        val lastLocation = getLastLocation(context) ?: return false
+
+        // Sending the messages
+        val messagesResponse = sendMessages(
             senderName,
+            lastLocation,
             convID,
-            firebaseAuth.currentUser!!.uid,
-            context,
+            firebaseAuth.uid!!,
             firestore,
             firebaseAuth,
             firebaseStorage
         )
+        if (!messagesResponse) return false
 
-        // Creating and sending the text message
+        // Updating the last item location
+        val (userID, associatedItemID) = itemID.split(":")
+        return ItemsRepository.addLastLocation(
+            userID,
+            associatedItemID,
+            lastLocation,
+            firestore
+        ).onSuccess
+    }
+
+
+    @SuppressLint("MissingPermission")
+    suspend fun getLastLocation(context: Activity): LocationService? {
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+        if (checkLocationPermissions(context)) {
+            requestLocationPermissions(context)
+        }
+
+        return try {
+            LocationService.fromAndroidLocation(fusedLocationClient.lastLocation.await())
+        } catch (e: Exception) {
+            Log.e("LOCATION ERROR", "Unable to fetch the last location")
+            null
+        }
+    }
+
+    private suspend fun sendMessages(
+        senderName: String,
+        location: LocationService,
+        convID: String,
+        authUID: String,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage): Boolean{
+
         val textMessage = TextMessage(
             senderName,
             DateService.fromLocalDateTime(LocalDateTime.now()),
             "Hey ! I just found your item, I have sent you my location so that you know where it was."
         )
 
-        return MessageRepository.addMessageToConv(
-            textMessage,
-            senderName,
-            senderID,
-            convID,
-            firestore,
-            firebaseAuth,
-            firebaseStorage
+        val response = MessageRepository.addMessageToConv(
+            textMessage, senderName, authUID, convID,
+            firestore, firebaseAuth, firebaseStorage
         ).onSuccess
-    }
 
-    private suspend fun getItemForNewConversation(userID: String, itemID: String): Item? {
-        return ItemsRepository.getSingleItemFromIDs(
-            userID,
-            itemID
-        )
-    }
-
-
-    @SuppressLint("MissingPermission")
-    fun getLocationAndSendMessage(
-        senderName: String,
-        convID: String,
-        authUID: String,
-        context: Activity,
-        firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth,
-        firebaseStorage: FirebaseStorage
-    ) {
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-        if (checkLocationPermissions(context)) {
-            requestLocationPermissions(context)
-        }
-
-        fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
-            if (lastKnownLocation != null) {
-                sendLocationMessage(senderName, lastKnownLocation, convID, authUID, firestore, firebaseAuth, firebaseStorage)
-            } else {
-                // Launch the locationListener (updates every 1000 ms)
-                val locationGpsProvider = LocationManager.GPS_PROVIDER
-                locationManager.requestLocationUpdates(
-                    locationGpsProvider, 50, 0.1f
-                ) {
-                    sendLocationMessage(senderName, it, convID, authUID, firestore, firebaseAuth, firebaseStorage)
-                }
-
-                // Stop the update as we only want it once (at least for now)
-                locationManager.removeUpdates {
-                    sendLocationMessage(senderName, it, convID, authUID, firestore, firebaseAuth, firebaseStorage)
-                }
-            }
-        }
-    }
-
-    private fun sendLocationMessage(senderName: String,
-                                    location: Location,
-                                    convID: String,
-                                    authUID: String,
-                                    firestore: FirebaseFirestore,
-                                    firebaseAuth: FirebaseAuth,
-                                    firebaseStorage: FirebaseStorage){
-        val locationMessage = LocationMessage(
-                senderName,
-                DateService.fromLocalDateTime(LocalDateTime.now()),
-                "",
-                LocationService.fromAndroidLocation(location)
+        if(response){
+            val locationMessage = LocationMessage(
+                    senderName,
+                    DateService.fromLocalDateTime(LocalDateTime.now()),
+                "📍 Location",
+                    location
             )
 
-        runBlocking {
-            MessageRepository.addMessageToConv(
-                locationMessage,
-                senderName,
-                authUID,
-                convID,
-                firestore,
-                firebaseAuth,
-                firebaseStorage
-            )
+            return MessageRepository.addMessageToConv(
+                locationMessage, senderName, authUID, convID,
+                firestore, firebaseAuth, firebaseStorage
+            ).onSuccess
         }
+
+        return response
     }
 
     private fun requestLocationPermissions(context: Activity) {

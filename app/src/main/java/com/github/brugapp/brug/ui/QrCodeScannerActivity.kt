@@ -33,7 +33,6 @@ class QrCodeScannerActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_code_scanner)
@@ -78,13 +77,6 @@ class QrCodeScannerActivity : AppCompatActivity() {
     override fun onPause() {
         viewModel.releaseResources()
         super.onPause()
-    }
-
-    private fun displayReportNotification() {
-        MyFCMMessagingService.sendNotification(
-            this, "Item found",
-            "One of your Items was found !"
-        )
     }
 
 }

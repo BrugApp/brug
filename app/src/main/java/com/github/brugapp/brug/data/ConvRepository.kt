@@ -266,6 +266,8 @@ object ConvRepository {
                     )
                 } else null
 
+            Log.e("CONVLASTMESSAGE", lastMessage?.body.toString())
+
             return Conversation(convID, userFields, item, lastMessage)
         } catch(e: Exception) {
             Log.e("FIREBASE ERROR", e.message.toString())

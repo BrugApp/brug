@@ -219,11 +219,12 @@ class ItemRepoTest {
         ITEM.setItemID(ITEM_ID)
         ITEM.setLastLocation(0.0, 0.0)
         val response = ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
-        val list = ItemsRepository.getUserItemsFromUID(DUMMY_UID,firestore)
+        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID,firestore)
+        delay(2000)
 
         assertThat(response.onSuccess, IsEqual(true))
-        assertThat(list.isNullOrEmpty(), IsEqual(false))
-        assertThat(list!!.contains(ITEM), IsEqual(true))
+        assertThat(BrugDataCache.getCachedItems().value.isNullOrEmpty(), IsEqual(false))
+        assertThat(BrugDataCache.getCachedItems().value!!.contains(ITEM), IsEqual(true))
     }
 
     @Test
@@ -231,12 +232,13 @@ class ItemRepoTest {
         ITEM.setItemID(ITEM_ID)
         ITEM.setLastLocation(0.0, 0.0)
         ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
-        val updatedItem = MyItem("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.updateItemFields(updatedItem, DUMMY_UID,firestore).onSuccess, IsEqual(true))
-        val items = ItemsRepository.getUserItemsFromUID(DUMMY_UID,firestore)
+        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID,firestore)
+        delay(2000)
 
-        assertThat(items.isNullOrEmpty(), IsEqual(false))
-        assertThat(items!!.contains(updatedItem), IsEqual(true))
+        assertThat(BrugDataCache.getCachedItems().value.isNullOrEmpty(), IsEqual(false))
+        assertThat(BrugDataCache.getCachedItems().value!!.contains(updatedItem), IsEqual(true))
     }
 }
