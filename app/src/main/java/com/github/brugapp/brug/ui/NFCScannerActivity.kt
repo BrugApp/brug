@@ -70,14 +70,25 @@ open class NFCScannerActivity: AppCompatActivity() {
         if (adapter==null) Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show() //if (adapter==null) finish()
         nfcIntent = viewModel.setupWritingTagFilters(this).first
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
-        activateButton.setOnClickListener{
-            try{ if(tag==null) Toast.makeText(this,Error_detected,Toast.LENGTH_LONG).show()
-            else{ viewModel.write(editMessage.text.toString(),tag!!)
-                Toast.makeText(this,Write_success,Toast.LENGTH_LONG).show() }
-            }catch(e: Exception){ when(e){ is IOException, is FormatException ->{ Toast.makeText(this,Write_error,Toast.LENGTH_LONG).show()
-                e.printStackTrace() }else -> throw e } }
+        activateButton.setOnClickListener {
+            try {
+                if (tag == null) Toast.makeText(this, Error_detected, Toast.LENGTH_LONG).show()
+                else {
+                    viewModel.write(editMessage.text.toString(), tag!!)
+                    Toast.makeText(this, Write_success, Toast.LENGTH_LONG).show()
+                }
+            } catch (e: Exception) {
+                when (e) {
+                    is IOException, is FormatException -> {
+                        Toast.makeText(this, Write_error, Toast.LENGTH_LONG).show()
+                        e.printStackTrace()
+                    }
+                    else -> throw e
+                }
+            }
             viewModel.displayReportNotification(this)
             nfcLinks()
+        }
     }
         
     fun nfcLinks() {
@@ -87,7 +98,7 @@ open class NFCScannerActivity: AppCompatActivity() {
                 Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
                 val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
                 startActivity(myIntent)
-            } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show() } }
+            } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show() }
     }
 
     /**
