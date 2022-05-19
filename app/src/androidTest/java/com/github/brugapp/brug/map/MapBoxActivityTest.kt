@@ -6,7 +6,6 @@ import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
@@ -14,6 +13,7 @@ import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
@@ -23,13 +23,10 @@ import com.github.brugapp.brug.helpers.EspressoHelper
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
-import com.mapbox.maps.MapView
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
-import org.hamcrest.Matcher
-import org.hamcrest.Matchers
 import org.hamcrest.Matchers.*
 import org.junit.*
 
@@ -60,6 +57,14 @@ class MapBoxActivityTest {
 
     @get:Rule
     var rule = HiltAndroidRule(this)
+
+    @get:Rule
+    val coarseLocationPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+    @get:Rule
+    val fineLocationPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     private val firebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore = FirebaseFakeHelper().providesFirestore()
@@ -115,7 +120,7 @@ class MapBoxActivityTest {
         Intents.release()
     }
 
-    @Test(expected = androidx.test.espresso.NoMatchingViewException::class)
+    @Test
     fun clickOnRandomPositionDoesNotOpenViewAnnotation() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, MapBoxActivity::class.java).apply {
@@ -126,7 +131,7 @@ class MapBoxActivityTest {
             Thread.sleep(5000)
             EspressoHelper.clickIn(10,10)
             // if view annotation is not displayed, this will throw an exception
-            Espresso.onView(withId(R.id.driveButton)).perform(click())
+            Espresso.onView(withId(R.id.driveButton)).check(matches(not(isDisplayed())))
         }
     }
 
@@ -156,7 +161,7 @@ class MapBoxActivityTest {
         }
         ActivityScenario.launch<Activity>(intent).use{
             Thread.sleep(5000)
-            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(1))
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(5000)
 
