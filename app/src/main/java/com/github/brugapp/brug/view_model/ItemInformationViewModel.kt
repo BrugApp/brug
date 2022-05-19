@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.runBlocking
 
 class ItemInformationViewModel : ViewModel() {
 
@@ -21,7 +20,7 @@ class ItemInformationViewModel : ViewModel() {
         hash["image"] = item.getRelatedIcon().toString()
         hash["lastLocation"] = getLocationName(item.getLastLocation(),geocoder)
         hash["description"] = item.itemDesc
-        hash["isLost"] = item.isLost().toString()
+        hash["isLost"] = item.isFound().toString()
         return hash
     }
 

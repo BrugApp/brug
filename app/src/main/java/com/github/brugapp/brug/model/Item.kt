@@ -8,7 +8,7 @@ class Item(
     val itemName: String,
     val itemTypeID: Int,
     val itemDesc: String,
-    private var isLost: Boolean
+    private var isFound: Boolean
 ) : Serializable {
 
     /* ITEM ID */
@@ -42,12 +42,12 @@ class Item(
     }
 
     /* ITEM STATE */
-    fun isLost(): Boolean {
-        return this.isLost
+    fun isFound(): Boolean {
+        return this.isFound
     }
 
     fun changeLostStatus(newStatus: Boolean) {
-        this.isLost = newStatus
+        this.isFound = newStatus
     }
 
     override fun equals(other: Any?): Boolean {
@@ -56,7 +56,7 @@ class Item(
                 && this.itemName == otherItem.itemName
                 && this.itemTypeID == otherItem.itemTypeID
                 && this.itemDesc == otherItem.itemDesc
-                && this.isLost == otherItem.isLost
+                && this.isFound == otherItem.isFound
     }
 
     override fun hashCode(): Int {
@@ -64,7 +64,7 @@ class Item(
         result = 31 * result + itemName.hashCode()
         result = 31 * result + itemTypeID
         result = 31 * result + itemDesc.hashCode()
-        result = 31 * result + isLost.hashCode()
+        result = 31 * result + isFound.hashCode()
         return result
     }
 

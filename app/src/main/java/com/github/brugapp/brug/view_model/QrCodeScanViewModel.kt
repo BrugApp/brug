@@ -86,28 +86,32 @@ class QrCodeScanViewModel : ViewModel() {
         if(qrText.isBlank() || !qrText.contains(":")){
             return false
         } else {
-            val isAnonymous = firebaseAuth.currentUser == null
-            val convID = createNewConversation(isAnonymous, qrText, firebaseAuth, firestore)
-            return if (convID == null) {
-                if(isAnonymous) firebaseAuth.signOut()
-                false
+            val (userID, itemID) = qrText.toString().split(":")
+            if(!ItemsRepository.setItemToFound(userID, itemID, firestore).onSuccess){
+                return false
             } else {
-                val senderName = if(isAnonymous) "Anonymous User" else "Me"
-                getLocationAndNotifyUser(
-                    senderName,
-                    convID,
-                    firebaseAuth.uid!!,
-                    context,
-                    qrText.toString(),
-                    firestore,
-                    firebaseAuth,
-                    firebaseStorage
-                )
+                val isAnonymous = firebaseAuth.currentUser == null
+                val convID = createNewConversation(isAnonymous, qrText, firebaseAuth, firestore)
+                return if (convID == null) {
+                    if (isAnonymous) firebaseAuth.signOut()
+                    false
+                } else {
+                    val senderName = if (isAnonymous) "Anonymous User" else "Me"
+                    getLocationAndNotifyUser(
+                        senderName,
+                        convID,
+                        firebaseAuth.uid!!,
+                        context,
+                        qrText.toString(),
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    )
 
-                if(isAnonymous) firebaseAuth.signOut()
-                true
+                    if (isAnonymous) firebaseAuth.signOut()
+                    true
+                }
             }
-
         }
     }
 

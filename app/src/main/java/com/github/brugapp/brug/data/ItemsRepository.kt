@@ -46,7 +46,7 @@ object ItemsRepository {
                 "item_name" to item.itemName,
                 "item_type" to item.itemTypeID,
                 "item_description" to item.itemDesc,
-                "is_lost" to item.isLost(),
+                "is_found" to item.isFound(),
             )
             if(item.getLastLocation() != null){
                 map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
@@ -95,6 +95,44 @@ object ItemsRepository {
         return response
     }
 
+    suspend fun setItemToFound(
+        uid: String,
+        itemID: String,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse {
+
+        val response = FirebaseResponse()
+        try {
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            if (!userRef.get().await().exists()) {
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            val itemRef = userRef.collection(ITEMS_DB).document(itemID)
+            val itemDoc = itemRef.get().await()
+            if (!itemDoc.exists()) {
+                response.onError = Exception("Item doesn't exist")
+                return response
+            } else if (itemDoc["is_found"] as Boolean){
+                response.onError = Exception("Item has already been found")
+                Log.e("ITEM FOUND ERROR", response.onError?.message.toString())
+                return response
+            }
+
+            itemRef.update(mapOf(
+                "is_found" to true
+            )).await()
+
+            response.onSuccess = true
+
+        } catch (e: Exception) {
+            response.onError = e
+        }
+
+        return response
+    }
+
     /**
      * Updates the fields of a given item in Firebase. To call after its fields were updated in local.
      *
@@ -126,7 +164,7 @@ object ItemsRepository {
                 "item_name" to item.itemName,
                 "item_type" to item.itemTypeID,
                 "item_description" to item.itemDesc,
-                "is_lost" to item.isLost(),
+                "is_found" to item.isFound(),
             )
             if(item.getLastLocation() != null){
                 map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
@@ -199,7 +237,7 @@ object ItemsRepository {
                 "item_name" to item.itemName,
                 "item_type" to item.itemTypeID,
                 "item_description" to item.itemDesc,
-                "is_lost" to item.isLost(),
+                "is_found" to item.isFound(),
             )
             if(item.getLastLocation() != null){
                 map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
@@ -299,7 +337,7 @@ object ItemsRepository {
             if (!itemDoc.contains("item_name")
                 || !itemDoc.contains("item_type")
                 || !itemDoc.contains("item_description")
-                || !itemDoc.contains("is_lost")
+                || !itemDoc.contains("is_found")
             ) {
                 Log.e("FIREBASE ERROR", "Invalid Item Format")
                 return null
@@ -309,7 +347,7 @@ object ItemsRepository {
                 itemDoc["item_name"] as String,
                 (itemDoc["item_type"] as Long).toInt(),
                 itemDoc["item_description"] as String,
-                itemDoc["is_lost"] as Boolean
+                itemDoc["is_found"] as Boolean
             )
             item.setItemID(itemDoc.id)
             if(itemDoc.contains("last_location")){

@@ -8,9 +8,7 @@ import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.services.LocationService
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
@@ -110,7 +108,7 @@ class ItemsRepositoryTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isFound())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.updateItemFields(
             updatedItem,
@@ -127,7 +125,7 @@ class ItemsRepositoryTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isFound())
         updatedItem.setItemID("WRONGITEMID")
         assertThat(ItemsRepository.updateItemFields(
             updatedItem,
@@ -145,7 +143,7 @@ class ItemsRepositoryTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isFound())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.updateItemFields(
             updatedItem,
@@ -169,7 +167,7 @@ class ItemsRepositoryTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, ITEM.isFound())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.addLastLocation(
             "WRONG_UID",
@@ -187,7 +185,7 @@ class ItemsRepositoryTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, ITEM.isFound())
         updatedItem.setItemID("WRONGITEMID")
         assertThat(ItemsRepository.addLastLocation(
             DUMMY_UID,
@@ -207,7 +205,7 @@ class ItemsRepositoryTest {
             DUMMY_UID,
             firestore
         )
-        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, ITEM.isFound())
         updatedItem.setItemID(ITEM_ID)
         updatedItem.setLastLocation(location.getLongitude(), location.getLatitude())
         assertThat(ItemsRepository.addLastLocation(
@@ -225,6 +223,68 @@ class ItemsRepositoryTest {
         val itemPosInList = BrugDataCache.getCachedItems().value!!.indexOf(updatedItem)
         assertThat(BrugDataCache.getCachedItems().value!!.get(itemPosInList).getLastLocation(), IsEqual(location))
     }
+
+    @Test
+    fun setFoundToItemOfNonExistentUserReturnsError() = runBlocking {
+        ItemsRepository.addItemWithItemID(
+            ITEM,
+            ITEM_ID,
+            DUMMY_UID,
+            firestore
+        )
+        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, ITEM.isFound())
+        updatedItem.setItemID(ITEM_ID)
+        assertThat(ItemsRepository.setItemToFound(
+            "WRONG_UID",
+            updatedItem.getItemID(),
+            firestore
+        ).onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun setFoundToNonExistentItemReturnsError() = runBlocking {
+        ItemsRepository.addItemWithItemID(
+            ITEM,
+            ITEM_ID,
+            DUMMY_UID,
+            firestore
+        )
+        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, ITEM.isFound())
+        updatedItem.setItemID("WRONGITEMID")
+        assertThat(ItemsRepository.setItemToFound(
+            DUMMY_UID,
+            updatedItem.getItemID(),
+            firestore
+        ).onError, IsNot(IsNull.nullValue()))
+    }
+
+    @Test
+    fun setFoundToExistingItemReturnsSuccessfully() = runBlocking {
+        val location = LocationService(10.2, 11.4)
+        ITEM.setItemID(ITEM_ID)
+        ItemsRepository.addItemWithItemID(
+            ITEM,
+            ITEM_ID,
+            DUMMY_UID,
+            firestore
+        )
+        val updatedItem = Item("AirPods Pro Max", 0, ITEM.itemDesc, true)
+        updatedItem.setItemID(ITEM_ID)
+        assertThat(ItemsRepository.setItemToFound(
+            DUMMY_UID,
+            ITEM_ID,
+            firestore
+        ).onSuccess, IsEqual(true))
+
+        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, firestore)
+        delay(2000)
+
+        assertThat(BrugDataCache.getCachedItems().value.isNullOrEmpty(), IsEqual(false))
+        assertThat(BrugDataCache.getCachedItems().value!!.contains(updatedItem), IsEqual(true))
+        val itemPosInList = BrugDataCache.getCachedItems().value!!.indexOf(updatedItem)
+        assertThat(BrugDataCache.getCachedItems().value!![itemPosInList].isFound(), IsEqual(true))
+    }
+
 
     @Test
     fun deleteItemFromWrongUserReturnsError() = runBlocking {
@@ -299,7 +359,7 @@ class ItemsRepositoryTest {
         ITEM.setItemID(ITEM_ID)
         ITEM.setLastLocation(0.0, 0.0)
         ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
-        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
+        val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isFound())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.updateItemFields(updatedItem, DUMMY_UID,firestore).onSuccess, IsEqual(true))
         ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID,firestore)

@@ -20,7 +20,7 @@ class ItemTest {
         assertThat(item.itemName, IsEqual(itemName))
         assertThat(item.itemTypeID, IsEqual(itemTypeID))
         assertThat(item.itemDesc, IsEqual(itemDesc))
-        assertThat(item.isLost(), IsEqual(isLost))
+        assertThat(item.isFound(), IsEqual(isLost))
         assertThat(item.getItemID(), IsEqual(""))
     }
 
@@ -38,7 +38,7 @@ class ItemTest {
         assertThat(item.itemName, IsEqual(itemName))
         assertThat(item.itemTypeID, IsEqual(itemTypeID))
         assertThat(item.itemDesc, IsEqual(itemDesc))
-        assertThat(item.isLost(), IsEqual(isLost))
+        assertThat(item.isFound(), IsEqual(isLost))
         assertThat(item.getItemID(), IsEqual(itemID))
     }
 

@@ -20,7 +20,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.Dispatchers
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.HashMap
@@ -65,7 +64,7 @@ class ItemInformationActivity : AppCompatActivity() {
 
     private fun setSwitch(item: Item, firebaseAuth: FirebaseAuth) {
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
-        switch.isChecked = item.isLost()
+        switch.isChecked = item.isFound()
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
             viewModel.viewModelScope.launch {

@@ -85,7 +85,7 @@ class ItemInformationActivityTest {
             ).await()
         }
         assertThat(
-            item.isLost(),
+            item.isFound(),
             CoreMatchers.`is`(false)
         )
 
