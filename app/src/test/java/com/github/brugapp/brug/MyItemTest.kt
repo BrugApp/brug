@@ -5,6 +5,8 @@ import com.github.brugapp.brug.model.MyItem
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNot
+import org.hamcrest.core.IsNot.not
+import org.hamcrest.core.IsNull
 import org.junit.Test
 
 class MyItemTest {
@@ -22,6 +24,7 @@ class MyItemTest {
         assertThat(item.itemDesc, IsEqual(itemDesc))
         assertThat(item.isLost(), IsEqual(isLost))
         assertThat(item.getItemID(), IsEqual(""))
+        assertThat(item.getLastLocation(), IsNull())
     }
 
     @Test
@@ -114,6 +117,18 @@ class MyItemTest {
         val item1 = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
         val item2 = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", true)
         assertThat(item1, IsNot(IsEqual(item2)))
+    }
+
+    @Test
+    fun settingAndGettingLastLocationWorks() {
+        val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        val lon = 1.0
+        val lat = 2.0
+        item.setLastLocation(1.0, 2.0)
+        val location = item.getLastLocation()
+        assertThat(location, not(IsNull()))
+        assertThat(location!!.getLatitude(), IsEqual(lat))
+        assertThat(location.getLongitude(), IsEqual(lon))
     }
 
 }
