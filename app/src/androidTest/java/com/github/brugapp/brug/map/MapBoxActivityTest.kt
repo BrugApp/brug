@@ -123,6 +123,7 @@ class MapBoxActivityTest {
             putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
         }
         ActivityScenario.launch<Activity>(intent).use{
+            Thread.sleep(5000)
             EspressoHelper.clickIn(10,10)
             // if view annotation is not displayed, this will throw an exception
             Espresso.onView(withId(R.id.driveButton)).perform(click())
@@ -137,8 +138,8 @@ class MapBoxActivityTest {
             putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
         }
         ActivityScenario.launch<Activity>(intent).use{
-            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(1))
             Thread.sleep(5000)
+            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(1))
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(5000)
 
@@ -154,11 +155,10 @@ class MapBoxActivityTest {
             putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
         }
         ActivityScenario.launch<Activity>(intent).use{
-            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(1))
             Thread.sleep(5000)
+            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(1))
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(5000)
-
 
             Espresso.onView(withId(R.id.walkButton)).perform(click())
             Thread.sleep(5000)
@@ -174,12 +174,10 @@ class MapBoxActivityTest {
             putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
         }
         ActivityScenario.launch<Activity>(intent).use{
-            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Thread.sleep(5000)
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(5000)
-
-
             Espresso.onView(withId(R.id.driveButton)).perform(click())
             Thread.sleep(5000)
             intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
@@ -194,8 +192,8 @@ class MapBoxActivityTest {
             putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
         }
         ActivityScenario.launch<Activity>(intent).use{
-            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Thread.sleep(5000)
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(5000)
 
