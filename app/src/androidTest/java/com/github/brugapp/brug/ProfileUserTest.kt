@@ -4,6 +4,9 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
@@ -15,7 +18,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers.*
@@ -142,7 +147,6 @@ class ProfileUserTest {
         createTestUser()
         signInTestAccount()
         val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
-//        intent.putExtra(USER_INTENT_KEY, DUMMY_USER)
         ActivityScenario.launch<ProfilePictureSetActivity>(intent)
     }
 
@@ -152,13 +156,6 @@ class ProfileUserTest {
         removeIconAndSignOut()
     }
 
-//    @Test
-//    fun canSelectPicture(){
-//        Thread.sleep(8000)
-//        onView(withId(R.id.loadButton)).perform(click())
-////        assertThat(DUMMY_USER.getUserIcon(), Is(nullValue()) )
-//
-//    }
 
     @Test
     fun correctNameIsDisplayed(){
@@ -177,25 +174,23 @@ class ProfileUserTest {
     }
 
 
+
+
     private fun correctProfilePictureDisplayed(){
         Thread.sleep(3000)
         onView(withId(R.id.imgProfile)).check(matches(withDrawable(R.mipmap.ic_launcher_round)))
     }
 
+
     private fun profilePictureCanBeChanged(){
-//        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
         val drawableRes = R.mipmap.ic_launcher
         val drawable  = ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), drawableRes)
 
-//        DUMMY_USER.setUserIcon(drawable)
         val response = runBlocking { UserRepository.updateUserIcon(
             firebaseAuth.currentUser!!.uid, drawable!!,firebaseAuth,firebaseStorage,firestore) }
         assertThat(response.onSuccess, IsEqual(true))
-//        MockDatabase.currentUser.setProfilePicture(drawable)
 
-//        ActivityScenario.launch<SignInActivity>(intent).use {
         onView(withId(R.id.imgProfile)).check(matches(withDrawable(drawableRes)))
-//        }
     }
 
     private fun withDrawable(@DrawableRes id: Int) = object : TypeSafeMatcher<View>() {
@@ -209,6 +204,56 @@ class ProfileUserTest {
 
             return view is ImageView && view.drawable.toBitmap().sameAs(expectedBitmap)
         }
+    }
+}
+
+
+@HiltAndroidTest
+@RunWith(AndroidJUnit4::class)
+class ProfileUserTestWithoutModule {
+    @get:Rule
+    val rule = HiltAndroidRule(this)
+
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
+    private val account = BrugSignInAccount("Rayan", "Kikou", "", "")
+
+    @Test
+    fun noUserTest(){
+        //create a new user
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("temp@profile.com", "temp1234").await()
+            firebaseAuth.signInWithEmailAndPassword("temp@profile.com", "temp1234").await()
+        }
+
+        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
+        ActivityScenario.launch<ProfilePictureSetActivity>(intent)
+        //click on load button
+        onView(withId(R.id.loadButton)).perform(click())
+
+        //check that we stayed in the same activity
+        onView(withId(R.id.loadButton)).check(matches(isDisplayed()))
+
+        Intents.release()
+        firebaseAuth.signOut()
+    }
+
+    @Test
+    fun userCreated() {
+        //create a new user
+        runBlocking {
+            firebaseAuth.signOut()
+            firebaseAuth.createUserWithEmailAndPassword("temp1@profile.com", "temp1234").await()
+            firebaseAuth.signInWithEmailAndPassword("temp1@profile.com", "temp1234").await()
+            val uid = firebaseAuth.currentUser!!.uid
+            UserRepository.addUserFromAccount(uid, account, true, firestore)
+            UserRepository.updateUserIcon(uid, ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), R.mipmap.unlost_logo)!!, firebaseAuth, firebaseStorage, firestore)
+        }
+        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
+        ActivityScenario.launch<ProfilePictureSetActivity>(intent)
+        Thread.sleep(1000)
+        firebaseAuth.signOut()
     }
 
 }
