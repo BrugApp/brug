@@ -8,6 +8,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.Item
@@ -54,6 +56,9 @@ class AddItemActivity : AppCompatActivity() {
 
         val addButton = findViewById<Button>(R.id.add_item_button)
         addButton.setOnClickListener {
+            if(!BrugDataCache.isNetworkAvailable()){
+                Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+            }
             addItemOnListener(itemName, itemNameHelper, itemType, itemDesc, firebaseAuth)
         }
     }

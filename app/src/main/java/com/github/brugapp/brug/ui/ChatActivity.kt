@@ -27,6 +27,7 @@ import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.MessageRepository
+import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
@@ -130,6 +131,12 @@ class ChatActivity : AppCompatActivity() {
             )
         } else {
             BrugDataCache.setMessageListInCache(conversation.convId, messagesTestList)
+        }
+
+        liveData(Dispatchers.IO) {
+            emit(BrugDataCache.isNetworkAvailable())
+        }.observe(this){ status ->
+            if(!status) Toast.makeText(this, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
         }
 
         BrugDataCache.getCachedMessageList(conversation.convId).observe(this){ messages ->

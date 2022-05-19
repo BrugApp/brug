@@ -9,6 +9,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -42,8 +44,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
         findViewById<EditText>(R.id.edit_message).setText("84suOx4k0feEMUkjgEAeYrpWvlf1:GC1bZYp7AfVoQOo5u9uY")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
-            val isConnected = viewModel.internetIsConnected()
-            if(isConnected) {
+            if(BrugDataCache.isNetworkAvailable()) {
                 val context = this
                 liveData(Dispatchers.IO){
                     emit(
@@ -67,7 +68,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
                     }
                 }
             } else  {
-                Toast.makeText(this, "ERROR: You have no network connectivity. Try again later.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
             }
         }
     }

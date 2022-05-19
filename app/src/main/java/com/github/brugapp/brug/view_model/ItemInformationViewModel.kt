@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.runBlocking
 
 class ItemInformationViewModel : ViewModel() {
 

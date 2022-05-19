@@ -10,18 +10,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
 import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.view_model.ProfileSettingsViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -86,10 +86,11 @@ class ProfileSettingsFragment(
                 firebaseAuth,
                 firebaseStorage
             )
-            if(user != null){
+            if (user != null) {
                 BrugDataCache.setUserInCache(user)
             }
         }
+
         BrugDataCache.getCachedUser().observe(viewLifecycleOwner){ user ->
             view.findViewById<ProgressBar>(R.id.loadingUserProfile).visibility = View.GONE
 
