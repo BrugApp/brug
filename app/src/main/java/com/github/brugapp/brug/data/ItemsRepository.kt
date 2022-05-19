@@ -62,6 +62,15 @@ object ItemsRepository {
         return response
     }
 
+    /**
+     * Sets the last location of an item.
+     *
+     * @param uid the user ID of the owner of the item
+     * @param itemID the ID of the item
+     * @param lastLocation the last location of the item
+     *
+     * @return FirebaseResponse object denoting if the action was successful
+     */
     suspend fun addLastLocation(
         uid: String,
         itemID: String,
