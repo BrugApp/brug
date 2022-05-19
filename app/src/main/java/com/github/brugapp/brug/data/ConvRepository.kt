@@ -78,7 +78,7 @@ object ConvRepository {
                 "lost_item_id" to lostItemID
             )
             if(lastMessage != null){
-                convFields["last_sender_name"] = lastMessage.senderName
+                convFields["last_sender_id"] = lastMessage.senderName
                 convFields["last_message_text"] = lastMessage.body
             }
 
@@ -257,9 +257,9 @@ object ConvRepository {
 
             //FETCH INFOS RELATED TO THE LAST SENT MESSAGE (HERE TO REDUCE NUMBER OF FIREBASE QUERIES)
             val lastMessage =
-                if(convSnapshot.contains("last_sender_name") && convSnapshot.contains("last_message_text")){
+                if(convSnapshot.contains("last_sender_id") && convSnapshot.contains("last_message_text")){
                     Message(
-                        convSnapshot["last_sender_name"] as String,
+                        convSnapshot["last_sender_id"] as String,
                         DateService.fromLocalDateTime(LocalDateTime.now()),
                         convSnapshot["last_message_text"] as String
                     )

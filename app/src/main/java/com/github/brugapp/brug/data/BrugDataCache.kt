@@ -64,7 +64,7 @@ object BrugDataCache {
     }
 
     fun deleteCachedMessageList(convID: String) {
-        this.cachedMessagesLists.remove(convID)
+        this.cachedMessagesLists[convID] = MutableLiveData<MutableList<Message>>()
     }
 
     fun getCachedMessageList(convID: String): MutableLiveData<MutableList<Message>> {

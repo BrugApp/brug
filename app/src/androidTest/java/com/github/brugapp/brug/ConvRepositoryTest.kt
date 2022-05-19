@@ -23,7 +23,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNull
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import java.io.File
@@ -163,7 +162,6 @@ class ConvRepositoryTest {
 
         assertThat(MessageRepository.addMessageToConv(
             picMessage,
-            "DUMMYNAME",
             USER_ID1,
             "${USER_ID1}${USER_ID2}",
             firestore,

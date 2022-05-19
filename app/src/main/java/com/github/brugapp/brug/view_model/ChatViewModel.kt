@@ -22,12 +22,10 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.*
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Message
@@ -37,7 +35,6 @@ import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.model.services.LocationService
 import com.github.brugapp.brug.ui.ChatActivity
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -45,8 +42,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileDescriptor
@@ -116,7 +111,6 @@ class ChatViewModel : ViewModel() {
                 val error = if(firebaseAuth.currentUser!!.displayName != null){
                     MessageRepository.addMessageToConv(
                         message,
-                        firebaseAuth.currentUser!!.displayName!!,
                         firebaseAuth.uid!!,
                         convID,
                         firestore,
@@ -138,8 +132,9 @@ class ChatViewModel : ViewModel() {
     }
 
     // LOCATION RELATED
-    suspend fun sendLocationMessage(
+    private fun sendLocationMessage(
         activity: ChatActivity,
+        location: Location,
         convID: String,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
@@ -148,17 +143,15 @@ class ChatViewModel : ViewModel() {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val strMsg = textBox.text.toString().ifBlank { "📍 Location" }
         val timestamp = DateService.fromLocalDateTime(LocalDateTime.now())
-
-        val location = getLocation(activity)
         val newMessage = LocationMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
             strMsg,
-            location
+            LocationService.fromAndroidLocation(location)
         )
 
         // Get image from API or create stub one
-        val url = getUrlForLocation(activity, location.toAndroidLocation())
+        val url = getUrlForLocation(activity, location)
         liveData(Dispatchers.IO) {
             emit(loadImageFromUrl(timestamp, url))
         }.observe(activity) { mapImgUri ->
@@ -276,13 +269,62 @@ class ChatViewModel : ViewModel() {
     }
 
     @SuppressLint("MissingPermission")
-    suspend fun getLocation(activity: ChatActivity): LocationService {
+    fun requestLocation(
+        convID: String,
+        activity: ChatActivity,
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
+    ) {
+        val locationManager = activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity)
-        if(!checkLocationPermissions(activity)){
+
+        if (checkLocationPermissions(activity)
+        ) {
             requestLocationPermissions(activity)
         }
 
-        return LocationService.fromAndroidLocation(fusedLocationClient.lastLocation.await())
+        fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
+            if (lastKnownLocation != null) {
+                sendLocationMessage(
+                    activity,
+                    lastKnownLocation,
+                    convID,
+                    firestore,
+                    firebaseAuth,
+                    firebaseStorage
+                )
+            } else {
+                // Launch the locationListener (updates every 1000 ms)
+                val locationGpsProvider = LocationManager.GPS_PROVIDER
+                locationManager.requestLocationUpdates(
+                    locationGpsProvider,
+                    50,
+                    0.1f
+                ) {
+                    sendLocationMessage(
+                        activity,
+                        it,
+                        convID,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    )
+                }
+
+                // Stop the update as we only want it once (at least for now)
+                locationManager.removeUpdates {
+                    sendLocationMessage(
+                        activity,
+                        it,
+                        convID,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    )
+                }
+            }
+        }
     }
 
     fun setupRecording(activity: ChatActivity) {
@@ -348,6 +390,14 @@ class ChatViewModel : ViewModel() {
     }
 
     // PERMISSIONS RELATED =======================================================
+    fun requestPermissions(context: Context, permissions: Array<String>) {
+        val permissionRequestCode = 1 // REQUESTS FOR ALL NON-SET PERMISSIONS IN THE permissions ARRAY
+        requestPermissions(context as Activity, permissions, permissionRequestCode)
+    }
+
+    fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
+        ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
+    }
 
     fun requestRecording(activity: Activity) {
         requestPermissions(

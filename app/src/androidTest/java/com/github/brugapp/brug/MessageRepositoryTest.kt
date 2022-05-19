@@ -93,7 +93,6 @@ class MessageRepositoryTest {
     fun addMessageToWrongConvReturnsError() = runBlocking {
         val response = MessageRepository.addMessageToConv(
             TEXTMSG,
-            "DUMMYNAME",
             USER_ID1,
             "WRONGCONVID",
             firestore,
@@ -111,7 +110,6 @@ class MessageRepositoryTest {
         val response = runBlocking {
              MessageRepository.addMessageToConv(
                  TEXTMSG,
-                 "DUMMYNAME",
                  USER_ID1,
                  "${USER_ID1}${USER_ID2}",
                  firestore,
@@ -145,7 +143,6 @@ class MessageRepositoryTest {
 
         val response = MessageRepository.addMessageToConv(
             LOCATIONMSG,
-            USER2.getFullName(),
             USER_ID2,
             "${USER_ID1}${USER_ID2}",
             firestore,
@@ -186,7 +183,6 @@ class MessageRepositoryTest {
 
         val response = MessageRepository.addMessageToConv(
             picMsg,
-            "DUMMYNAME",
             USER_ID1,
             "${USER_ID1}${USER_ID2}",
             firestore,
@@ -224,7 +220,6 @@ class MessageRepositoryTest {
         // ADD MESSAGE TO DATABASE & IMAGE TO STORAGE + SIGNOUT
         val response = MessageRepository.addMessageToConv(
             picMsg,
-            "DUMMYNAME",
             USER_ID1,
             "${USER_ID1}${USER_ID2}",
             firestore,
@@ -265,7 +260,6 @@ class MessageRepositoryTest {
 
         val response = MessageRepository.addMessageToConv(
             audioMsg,
-            USER2.getFullName(),
             USER2.uid,
             "${USER_ID1}${USER_ID2}",
             firestore,

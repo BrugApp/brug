@@ -1,8 +1,11 @@
 package com.github.brugapp.brug.ui
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
@@ -15,6 +18,7 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -212,17 +216,19 @@ class ChatActivity : AppCompatActivity() {
         val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
         buttonSendMessage.setOnClickListener {
             viewModel.selectGalleryImage(this)
-
         }
     }
 
     private fun initSendLocationButton(conversation: Conversation) {
         val buttonSendLocationMsg = findViewById<ImageButton>(R.id.buttonSendLocalisation)
         buttonSendLocationMsg.setOnClickListener {
-            val activity = this
-            viewModel.viewModelScope.launch {
-                viewModel.sendLocationMessage(activity, conversation.convId, firestore, firebaseAuth, firebaseStorage)
-            }
+            viewModel.requestLocation(
+                convID,
+                this,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
         }
     }
 
@@ -235,9 +241,12 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
+            val permissions = arrayOf(
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
 
-            if (model.isAudioPermissionOk(this) && model.isExtStorageOk(this)) {
-
+            if (model.hasPermissions(this, permissions)) {
                 model.setupRecording(this)
 
                 messageLayout.visibility = View.GONE
@@ -246,13 +255,8 @@ class ChatActivity : AppCompatActivity() {
                 deleteAudio.visibility = View.VISIBLE
                 audioRecMessage.visibility = View.VISIBLE
 
-            } else if (model.isAudioPermissionOk(this)) {
-                model.requestExtStorage(this)
-            } else if (model.isExtStorageOk(this)) {
-                model.requestRecording(this)
             } else {
-                model.requestRecording(this)
-                model.requestExtStorage(this)
+                model.requestPermissions(this, permissions)
             }
         }
     }

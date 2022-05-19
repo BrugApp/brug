@@ -54,7 +54,6 @@ object MessageRepository {
      */
     suspend fun addMessageToConv(
         m: Message,
-        senderName: String,
         senderID: String,
         convID: String,
         firestore: FirebaseFirestore,
@@ -105,7 +104,7 @@ object MessageRepository {
             // ADD THE TEXT OF THE LAST SENT MESSAGE IN THE DOCUMENT OF THE CONVERSATION
             convRef.update(
                 mapOf(
-                    "last_sender_name" to senderName,
+                    "last_sender_id" to senderID,
                     "last_message_text" to m.body
                 )
             ).await()
@@ -147,7 +146,7 @@ object MessageRepository {
                             getMessageFromSnapshot(messageSnapshot, convUserName, authUserID, context, firebaseStorage, firebaseAuth)
                         }.sortedBy { it.timestamp.getSeconds() }
                     )
-                }.observeForever{ list ->
+                }.observeForever { list ->
                     Log.e("FIREBASE STATE", "ADDING MESSAGES TO LIST")
                     BrugDataCache.setMessageListInCache(convID, list.toMutableList())
                 }
