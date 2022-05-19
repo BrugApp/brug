@@ -53,7 +53,6 @@ class ItemInformationActivityTest {
 
     @Test
     fun correctTypeDisplayed() {
-        onView(withId(R.id.item_name)).check(matches(withText("Phone")))
         onView(withId(R.id.tv_name)).check(matches(withText("Phone")))
     }
 
