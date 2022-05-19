@@ -22,8 +22,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/imagesent"
-            android:maxWidth="150dp"
-            android:maxHeight="150dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chat_image_sender"
             tools:ignore="ImageContrastCheck"

@@ -117,8 +117,13 @@ class ChatMessagesListAdapter(
         private fun bindPicMessage(message: PicMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
-            itemView.findViewById<ImageView>(R.id.picture)
-                .setImageURI(resizeImage(Uri.parse(message.imgUrl)))
+
+            // set image and width/height (keeping ratio)
+            val imageView = itemView.findViewById<ImageView>(R.id.picture)
+            val (uri, width, height) = resizeImage(Uri.parse(message.imgUrl))
+            imageView.setImageURI(uri)
+            imageView.maxHeight = height
+            imageView.maxWidth = width
         }
 
         private fun bindLocationMessage(message: LocationMessage) {
@@ -133,15 +138,18 @@ class ChatMessagesListAdapter(
             itemView.findViewById<VoicePlayerView>(R.id.voicePlayerView).setAudio(message.audioPath)
         }
 
-        private fun resizeImage(uri: Uri): Uri {
-            // open the image and resize it
+        private fun resizeImage(uri: Uri): Triple<Uri, Int, Int> {
+            // open the image
             val image = Drawable.createFromPath(uri.path)
             val imageBM = image!!.toBitmap(
                 image.intrinsicWidth,
                 image.intrinsicHeight,
                 Bitmap.Config.ARGB_8888
             )
-            val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
+
+            // resize it
+            val (width, height) = ChatViewModel().computeWidthHeight(imageBM.width, imageBM.height, 500, 500)
+            val resized = Bitmap.createScaledBitmap(imageBM, width, height, false)
 
             // store to new file
             val newFile = File.createTempFile("temp", ".jpg")
@@ -149,7 +157,7 @@ class ChatMessagesListAdapter(
             resized.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
 
             // return uri of new file
-            return Uri.fromFile(newFile)
+            return Triple(Uri.fromFile(newFile), width, height)
         }
 
         fun bind(messageModel: Message) {
