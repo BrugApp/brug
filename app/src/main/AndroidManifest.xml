@@ -45,7 +45,8 @@
         <activity
             android:name=".ui.MapBoxActivity"
             android:exported="false"
-            android:label="@string/title_activity_map"/>/>
+            android:label="@string/title_activity_map"
+            android:parentActivityName=".ui.ItemsMenuActivity" />
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"

@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.ui
 
 import android.content.Intent
+import android.location.Geocoder
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
@@ -19,7 +20,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 private const val NOT_IMPLEMENTED: String = "no information yet"
 
@@ -39,10 +42,23 @@ class ItemInformationActivity : AppCompatActivity() {
         setContentView(R.layout.activity_item_information)
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
 
-        val textSet: HashMap<String, String> = viewModel.getText(item, firebaseAuth)
+        val geocoder = Geocoder(this, Locale.getDefault())
+        val textSet: HashMap<String, String> = viewModel.getText(item, firebaseAuth,geocoder)
         setTextAllView(textSet)
 
         setSwitch(item, firebaseAuth)
+        //if user click on the localisation textview, we will open the map
+        val localisation = item.getLastLocation()
+        if(localisation != null) {
+            findViewById<TextView>(R.id.item_last_location).setOnClickListener {
+                val intent = Intent(this, MapBoxActivity::class.java)
+                intent.putExtra(ITEM_INTENT_KEY, item)
+                intent.putExtra(EXTRA_DESTINATION_LONGITUDE, localisation.getLongitude())
+                intent.putExtra(EXTRA_DESTINATION_LATITUDE, localisation.getLatitude())
+                startActivity(intent)
+            }
+        }
+
         qrCodeButton()
     }
 
@@ -87,9 +103,7 @@ class ItemInformationActivity : AppCompatActivity() {
 
     private fun setTextAllView(textSet: HashMap<String, String>) {
         setTextView(R.id.tv_name, textSet["title"])
-        setTextView(R.id.item_name, textSet["title"])
         setTextView(R.id.item_last_location, textSet["lastLocation"])
-        setTextView(R.id.item_owner, textSet["owner"])
         setTextView(R.id.item_description, textSet["description"])
 
         //get and set the icon
