@@ -4,14 +4,18 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -25,7 +29,11 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.*
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObjectNotFoundException
+import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyUser
@@ -41,7 +49,6 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.anyOf
-import org.hamcrest.Matchers.array
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -62,11 +69,11 @@ class ChatActivityTest {
     var rule = HiltAndroidRule(this)
 
     @get:Rule
-    val permissionRule1: GrantPermissionRule =
+    val permissionRuleCoarseLocation: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
     @get:Rule
-    val permissionRule2: GrantPermissionRule =
+    val permissionRuleFineLocation: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     @get:Rule
@@ -81,11 +88,7 @@ class ChatActivityTest {
     val permissionRuleCamera: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
-    private val convID = "0"
-    private val dummyItemName = "DummyItem"
-
     private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null, mutableListOf())
-
     private val dummyDate = fromLocalDateTime(
         LocalDateTime.of(
             2022, Month.MARCH, 23, 15, 30
@@ -404,35 +407,35 @@ class ChatActivityTest {
     }
 
     // TEST COMMENTED AS IT CONSISTENTLY FAILS ON CIRRUS CI
-//    @Test
-//    fun pressLocationOpensMapActivity() {
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//
-//        val intent = Intent(context, ChatActivity::class.java).apply {
-//            putExtra(CHAT_INTENT_KEY, conversation)
-//            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
-//        }
-//
-//        ActivityScenario.launch<Activity>(intent).use {
-//            onView(withId(R.id.buttonSendLocalisation)).perform(click())
-//
-//            // wait for the message to be uploaded
-//            Thread.sleep(5000)
-//
-//            val messagesList = onView(withId(R.id.messagesList))
-//            messagesList.perform(
-//                actionOnItem<RecyclerView.ViewHolder>(
-//                    hasDescendant(withContentDescription("location")),
-//                    click()
-//                )
-//            )
-//
-//            val expectedIntent: Matcher<Intent> = anyOf(
-//                hasComponent(MapBoxActivity::class.java.name)
-//            )
-//            intended(expectedIntent)
-//        }
-//    }
+    @Test
+    fun pressLocationOpensMapActivity() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            onView(withId(R.id.buttonSendLocalisation)).perform(click())
+
+            // wait for the message to be uploaded
+            Thread.sleep(5000)
+
+            val messagesList = onView(withId(R.id.messagesList))
+            messagesList.perform(
+                actionOnItem<RecyclerView.ViewHolder>(
+                    hasDescendant(withContentDescription("location")),
+                    click()
+                )
+            )
+
+            val expectedIntent: Matcher<Intent> = anyOf(
+                hasComponent(MapBoxActivity::class.java.name)
+            )
+            intended(expectedIntent)
+        }
+    }
 
     // DISPLAY Tests
     @Test
