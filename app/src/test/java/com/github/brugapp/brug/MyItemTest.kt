@@ -143,4 +143,16 @@ class MyItemTest {
         assertThat(item.hashCode(), IsEqual(result))
     }
 
+    @Test
+    fun typeNameAndIconMatchOtherTypeEntryForWrongItemTypeId() {
+        val typeName = "Other"
+        val typeIcon = R.drawable.ic_baseline_add_24
+
+        val item = MyItem("Other", ItemType.values().size, "DUMMYDESC", false)
+
+        assertThat(item.getItemTypeID(), IsEqual(ItemType.Other.ordinal))
+        assertThat(ItemType.values()[item.getItemTypeID()].toString(), IsEqual(typeName))
+        assertThat(item.getRelatedIcon(), IsEqual(typeIcon))
+    }
+
 }
