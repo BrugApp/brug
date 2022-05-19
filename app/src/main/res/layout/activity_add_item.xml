@@ -10,8 +10,8 @@
 
     <TextView
         android:id="@+id/AddItemText"
-        android:layout_width="222dp"
-        android:layout_height="46dp"
+        android:layout_width="120dp"
+        android:layout_height="37dp"
         android:text="@string/new_item_text"
         android:textAlignment="center"
         android:textColor="#1E1D20"
@@ -38,7 +38,7 @@
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/itemName"
-            android:layout_width="353dp"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="@string/itemName"
             android:inputType="textEmailAddress"
@@ -63,7 +63,7 @@
 
         <EditText
             android:id="@+id/itemDescription"
-            android:layout_width="328dp"
+            android:layout_width="match_parent"
             android:layout_height="104dp"
             android:ems="10"
             android:gravity="top|start"
@@ -85,7 +85,7 @@
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/itemTypeContainer"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
-        android:layout_width="344dp"
+        android:layout_width="match_parent"
         android:layout_height="122dp"
         android:layout_marginHorizontal="20dp"
 
@@ -98,7 +98,7 @@
 
         <TextView
             android:id="@+id/itemTypeText"
-            android:layout_width="291dp"
+            android:layout_width="match_parent"
             android:layout_height="33dp"
             android:text="@string/choose_a_type_text"
             app:layout_constraintEnd_toEndOf="parent"
@@ -109,7 +109,7 @@
 
         <Spinner
             android:id="@+id/itemTypeSpinner"
-            android:layout_width="328dp"
+            android:layout_width="match_parent"
             android:layout_height="49dp"
             android:contentDescription="@string/spinnerTypeDescriptor"
             tools:layout_editor_absoluteX="36dp"
@@ -127,10 +127,10 @@
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.234"
+        app:layout_constraintHorizontal_bias="0.453"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.443" />
+        app:layout_constraintVertical_bias="0.447" />
 
     <androidx.constraintlayout.widget.Barrier
         android:layout_width="wrap_content"
@@ -160,7 +160,7 @@
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.234"
+        app:layout_constraintHorizontal_bias="0.453"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.226" />

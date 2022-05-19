@@ -227,6 +227,7 @@ class ProfileUserTestWithoutModule {
             firebaseAuth.signInWithEmailAndPassword("temp@profile.com", "temp1234").await()
         }
 
+        Intents.init()
         val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
         ActivityScenario.launch<ProfilePictureSetActivity>(intent)
         //click on load button
@@ -250,9 +251,10 @@ class ProfileUserTestWithoutModule {
             UserRepository.addUserFromAccount(uid, account, true, firestore)
             UserRepository.updateUserIcon(uid, ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), R.mipmap.unlost_logo)!!, firebaseAuth, firebaseStorage, firestore)
         }
+        Intents.init()
         val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
         ActivityScenario.launch<ProfilePictureSetActivity>(intent)
-        Thread.sleep(1000)
+        Intents.release()
         firebaseAuth.signOut()
     }
 
