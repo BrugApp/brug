@@ -174,7 +174,7 @@ class MapBoxActivityTest {
             putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
         }
         ActivityScenario.launch<Activity>(intent).use{
-            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(6))
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Thread.sleep(5000)
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(5000)
@@ -194,7 +194,7 @@ class MapBoxActivityTest {
             putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
         }
         ActivityScenario.launch<Activity>(intent).use{
-            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(6))
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Thread.sleep(5000)
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(5000)
