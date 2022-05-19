@@ -1,29 +1,37 @@
 package com.github.brugapp.brug.map
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.Espresso.onData
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.espresso.matcher.ViewMatchers.*
+import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import com.github.brugapp.brug.helpers.EspressoHelper
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
+import com.mapbox.maps.MapView
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers
+import org.hamcrest.Matchers.*
+import org.junit.*
 
 
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
@@ -49,13 +57,14 @@ private var TEST_USER_UID = ""
 @HiltAndroidTest
 class MapBoxActivityTest {
 
+
     @get:Rule
     var rule = HiltAndroidRule(this)
 
     private val firebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore = FirebaseFakeHelper().providesFirestore()
-    private  val TEST_EMAIL ="test@ItemsMenu.com"
-    private  val TEST_PASSWORD = "123456"
+    private val TEST_EMAIL ="test@MapBox.com"
+    private val TEST_PASSWORD = "123456"
     private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
     companion object {
         var firstTime = true
@@ -98,46 +107,100 @@ class MapBoxActivityTest {
         Intents.init()
         createTestUser()
         signInTestUser()
-        val intent = Intent(
-            ApplicationProvider.getApplicationContext(),
-            ItemsMenuActivity::class.java).apply {
-                putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_LAT)
-                putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
-        }
-        ActivityScenario.launch<ItemsMenuActivity>(intent)
     }
 
     @After
     fun cleanUp() {
-        Intents.release()
         wipeAllItemsAndSignOut()
+        Intents.release()
     }
 
-    @Test
+    @Test(expected = androidx.test.espresso.NoMatchingViewException::class)
     fun clickOnRandomPositionDoesNotOpenViewAnnotation() {
-
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_LAT)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            EspressoHelper.clickIn(10,10)
+            // if view annotation is not displayed, this will throw an exception
+            Espresso.onView(withId(R.id.driveButton)).perform(click())
+        }
     }
 
     @Test
     fun clickOnItemOpensViewAnnotation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_LAT)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(6))
+            Thread.sleep(5000)
+            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
+            Thread.sleep(5000)
 
+            Espresso.onView(withId(R.id.driveButton)).check(matches(isDisplayed()))
+        }
     }
 
     @Test
     fun clickOnWalkButtonOpensNavigation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_LAT)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(6))
+            Thread.sleep(5000)
+            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
+            Thread.sleep(5000)
 
+
+            Espresso.onView(withId(R.id.walkButton)).perform(click())
+            Thread.sleep(5000)
+            intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
+        }
     }
 
     @Test
     fun clickOnDriveButtonOpensNavigation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_LAT)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(6))
+            Thread.sleep(5000)
+            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
+            Thread.sleep(5000)
 
+
+            Espresso.onView(withId(R.id.driveButton)).perform(click())
+            Thread.sleep(5000)
+            intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
+        }
     }
 
     @Test
     fun viewAnnotationDisplaysNameOfItem() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_LAT)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_LON)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(6))
+            Thread.sleep(5000)
+            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
+            Thread.sleep(5000)
 
+            Espresso.onView(withId(R.id.itemNameOnMap)).check(matches(withText(ITEMS[0].itemName)))
+        }
     }
-
-
 
 }

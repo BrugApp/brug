@@ -98,14 +98,9 @@ class MapBoxActivity : AppCompatActivity() {
     }
 
     private fun addIcons() {
-        var x = 0
         // Create an instance of the Annotation API and get the PointAnnotationManager.
         if (items != null) {
             for (item in items!!) {
-                if (x == 0) {
-                    if (item.getLastLocation() == null) item.setLastLocation(lon, lat)
-                    x = 1
-                }
                 @DrawableRes val icon: Int = item.getRelatedIcon()
                 val lastLocation = item.getLastLocation()
                 if (lastLocation != null) {
@@ -117,7 +112,8 @@ class MapBoxActivity : AppCompatActivity() {
                             PointAnnotationOptions()
                                 .withPoint(point)
                                 .withIconImage(it)
-                                .withIconAnchor(IconAnchor.BOTTOM)
+                                .withIconSize(2.0)
+                                .withIconAnchor(IconAnchor.CENTER)
                                 .withDraggable(true)
                         val pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
                         val pointAnnotation = pointAnnotationManager.create(pointAnnotationOptions)
@@ -137,6 +133,7 @@ class MapBoxActivity : AppCompatActivity() {
                             setLinkWithNavigation(driveButton, DirectionsCriteria.PROFILE_DRIVING, lastLocation)
                             itemNameOnMap.text = item.itemName
                         }
+                        // hide annotation at start
                         viewAnnotation.toggleViewVisibility()
 
                         pointAnnotationManager.addClickListener { clickedAnnotation ->
