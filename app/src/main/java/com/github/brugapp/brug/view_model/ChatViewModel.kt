@@ -314,32 +314,12 @@ class ChatViewModel : ViewModel() {
             } else {
                 // Launch the locationListener (updates every 1000 ms)
                 val locationGpsProvider = LocationManager.GPS_PROVIDER
-                locationManager.requestLocationUpdates(
-                    locationGpsProvider,
-                    50,
-                    0.1f
-                ) {
-                    sendLocationMessage(
-                        activity,
-                        it,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
+                locationManager.requestLocationUpdates(locationGpsProvider, 50, 0.1f) {
+                    sendLocationMessage(activity, it, convID, firestore, firebaseAuth, firebaseStorage) }
 
                 // Stop the update as we only want it once (at least for now)
                 locationManager.removeUpdates {
-                    sendLocationMessage(
-                        activity,
-                        it,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
+                    sendLocationMessage(activity, it, convID, firestore, firebaseAuth, firebaseStorage) }
             }
         }
     }
