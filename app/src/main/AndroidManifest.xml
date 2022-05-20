@@ -50,7 +50,8 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
-            android:label="@string/title_activity_settings" />
+            android:label="Settings"
+            android:parentActivityName=".ui.ItemsMenuActivity"/>
         <!--
          Set custom default icon. This is used when no icon is set for incoming notification messages.
         See README(https://goo.gl/l4GJaQ) for more.
@@ -91,13 +92,13 @@
         <activity
             android:name=".ui.ProfilePictureSetActivity"
             android:exported="false"
-            android:parentActivityName=".ui.SignInActivity"
+            android:parentActivityName=".ui.SettingsActivity"
             android:label="@string/title_activity_profile_picture">
 
             <!-- support API level 15 and lower -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.SignInActivity" />
+                android:value=".ui.SettingsActivity" />
         </activity>
 
         <activity
