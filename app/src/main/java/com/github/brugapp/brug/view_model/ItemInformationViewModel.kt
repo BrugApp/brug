@@ -53,4 +53,8 @@ class ItemInformationViewModel : ViewModel() {
         return qrId
     }
 
+    fun getItemName() : String {
+        return item.itemName
+    }
+
 }

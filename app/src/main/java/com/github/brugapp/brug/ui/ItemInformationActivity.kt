@@ -97,6 +97,7 @@ class ItemInformationActivity : AppCompatActivity() {
             val intent = Intent(this, QrCodeShowActivity::class.java)
             //give qrId to QrCodeShow
             intent.putExtra("qrId", viewModel.getQrId())
+            intent.putExtra("itemName", viewModel.getItemName())
             startActivity(intent)
         }
     }

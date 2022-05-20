@@ -29,10 +29,4 @@ class QrCodeShowActivityTest{
         putExtra("qrId", user.uid+":"+item.getItemID())
     }
 
-    @Test
-    fun correctQrIsShown(){
-        ActivityScenario.launch<QrCodeShowActivity>(infoListIntent).use {
-            onView(ViewMatchers.withId(R.id.codeId)).check(matches(withText(code)))
-        }
-    }
 }
