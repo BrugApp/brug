@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -91,6 +92,7 @@ class ProfileSettingsFragment(
             val profilePicDrawable = Drawable.createFromPath(user.getUserIconPath())
 
             if (profilePicDrawable != null) {
+                Log.d("ProfileSettingsFragment", "Drawable is not null")
                 profilePic.setImageDrawable(resize(profilePicDrawable))
             } else {
                 profilePic.setImageResource(R.mipmap.ic_launcher_round)
@@ -107,6 +109,7 @@ class ProfileSettingsFragment(
     }
 
     private fun resize(image: Drawable?): Drawable? {
+        Log.d("ProfilePageFragment", "resize")
         if (image == null) return null
         val b = (image as BitmapDrawable).bitmap
         val bitmapResized = Bitmap.createScaledBitmap(b, 200, 200, false)

@@ -219,6 +219,8 @@ class ProfileUserTestWithoutModule {
     private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
     private val account = BrugSignInAccount("Rayan", "Kikou", "", "")
 
+
+
     @Test
     fun noUserTest(){
         //create a new user
@@ -241,10 +243,9 @@ class ProfileUserTestWithoutModule {
     }
 
     @Test
-    fun userCreated() {
+    fun userCreatedWithProfilePicture() {
         //create a new user
         runBlocking {
-            firebaseAuth.signOut()
             firebaseAuth.createUserWithEmailAndPassword("temp1@profile.com", "temp1234").await()
             firebaseAuth.signInWithEmailAndPassword("temp1@profile.com", "temp1234").await()
             val uid = firebaseAuth.currentUser!!.uid
@@ -254,6 +255,8 @@ class ProfileUserTestWithoutModule {
         Intents.init()
         val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
         ActivityScenario.launch<ProfilePictureSetActivity>(intent)
+        //click on load button
+        onView(withId(R.id.loadButton)).perform(click())
         Intents.release()
         firebaseAuth.signOut()
     }
