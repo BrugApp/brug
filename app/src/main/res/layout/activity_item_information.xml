@@ -149,14 +149,20 @@
                     android:layout_marginTop="15dp"
                     android:orientation="vertical">
 
-                    <Button
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/qrGen"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:paddingStart="30dp"
                         android:layout_gravity="center"
+                        android:background="@drawable/round_button"
                         android:text="@string/qr_code"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:paddingEnd="30dp"
                         tools:layout_editor_absoluteX="156dp"
-                        tools:layout_editor_absoluteY="445dp" />
+                        tools:layout_editor_absoluteY="445dp"/>
                 </LinearLayout>
 
 

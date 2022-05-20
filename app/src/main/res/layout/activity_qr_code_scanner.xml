@@ -26,12 +26,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scanner_view" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonReportItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="88dp"
+        android:layout_marginTop="20dp"
+        android:paddingStart="30dp"
+        android:layout_gravity="center"
+        android:background="@drawable/round_button"
         android:text="@string/report_item"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:paddingEnd="30dp"
+        android:layout_marginBottom="88dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

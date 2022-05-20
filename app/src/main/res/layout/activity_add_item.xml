@@ -139,17 +139,24 @@
         tools:layout_editor_absoluteX="48dp"
         tools:layout_editor_absoluteY="100dp" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/add_item_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:paddingStart="30dp"
+        android:layout_gravity="center"
+        android:background="@drawable/round_button"
         android:text="@string/addButton"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:paddingEnd="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.445"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.737" />
+        app:layout_constraintVertical_bias="0.737"/>
 
     <TextView
         android:id="@+id/itemNameHelper"
