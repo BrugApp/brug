@@ -2,7 +2,10 @@ package com.github.brugapp.brug
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.data.FirebaseResponse
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
@@ -124,36 +127,46 @@ class UserRepositoryTest {
     @Test
     fun addDeviceTokenToInexistentUserReturnsError() = runBlocking {
         val wrongUser = User("WRONGUID", "BAD", "USER", null, mutableListOf())
-        assertThat(UserRepository.addNewDeviceTokenToUser(
-            wrongUser.uid,
-            DEVICE_TOKEN,
-            FirebaseFakeHelper().providesFirestore()
-        ).onError, IsNot(IsNull.nullValue()))
+        val observableResponse = MutableLiveData<FirebaseResponse>()
+        UserRepository.addNewDeviceTokenToUser(wrongUser.uid, DEVICE_TOKEN, observableResponse, FirebaseFakeHelper().providesFirestore())
+        observableResponse.observe(TestLifecycleOwner()){ response ->
+            assertThat(response.onError, IsNot(IsNull.nullValue()))
+        }
     }
 
     @Test
-    fun addDeviceTokenToExistentUserReturnsSuccessfully() = runBlocking {
-        UserRepository.addUserFromAccount(
-            DUMMY_UID,
-            DUMMY_ACCOUNT,
-            true,
-            FirebaseFakeHelper().providesFirestore()
-        )
-        assertThat(UserRepository.addNewDeviceTokenToUser(
+    fun addDeviceTokenToExistentUserReturnsSuccessfully() {
+        runBlocking {
+            UserRepository.addUserFromAccount(
+                DUMMY_UID,
+                DUMMY_ACCOUNT,
+                true,
+                FirebaseFakeHelper().providesFirestore()
+            )
+        }
+
+        val observableResponse = MutableLiveData<FirebaseResponse>()
+        UserRepository.addNewDeviceTokenToUser(
             DUMMY_UID,
             DEVICE_TOKEN,
+            observableResponse,
             FirebaseFakeHelper().providesFirestore()
-        ).onSuccess, IsEqual(true))
-
-        val updatedUser = User(DUMMY_UID, "Rayan", "Kikou", null, mutableListOf(DEVICE_TOKEN))
-        val user = UserRepository.getUserFromUID(
-            DUMMY_UID,
-            FirebaseFakeHelper().providesFirestore(),
-            FirebaseFakeHelper().providesAuth(),
-            FirebaseFakeHelper().providesStorage()
         )
-        assertThat(user, IsNot(IsNull.nullValue()))
-        assertThat(user, IsEqual(updatedUser))
+
+        observableResponse.observe(TestLifecycleOwner()){ response ->
+            assertThat(response.onSuccess, IsEqual(true))
+            val updatedUser = User(DUMMY_UID, "Rayan", "Kikou", null, mutableListOf(DEVICE_TOKEN))
+            runBlocking {
+                val user = UserRepository.getUserFromUID(
+                    DUMMY_UID,
+                    FirebaseFakeHelper().providesFirestore(),
+                    FirebaseFakeHelper().providesAuth(),
+                    FirebaseFakeHelper().providesStorage()
+                )
+                assertThat(user, IsNot(IsNull.nullValue()))
+                assertThat(user, IsEqual(updatedUser))
+            }
+        }
     }
 
     @Test
@@ -296,39 +309,57 @@ class UserRepositoryTest {
     }
 
     @Test
-    fun deleteDeviceTokenFromExistingUserReturnsSuccessfully() = runBlocking {
-        val userWithoutToken = User(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())
-        val userWithToken = User(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf(DEVICE_TOKEN))
-
-        UserRepository.addUserFromAccount(
+    fun deleteDeviceTokenFromExistingUserReturnsSuccessfully() {
+        val userWithoutToken =
+            User(DUMMY_UID, DUMMY_ACCOUNT.firstName, DUMMY_ACCOUNT.lastName, null, mutableListOf())
+        val userWithToken = User(
             DUMMY_UID,
-            DUMMY_ACCOUNT,
-            true,
-            FirebaseFakeHelper().providesFirestore()
+            DUMMY_ACCOUNT.firstName,
+            DUMMY_ACCOUNT.lastName,
+            null,
+            mutableListOf(DEVICE_TOKEN)
         )
+
+        runBlocking {
+            UserRepository.addUserFromAccount(
+                DUMMY_UID,
+                DUMMY_ACCOUNT,
+                true,
+                FirebaseFakeHelper().providesFirestore()
+            )
+        }
+
+        val observableResponse = MutableLiveData<FirebaseResponse>()
         UserRepository.addNewDeviceTokenToUser(
             DUMMY_UID,
             DEVICE_TOKEN,
+            observableResponse,
             FirebaseFakeHelper().providesFirestore()
         )
-        assertThat(UserRepository.getUserFromUID(
-            DUMMY_UID,
-            FirebaseFakeHelper().providesFirestore(),
-            FirebaseFakeHelper().providesAuth(),
-            FirebaseFakeHelper().providesStorage()
-        ), IsEqual(userWithToken))
-//        UserRepo.addAuthUser(DUMMY_USER)
-        assertThat(UserRepository.deleteDeviceTokenFromUser(
-            DUMMY_UID,
-            DEVICE_TOKEN,
-            FirebaseFakeHelper().providesFirestore()
-        ).onSuccess, IsEqual(true))
-        assertThat(UserRepository.getUserFromUID(
-            DUMMY_UID,
-            FirebaseFakeHelper().providesFirestore(),
-            FirebaseFakeHelper().providesAuth(),
-            FirebaseFakeHelper().providesStorage()
-        ), IsEqual(userWithoutToken))
+
+        observableResponse.observe(TestLifecycleOwner()){ response ->
+            assertThat(response.onSuccess, IsEqual(true))
+            runBlocking {
+                assertThat(UserRepository.getUserFromUID(
+                    DUMMY_UID,
+                    FirebaseFakeHelper().providesFirestore(),
+                    FirebaseFakeHelper().providesAuth(),
+                    FirebaseFakeHelper().providesStorage()
+                ), IsEqual(userWithToken))
+    //        UserRepo.addAuthUser(DUMMY_USER)
+                assertThat(UserRepository.deleteDeviceTokenFromUser(
+                    DUMMY_UID,
+                    DEVICE_TOKEN,
+                    FirebaseFakeHelper().providesFirestore()
+                ).onSuccess, IsEqual(true))
+                assertThat(UserRepository.getUserFromUID(
+                    DUMMY_UID,
+                    FirebaseFakeHelper().providesFirestore(),
+                    FirebaseFakeHelper().providesAuth(),
+                    FirebaseFakeHelper().providesStorage()
+                ), IsEqual(userWithoutToken))
+            }
+        }
     }
 
     @Test

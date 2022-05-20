@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
+import androidx.lifecycle.MutableLiveData
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.FirebaseAuth
@@ -102,29 +103,21 @@ object UserRepository {
      *
      * @return FirebaseResponse object, denoting if the operation has been successful or not
      */
-    suspend fun addNewDeviceTokenToUser(
-        uid: String,
-        token: String,
-        firestore: FirebaseFirestore
-    ): FirebaseResponse{
-        val response = FirebaseResponse()
-        try {
-            val userRef = firestore.collection(USERS_DB).document(uid)
-            if(!userRef.get().await().exists()){
-                response.onError = Exception("User doesn't exist")
-                return response
+    fun addNewDeviceTokenToUser(uid: String, token: String, response: MutableLiveData<FirebaseResponse>, firestore: FirebaseFirestore) {
+        val userRef = firestore.collection(USERS_DB).document(uid)
+        userRef.get().addOnCompleteListener { task ->
+            if(task.isSuccessful){
+                userRef.collection(TOKENS_DB).document(token).set({}).addOnCompleteListener{ addToken ->
+                    if(addToken.isSuccessful){
+                        response.postValue(FirebaseResponse(true, null))
+                    } else {
+                        response.postValue(FirebaseResponse(false, Exception("TOKEN HAS NOT BEEN PROPERLY ADDED TO THE USER ACCOUNT")))
+                    }
+                }
+            } else {
+                response.postValue(FirebaseResponse(false, Exception("THE USER DOESN'T EXIST")))
             }
-            // CHECK IF THE TOKEN DOESN'T ALREADY EXIST
-            val tokenRef = userRef.collection(TOKENS_DB).document(token)
-            if(!tokenRef.get().await().exists()){
-                userRef.collection(TOKENS_DB).document(token).set({}).await()
-            }
-            response.onSuccess = true
-        } catch (e: Exception) {
-            response.onError = e
         }
-
-        return response
     }
 
     /**
