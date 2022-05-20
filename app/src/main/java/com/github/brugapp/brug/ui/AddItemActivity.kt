@@ -6,6 +6,7 @@ import android.text.InputFilter.LengthFilter
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
@@ -17,6 +18,7 @@ import com.github.brugapp.brug.view_model.AddItemViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -56,7 +58,9 @@ class AddItemActivity : AppCompatActivity() {
 
         val addButton = findViewById<Button>(R.id.add_item_button)
         addButton.setOnClickListener {
-            if(!BrugDataCache.isNetworkAvailable()){
+            liveData(Dispatchers.IO){
+                emit(BrugDataCache.isNetworkAvailable())
+            }.observe(this){
                 Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
             }
             addItemOnListener(itemName, itemNameHelper, itemType, itemDesc, firebaseAuth)

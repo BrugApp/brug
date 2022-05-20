@@ -7,12 +7,14 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.DatabaseUser
@@ -53,8 +55,18 @@ class SignInActivity : AppCompatActivity() {
 
         // Set Listener for google sign in button
         findViewById<SignInButton>(R.id.sign_in_google_button).setOnClickListener {
-            val signInIntent: Intent = viewModel.getSignInIntent()
-            getSignInResult.launch(signInIntent)
+            findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
+            liveData(Dispatchers.IO){
+                emit(BrugDataCache.isNetworkAvailable())
+            }.observe(this) { result ->
+                if(!result){
+                    findViewById<ProgressBar>(R.id.loadingUser).visibility = View.GONE
+                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+                } else {
+                    val signInIntent: Intent = viewModel.getSignInIntent()
+                    getSignInResult.launch(signInIntent)
+                }
+            }
         }
 
         findViewById<Button>(R.id.qr_found_btn).setOnClickListener {
@@ -66,14 +78,25 @@ class SignInActivity : AppCompatActivity() {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
             // ONLY FOR DEMO MODE
             liveData(Dispatchers.IO){
-                emit(viewModel.goToDemoMode(firestore, firebaseAuth, firebaseStorage))
-            }.observe(this){ result ->
-                if(result) startActivity(Intent(this, ItemsMenuActivity::class.java))
-                else Snackbar.make(
-                    this.findViewById(android.R.id.content),
-                    "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG
-                ).show()
+                emit(BrugDataCache.isNetworkAvailable())
+            }.observe(this) { isConnected ->
+                if(!isConnected){
+                    findViewById<ProgressBar>(R.id.loadingUser).visibility = View.GONE
+                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+                } else {
+                    liveData(Dispatchers.IO){
+                        emit(viewModel.goToDemoMode(firestore, firebaseAuth, firebaseStorage))
+                    }.observe(this){ result ->
+                        if(result) startActivity(Intent(this, ItemsMenuActivity::class.java))
+                        else Snackbar.make(
+                            this.findViewById(android.R.id.content),
+                            "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                }
             }
+
+
         }
     }
 

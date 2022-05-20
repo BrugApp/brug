@@ -100,7 +100,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
         liveData(Dispatchers.IO) {
             emit(BrugDataCache.isNetworkAvailable())
-        }.observe(this){ status ->
+        }.observe(this) { status ->
             if(!status) Toast.makeText(this, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
         }
 

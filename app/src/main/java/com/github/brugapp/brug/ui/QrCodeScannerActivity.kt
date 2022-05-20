@@ -44,31 +44,35 @@ class QrCodeScannerActivity : AppCompatActivity() {
         findViewById<EditText>(R.id.edit_message).setText("84suOx4k0feEMUkjgEAeYrpWvlf1:GC1bZYp7AfVoQOo5u9uY")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
-            if(BrugDataCache.isNetworkAvailable()) {
-                val context = this
-                liveData(Dispatchers.IO){
-                    emit(
-                        viewModel.parseTextAndCreateConv(
-                            findViewById<EditText>(R.id.edit_message).text,
-                            context,
-                            firebaseAuth, firestore, firebaseStorage
+            liveData(Dispatchers.IO){
+                emit(BrugDataCache.isNetworkAvailable())
+            }.observe(this){ result ->
+                if(!result){
+                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+                } else {
+                    val context = this
+                    liveData(Dispatchers.IO){
+                        emit(
+                            viewModel.parseTextAndCreateConv(
+                                findViewById<EditText>(R.id.edit_message).text,
+                                context,
+                                firebaseAuth, firestore, firebaseStorage
+                            )
                         )
-                    )
-                }.observe(context){ successState ->
-                    if(successState){
-                        Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
-                        val myIntent =
-                            if(firebaseAuth.currentUser == null)
-                                Intent(this, SignInActivity::class.java)
-                            else
-                                Intent(this, ChatMenuActivity::class.java)
-                        startActivity(myIntent)
-                    } else {
-                        Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
+                    }.observe(context){ successState ->
+                        if(successState){
+                            Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
+                            val myIntent =
+                                if(firebaseAuth.currentUser == null)
+                                    Intent(this, SignInActivity::class.java)
+                                else
+                                    Intent(this, ChatMenuActivity::class.java)
+                            startActivity(myIntent)
+                        } else {
+                            Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
-            } else  {
-                Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
             }
         }
     }
