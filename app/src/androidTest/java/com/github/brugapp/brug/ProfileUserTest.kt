@@ -4,9 +4,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
@@ -18,7 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -71,7 +67,7 @@ class ProfileUserTest {
         @Provides
         fun provideFakeActivityRegistry(@ActivityContext activity: Context): ActivityResultRegistry {
             val resources: Resources = activity.resources
-            val resId  = R.mipmap.ic_launcher
+            val resId  = R.mipmap.unlost_logo
             val expectedResult = Uri.parse(
                 ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(
                     resId
@@ -108,14 +104,15 @@ class ProfileUserTest {
     private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
     companion object {
-        var firstTime = true
+        var firstTimeCreate = true
+        var firstTimeAccount = true
     }
 
     private fun createTestUser(){
         runBlocking {
-            if(firstTime){
+            if(firstTimeCreate){
                 firebaseAuth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
-                firstTime = false
+                firstTimeCreate = false
             }
         }
     }
@@ -126,8 +123,11 @@ class ProfileUserTest {
                TEST_PASSWORD
             ).await()
             testUserUid = firebaseAuth.currentUser!!.uid
+            if(firstTimeAccount) {
                 UserRepository
                     .addUserFromAccount(testUserUid, ACCOUNT1, true, firestore)
+                firstTimeAccount = false
+            }
         }
     }
 
