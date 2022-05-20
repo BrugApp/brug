@@ -10,6 +10,7 @@ import android.location.LocationManager
 import android.text.Editable
 import android.util.Log
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
@@ -81,13 +82,15 @@ class QrCodeScanViewModel : ViewModel() {
                             firebaseAuth: FirebaseAuth,
                             firestore: FirebaseFirestore,
                             firebaseStorage: FirebaseStorage): Boolean {
-
+        Log.e("", "qrText: $qrText")
         if(qrText.isBlank() || !qrText.contains(":")){
+            Log.e("", "qrText is blank or doesnt contain :")
             return false
         } else {
             val isAnonymous = firebaseAuth.currentUser == null
             val convID = createNewConversation(isAnonymous, qrText, firebaseAuth, firestore)
             return if (convID == null) {
+                Log.e("", "no conversation created bc conversation already exists")
                 if(isAnonymous) firebaseAuth.signOut()
                 false
             } else {
@@ -98,11 +101,10 @@ class QrCodeScanViewModel : ViewModel() {
                     context,
                     firestore, firebaseAuth, firebaseStorage
                 )
-
+                Log.e("", "qrText is there")
                 if(isAnonymous) firebaseAuth.signOut()
                 hasSentMessages
             }
-
         }
     }
 
@@ -122,7 +124,10 @@ class QrCodeScanViewModel : ViewModel() {
         val (userID, itemID) = qrText.toString().split(":")
         val item = ItemsRepository.getSingleItemFromIDs(userID, itemID)
         return if(item == null){
-            ItemsRepository.addItemWithItemID(MyItem("default item name",itemID.toInt(),"default description",false),itemID,userID,firestore)
+            val newItem = MyItem("default item name",1,"default description",false)
+            newItem.setLastLocation(0.toDouble(), 0.toDouble())
+            newItem.setItemID(itemID)
+            ItemsRepository.addItemWithItemID(newItem,itemID,userID,firestore)
             firebaseAuth.currentUser!!.uid + userID
         }else {
             val response = ConvRepository.addNewConversation(firebaseAuth.currentUser!!.uid, userID, "$userID:$itemID", firestore)
