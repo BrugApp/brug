@@ -47,7 +47,6 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         setPicAndName()
-
     }
 
     private fun setPicAndName() = runBlocking{

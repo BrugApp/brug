@@ -20,10 +20,4 @@ class BrugAppTest {
 
     @get:Rule
     var rule = HiltAndroidRule(this)
-
-    @Test
-    fun settingsTest() {
-        Espresso.onView(ViewMatchers.withId(R.id.titleSettings))
-            .check(ViewAssertions.matches(ViewMatchers.withText("Settings")))
-    }
 }
