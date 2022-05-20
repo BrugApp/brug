@@ -80,7 +80,7 @@ class SettingsActivityTest {
 
     private var testUserUid: String = ""
     private val TEST_PASSWORD: String = "123456"
-    private val TEST_EMAIL: String = "unlost@profileUser.com"
+    private val TEST_EMAIL: String = "unlost@settingsActivity.com"
     private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
 
     @get:Rule
