@@ -140,9 +140,12 @@ class ChatMenuActivityTest {
 
     @Test
     fun clickingOnSettingsButtonGoesToActivity() {
+        createTestUser()
+        signInTestUser()
         val settingsButton = onView(withId(R.id.my_settings))
         settingsButton.perform(click())
         intended(hasComponent(SettingsActivity::class.java.name))
+        signOut()
     }
 
     // Always fails in CI after merge with main
