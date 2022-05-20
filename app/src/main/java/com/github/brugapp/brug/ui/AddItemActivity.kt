@@ -60,8 +60,10 @@ class AddItemActivity : AppCompatActivity() {
         addButton.setOnClickListener {
             liveData(Dispatchers.IO){
                 emit(BrugDataCache.isNetworkAvailable())
-            }.observe(this){
-                Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+            }.observe(this){ result ->
+                if(!result) {
+                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+                }
             }
             addItemOnListener(itemName, itemNameHelper, itemType, itemDesc, firebaseAuth)
         }
