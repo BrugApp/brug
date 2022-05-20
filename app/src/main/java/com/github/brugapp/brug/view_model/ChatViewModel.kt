@@ -434,36 +434,6 @@ class ChatViewModel : ViewModel() {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun requestRecording(activity: Activity) {
-        requestPermissions(
-            activity,
-            Array(1) { Manifest.permission.RECORD_AUDIO },
-            RECORDING_REQUEST_CODE
-        )
-    }
-
-    fun isExtStorageOk(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun isAudioPermissionOk(context: Context): Boolean {
-        return ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    fun requestExtStorage(activity: Activity) {
-        requestPermissions(
-            activity,
-            Array(1) { Manifest.permission.WRITE_EXTERNAL_STORAGE },
-            STORAGE_REQUEST_CODE
-        )
-    }
-
     private fun checkLocationPermissions(context: Activity): Boolean {
         return ActivityCompat.checkSelfPermission(
             context,
