@@ -36,6 +36,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Before
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +55,7 @@ class SettingsActivityTest {
         @Provides
         fun provideFakeActivityRegistry(@ActivityContext activity: Context): ActivityResultRegistry {
             val resources: Resources = activity.resources
-            val resId  = R.mipmap.ic_launcher
+            val resId = R.mipmap.ic_launcher
             val expectedResult = Uri.parse(
                 ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + resources.getResourcePackageName(
                     resId
@@ -92,16 +94,17 @@ class SettingsActivityTest {
         var firstTime = true
     }
 
-    private fun createTestUser(){
+    private fun createTestUser() {
         runBlocking {
-            if(firstTime){
+            if (firstTime) {
                 firebaseAuth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
                 firstTime = false
             }
         }
     }
-    private fun signInTestAccount(){
-        runBlocking{
+
+    private fun signInTestAccount() {
+        runBlocking {
             firebaseAuth.signInWithEmailAndPassword(
                 TEST_EMAIL,
                 TEST_PASSWORD
@@ -116,7 +119,8 @@ class SettingsActivityTest {
         runBlocking {
             UserRepository
                 .resetUserIcon(
-                    testUserUid,firestore)
+                    testUserUid, firestore
+                )
         }
         firebaseAuth.signOut()
     }
@@ -126,7 +130,8 @@ class SettingsActivityTest {
         Intents.init()
         createTestUser()
         signInTestAccount()
-        val intent = Intent(ApplicationProvider.getApplicationContext(), SettingsActivity::class.java)
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), SettingsActivity::class.java)
         ActivityScenario.launch<ProfilePictureSetActivity>(intent)
     }
 
@@ -137,14 +142,11 @@ class SettingsActivityTest {
     }
 
     @Test
-    fun correctNameIsDisplayed(){
+    fun correctNameIsDisplayed() {
         val name: String = TEST_USERNAME
         Thread.sleep(3000)
         Espresso.onView(ViewMatchers.withId(R.id.settingsUserName))
             .check(ViewAssertions.matches(ViewMatchers.withText(name)))
     }
-
-
-
 
 }
