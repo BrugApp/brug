@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Process.SYSTEM_UID
 import android.provider.MediaStore
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
@@ -29,6 +30,7 @@ import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
@@ -93,7 +95,7 @@ class ChatActivityTest {
     private val conversation = Conversation(
         "USER1USER2",
         dummyUser,
-        "DummyItem",
+        MyItem("DummyItem", 0, "DUMMYDESC", false),
         Message(
             dummyUser.getFullName(), dummyDate, "TestMessage"
         )
@@ -432,11 +434,10 @@ class ChatActivityTest {
             )
 
             Thread.sleep(10000)
-            intended(
-                allOf(
-                    hasComponent(MapBoxActivity::class.java.name)
-                )
-            )
+            
+            intended(allOf(
+                hasComponent(MapBoxActivity::class.java.name)))
+
             firebaseAuth.signOut()
         }
     }

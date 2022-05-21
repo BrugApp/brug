@@ -28,5 +28,9 @@
 //        Espresso.onView(ViewMatchers.withId(R.id.action_settings)).perform(ViewActions.click())
 //        Espresso.onView(ViewMatchers.withId(R.id.titleSettings))
 //            .check(ViewAssertions.matches(ViewMatchers.withText("Settings")))
+//
+//    @Test
+//    fun lauchingBrugAppDoesNotCrashTest() {
+//        BrugApp()
 //    }
 //}

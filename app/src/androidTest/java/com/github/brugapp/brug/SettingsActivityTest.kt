@@ -36,5 +36,3 @@ class SettingsActivityTest {
         Intents.release()
     }
 }
-
-

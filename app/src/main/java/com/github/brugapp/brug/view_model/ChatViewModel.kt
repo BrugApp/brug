@@ -204,7 +204,6 @@ class ChatViewModel : ViewModel() {
     ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val strMsg = textBox.text.toString().ifBlank { "📷 Image" }
-        //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -263,9 +262,31 @@ class ChatViewModel : ViewModel() {
         return image
     }
 
+    fun computeWidthHeight(width: Int, height: Int, targetWidth: Int, targetHeight: Int): Pair<Int, Int>{
+        val ratioBM = width.toFloat() / height.toFloat()
+        val idealWidth = targetWidth.toFloat()
+        val idealHeight = targetHeight.toFloat()
+
+        var resizedWidth = idealWidth
+        var resizedHeight = idealHeight
+
+        // the width and height will never exceed 500 by keeping ratio
+        if (ratioBM > 1){
+            // the width is larger than the height and ratio > 1
+            resizedHeight = idealHeight / ratioBM
+        }
+        else{
+            // the height is larger than the width and ratio < 1
+            resizedWidth = idealWidth * ratioBM
+        }
+
+        return Pair(resizedWidth.toInt(), resizedHeight.toInt())
+    }
+
     private fun compressImage(activity: ChatActivity, uri: Uri): URI {
         val imageBM = uriToBitmap(activity, uri)
-        val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
+        val (resizedWidth, resizedHeight) = computeWidthHeight(imageBM.width, imageBM.height, 500, 500)
+        val resized = Bitmap.createScaledBitmap(imageBM, resizedWidth, resizedHeight, false)
         return storeBitmap(activity, resized)
     }
 
