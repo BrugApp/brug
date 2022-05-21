@@ -11,6 +11,7 @@ import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.isVisible
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
@@ -40,12 +41,14 @@ import javax.inject.Inject
 
 const val EXTRA_DESTINATION_LATITUDE = "com.github.brugapp.brug.DESTINATION_LATITUDE"
 const val EXTRA_DESTINATION_LONGITUDE = "com.github.brugapp.brug.DESTINATION_LONGITUDE"
+const val EXTRA_MAP_ZOOM = "com.github.brugapp.brug.MAP_ZOOM"
 const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 
 @AndroidEntryPoint
 class MapBoxActivity : AppCompatActivity() {
     private var lon = -122.07131270212334
     private var lat = 37.411793498806624
+    private var zoom = 9.0
 
     private lateinit var locationPermissionHelper: LocationPermissionHelper
 
@@ -69,6 +72,9 @@ class MapBoxActivity : AppCompatActivity() {
             (intent.extras!!.get(EXTRA_DESTINATION_LONGITUDE) as Double?)?.apply {
                 lon = this
             }
+            (intent.extras!!.get(EXTRA_MAP_ZOOM) as Double?)?.apply {
+                zoom = this
+            }
         }
 
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
@@ -80,6 +86,7 @@ class MapBoxActivity : AppCompatActivity() {
     private fun onMapReady() {
         binding.mapView.getMapboxMap().setCamera(
             CameraOptions.Builder().center(Point.fromLngLat(lon, lat))
+                .zoom( zoom)
                 .build()
         )
         binding.mapView.getMapboxMap().loadStyleUri(
@@ -144,9 +151,12 @@ class MapBoxActivity : AppCompatActivity() {
                         }
 
                         pointAnnotationManager.addClickListener{ clickedAnnotation ->
+                            Log.e("ANNOTATION CLICKED", clickedAnnotation.point.toString())
+                            val pointID = clickedAnnotation.featureIdentifier
                             viewAnnotationManager.getViewAnnotationByFeatureId(
-                                clickedAnnotation.featureIdentifier
+                                pointID
                             )!!.toggleViewVisibility()
+
                             true
                         }
                     }
