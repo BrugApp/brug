@@ -4,18 +4,14 @@ import android.app.Activity
 import android.app.Instrumentation
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.view.View
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.closeSoftKeyboard
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -29,11 +25,8 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.*
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.rule.GrantPermissionRule
-import androidx.test.uiautomator.UiDevice
-import androidx.test.uiautomator.UiObjectNotFoundException
-import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.MyUser
@@ -42,8 +35,11 @@ import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDat
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
 import com.github.brugapp.brug.ui.MapBoxActivity
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Description
 import org.hamcrest.Matcher
@@ -406,9 +402,14 @@ class ChatActivityTest {
         }
     }
 
-    // TEST COMMENTED AS IT CONSISTENTLY FAILS ON CIRRUS CI
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+
     @Test
     fun pressLocationOpensMapActivity() {
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("goat@efgh.com", "123456").await()
+            firebaseAuth.signInWithEmailAndPassword("goat@efgh.com", "123456").await()
+        }
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -430,10 +431,13 @@ class ChatActivityTest {
                 )
             )
 
-            val expectedIntent: Matcher<Intent> = anyOf(
-                hasComponent(MapBoxActivity::class.java.name)
+            Thread.sleep(10000)
+            intended(
+                allOf(
+                    hasComponent(MapBoxActivity::class.java.name)
+                )
             )
-            intended(expectedIntent)
+            firebaseAuth.signOut()
         }
     }
 
