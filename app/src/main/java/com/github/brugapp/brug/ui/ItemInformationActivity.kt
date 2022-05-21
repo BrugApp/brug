@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
@@ -25,7 +26,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
-private const val NOT_IMPLEMENTED: String = "no information yet"
+private const val NOT_IMPLEMENTED: String = "No information yet"
 
 @AndroidEntryPoint
 class ItemInformationActivity : AppCompatActivity() {
@@ -44,8 +45,11 @@ class ItemInformationActivity : AppCompatActivity() {
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as Item
 
         val geocoder = Geocoder(this, Locale.getDefault())
-        val textSet: HashMap<String, String> = viewModel.getText(item, firebaseAuth,geocoder)
-        setTextAllView(textSet)
+        val observableMap = MutableLiveData<HashMap<String, String>>()
+        viewModel.getText(item, firebaseAuth,geocoder, this, observableMap)
+        observableMap.observe(this){ textSet ->
+            setTextAllView(textSet)
+        }
 
         setSwitch(item, firebaseAuth)
         //if user click on the localisation textview, we will open the map
