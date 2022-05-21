@@ -1,14 +1,13 @@
 package com.github.brugapp.brug
 
-import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
 import org.hamcrest.core.IsNot
 import org.hamcrest.core.IsNot.not
 import org.hamcrest.core.IsNull
 import org.junit.Test
-import java.util.*
 
 class ItemTest {
     @Test
@@ -122,7 +121,7 @@ class ItemTest {
 
     @Test
     fun settingAndGettingLastLocationWorks() {
-        val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        val item = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
         val lon = 1.0
         val lat = 2.0
         item.setLastLocation(1.0, 2.0)
@@ -134,7 +133,7 @@ class ItemTest {
 
     @Test
     fun hashCodeReturnsCorrectHash() {
-        val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        val item = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
         var result = "".hashCode()
         result = 31 * result + "Phone".hashCode()
         result = 31 * result + ItemType.Phone.ordinal
@@ -148,7 +147,7 @@ class ItemTest {
         val typeName = "Other"
         val typeIcon = R.drawable.ic_baseline_add_24
 
-        val item = MyItem("Other", ItemType.values().size, "DUMMYDESC", false)
+        val item = Item("Other", ItemType.values().size, "DUMMYDESC", false)
 
         assertThat(item.getItemTypeID(), IsEqual(ItemType.Other.ordinal))
         assertThat(ItemType.values()[item.getItemTypeID()].toString(), IsEqual(typeName))

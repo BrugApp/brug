@@ -16,20 +16,21 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
-import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.helpers.EspressoHelper
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.ui.*
+import com.github.brugapp.brug.ui.EXTRA_DESTINATION_LATITUDE
+import com.github.brugapp.brug.ui.EXTRA_DESTINATION_LONGITUDE
+import com.github.brugapp.brug.ui.MapBoxActivity
+import com.github.brugapp.brug.ui.NavigationToItemActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
-import org.hamcrest.Matchers.*
-import org.junit.*
+import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.not
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 
 private val TEST_ITEM = Item("Wallet", ItemType.Wallet.ordinal, "With all my belongings", false)
 private val EPFL_COORDINATES = Pair(46.5197, 6.5657) // LAT, LON
