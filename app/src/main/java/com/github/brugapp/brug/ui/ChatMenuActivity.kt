@@ -12,7 +12,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,7 +31,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 const val CHAT_SEARCH_HINT: String = "Search for a conversation…"
@@ -90,6 +88,7 @@ class ChatMenuActivity : AppCompatActivity() {
         if(conversationTestList == null) {
             ConvRepository.getRealtimeConvsFromUID(
                 firebaseAuth.uid!!,
+                this,
                 firestore,
                 firebaseAuth,
                 firebaseStorage

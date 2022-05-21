@@ -111,14 +111,25 @@ class ItemsMenuActivityTest {
         intended(hasComponent(ChatMenuActivity::class.java.name))
 
     }
-// Always Fails in CI after merge with main, impossible to test locally
-//    @Test
-//    fun changingBottomNavBarMenuToMapGoesToActivity() {
-//        val chatMenuButton = onView(withId(R.id.item_map_button))
-//        chatMenuButton.perform(click())
-//        Thread.sleep(10000)
-//        intended(hasComponent(MapBoxActivity::class.java.name))
-//    }
+
+    @Test
+    fun changingBottomNavBarMenuToMapGoesToActivity() {
+        intending(
+            hasComponent(
+                ComponentNameMatchers.hasClassName(
+                    MapBoxActivity::class.java.name
+                )
+            )
+        ).respondWith(
+            Instrumentation.ActivityResult(
+                Activity.RESULT_OK,
+                Intent().putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+            )
+        )
+        val itemMenuButton = onView(withId(R.id.item_map_button))
+        itemMenuButton.perform(click())
+        intended(hasComponent(MapBoxActivity::class.java.name))
+    }
 
     @Test
     fun clickingOnSettingsButtonGoesToActivity() {
@@ -129,7 +140,7 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val device = UiDevice.getInstance(getInstrumentation())
 
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(UiSelector()
@@ -145,7 +156,7 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeRightOnItemDeletesItem() {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        val device = UiDevice.getInstance(getInstrumentation())
 
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(UiSelector()
@@ -202,7 +213,7 @@ class ItemsMenuActivityTest {
 
     @Test
     fun clickOnItemTriggersInformationItem() {
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        UiDevice.getInstance(getInstrumentation())
 
         val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToClick = chatList.getChild(UiSelector()
@@ -217,7 +228,7 @@ class ItemsMenuActivityTest {
 
     @Test
     fun clickOnButtonTriggersQrCode() {
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+        UiDevice.getInstance(getInstrumentation())
 
         val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToClick = chatList.getChild(UiSelector()
@@ -244,7 +255,7 @@ class ItemsMenuActivityTest {
         val checkKeyboardCmd = "dumpsys input_method | grep mInputShown"
 
         try {
-            return UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            return UiDevice.getInstance(getInstrumentation())
                 .executeShellCommand(checkKeyboardCmd).contains("mInputShown=true")
         } catch (e: IOException) {
             throw RuntimeException("Keyboard check failed", e)

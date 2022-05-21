@@ -35,6 +35,7 @@ import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
+import com.github.brugapp.brug.ui.MapBoxActivity
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -433,10 +434,9 @@ class ChatActivityTest {
                 )
             )
 
-//            val expectedIntent: Matcher<Intent> = anyOf(
-//                hasComponent(MapBoxActivity::class.java.name)
-//            )
-//            intended(expectedIntent)
+            Thread.sleep(10000)
+            intended(allOf(
+                hasComponent(MapBoxActivity::class.java.name)))
             firebaseAuth.signOut()
         }
     }

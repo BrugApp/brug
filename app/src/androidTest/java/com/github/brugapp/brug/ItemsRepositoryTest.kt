@@ -1,6 +1,7 @@
 
 package com.github.brugapp.brug
 
+import androidx.lifecycle.testing.TestLifecycleOwner
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
@@ -8,9 +9,7 @@ import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.services.LocationService
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
@@ -93,6 +92,7 @@ class ItemsRepositoryTest {
 
         ItemsRepository.getRealtimeUserItemsFromUID(
             DUMMY_UID,
+            TestLifecycleOwner(),
             firestore
         )
         delay(2000)
@@ -153,7 +153,7 @@ class ItemsRepositoryTest {
             firestore
         ).onSuccess, IsEqual(true))
 
-        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, firestore)
+        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, TestLifecycleOwner(), firestore)
         delay(2000)
 
         assertThat(BrugDataCache.getCachedItems().value.isNullOrEmpty(), IsEqual(false))
@@ -217,7 +217,7 @@ class ItemsRepositoryTest {
             firestore
         ).onSuccess, IsEqual(true))
 
-        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, firestore)
+        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, TestLifecycleOwner(), firestore)
         delay(2000)
 
         assertThat(BrugDataCache.getCachedItems().value.isNullOrEmpty(), IsEqual(false))
@@ -259,7 +259,7 @@ class ItemsRepositoryTest {
             firestore
         ).onSuccess, IsEqual(true))
 
-        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, firestore)
+        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, TestLifecycleOwner(), firestore)
         delay(2000)
 
         assertThat(BrugDataCache.getCachedItems().value, IsNot(IsEqual(mutableListOf())))
@@ -276,7 +276,7 @@ class ItemsRepositoryTest {
 
     @Test
     fun getItemsFromWrongUserReturnsNull() = runBlocking {
-        ItemsRepository.getRealtimeUserItemsFromUID("WRONGUID", firestore)
+        ItemsRepository.getRealtimeUserItemsFromUID("WRONGUID", TestLifecycleOwner(), firestore)
         delay(2000)
         assertThat(BrugDataCache.getCachedItems().value, IsEqual(mutableListOf()))
     }
@@ -286,7 +286,7 @@ class ItemsRepositoryTest {
         ITEM.setItemID(ITEM_ID)
         ITEM.setLastLocation(0.0, 0.0)
         val response = ItemsRepository.addItemWithItemID(ITEM, ITEM_ID, DUMMY_UID,firestore)
-        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID,firestore)
+        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, TestLifecycleOwner(), firestore)
         delay(2000)
 
         assertThat(response.onSuccess, IsEqual(true))
@@ -302,7 +302,7 @@ class ItemsRepositoryTest {
         val updatedItem = Item("AirPods 3", 1, ITEM.itemDesc, ITEM.isLost())
         updatedItem.setItemID(ITEM_ID)
         assertThat(ItemsRepository.updateItemFields(updatedItem, DUMMY_UID,firestore).onSuccess, IsEqual(true))
-        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID,firestore)
+        ItemsRepository.getRealtimeUserItemsFromUID(DUMMY_UID, TestLifecycleOwner(), firestore)
         delay(2000)
 
         assertThat(BrugDataCache.getCachedItems().value.isNullOrEmpty(), IsEqual(false))

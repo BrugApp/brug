@@ -2,6 +2,7 @@
 package com.github.brugapp.brug.data
 
 import android.util.Log
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.services.LocationService
@@ -44,7 +45,7 @@ object ItemsRepository {
 
             val map = mutableMapOf<String, Any>(
                 "item_name" to item.itemName,
-                "item_type" to item.itemTypeID,
+                "item_type" to item.getItemTypeID(),
                 "item_description" to item.itemDesc,
                 "is_lost" to item.isLost(),
             )
@@ -133,7 +134,7 @@ object ItemsRepository {
 
             val map = mutableMapOf<String, Any>(
                 "item_name" to item.itemName,
-                "item_type" to item.itemTypeID,
+                "item_type" to item.getItemTypeID(),
                 "item_description" to item.itemDesc,
                 "is_lost" to item.isLost(),
             )
@@ -206,7 +207,7 @@ object ItemsRepository {
 
             val map = mutableMapOf<String, Any>(
                 "item_name" to item.itemName,
-                "item_type" to item.itemTypeID,
+                "item_type" to item.getItemTypeID(),
                 "item_description" to item.itemDesc,
                 "is_lost" to item.isLost(),
             )
@@ -277,7 +278,11 @@ object ItemsRepository {
      * @param uid the user ID
      *
      */
-    fun getRealtimeUserItemsFromUID(uid: String, firestore: FirebaseFirestore) {
+    fun getRealtimeUserItemsFromUID(
+        uid: String,
+        observer: LifecycleOwner,
+        firestore: FirebaseFirestore
+    ) {
         val userRef = firestore.collection(USERS_DB).document(uid)
         userRef.get().addOnCompleteListener { task ->
             if(task.isSuccessful){
@@ -289,7 +294,7 @@ object ItemsRepository {
                                     getItemFromDoc(itemDoc)
                                 }
                             )
-                        }.observeForever { list ->
+                        }.observe(observer) { list ->
                             BrugDataCache.setItemsInCache(list.toMutableList())
                         }
                     } else {

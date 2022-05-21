@@ -5,15 +5,12 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,7 +30,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val ITEMS_SEARCH_HINT: String = "Search items here…"
@@ -88,7 +84,9 @@ class ItemsMenuActivity : AppCompatActivity() {
         if(itemsTestList == null){
                 ItemsRepository.getRealtimeUserItemsFromUID(
                     firebaseAuth.uid!!,
-                    firestore)
+                    this,
+                    firestore
+                )
         } else {
             BrugDataCache.setItemsInCache(itemsTestList)
         }

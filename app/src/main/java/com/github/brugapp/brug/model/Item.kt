@@ -3,13 +3,21 @@ package com.github.brugapp.brug.model
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.services.LocationService
 import java.io.Serializable
+import java.util.*
 
 class Item(
     val itemName: String,
-    val itemTypeID: Int,
+    private var itemTypeID: Int,
     val itemDesc: String,
     private var isLost: Boolean
 ) : Serializable {
+
+
+    init {
+        if (!(0 <= itemTypeID && itemTypeID < ItemType.values().size)) {
+            this.itemTypeID = ItemType.Other.ordinal
+        }
+    }
 
     /* ITEM ID */
     private var itemID: String = ""
@@ -30,15 +38,17 @@ class Item(
         return this.itemID
     }
 
+    fun getItemTypeID(): Int {
+        return this.itemTypeID
+    }
+
     /* ITEM TYPE */
     fun getRelatedIcon(): Int {
         return getRelatedItemType().getRelatedIcon()
     }
 
     private fun getRelatedItemType(): ItemType {
-        return if (0 <= itemTypeID && itemTypeID < ItemType.values().size)
-            ItemType.values()[itemTypeID]
-        else ItemType.Other
+        return ItemType.values()[itemTypeID]
     }
 
     /* ITEM STATE */
@@ -67,7 +77,6 @@ class Item(
         result = 31 * result + isLost.hashCode()
         return result
     }
-
 }
 
 enum class ItemType {

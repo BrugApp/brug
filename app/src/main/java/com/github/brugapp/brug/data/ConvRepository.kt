@@ -1,6 +1,7 @@
 package com.github.brugapp.brug.data
 
 import android.util.Log
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
@@ -185,6 +186,7 @@ object ConvRepository {
      */
     fun getRealtimeConvsFromUID(
         uid: String,
+        observer: LifecycleOwner,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
@@ -207,7 +209,7 @@ object ConvRepository {
                                         )
                                     },
                                 )
-                            }.observeForever { list ->
+                            }.observe(observer) { list ->
                                 BrugDataCache.setConversationsInCache(list.toMutableList())
                             }
                         } else {

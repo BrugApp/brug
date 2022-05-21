@@ -44,7 +44,9 @@ class MyFCMMessagingService : FirebaseMessagingService() {
         val firebaseAuth = FirebaseAuth.getInstance()
         val firestore = FirebaseFirestore.getInstance()
         val observableResponse = MutableLiveData<FirebaseResponse>()
-        addNewDeviceTokenToUser(firebaseAuth.currentUser!!.uid, token, observableResponse, firestore)
+        if(firebaseAuth.uid != null){
+            addNewDeviceTokenToUser(firebaseAuth.currentUser!!.uid, token, observableResponse, firestore)
+        }
     }
 
 

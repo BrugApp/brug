@@ -106,8 +106,8 @@ object UserRepository {
     fun addNewDeviceTokenToUser(uid: String, token: String, response: MutableLiveData<FirebaseResponse>, firestore: FirebaseFirestore) {
         val userRef = firestore.collection(USERS_DB).document(uid)
         userRef.get().addOnCompleteListener { task ->
-            if(task.isSuccessful){
-                userRef.collection(TOKENS_DB).document(token).set({}).addOnCompleteListener{ addToken ->
+            if(task.isSuccessful && task.result.exists()){
+                userRef.collection(TOKENS_DB).document(token).set({}).addOnCompleteListener { addToken ->
                     if(addToken.isSuccessful){
                         response.postValue(FirebaseResponse(true, null))
                     } else {

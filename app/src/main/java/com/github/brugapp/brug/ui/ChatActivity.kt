@@ -2,11 +2,7 @@ package com.github.brugapp.brug.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,14 +14,11 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.BrugDataCache
-import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
@@ -36,19 +29,11 @@ import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
-import com.github.brugapp.brug.view_model.ItemsMenuViewModel
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -124,6 +109,7 @@ class ChatActivity : AppCompatActivity() {
                 conversation.convId,
                 conversation.userFields.getFullName(),
                 firebaseAuth.uid!!,
+                this,
                 this,
                 firestore,
                 firebaseAuth,
