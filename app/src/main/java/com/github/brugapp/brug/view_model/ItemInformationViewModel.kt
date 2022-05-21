@@ -36,7 +36,7 @@ class ItemInformationViewModel : ViewModel() {
 
         observableLocationName.observe(context){ lastLocationStr ->
             val newMap = observableMap.value
-            newMap!!.replace("lastLocation", lastLocationStr)
+            newMap!!.put("lastLocation", lastLocationStr)
             observableMap.postValue(newMap)
         }
     }
