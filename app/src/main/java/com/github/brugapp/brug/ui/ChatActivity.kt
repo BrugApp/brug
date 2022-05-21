@@ -15,25 +15,32 @@ import android.widget.*
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
+import com.github.brugapp.brug.view_model.ItemsMenuViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
@@ -138,10 +145,16 @@ class ChatActivity : AppCompatActivity() {
                 if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
                     adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
                 ) {
-                    val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
                     val message = adapter.getItem(position) as LocationMessage
-                    myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, message.location.toAndroidLocation().longitude)
-                    myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, message.location.toAndroidLocation().latitude)
+                    val lon = message.location.toAndroidLocation().longitude
+                    val lat = message.location.toAndroidLocation().latitude
+                    liveData(Dispatchers.IO) {
+                        conversation.lostItem.setLastLocation(lon, lat)
+                        emit(ItemsRepository.updateItemFields(conversation.lostItem, firebaseAuth.currentUser!!.uid, firestore))
+                    }.observe(this@ChatActivity){}
+                    val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
+                    myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
+                    myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
                     startActivity(myIntent)
                 } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
                     adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
@@ -159,7 +172,7 @@ class ChatActivity : AppCompatActivity() {
 
 
         inflateActionBar(
-            conversation.userFields.getFullName(), conversation.lostItemName
+            conversation.userFields.getFullName(), conversation.lostItem.itemName
         )
     }
 

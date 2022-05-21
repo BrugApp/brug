@@ -22,6 +22,7 @@ import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.model.Message
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.model.message_types.LocationMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -119,17 +120,14 @@ class QrCodeScanViewModel : ViewModel() {
         }
 
         val (userID, itemID) = qrText.toString().split(":")
-
-        val lostItemName = getItemNameForNewConversation(userID, itemID) ?: return null
-//        val convID = firebaseAuth.currentUser!!.uid + itemID
-        val response = ConvRepository.addNewConversation(
-            firebaseAuth.currentUser!!.uid,
-            userID,
-            lostItemName,
-            firestore
-        )
-
-        return if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
+        val item = ItemsRepository.getSingleItemFromIDs(userID, itemID)
+        return if(item == null){
+            ItemsRepository.addItemWithItemID(MyItem("default item name",itemID.toInt(),"default description",false),itemID,userID,firestore)
+            firebaseAuth.currentUser!!.uid + userID
+        }else {
+            val response = ConvRepository.addNewConversation(firebaseAuth.currentUser!!.uid, userID, "$userID:$itemID", firestore)
+            if(response.onSuccess) firebaseAuth.currentUser!!.uid + userID else null
+        }
     }
 
     private suspend fun sendMessages(senderID: String,
@@ -170,8 +168,8 @@ class QrCodeScanViewModel : ViewModel() {
         ).onSuccess
     }
 
-    private suspend fun getItemNameForNewConversation(userID: String, itemID: String): String? {
-        return ItemsRepository.getSingleItemFromIDs(userID, itemID)?.itemName
+    private suspend fun getItemForNewConversation(userID: String, itemID: String): MyItem? {
+        return ItemsRepository.getSingleItemFromIDs(userID, itemID)
     }
 
 

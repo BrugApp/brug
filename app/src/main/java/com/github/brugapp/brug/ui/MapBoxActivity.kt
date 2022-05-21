@@ -15,7 +15,7 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
-import com.github.brugapp.brug.databinding.SampleHelloWorldViewBinding
+import com.github.brugapp.brug.databinding.OnItemMapClickViewBinding
 import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.auth.ktx.auth
@@ -98,14 +98,9 @@ class MapBoxActivity : AppCompatActivity() {
     }
 
     private fun addIcons() {
-        var x = 0
         // Create an instance of the Annotation API and get the PointAnnotationManager.
         if (items != null) {
             for (item in items!!) {
-                if (x == 0) {
-                    item.setLastLocation(lon, lat)
-                    x = 1
-                }
                 @DrawableRes val icon: Int = item.getRelatedIcon()
                 val lastLocation = item.getLastLocation()
                 if (lastLocation != null) {
@@ -117,14 +112,15 @@ class MapBoxActivity : AppCompatActivity() {
                             PointAnnotationOptions()
                                 .withPoint(point)
                                 .withIconImage(it)
-                                .withIconAnchor(IconAnchor.BOTTOM)
+                                .withIconSize(2.0)
+                                .withIconAnchor(IconAnchor.CENTER)
                                 .withDraggable(true)
                         val pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
                         val pointAnnotation = pointAnnotationManager.create(pointAnnotationOptions)
 
                         val viewAnnotationManager = binding.mapView.viewAnnotationManager
                         val viewAnnotation = viewAnnotationManager.addViewAnnotation(
-                            resId = R.layout.sample_hello_world_view,
+                            resId = R.layout.on_item_map_click_view,
                             options = viewAnnotationOptions {
                                 geometry(point)
                                 associatedFeatureId(pointAnnotation.featureIdentifier)
@@ -132,11 +128,12 @@ class MapBoxActivity : AppCompatActivity() {
                                 offsetY((pointAnnotation.iconImageBitmap?.height!!).toInt())
                             }
                         )
-                        SampleHelloWorldViewBinding.bind(viewAnnotation).apply {
+                        OnItemMapClickViewBinding.bind(viewAnnotation).apply {
                             setLinkWithNavigation(walkButton, DirectionsCriteria.PROFILE_WALKING, lastLocation)
                             setLinkWithNavigation(driveButton, DirectionsCriteria.PROFILE_DRIVING, lastLocation)
                             itemNameOnMap.text = item.itemName
                         }
+                        // hide annotation at start
                         viewAnnotation.toggleViewVisibility()
 
                         pointAnnotationManager.addClickListener { clickedAnnotation ->

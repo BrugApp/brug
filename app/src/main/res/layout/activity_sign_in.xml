@@ -57,7 +57,7 @@
         android:text="@string/demo_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar
@@ -70,19 +70,6 @@
             app:layout_constraintRight_toRightOf="parent"
             android:indeterminate="true"
             android:visibility="invisible"/>
-
-    <Button
-        android:id="@+id/mapDemoButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="51dp"
-        android:layout_marginEnd="84dp"
-        android:layout_marginBottom="84dp"
-        android:text="navigation demo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.333"
-        app:layout_constraintStart_toEndOf="@+id/demo_button" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -45,3 +45,4 @@ class SettingsActivityTest {
             .check(ViewAssertions.matches(ViewMatchers.withText("Settings")))
     }
 }
+
