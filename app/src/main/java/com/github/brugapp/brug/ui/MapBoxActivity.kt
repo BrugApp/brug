@@ -28,6 +28,7 @@ import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.Style
 import com.mapbox.maps.ViewAnnotationAnchor
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
+import com.mapbox.maps.extension.style.layers.properties.generated.Visibility
 import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
@@ -141,13 +142,11 @@ class MapBoxActivity : AppCompatActivity() {
                             setLinkWithNavigation(driveButton, DirectionsCriteria.PROFILE_DRIVING, lastLocation)
                             itemNameOnMap.text = item.itemName
                         }
-                        // hide annotation at start
-                        viewAnnotation.toggleViewVisibility()
 
-                        pointAnnotationManager.addClickListener { clickedAnnotation ->
-                            if (pointAnnotation == clickedAnnotation) {
-                                viewAnnotation.toggleViewVisibility()
-                            }
+                        pointAnnotationManager.addClickListener{ clickedAnnotation ->
+                            viewAnnotationManager.getViewAnnotationByFeatureId(
+                                clickedAnnotation.featureIdentifier
+                            )!!.toggleViewVisibility()
                             true
                         }
                     }
