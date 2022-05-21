@@ -43,7 +43,7 @@ object ItemsRepository {
             userRef.collection(ITEMS_DB).add(
                 mapOf(
                     "item_name" to item.itemName,
-                    "item_type" to item.itemTypeID,
+                    "item_type" to item.getItemTypeID(),
                     "item_description" to item.itemDesc,
                     "is_lost" to item.isLost(),
                     "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
@@ -88,7 +88,7 @@ object ItemsRepository {
             itemRef.update(
                 mapOf(
                     "item_name" to item.itemName,
-                    "item_type" to item.itemTypeID,
+                    "item_type" to item.getItemTypeID(),
                     "item_description" to item.itemDesc,
                     "is_lost" to item.isLost(),
                     "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
@@ -159,7 +159,7 @@ object ItemsRepository {
             userRef.collection(ITEMS_DB).document(itemID).set(
                 mapOf(
                     "item_name" to item.itemName,
-                    "item_type" to item.itemTypeID,
+                    "item_type" to item.getItemTypeID(),
                     "item_description" to item.itemDesc,
                     "is_lost" to item.isLost(),
                     "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
