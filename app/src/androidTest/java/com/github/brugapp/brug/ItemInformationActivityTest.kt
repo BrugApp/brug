@@ -70,7 +70,7 @@ class ItemInformationActivityTest {
             firebaseAuth.signInWithEmailAndPassword("abcd@efgh.com", "123456").await()
         }
         val ouchy = "Av. Emile-Henri-Jaques-Dalcroze 7, 1007 Lausanne, Switzerland"
-        Thread.sleep(2000)
+        Thread.sleep(1000)
         onView(withId(R.id.item_last_location)).check(matches(withText(ouchy)))
         onView(withId(R.id.item_last_location)).perform(click())
         firebaseAuth.signOut()

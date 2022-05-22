@@ -152,11 +152,11 @@ class MapBoxActivity : AppCompatActivity() {
                         )
                         pointAnnotationManager.addClickListener{ clickedAnnotation ->
                             val pointID = clickedAnnotation.featureIdentifier
-                            val viewAnnotation = viewAnnotationManager.getViewAnnotationByFeatureId(
+                            val annotation = viewAnnotationManager.getViewAnnotationByFeatureId(
                                 pointID
                             )
-                            Log.e("ANNOTATION ERROR", viewAnnotation?.visibility.toString())
-                            viewAnnotation?.toggleViewVisibility()
+                            Log.e("ANNOTATION ERROR", annotation?.visibility.toString())
+                            annotation?.toggleViewVisibility()
 
                             true
                         }
