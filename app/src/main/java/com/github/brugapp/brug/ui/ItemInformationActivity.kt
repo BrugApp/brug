@@ -45,11 +45,11 @@ class ItemInformationActivity : AppCompatActivity() {
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as Item
 
         val geocoder = Geocoder(this, Locale.getDefault())
-        val observableMap = MutableLiveData<HashMap<String, String>>()
-        viewModel.getText(item, firebaseAuth,geocoder, this, observableMap)
-        observableMap.observe(this){ textSet ->
-            setTextAllView(textSet)
-        }
+        val textSet = viewModel.getText(item, firebaseAuth,geocoder)
+        setTextAllView(textSet)
+//        val observableMap = MutableLiveData<HashMap<String, String>>()
+//        observableMap.observe(this){ textSet ->
+//        }
 
         setSwitch(item, firebaseAuth)
         //if user click on the localisation textview, we will open the map

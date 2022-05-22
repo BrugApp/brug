@@ -17,6 +17,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.helpers.EspressoHelper
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
@@ -57,6 +58,7 @@ class MapBoxActivityTest {
     @After
     fun cleanUp() {
         Intents.release()
+        BrugDataCache.resetCachedItems()
     }
 
     private fun setTestList(): ArrayList<Item> {
@@ -64,98 +66,98 @@ class MapBoxActivityTest {
         return arrayListOf(TEST_ITEM)
     }
 
-//    @Test
-//    fun clickOnRandomPositionDoesNotOpenViewAnnotation() {
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//        val intent = Intent(context, MapBoxActivity::class.java).apply {
-//            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
-//            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
-//            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
-//            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
-//        }
-//        ActivityScenario.launch<Activity>(intent).use{
-//            EspressoHelper.clickIn(10,10)
-//            Thread.sleep(10000)
-//            // if view annotation is not displayed, this will throw an exception
-//            Espresso.onView(withId(R.id.driveButton)).check(matches(not(isDisplayed())))
-//        }
-//    }
-//
-//    @Test
-//    fun clickOnItemOpensViewAnnotation() {
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//        val intent = Intent(context, MapBoxActivity::class.java).apply {
-//            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
-//            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
-//            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
-//            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
-//        }
-//        ActivityScenario.launch<Activity>(intent).use{
-//            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(1))
-//            Log.e("ZOOM VALUE", zoom().getLiteral<Int>().toString())
-//            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
-//            Thread.sleep(10000)
-//
-//            Espresso.onView(withId(R.id.driveButton)).check(matches(isDisplayed()))
-//        }
-//    }
-//
-//    @Test
-//    fun clickOnWalkButtonOpensNavigation() {
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//        val intent = Intent(context, MapBoxActivity::class.java).apply {
-//            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
-//            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
-//            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
-//            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
-//        }
-//        ActivityScenario.launch<Activity>(intent).use{
-//            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
-//            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
-//            Thread.sleep(10000)
-//
-//            Espresso.onView(withId(R.id.walkButton)).perform(click())
-//            Thread.sleep(10000)
-//            intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
-//        }
-//    }
-//
-//    @Test
-//    fun clickOnDriveButtonOpensNavigation() {
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//        val intent = Intent(context, MapBoxActivity::class.java).apply {
-//            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
-//            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
-//            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
-//            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
-//        }
-//        ActivityScenario.launch<Activity>(intent).use{
-//            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
-//            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
-//            Thread.sleep(10000)
-//
-//            Espresso.onView(withId(R.id.driveButton)).perform(click())
-//            Thread.sleep(10000)
-//            intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
-//        }
-//    }
-//
-//    @Test
-//    fun viewAnnotationDisplaysNameOfItem() {
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//        val intent = Intent(context, MapBoxActivity::class.java).apply {
-//            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
-//            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
-//            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
-//            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
-//        }
-//        ActivityScenario.launch<Activity>(intent).use{
-//            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
-//            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
-//            Thread.sleep(10000)
-//
-//            Espresso.onView(withId(R.id.itemNameOnMap)).check(matches(withText(TEST_ITEM.itemName)))
-//        }
-//    }
+    @Test
+    fun clickOnRandomPositionDoesNotOpenViewAnnotation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
+            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            EspressoHelper.clickIn(10,10)
+            Thread.sleep(3000)
+            // if view annotation is not displayed, this will throw an exception
+            Espresso.onView(withId(R.id.driveButton)).check(matches(not(isDisplayed())))
+        }
+    }
+
+    @Test
+    fun clickOnItemOpensViewAnnotation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
+            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(1))
+            Log.e("ZOOM VALUE", zoom().getLiteral<Int>().toString())
+            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
+            Thread.sleep(3000)
+
+            Espresso.onView(withId(R.id.driveButton)).check(matches(isDisplayed()))
+        }
+    }
+
+    @Test
+    fun clickOnWalkButtonOpensNavigation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
+            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
+            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
+            Thread.sleep(3000)
+
+            Espresso.onView(withId(R.id.walkButton)).perform(click())
+            Thread.sleep(3000)
+            intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
+        }
+    }
+
+    @Test
+    fun clickOnDriveButtonOpensNavigation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
+            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
+            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
+            Thread.sleep(3000)
+
+            Espresso.onView(withId(R.id.driveButton)).perform(click())
+            Thread.sleep(3000)
+            intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
+        }
+    }
+
+    @Test
+    fun viewAnnotationDisplaysNameOfItem() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
+            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
+            Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
+            Thread.sleep(3000)
+
+            Espresso.onView(withId(R.id.itemNameOnMap)).check(matches(withText(TEST_ITEM.itemName)))
+        }
+    }
 
 }

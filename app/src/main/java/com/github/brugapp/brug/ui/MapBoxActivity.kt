@@ -11,7 +11,6 @@ import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.view.isVisible
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
@@ -29,10 +28,12 @@ import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.Style
 import com.mapbox.maps.ViewAnnotationAnchor
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
-import com.mapbox.maps.extension.style.layers.properties.generated.Visibility
+import com.mapbox.maps.plugin.annotation.AnnotationPlugin
 import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.viewannotation.ViewAnnotationManager
 import com.mapbox.maps.viewannotation.viewAnnotationOptions
 import com.mapbox.navigation.ui.utils.internal.extensions.getBitmap
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,6 +55,10 @@ class MapBoxActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMapBoxBinding
 
+    private lateinit var annotationPlugin: AnnotationPlugin
+    private lateinit var pointAnnotationManager: PointAnnotationManager
+    private lateinit var viewAnnotationManager: ViewAnnotationManager
+
     @Inject
     lateinit var firestore: FirebaseFirestore
 
@@ -63,6 +68,11 @@ class MapBoxActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMapBoxBinding.inflate(layoutInflater)
+        annotationPlugin = binding.mapView.annotations
+        pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
+        viewAnnotationManager = binding.mapView.viewAnnotationManager
+
+
         setContentView(binding.root)
 
         if (intent.extras != null) {
@@ -109,15 +119,11 @@ class MapBoxActivity : AppCompatActivity() {
             BrugDataCache.setItemsInCache(itemsTestList)
         }
 
-        val annotationPlugin = binding.mapView.annotations
-        val pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
-        val viewAnnotationManager = binding.mapView.viewAnnotationManager
-
         // Create an instance of the Annotation API and get the PointAnnotationManager.
         BrugDataCache.getCachedItems().observe(this) { items ->
             // First we flush the contents of the map
-            pointAnnotationManager.deleteAll()
             viewAnnotationManager.removeAllViewAnnotations()
+            pointAnnotationManager.deleteAll()
 
             for (item in items) {
                 @DrawableRes val icon: Int = item.getRelatedIcon()
@@ -151,11 +157,12 @@ class MapBoxActivity : AppCompatActivity() {
                         }
 
                         pointAnnotationManager.addClickListener{ clickedAnnotation ->
-                            Log.e("ANNOTATION CLICKED", clickedAnnotation.point.toString())
                             val pointID = clickedAnnotation.featureIdentifier
-                            viewAnnotationManager.getViewAnnotationByFeatureId(
+                            val annotation = viewAnnotationManager.getViewAnnotationByFeatureId(
                                 pointID
-                            )!!.toggleViewVisibility()
+                            )
+                            annotation?.toggleViewVisibility()
+                            Log.e("ANNOTATION VISIBILITY", annotation?.visibility.toString())
 
                             true
                         }
