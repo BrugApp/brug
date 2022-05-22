@@ -34,6 +34,7 @@ class LocalisationTest {
     fun noLocalisationSet() {
         val myItem = Item("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
         setUp(myItem)
+        Thread.sleep(2000)
         Espresso.onView(ViewMatchers.withId(R.id.item_last_location))
             .check(ViewAssertions.matches(ViewMatchers.withText("Not set")))
     }
@@ -52,6 +53,7 @@ class LocalisationTest {
         val myItem = Item("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
         myItem.setLastLocation(1000.0,10000.0) // set bad location (out of map) => exception
         setUp(myItem)
+        Thread.sleep(2000)
         Espresso.onView(ViewMatchers.withId(R.id.item_last_location))
             .check(ViewAssertions.matches(ViewMatchers.withText("Not available")))
     }

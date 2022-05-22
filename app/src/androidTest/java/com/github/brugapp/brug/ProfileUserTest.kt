@@ -226,6 +226,16 @@ class ProfileUserTestWithoutModule {
     private val account = BrugSignInAccount("Rayan", "Kikou", "", "")
 
 
+    @Before
+    fun setUp() {
+        Intents.init()
+    }
+
+    @After
+    fun cleanUp() {
+        Intents.release()
+        firebaseAuth.signOut()
+    }
 
     @Test
     fun noUserTest(){
@@ -235,7 +245,6 @@ class ProfileUserTestWithoutModule {
             firebaseAuth.signInWithEmailAndPassword("temp@profile.com", "temp1234").await()
         }
 
-        Intents.init()
         val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
         ActivityScenario.launch<ProfilePictureSetActivity>(intent)
         //click on load button
@@ -243,9 +252,6 @@ class ProfileUserTestWithoutModule {
 
         //check that we stayed in the same activity
         onView(withId(R.id.loadButton)).check(matches(isDisplayed()))
-
-        Intents.release()
-        firebaseAuth.signOut()
     }
 
     @Test
@@ -258,13 +264,10 @@ class ProfileUserTestWithoutModule {
             UserRepository.addUserFromAccount(uid, account, true, firestore)
             UserRepository.updateUserIcon(uid, ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), R.mipmap.unlost_logo)!!, firebaseAuth, firebaseStorage, firestore)
         }
-        Intents.init()
         val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
         ActivityScenario.launch<ProfilePictureSetActivity>(intent)
         //click on load button
-        onView(withId(R.id.loadButton)).perform(click())
-        Intents.release()
-        firebaseAuth.signOut()
+//        onView(withId(R.id.loadButton)).perform(click())
     }
 
 }

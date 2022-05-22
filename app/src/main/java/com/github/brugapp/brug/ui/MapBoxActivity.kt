@@ -116,8 +116,10 @@ class MapBoxActivity : AppCompatActivity() {
         // Create an instance of the Annotation API and get the PointAnnotationManager.
         BrugDataCache.getCachedItems().observe(this) { items ->
             // First we flush the contents of the map
-            pointAnnotationManager.deleteAll()
             viewAnnotationManager.removeAllViewAnnotations()
+            pointAnnotationManager.deleteAll()
+
+            Thread.sleep(1500)
 
             for (item in items) {
                 @DrawableRes val icon: Int = item.getRelatedIcon()
