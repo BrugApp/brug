@@ -65,13 +65,8 @@ class MapBoxActivityNoLocationTest {
         Intents.release()
     }
 
-//    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     @Test
     fun mapboxDoesNotCrashWhenNoLocationIsProvided() {
-//        runBlocking {
-//            firebaseAuth.createUserWithEmailAndPassword("goa@efgh.com", "123456").await()
-//            firebaseAuth.signInWithEmailAndPassword("goa@efgh.com", "123456").await()
-//        }
 
         val context = ApplicationProvider.getApplicationContext<Context>()
 
@@ -84,6 +79,5 @@ class MapBoxActivityNoLocationTest {
                 )
             )
         }
-//        firebaseAuth.signOut()
     }
 }

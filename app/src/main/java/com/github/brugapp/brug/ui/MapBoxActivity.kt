@@ -30,9 +30,12 @@ import com.mapbox.maps.Style
 import com.mapbox.maps.ViewAnnotationAnchor
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
 import com.mapbox.maps.extension.style.layers.properties.generated.Visibility
+import com.mapbox.maps.plugin.annotation.AnnotationPlugin
 import com.mapbox.maps.plugin.annotation.annotations
+import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.viewannotation.ViewAnnotationManager
 import com.mapbox.maps.viewannotation.viewAnnotationOptions
 import com.mapbox.navigation.ui.utils.internal.extensions.getBitmap
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,6 +57,9 @@ class MapBoxActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMapBoxBinding
 
+    private lateinit var annotationPlugin: AnnotationPlugin
+    private lateinit var pointAnnotationManager: PointAnnotationManager
+    private lateinit var viewAnnotationManager: ViewAnnotationManager
     @Inject
     lateinit var firestore: FirebaseFirestore
 
@@ -64,6 +70,10 @@ class MapBoxActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMapBoxBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        annotationPlugin = binding.mapView.annotations
+        pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
+        viewAnnotationManager = binding.mapView.viewAnnotationManager
 
         if (intent.extras != null) {
             (intent.extras!!.get(EXTRA_DESTINATION_LATITUDE) as Double?)?.apply {
@@ -102,16 +112,12 @@ class MapBoxActivity : AppCompatActivity() {
                 intent.extras!!.get(ITEMS_TEST_LIST_KEY) as MutableList<Item>
             } else null
 
-        if(itemsTestList == null){
+        if(itemsTestList == null) {
             // First it fetches the items from Firebase, so that the list of items is fresh
             ItemsRepository.getRealtimeUserItemsFromUID(firebaseAuth.uid!!, this, firestore)
         } else {
             BrugDataCache.setItemsInCache(itemsTestList)
         }
-
-        val annotationPlugin = binding.mapView.annotations
-        val pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
-        val viewAnnotationManager = binding.mapView.viewAnnotationManager
 
         // Create an instance of the Annotation API and get the PointAnnotationManager.
         BrugDataCache.getCachedItems().observe(this) { items ->
@@ -132,7 +138,6 @@ class MapBoxActivity : AppCompatActivity() {
                                 .withIconImage(it)
                                 .withIconSize(2.0)
                                 .withIconAnchor(IconAnchor.CENTER)
-                                .withDraggable(true)
                         val pointAnnotation = pointAnnotationManager.create(pointAnnotationOptions)
 
                         val viewAnnotation = viewAnnotationManager.addViewAnnotation(
@@ -142,22 +147,24 @@ class MapBoxActivity : AppCompatActivity() {
                                 associatedFeatureId(pointAnnotation.featureIdentifier)
                                 anchor(ViewAnnotationAnchor.BOTTOM)
                                 offsetY((pointAnnotation.iconImageBitmap?.height!!).toInt())
+                                selected(true)
                             }
                         )
+                        pointAnnotationManager.addClickListener{ clickedAnnotation ->
+                            val pointID = clickedAnnotation.featureIdentifier
+                            val viewAnnotation = viewAnnotationManager.getViewAnnotationByFeatureId(
+                                pointID
+                            )
+                            Log.e("ANNOTATION ERROR", viewAnnotation?.visibility.toString())
+                            viewAnnotation?.toggleViewVisibility()
+
+                            true
+                        }
+
                         OnItemMapClickViewBinding.bind(viewAnnotation).apply {
                             setLinkWithNavigation(walkButton, DirectionsCriteria.PROFILE_WALKING, lastLocation)
                             setLinkWithNavigation(driveButton, DirectionsCriteria.PROFILE_DRIVING, lastLocation)
                             itemNameOnMap.text = item.itemName
-                        }
-
-                        pointAnnotationManager.addClickListener{ clickedAnnotation ->
-                            Log.e("ANNOTATION CLICKED", clickedAnnotation.point.toString())
-                            val pointID = clickedAnnotation.featureIdentifier
-                            viewAnnotationManager.getViewAnnotationByFeatureId(
-                                pointID
-                            )!!.toggleViewVisibility()
-
-                            true
                         }
                     }
                 }
