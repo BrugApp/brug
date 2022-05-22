@@ -6,6 +6,9 @@ import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import android.os.Bundle
+import android.text.Editable
+import android.view.View
+import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -142,12 +145,12 @@ class NFCScannerActivityTest {
 
 
     @Test
-    fun testEditMessage(){
+    fun testTitle(){
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, NFCScannerActivity::class.java)
         ActivityScenario.launch<Activity>(intent).use {
-                val editMessage = onView(withId(R.id.edit_message))
-                    editMessage.check(matches(isDisplayed()))
+                val nfcScanTitle = onView(withId(R.id.nfcScanTitle))
+            nfcScanTitle.check(matches(isDisplayed()))
             }
     }
 
@@ -158,6 +161,16 @@ class NFCScannerActivityTest {
         ActivityScenario.launch<Activity>(intent).use {
             val nfcContents = onView(withId(R.id.nfcContents))
             nfcContents.check(matches(isEnabled()))
+        }
+    }
+
+    @Test
+    fun testScanMessage() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NFCScannerActivity::class.java)
+        ActivityScenario.launch<Activity>(intent).use {
+            val scanMessage = onView(withId(R.id.scanMessage))
+            scanMessage.check(matches(isDisplayed()))
         }
     }
 
@@ -178,5 +191,15 @@ class NFCScannerActivityTest {
         val intent = Intent(context, NFCScannerActivity::class.java)
         testRule.activity.runOnUiThread { testRule.activity.onNewIntent(intent) }
         testRule.activity.onNewIntent(intent)
+    }
+
+    @Test
+    fun testnfcLinks() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NFCScannerActivity::class.java)
+        val contents = Editable.Factory.getInstance().newEditable("")
+        testRule.activity.runOnUiThread{
+            testRule.activity.nfcLinks(Editable.Factory.getInstance().newEditable(contents))
+        }
     }
 }
