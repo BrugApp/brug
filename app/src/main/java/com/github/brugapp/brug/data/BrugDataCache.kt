@@ -1,10 +1,13 @@
 package com.github.brugapp.brug.data
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
+import java.util.concurrent.TimeUnit
 
 const val NETWORK_ERROR_MSG = "ERROR: You have no network connectivity, loading elements from cache."
 const val ACTION_LOST_ERROR_MSG = "ERROR: You have no network connectivity. Try again later."
@@ -79,10 +82,11 @@ object BrugDataCache {
         this.cachedMessagesLists.clear()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun isNetworkAvailable(): Boolean {
         return try {
             val command = "ping -c 1 google.com"
-            Runtime.getRuntime().exec(command).waitFor() == 0
+            Runtime.getRuntime().exec(command).waitFor(2000, TimeUnit.MILLISECONDS)
         } catch (e: Exception) {
             false
         }
