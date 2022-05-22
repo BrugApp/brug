@@ -17,6 +17,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.helpers.EspressoHelper
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
@@ -57,6 +58,7 @@ class MapBoxActivityTest {
     @After
     fun cleanUp() {
         Intents.release()
+        BrugDataCache.resetCachedItems()
     }
 
     private fun setTestList(): ArrayList<Item> {

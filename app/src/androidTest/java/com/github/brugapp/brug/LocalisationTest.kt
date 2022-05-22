@@ -44,6 +44,7 @@ class LocalisationTest {
         val myItem = Item("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
         myItem.setLastLocation(0.0,0.0) // set bad location
         setUp(myItem)
+        Thread.sleep(2000)
         Espresso.onView(ViewMatchers.withId(R.id.item_last_location))
             .check(ViewAssertions.matches(ViewMatchers.withText("(0.0, 0.0)")))
     }

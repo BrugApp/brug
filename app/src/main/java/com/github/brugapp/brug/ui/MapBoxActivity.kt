@@ -119,7 +119,7 @@ class MapBoxActivity : AppCompatActivity() {
             viewAnnotationManager.removeAllViewAnnotations()
             pointAnnotationManager.deleteAll()
 
-            Thread.sleep(1500)
+//            Thread.sleep(1500)
 
             for (item in items) {
                 @DrawableRes val icon: Int = item.getRelatedIcon()
