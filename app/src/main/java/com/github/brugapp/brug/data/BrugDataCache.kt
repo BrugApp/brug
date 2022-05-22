@@ -82,11 +82,10 @@ object BrugDataCache {
         this.cachedMessagesLists.clear()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun isNetworkAvailable(): Boolean {
         return try {
             val command = "ping -c 1 google.com"
-            Runtime.getRuntime().exec(command).waitFor(2000, TimeUnit.MILLISECONDS)
+            Runtime.getRuntime().exec(command).waitFor() == 0
         } catch (e: Exception) {
             false
         }
