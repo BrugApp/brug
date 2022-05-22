@@ -47,7 +47,6 @@ class ItemInformationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as Item
-        viewModel.setQrId(item, firebaseAuth)
 
         val geocoder = Geocoder(this, Locale.getDefault())
         val textSet = hashMapOf(
@@ -57,7 +56,7 @@ class ItemInformationActivity : AppCompatActivity() {
             "description" to item.itemDesc,
             "isLost" to item.isLost().toString()
         )
-        setTextAllView(textSet)
+//        setTextAllView(textSet)
 
         liveData(Dispatchers.IO){
             emit(BrugDataCache.isNetworkAvailable())
@@ -84,7 +83,7 @@ class ItemInformationActivity : AppCompatActivity() {
             }
         }
 
-        qrCodeButton()
+        qrCodeButton(item)
     }
 
     private fun setSwitch(item: Item, firebaseAuth: FirebaseAuth) {
@@ -113,13 +112,13 @@ class ItemInformationActivity : AppCompatActivity() {
         }
     }
 
-    private fun qrCodeButton() {
+    private fun qrCodeButton(item: Item) {
         //if button is clicked, go to QrCodeShow
         val button: Button = findViewById(R.id.qrGen)
         button.setOnClickListener {
             val intent = Intent(this, QrCodeShowActivity::class.java)
             //give qrId to QrCodeShow
-            intent.putExtra("qrId", viewModel.getQrId())
+            intent.putExtra("qrId", "${firebaseAuth.uid!!}:${item.getItemID()}")
             startActivity(intent)
         }
     }

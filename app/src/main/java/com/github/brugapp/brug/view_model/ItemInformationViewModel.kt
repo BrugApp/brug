@@ -9,14 +9,6 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.runBlocking
 
 class ItemInformationViewModel : ViewModel() {
-
-    private lateinit var qrId: String
-    private lateinit var item: Item
-
-    fun setQrId(item: Item, firebaseAuth: FirebaseAuth){
-        this.qrId = firebaseAuth.uid + ":" + item.getItemID()
-    }
-
     fun getLocationName(lastLocation: LocationService?, geocoder: Geocoder): String {
         if (lastLocation == null) {
             Log.d("ERROR","Localisation null")
@@ -39,10 +31,6 @@ class ItemInformationViewModel : ViewModel() {
             return "Not available"
         }
         return locationName
-    }
-
-    fun getQrId(): String {
-        return qrId
     }
 
 }
