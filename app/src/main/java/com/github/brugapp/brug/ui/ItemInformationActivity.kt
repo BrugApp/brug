@@ -57,6 +57,7 @@ class ItemInformationActivity : AppCompatActivity() {
             "description" to item.itemDesc,
             "isLost" to item.isLost().toString()
         )
+        setTextAllView(textSet)
 
         liveData(Dispatchers.IO){
             emit(BrugDataCache.isNetworkAvailable())
@@ -69,10 +70,6 @@ class ItemInformationActivity : AppCompatActivity() {
             }
             setTextAllView(textSet)
         }
-
-//        val observableMap = MutableLiveData<HashMap<String, String>>()
-//        observableMap.observe(this){ textSet ->
-//        }
 
         setSwitch(item, firebaseAuth)
         //if user click on the localisation textview, we will open the map
