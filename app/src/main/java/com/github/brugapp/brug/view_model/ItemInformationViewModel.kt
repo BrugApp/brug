@@ -13,19 +13,11 @@ class ItemInformationViewModel : ViewModel() {
     private lateinit var qrId: String
     private lateinit var item: Item
 
-    fun getText(item: Item, firebaseAuth: FirebaseAuth,geocoder: Geocoder): HashMap<String, String> {
-        this.item = item
-        qrId = firebaseAuth.uid + ":" + item.getItemID()
-        val hash: HashMap<String, String> = HashMap()
-        hash["title"] = item.itemName
-        hash["image"] = item.getRelatedIcon().toString()
-        hash["lastLocation"] = getLocationName(item.getLastLocation(),geocoder)
-        hash["description"] = item.itemDesc
-        hash["isLost"] = item.isLost().toString()
-        return hash
+    fun setQrId(item: Item, firebaseAuth: FirebaseAuth){
+        this.qrId = firebaseAuth.uid + ":" + item.getItemID()
     }
 
-    private fun getLocationName(lastLocation: LocationService?, geocoder: Geocoder): String {
+    fun getLocationName(lastLocation: LocationService?, geocoder: Geocoder): String {
         if (lastLocation == null) {
             Log.d("ERROR","Localisation null")
             return "Not set"

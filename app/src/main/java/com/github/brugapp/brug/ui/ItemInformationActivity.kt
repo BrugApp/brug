@@ -6,14 +6,18 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -43,10 +47,29 @@ class ItemInformationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as Item
+        viewModel.setQrId(item, firebaseAuth)
 
         val geocoder = Geocoder(this, Locale.getDefault())
-        val textSet = viewModel.getText(item, firebaseAuth,geocoder)
-        setTextAllView(textSet)
+        val textSet = hashMapOf(
+            "title" to item.itemName,
+            "image" to item.getRelatedIcon().toString(),
+            "lastLocation" to "Loading...",
+            "description" to item.itemDesc,
+            "isLost" to item.isLost().toString()
+        )
+
+        liveData(Dispatchers.IO){
+            emit(BrugDataCache.isNetworkAvailable())
+        }.observe(this){ status ->
+            if(!status){
+                textSet["lastLocation"] = "Not available"
+                Toast.makeText(this, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
+            } else {
+                textSet["lastLocation"] = viewModel.getLocationName(item.getLastLocation(), geocoder)
+            }
+            setTextAllView(textSet)
+        }
+
 //        val observableMap = MutableLiveData<HashMap<String, String>>()
 //        observableMap.observe(this){ textSet ->
 //        }
