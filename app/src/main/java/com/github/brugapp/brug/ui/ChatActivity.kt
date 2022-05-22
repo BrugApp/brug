@@ -87,7 +87,7 @@ class ChatActivity : AppCompatActivity() {
         initMessageList(conversation)
         initSendTextMessageButton()
         initSendLocationButton(locationManager, fusedLocationClient)
-        initSendImageCameraButton()
+        initSendImageCameraButton(viewModel)
         initSendImageButton()
 
         messageLayout = findViewById(R.id.messageLayout)
@@ -206,11 +206,20 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun initSendImageCameraButton() {
+    private fun initSendImageCameraButton(model: ChatViewModel) {
         // SEND IMAGE CAMERA BUTTON
         val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
         buttonSendMessage.setOnClickListener {
-            viewModel.takeCameraImage(this)
+            if (model.isCameraPermissionOk(this) && model.isExtStorageOk(this)) {
+                viewModel.takeCameraImage(this)
+            } else if (model.isExtStorageOk(this)) {
+                model.requestCamera(this)
+            } else if (model.isCameraPermissionOk(this)) {
+                model.requestExtStorage(this)
+            } else {
+                model.requestCamera(this)
+                model.requestExtStorage(this)
+            }
         }
     }
 

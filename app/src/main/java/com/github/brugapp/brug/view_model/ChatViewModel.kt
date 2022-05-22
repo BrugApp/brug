@@ -204,7 +204,6 @@ class ChatViewModel : ViewModel() {
     ) {
         val textBox = activity.findViewById<TextView>(R.id.editMessage)
         val strMsg = textBox.text.toString().ifBlank { "📷 Image" }
-        //val resizedUri = resize(activity, imageUri) //still useful??
         val newMessage = PicMessage(
             "Me",
             DateService.fromLocalDateTime(LocalDateTime.now()),
@@ -263,9 +262,31 @@ class ChatViewModel : ViewModel() {
         return image
     }
 
+    fun computeWidthHeight(width: Int, height: Int, targetWidth: Int, targetHeight: Int): Pair<Int, Int>{
+        val ratioBM = width.toFloat() / height.toFloat()
+        val idealWidth = targetWidth.toFloat()
+        val idealHeight = targetHeight.toFloat()
+
+        var resizedWidth = idealWidth
+        var resizedHeight = idealHeight
+
+        // the width and height will never exceed 500 by keeping ratio
+        if (ratioBM > 1){
+            // the width is larger than the height and ratio > 1
+            resizedHeight = idealHeight / ratioBM
+        }
+        else{
+            // the height is larger than the width and ratio < 1
+            resizedWidth = idealWidth * ratioBM
+        }
+
+        return Pair(resizedWidth.toInt(), resizedHeight.toInt())
+    }
+
     private fun compressImage(activity: ChatActivity, uri: Uri): URI {
         val imageBM = uriToBitmap(activity, uri)
-        val resized = Bitmap.createScaledBitmap(imageBM, 500, 500, false)
+        val (resizedWidth, resizedHeight) = computeWidthHeight(imageBM.width, imageBM.height, 500, 500)
+        val resized = Bitmap.createScaledBitmap(imageBM, resizedWidth, resizedHeight, false)
         return storeBitmap(activity, resized)
     }
 
@@ -314,32 +335,12 @@ class ChatViewModel : ViewModel() {
             } else {
                 // Launch the locationListener (updates every 1000 ms)
                 val locationGpsProvider = LocationManager.GPS_PROVIDER
-                locationManager.requestLocationUpdates(
-                    locationGpsProvider,
-                    50,
-                    0.1f
-                ) {
-                    sendLocationMessage(
-                        activity,
-                        it,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
+                locationManager.requestLocationUpdates(locationGpsProvider, 50, 0.1f) {
+                    sendLocationMessage(activity, it, convID, firestore, firebaseAuth, firebaseStorage) }
 
                 // Stop the update as we only want it once (at least for now)
                 locationManager.removeUpdates {
-                    sendLocationMessage(
-                        activity,
-                        it,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
+                    sendLocationMessage(activity, it, convID, firestore, firebaseAuth, firebaseStorage) }
             }
         }
     }
@@ -422,14 +423,6 @@ class ChatViewModel : ViewModel() {
 
     // PERMISSIONS RELATED =======================================================
 
-    fun requestRecording(activity: Activity) {
-        requestPermissions(
-            activity,
-            Array(1) { Manifest.permission.RECORD_AUDIO },
-            RECORDING_REQUEST_CODE
-        )
-    }
-
     fun isExtStorageOk(context: Context): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
@@ -444,6 +437,29 @@ class ChatViewModel : ViewModel() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    fun isCameraPermissionOk(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestCamera(activity: Activity) {
+        requestPermissions(
+            activity,
+            Array(1) { Manifest.permission.CAMERA },
+            TAKE_PICTURE_REQUEST_CODE
+        )
+    }
+
+    fun requestRecording(activity: Activity) {
+        requestPermissions(
+            activity,
+            Array(1) { Manifest.permission.RECORD_AUDIO },
+            RECORDING_REQUEST_CODE
+        )
+    }
+
     fun requestExtStorage(activity: Activity) {
         requestPermissions(
             activity,
@@ -451,6 +467,8 @@ class ChatViewModel : ViewModel() {
             STORAGE_REQUEST_CODE
         )
     }
+
+
 
     private fun requestLocationPermissions(activity: Activity) {
         requestPermissions(

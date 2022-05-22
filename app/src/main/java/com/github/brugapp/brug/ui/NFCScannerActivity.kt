@@ -64,6 +64,7 @@ open class NFCScannerActivity: AppCompatActivity() {
      * 3) press the button
      * @param savedInstanceState
      */
+
     @SuppressLint("SetTextI18n")
     public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         context = this
@@ -93,6 +94,7 @@ open class NFCScannerActivity: AppCompatActivity() {
                 }
             }
             viewModel.displayReportNotification(this)
+
 
         }
     }

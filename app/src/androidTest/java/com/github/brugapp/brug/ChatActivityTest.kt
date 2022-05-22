@@ -67,11 +67,11 @@ class ChatActivityTest {
     var rule = HiltAndroidRule(this)
 
     @get:Rule
-    val permissionRule1: GrantPermissionRule =
+    val permissionRuleCoarseLocation: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
     @get:Rule
-    val permissionRule2: GrantPermissionRule =
+    val permissionRuleFineLocation: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     @get:Rule
@@ -86,11 +86,7 @@ class ChatActivityTest {
     val permissionRuleCamera: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
-    private val convID = "0"
-    private val dummyItemName = "DummyItem"
-
     private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null, mutableListOf())
-
     private val dummyDate = fromLocalDateTime(
         LocalDateTime.of(
             2022, Month.MARCH, 23, 15, 30
@@ -409,7 +405,7 @@ class ChatActivityTest {
     }
 
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    // TEST COMMENTED AS IT CONSISTENTLY FAILS ON CIRRUS CI
+
     @Test
     fun pressLocationOpensMapActivity() {
         runBlocking {
@@ -437,10 +433,11 @@ class ChatActivityTest {
                 )
             )
 
-//            val expectedIntent: Matcher<Intent> = anyOf(
-//                hasComponent(MapBoxActivity::class.java.name)
-//            )
-//            intended(expectedIntent)
+            Thread.sleep(10000)
+
+            intended(allOf(
+                hasComponent(MapBoxActivity::class.java.name)))
+
             firebaseAuth.signOut()
         }
     }
