@@ -118,10 +118,7 @@ class ItemInformationActivity : AppCompatActivity() {
         button.setOnClickListener {
             val intent = Intent(this, QrCodeShowActivity::class.java)
             //give qrId to QrCodeShow
-            val uid = if(firebaseAuth.uid == null){
-                ""
-            } else firebaseAuth.uid
-            intent.putExtra("qrId", "${uid}:${item.getItemID()}")
+            intent.putExtra("qrId", "${firebaseAuth.uid}:${item.getItemID()}")
             startActivity(intent)
         }
     }
