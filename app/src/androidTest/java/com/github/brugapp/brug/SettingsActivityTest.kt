@@ -24,7 +24,6 @@ import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.github.brugapp.brug.ui.ProfilePictureSetActivity
 import com.github.brugapp.brug.ui.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -203,4 +202,3 @@ class SettingsActivityTest {
 
 
 }
-

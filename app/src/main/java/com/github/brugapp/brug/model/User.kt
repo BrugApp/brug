@@ -2,7 +2,7 @@ package com.github.brugapp.brug.model
 
 import java.io.Serializable
 
-data class MyUser(
+data class User(
     val uid: String,
     val firstName: String,
     val lastName: String,

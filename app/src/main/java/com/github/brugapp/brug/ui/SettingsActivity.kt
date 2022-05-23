@@ -1,6 +1,5 @@
 package com.github.brugapp.brug.ui
 
-
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -20,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
+
 const val EXTRA_SIGN_OUT = "com.github.brugapp.brug.SIGN_OUT"
 
 @AndroidEntryPoint
@@ -31,7 +31,6 @@ class SettingsActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseStorage: FirebaseStorage
 
-    @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +41,8 @@ class SettingsActivity : AppCompatActivity() {
             val intent = Intent(this, ProfilePictureSetActivity::class.java)
             startActivity(intent)
         }
+
+
         findViewById<Button>(R.id.sign_out_button).setOnClickListener {
             signOut()
         }
@@ -54,7 +55,7 @@ class SettingsActivity : AppCompatActivity() {
         val pic = findViewById<ImageView>(R.id.settingsUserPic)
         val name = findViewById<TextView>(R.id.settingsUserName)
 
-        val user = UserRepository.getMinimalUserFromUID(
+        val user = UserRepository.getUserFromUID(
             firebaseAuth.currentUser!!.uid,
             firestore,
             firebaseAuth,
