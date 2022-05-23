@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
+import java.util.*
 import javax.inject.Inject
 
 const val DESCRIPTION_LIMIT = 60
@@ -55,6 +56,31 @@ class AddItemActivity : AppCompatActivity() {
         addButton.setOnClickListener {
             addItemOnListener(itemName, itemNameHelper, itemType, itemDesc, firebaseAuth)
         }
+
+        val addNfcButton = findViewById<Button>(R.id.add_nfc_item)
+        addNfcButton.setOnClickListener {
+            addNfcItemOnListener(itemName, itemNameHelper, itemType.selectedItemId.toInt(), itemDesc.text.toString(), firebaseAuth)
+        }
+    }
+
+    private fun addNfcItemOnListener(
+        itemName: EditText,
+        itemNameHelper: TextView,
+        itemType: Int,
+        itemDesc: String,
+        firebaseAuth: FirebaseAuth
+    ) {
+        var newItemID = ""
+        if (viewModel.verifyForm(itemNameHelper, itemName)) {
+            val newItem = MyItem(itemName.text.toString(), itemType, itemDesc, false)
+            newItemID = UUID.randomUUID().toString().filter { char -> char!='-' }.subSequence(0,20).toString()
+            newItem.setItemID(newItemID)
+            runBlocking { ItemsRepository.addItemWithItemID(newItem, newItemID,firebaseAuth.currentUser!!.uid, firestore) }
+        }
+        val myIntent = Intent(this, NFCScannerActivity::class.java)
+        myIntent.putExtra("itemid", newItemID)
+        myIntent.putExtra("write","true")
+        startActivity(myIntent)
     }
 
     private fun addItemOnListener(

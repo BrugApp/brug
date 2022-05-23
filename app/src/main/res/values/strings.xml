@@ -89,4 +89,5 @@
     <string name="content_description_close">ez</string>
     <string name="map">Map</string>
     <string name="fullscreen_description">Image displayed in fullscreen</string>
+    <string name="add_with_nfc">ADD WITH NFC</string>
 </resources>

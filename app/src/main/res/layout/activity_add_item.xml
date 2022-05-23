@@ -48,7 +48,8 @@
                 android:layout_height="40dp"
                 android:hint="@string/itemName"
                 android:inputType="textEmailAddress"
-                android:lines="1" />
+                android:lines="1"
+                tools:ignore="TextContrastCheck,TextContrastCheck,TouchTargetSizeCheck" />
 
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -92,7 +93,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.499"
-                tools:ignore="SpeakableTextPresentCheck" />
+                tools:ignore="SpeakableTextPresentCheck"
+                android:autofillHints="" />
 
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -108,6 +110,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.609" />
+
+        <Button
+            android:id="@+id/add_nfc_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/add_with_nfc"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/add_item_button"
+            app:layout_constraintVertical_bias="0.096" />
 
         <TextView
             android:id="@+id/itemNameHelper"

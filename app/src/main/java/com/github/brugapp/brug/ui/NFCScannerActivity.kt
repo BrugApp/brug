@@ -2,6 +2,7 @@ package com.github.brugapp.brug.ui
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -11,9 +12,9 @@ import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import android.nfc.Tag
 import android.os.Bundle
 import android.text.Editable
+import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -75,11 +76,15 @@ open class NFCScannerActivity: AppCompatActivity() {
         if (adapter==null) Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show() //if (adapter==null) finish()
         nfcIntent = viewModel.setupWritingTagFilters(this).first
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
+        Log.d(TAG,"write = "+intent.getStringExtra("write"))
+        Log.d(TAG,"itemid = "+intent.getStringExtra("itemid"))
+
+        if(intent.getStringExtra("write")!="true") activateButton.visibility = View.GONE
         activateButton.setOnClickListener {
             try {
                 if (tag == null) Toast.makeText(this, Error_detected, Toast.LENGTH_LONG).show()
                 else if(!nfcLinks(Editable.Factory.getInstance().newEditable(nfcContents.text))) {
-                    val newItemID = UUID.randomUUID().toString().filter { char -> char!='-' }.subSequence(0,20)
+                    val newItemID = intent.getStringExtra("itemid")
                     nfcContents.text = firebaseAuth.currentUser?.uid+':'+newItemID
                     viewModel.write(nfcContents.text.toString(), tag!!)
                     Toast.makeText(this, "new item created:"+nfcContents.text.toString(), Toast.LENGTH_LONG).show()
@@ -106,12 +111,8 @@ open class NFCScannerActivity: AppCompatActivity() {
                 startActivity(myIntent)
                 retval = true
             } else {
-                if(!nfcContents.text.contains(firebaseAuth.currentUser!!.uid)){
-                    viewModel.write(nfcContents.text.toString(), tag!!)
-                    Toast.makeText(context, "No valid tag message", Toast.LENGTH_LONG).show()
-                }else{
-                    Toast.makeText(context, "You have already saved this tag", Toast.LENGTH_LONG).show()
-                }
+                    if(intent.getStringExtra("write")!="true") Toast.makeText(context, "You have already saved this tag", Toast.LENGTH_LONG).show()
+                    else Toast.makeText(context, "Tag saved", Toast.LENGTH_LONG).show()
             } }
         return retval
     }
