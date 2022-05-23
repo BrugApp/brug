@@ -21,14 +21,22 @@ import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.ui.components.BottomNavBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers
 import org.hamcrest.core.IsEqual
 import org.junit.After
@@ -47,8 +55,6 @@ private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 class ChatMenuActivityTest {
-    @get:Rule
-    var rule = HiltAndroidRule(this)
 
     private val convUser = User("DUMMYUID", "Firstname", "Lastname", null, mutableListOf())
     private val convList = arrayListOf(
@@ -63,6 +69,51 @@ class ChatMenuActivityTest {
         Item("LOSTITEM", 0, "DUMMYDESC", false),
         Item("LOSTITEM", 0, "DUMMYDESC", false)
     )
+
+    private var testUserUid: String = ""
+    private val TEST_PASSWORD: String = "123456"
+    private val TEST_EMAIL: String = "unlost@chatMenuActivity.com"
+    private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
+
+    @get:Rule
+    val rule = HiltAndroidRule(this)
+
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
+
+    companion object {
+        var firstTimeCreate = true
+        var firstTimeAccount = true
+    }
+
+    private fun createTestUser(){
+        runBlocking {
+            if(firstTimeCreate){
+                firebaseAuth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
+                firstTimeCreate = false
+            }
+        }
+    }
+
+    private fun signInTestAccount(){
+        runBlocking{
+            firebaseAuth.signInWithEmailAndPassword(
+                TEST_EMAIL,
+                TEST_PASSWORD
+            ).await()
+            testUserUid = firebaseAuth.currentUser!!.uid
+            if(firstTimeAccount) {
+                UserRepository
+                    .addUserFromAccount(testUserUid, ACCOUNT1, true, firestore)
+                firstTimeAccount = false
+            }
+        }
+    }
+
+    private fun signOut(){
+        firebaseAuth.signOut()
+    }
 
     @Before
     fun setUp() {
@@ -114,7 +165,7 @@ class ChatMenuActivityTest {
     @Test
     fun clickingOnSettingsButtonGoesToActivity() {
         createTestUser()
-        signInTestUser()
+        signInTestAccount()
         val settingsButton = onView(withId(R.id.my_settings))
         settingsButton.perform(click())
         intended(hasComponent(SettingsActivity::class.java.name))

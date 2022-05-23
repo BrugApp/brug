@@ -31,6 +31,7 @@ class SettingsActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseStorage: FirebaseStorage
 
+    @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
