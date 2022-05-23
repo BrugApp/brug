@@ -211,62 +211,62 @@ class ProfileUserTest {
 }
 
 
-@HiltAndroidTest
-@RunWith(AndroidJUnit4::class)
-class ProfileUserTestWithoutModule {
-    @get:Rule
-    val rule = HiltAndroidRule(this)
-
-    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
-    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
-    private val account = BrugSignInAccount("Rayan", "Kikou", "", "")
-
-
-    @Before
-    fun setUp() {
-        Intents.init()
-    }
-
-    @After
-    fun cleanUp() {
-        Intents.release()
-        firebaseAuth.signOut()
-    }
-
-    @Test
-    fun noUserTest(){
-        //create a new user
-        runBlocking {
-            firebaseAuth.createUserWithEmailAndPassword("temp@profile.com", "temp1234").await()
-            firebaseAuth.signInWithEmailAndPassword("temp@profile.com", "temp1234").await()
-        }
-
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
-        ActivityScenario.launch<ProfilePictureSetActivity>(intent)
-        //click on load button
-        // PROBLEMATIC, SINCE IT OPENS THE PICTURE SELECTOR AND BLOCKS ALL VIEWS FOR OTHER TESTS
-//        onView(withId(R.id.loadButton)).perform(click())
-
-        //check that we stayed in the same activity
-        onView(withId(R.id.loadButton)).check(matches(isDisplayed()))
-    }
-
-    @Test
-    fun userCreatedWithProfilePicture() {
-        //create a new user
-        runBlocking {
-            firebaseAuth.createUserWithEmailAndPassword("temp1@profile.com", "temp1234").await()
-            firebaseAuth.signInWithEmailAndPassword("temp1@profile.com", "temp1234").await()
-            val uid = firebaseAuth.currentUser!!.uid
-            UserRepository.addUserFromAccount(uid, account, true, firestore)
-            UserRepository.updateUserIcon(uid, ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), R.mipmap.unlost_logo)!!, firebaseAuth, firebaseStorage, firestore)
-        }
-        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
-        ActivityScenario.launch<ProfilePictureSetActivity>(intent)
-        //click on load button
-        // PROBLEMATIC, SINCE IT OPENS THE PICTURE SELECTOR AND BLOCKS ALL VIEWS FOR OTHER TESTS
-//        onView(withId(R.id.loadButton)).perform(click())
-    }
-
-}
+//@HiltAndroidTest
+//@RunWith(AndroidJUnit4::class)
+//class ProfileUserTestWithoutModule {
+//    @get:Rule
+//    val rule = HiltAndroidRule(this)
+//
+//    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+//    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+//    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
+//    private val account = BrugSignInAccount("Rayan", "Kikou", "", "")
+//
+//
+//    @Before
+//    fun setUp() {
+//        Intents.init()
+//    }
+//
+//    @After
+//    fun cleanUp() {
+//        Intents.release()
+//        firebaseAuth.signOut()
+//    }
+//
+//    @Test
+//    fun noUserTest(){
+//        //create a new user
+//        runBlocking {
+//            firebaseAuth.createUserWithEmailAndPassword("temp@profile.com", "temp1234").await()
+//            firebaseAuth.signInWithEmailAndPassword("temp@profile.com", "temp1234").await()
+//        }
+//
+//        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
+//        ActivityScenario.launch<ProfilePictureSetActivity>(intent)
+//        //click on load button
+//        // PROBLEMATIC, SINCE IT OPENS THE PICTURE SELECTOR AND BLOCKS ALL VIEWS FOR OTHER TESTS
+////        onView(withId(R.id.loadButton)).perform(click())
+//
+//        //check that we stayed in the same activity
+//        onView(withId(R.id.loadButton)).check(matches(isDisplayed()))
+//    }
+//
+//    @Test
+//    fun userCreatedWithProfilePicture() {
+//        //create a new user
+//        runBlocking {
+//            firebaseAuth.createUserWithEmailAndPassword("temp1@profile.com", "temp1234").await()
+//            firebaseAuth.signInWithEmailAndPassword("temp1@profile.com", "temp1234").await()
+//            val uid = firebaseAuth.currentUser!!.uid
+//            UserRepository.addUserFromAccount(uid, account, true, firestore)
+//            UserRepository.updateUserIcon(uid, ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), R.mipmap.unlost_logo)!!, firebaseAuth, firebaseStorage, firestore)
+//        }
+//        val intent = Intent(ApplicationProvider.getApplicationContext(), ProfilePictureSetActivity::class.java)
+//        ActivityScenario.launch<ProfilePictureSetActivity>(intent)
+//        //click on load button
+//        // PROBLEMATIC, SINCE IT OPENS THE PICTURE SELECTOR AND BLOCKS ALL VIEWS FOR OTHER TESTS
+////        onView(withId(R.id.loadButton)).perform(click())
+//    }
+//
+//}
