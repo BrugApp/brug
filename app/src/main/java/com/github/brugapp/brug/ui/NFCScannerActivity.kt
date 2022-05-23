@@ -18,6 +18,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.SUCCESS_TEXT
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -61,7 +62,8 @@ open class NFCScannerActivity: AppCompatActivity() {
      * 3) press the button
      * @param savedInstanceState
      */
-    public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
+    public override fun onCreate(savedInstanceState: Bundle?){
+        super.onCreate(savedInstanceState)
         context = this
         setContentView(R.layout.activity_nfc_scanner)
         viewModel.checkNFCPermission(this)
@@ -93,12 +95,25 @@ open class NFCScannerActivity: AppCompatActivity() {
         
     fun nfcLinks() {
         val newcontext = this
-        liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv((editMessage as EditText).text, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
-            if(successState){
-                Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
-                val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
+        liveData(Dispatchers.IO){
+            emit(qrviewModel.parseTextAndCreateConv(
+                (editMessage as EditText).text,
+                newcontext,
+                firebaseAuth,
+                firestore,
+                firebaseStorage
+            ))
+        }.observe(newcontext) { resultTxt ->
+            Toast.makeText(context, resultTxt, Toast.LENGTH_LONG).show()
+            if (resultTxt == SUCCESS_TEXT) {
+                val myIntent = if (firebaseAuth.currentUser == null) {
+                    Intent(this, SignInActivity::class.java)
+                } else {
+                    Intent(this, ChatMenuActivity::class.java)
+                }
                 startActivity(myIntent)
-            } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show() }
+            }
+        }
     }
 
     /**

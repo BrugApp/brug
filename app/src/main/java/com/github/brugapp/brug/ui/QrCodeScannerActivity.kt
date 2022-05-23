@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.SUCCESS_TEXT
 import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
@@ -22,8 +23,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 //library found on github: https://github.com/yuriy-budiyev/code-scanner
-private const val SUCCESS_TEXT = "Thank you ! The user will be notified."
-
 @AndroidEntryPoint
 class QrCodeScannerActivity : AppCompatActivity() {
 
