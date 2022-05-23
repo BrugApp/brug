@@ -52,23 +52,13 @@ class ItemInformationActivity : AppCompatActivity() {
         val textSet = hashMapOf(
             "title" to item.itemName,
             "image" to item.getRelatedIcon().toString(),
-            "lastLocation" to "Loading...",
+            "lastLocation" to viewModel.getLocationName(item.getLastLocation(), geocoder),
             "description" to item.itemDesc,
             "isLost" to item.isLost().toString()
         )
 //        setTextAllView(textSet)
 
-        liveData(Dispatchers.IO){
-            emit(BrugDataCache.isNetworkAvailable())
-        }.observe(this){ status ->
-            if(!status){
-                textSet["lastLocation"] = "Not available"
-                Toast.makeText(this, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
-            } else {
-                textSet["lastLocation"] = viewModel.getLocationName(item.getLastLocation(), geocoder)
-            }
-            setTextAllView(textSet)
-        }
+        setTextAllView(textSet)
 
         setSwitch(item, firebaseAuth)
         //if user click on the localisation textview, we will open the map
