@@ -66,11 +66,11 @@ class ChatActivityTest {
     var rule = HiltAndroidRule(this)
 
     @get:Rule
-    val permissionRule1: GrantPermissionRule =
+    val permissionRuleCoarseLocation: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
 
     @get:Rule
-    val permissionRule2: GrantPermissionRule =
+    val permissionRuleFineLocation: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
     @get:Rule
@@ -406,7 +406,7 @@ class ChatActivityTest {
     }
 
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    // TEST COMMENTED AS IT CONSISTENTLY FAILS ON CIRRUS CI
+
     @Test
     fun pressLocationOpensMapActivity() {
         runBlocking {
@@ -435,8 +435,10 @@ class ChatActivityTest {
             )
 
             Thread.sleep(10000)
+
             intended(allOf(
                 hasComponent(MapBoxActivity::class.java.name)))
+
             firebaseAuth.signOut()
         }
     }

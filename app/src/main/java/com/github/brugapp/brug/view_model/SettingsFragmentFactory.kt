@@ -18,10 +18,12 @@ class SettingsFragmentFactory @Inject constructor(
 ) : FragmentFactory() {
     override fun instantiate(classLoader: ClassLoader, className: String): Fragment {
         return when (className) {
+            // the fragment is already instantiated but needs to be created
             ProfileSettingsFragment::class.java.name -> {
                 ProfileSettingsFragment(registry, firebaseAuth, firebaseStorage, firebaseFirestore)
             }
             else -> {
+                // the fragment is not instantiated
                 super.instantiate(classLoader, className)
             }
         }
