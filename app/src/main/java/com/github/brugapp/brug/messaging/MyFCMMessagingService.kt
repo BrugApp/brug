@@ -10,9 +10,11 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.MutableLiveData
 import com.github.brugapp.brug.BuildConfig.FIREBASE_NOTIFICATION_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.data.FirebaseResponse
+import com.github.brugapp.brug.data.UserRepository.addNewDeviceTokenToUser
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -52,10 +54,9 @@ class MyFCMMessagingService : FirebaseMessagingService() {
         Log.e("NEW TOKEN NOTIF", "Refreshed token: $token")
         val firebaseAuth = FirebaseAuth.getInstance()
         val firestore = FirebaseFirestore.getInstance()
-        if(firebaseAuth.currentUser != null){
-            runBlocking {
-                UserRepository.addNewDeviceTokenToUser(firebaseAuth.currentUser!!.uid, token, firestore)
-            }
+        val observableResponse = MutableLiveData<FirebaseResponse>()
+        if(firebaseAuth.uid != null){
+            addNewDeviceTokenToUser(firebaseAuth.currentUser!!.uid, token, observableResponse, firestore)
         }
     }
 

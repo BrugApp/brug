@@ -4,7 +4,7 @@ import java.io.Serializable
 
 data class Conversation(
     val convId: String,
-    val userFields: MyUser,
-    val lostItemName: String,
+    val userFields: User,
+    val lostItem: Item,
     val lastMessage: Message?
 ) : Serializable

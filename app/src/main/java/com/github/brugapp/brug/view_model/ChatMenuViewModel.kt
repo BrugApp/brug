@@ -1,25 +1,28 @@
 package com.github.brugapp.brug.view_model
 
 import android.graphics.drawable.Drawable
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.ui.CHAT_CHECK_TEXT
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
+private const val CHAT_ERROR_TEXT = "ERROR: Unable to save your changes remotely. Try again later."
 
 /**
  * ViewModel of the Chat Menu UI, handling its UI logic.
  */
 class ChatMenuViewModel : ViewModel() {
-
     fun setCallback(
         activity: AppCompatActivity,
         isTest: Boolean,
@@ -29,7 +32,6 @@ class ChatMenuViewModel : ViewModel() {
         firebaseAuth: FirebaseAuth,
         firestore: FirebaseFirestore
     ): ListCallback<Conversation> {
-
         val listView = activity.findViewById<RecyclerView>(R.id.chat_listview)
 
         return ListCallback(
@@ -38,73 +40,53 @@ class ChatMenuViewModel : ViewModel() {
             swipePair,
             listAdapterPair
         ) { delConv, position ->
-            if(isTest){
-                listAdapterPair.first.removeAt(position)
-                listAdapterPair.second.notifyItemRemoved(position)
+            Log.e("CONVDELETECHECK", delConv.lastMessage?.body.toString())
+            if(!isTest){
+                viewModelScope.launch {
+                    val result = ConvRepository.deleteConversationFromID(
+                        delConv.convId,
+                        firebaseAuth.currentUser!!.uid,
+                        firestore
+                    ).onSuccess
 
-                Snackbar.make(
-                    listView,
-                    CHAT_CHECK_TEXT,
-                    Snackbar.LENGTH_LONG
-                ).setAction("Undo") {
-                    listAdapterPair.first.add(position, delConv)
-                    listAdapterPair.second.notifyItemInserted(position)
-                }.show()
-            } else {
-                liveData(Dispatchers.IO) {
-                    emit(
-                        ConvRepository.deleteConversationFromID(
-                            delConv.convId,
-                            firebaseAuth.currentUser!!.uid,
-                            firestore
-                        )
-                    )
-                }.observe(activity) { response ->
-                    if (response.onSuccess) {
-                        listAdapterPair.first.removeAt(position)
-                        listAdapterPair.second.notifyItemRemoved(position)
-
-                        Snackbar.make(
-                            listView,
-                            CHAT_CHECK_TEXT,
-                            Snackbar.LENGTH_LONG
-                        ).setAction("Undo") {
-                            liveData(Dispatchers.IO) {
-                                emit(
-                                    ConvRepository.addNewConversation(
-                                        firebaseAuth.currentUser!!.uid,
-                                        delConv.userFields.uid,
-                                        delConv.lostItemName,
-                                        firestore
-                                    )
-                                )
-                            }.observe(activity) {
-                                if (!response.onSuccess) {
-                                    Snackbar.make(
-                                        listView,
-                                        "ERROR: Unable to re-add requested conversation to database",
-                                        Snackbar.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-
-                            listAdapterPair.first.add(position, delConv)
-                            listAdapterPair.second.notifyItemInserted(position)
-                        }.show()
-                    } else {
-                        Snackbar.make(
-                            listView,
-                            "ERROR: Unable to delete requested item from database",
-                            Snackbar.LENGTH_LONG
-                        ).show()
+                    if(!result){
+                        Toast.makeText(activity, CHAT_ERROR_TEXT, Toast.LENGTH_LONG).show()
                     }
                 }
             }
 
+            listAdapterPair.first.removeAt(position)
+            listAdapterPair.second.notifyItemRemoved(position)
+            BrugDataCache.deleteCachedMessageList(delConv.convId)
+
+            Snackbar.make(
+                listView,
+                CHAT_CHECK_TEXT,
+                Snackbar.LENGTH_LONG
+            ).setAction("Undo") {
+                if(!isTest) {
+                    val lastMessage = delConv.lastMessage
+                    Log.e("CONVUNDOCHECK", lastMessage?.body.toString())
+                    viewModelScope.launch {
+                        val itemID = "${delConv.userFields.uid}:${delConv.lostItem.getItemID()}"
+                        val result = ConvRepository.addNewConversation(
+                            firebaseAuth.currentUser!!.uid,
+                            delConv.userFields.uid,
+                            itemID,
+                            delConv.lastMessage,
+                            firestore
+                        ).onSuccess
+
+                        if(!result){
+                            Toast.makeText(activity, CHAT_ERROR_TEXT, Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+
+                listAdapterPair.first.add(position, delConv)
+                listAdapterPair.second.notifyItemInserted(position)
+                BrugDataCache.initMessageListInCache(delConv.convId)
+            }.show()
         }
-    }
-
-    private fun callBackActions(){
-
     }
 }

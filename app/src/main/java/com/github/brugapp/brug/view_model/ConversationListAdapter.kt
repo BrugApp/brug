@@ -48,10 +48,15 @@ class ConversationListAdapter(
         }
         val lastMessage = listElement.lastMessage
 
+        val lastMessageSender =
+            if(lastMessage == null) ""
+            else if (lastMessage.senderName == listElement.userFields.uid) "${listElement.userFields.getFullName()}:"
+            else "Me:"
+
         val lastMessageBody =
             if (lastMessage == null) "Empty Conversation"
             else {
-                "${lastMessage.senderName}: ${lastMessage.body}"
+                "$lastMessageSender ${lastMessage.body}"
             }
 
         holder.desc.text = lastMessageBody

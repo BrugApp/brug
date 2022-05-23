@@ -1,7 +1,6 @@
 package com.github.brugapp.brug.view_model
 
 import android.content.Intent
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
@@ -10,6 +9,7 @@ import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -39,11 +39,12 @@ class SignInViewModel @Inject constructor(
      */
     suspend fun goToDemoMode(
         firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
     ): Boolean {
         val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
             "unlost.app@gmail.com",
-            "brugsdpProject1").await()
+            "123456").await()
 
         if(firebaseAuthResponse.user != null){
             return UserRepository.addUserFromAccount(
@@ -65,7 +66,9 @@ class SignInViewModel @Inject constructor(
      */
     suspend fun createNewBrugAccount(
         it: Intent?,
-        firestore: FirebaseFirestore
+        firestore: FirebaseFirestore,
+        firebaseAuth: FirebaseAuth,
+        firebaseStorage: FirebaseStorage
     ): Boolean {
         // First we get the account from the account provider (i.e., Google or Unlost)
         val account = signInResultHandler.handleSignInResult(it) ?: return false
@@ -96,10 +99,15 @@ class SignInViewModel @Inject constructor(
             )
             signInClient.signOut()
             auth.signOut()
-            // Reset all cached data
-            BrugDataCache.resetConversationsList()
-            BrugDataCache.resetMessages()
+            resetCachedData()
         }
+    }
+
+    private fun resetCachedData() {
+        BrugDataCache.resetCachedUser()
+        BrugDataCache.resetCachedItems()
+        BrugDataCache.resetCachedConversations()
+        BrugDataCache.resetCachedMessagesLists()
     }
 
     fun getAuth(): AuthDatabase {

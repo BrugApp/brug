@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,40 +38,48 @@ class QrCodeScannerActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_code_scanner)
-        viewModel.checkPermission(this)
+        viewModel.checkPermissions(this)
         viewModel.codeScanner(this)
 
         //TODO: REMOVE THIS HARDCODED TEXT
         findViewById<EditText>(R.id.edit_message).setText("J7jDsvME15fNKvLssZ9bezpABHn2:9m7SvfslSij6f7iplq68")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
-            val context = this
-
-            liveData(Dispatchers.IO) {
-                emit(
-                    viewModel.parseTextAndCreateConv(
-                        findViewById<EditText>(R.id.edit_message).text,
-                        context,
-                        firebaseAuth, firestore, firebaseStorage
-                    )
-                )
-            }.observe(context){ result ->
-                Toast.makeText(context, result, Toast.LENGTH_LONG).show()
-                if(result == SUCCESS_TEXT){
-                    val myIntent =
-                        if(firebaseAuth.currentUser == null)
-                            Intent(context, SignInActivity::class.java)
-                        else
-                            Intent(context, ChatMenuActivity::class.java)
-                    startActivity(myIntent)
+            liveData(Dispatchers.IO){
+                emit(BrugDataCache.isNetworkAvailable())
+            }.observe(this){ result ->
+                if(!result){
+                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+                } else {
+                    val context = this
+                    liveData(Dispatchers.IO){
+                        emit(
+                            viewModel.parseTextAndCreateConv(
+                                findViewById<EditText>(R.id.edit_message).text,
+                                context,
+                                firebaseAuth, firestore, firebaseStorage
+                            )
+                        )
+                    }.observe(context){ resultingMsg ->
+                        Toast.makeText(context, resultingMsg, Toast.LENGTH_LONG).show()
+                        if(resultingMsg == SUCCESS_TEXT){
+                            val myIntent =
+                                if(firebaseAuth.currentUser == null)
+                                    Intent(context, SignInActivity::class.java)
+                                else
+                                    Intent(context, ChatMenuActivity::class.java)
+                            startActivity(myIntent)
+                        }
+                    }
                 }
             }
         }
     }
+
+
 
 
     override fun onResume() {
@@ -81,4 +91,5 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.releaseResources()
         super.onPause()
     }
+
 }

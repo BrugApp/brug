@@ -1,27 +1,36 @@
 package com.github.brugapp.brug.ui
 
 import android.content.Intent
+import android.location.Geocoder
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
+import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
-private const val NOT_IMPLEMENTED: String = "no information yet"
+private const val NOT_IMPLEMENTED: String = "No information yet"
 
 @AndroidEntryPoint
 class ItemInformationActivity : AppCompatActivity() {
@@ -37,30 +46,49 @@ class ItemInformationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
-        val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
+        val item = intent.extras!!.get(ITEM_INTENT_KEY) as Item
 
-        val textSet: HashMap<String, String> = viewModel.getText(item, firebaseAuth)
+        val geocoder = Geocoder(this, Locale.getDefault())
+        val textSet = hashMapOf(
+            "title" to item.itemName,
+            "image" to item.getRelatedIcon().toString(),
+            "lastLocation" to viewModel.getLocationName(item.getLastLocation(), geocoder),
+            "description" to item.itemDesc,
+            "isLost" to item.isLost().toString()
+        )
+//        setTextAllView(textSet)
+
         setTextAllView(textSet)
 
         setSwitch(item, firebaseAuth)
-        qrCodeButton()
+        //if user click on the localisation textview, we will open the map
+        val localisation = item.getLastLocation()
+        if(localisation != null) {
+            findViewById<TextView>(R.id.item_last_location).setOnClickListener {
+                val intent = Intent(this, MapBoxActivity::class.java)
+                intent.putExtra(ITEM_INTENT_KEY, item)
+                intent.putExtra(EXTRA_DESTINATION_LONGITUDE, localisation.getLongitude())
+                intent.putExtra(EXTRA_DESTINATION_LATITUDE, localisation.getLatitude())
+                startActivity(intent)
+            }
+        }
+
+        qrCodeButton(item)
     }
 
-    private fun setSwitch(item: MyItem, firebaseAuth: FirebaseAuth) {
+    private fun setSwitch(item: Item, firebaseAuth: FirebaseAuth) {
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
-            liveData(Dispatchers.IO) {
-                emit(
-                    ItemsRepository.updateItemFields(
-                        item,
-                        firebaseAuth.currentUser!!.uid,
-                        firestore
-                    )
-                )
-            }.observe(this) { response ->
-                val feedbackStr = if (response.onSuccess) {
+            viewModel.viewModelScope.launch {
+                val response = ItemsRepository.updateItemFields(
+                    item,
+                    firebaseAuth.currentUser!!.uid,
+                    firestore
+                ).onSuccess
+
+                val feedbackStr = if (response) {
                     "Item state has been successfully changed"
                 } else {
                     "ERROR: Item state couldn't be saved"
@@ -74,13 +102,13 @@ class ItemInformationActivity : AppCompatActivity() {
         }
     }
 
-    private fun qrCodeButton() {
+    private fun qrCodeButton(item: Item) {
         //if button is clicked, go to QrCodeShow
         val button: Button = findViewById(R.id.qrGen)
         button.setOnClickListener {
             val intent = Intent(this, QrCodeShowActivity::class.java)
             //give qrId to QrCodeShow
-            intent.putExtra("qrId", viewModel.getQrId())
+            intent.putExtra("qrId", "${firebaseAuth.uid}:${item.getItemID()}")
             startActivity(intent)
         }
     }
@@ -89,7 +117,6 @@ class ItemInformationActivity : AppCompatActivity() {
         setTextView(R.id.tv_name, textSet["title"])
         setTextView(R.id.item_name, textSet["title"])
         setTextView(R.id.item_last_location, textSet["lastLocation"])
-        setTextView(R.id.item_owner, textSet["owner"])
         setTextView(R.id.item_description, textSet["description"])
 
         //get and set the icon

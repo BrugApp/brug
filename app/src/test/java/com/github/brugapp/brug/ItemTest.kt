@@ -1,110 +1,157 @@
 package com.github.brugapp.brug
 
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert.assertThrows
+import org.hamcrest.core.IsEqual
+import org.hamcrest.core.IsNot
+import org.hamcrest.core.IsNot.not
+import org.hamcrest.core.IsNull
 import org.junit.Test
-import org.hamcrest.CoreMatchers.`is` as Is
 
 class ItemTest {
-
     @Test
-    fun invalidNameItemTest() {
-        val blankName = "    "
-        val description = "Grey wallet"
-        assertThrows(IllegalArgumentException::class.java) {
-            Item(blankName, description, "1")
-        }
+    fun initItemWithoutIDCorrectlyInitializesItem() {
+        val itemName = "Phone"
+        val itemTypeID = ItemType.Phone.ordinal
+        val itemDesc = "Samsung Galaxy S22"
+        val isLost = false
+
+        val item = Item(itemName, itemTypeID, itemDesc, isLost)
+
+        assertThat(item.itemName, IsEqual(itemName))
+        assertThat(item.getItemTypeID(), IsEqual(itemTypeID))
+        assertThat(item.itemDesc, IsEqual(itemDesc))
+        assertThat(item.isLost(), IsEqual(isLost))
+        assertThat(item.getItemID(), IsEqual(""))
+        assertThat(item.getLastLocation(), IsNull())
     }
 
     @Test
-    fun emptyNameItemTest() {
-        val emptyName = ""
-        val description = "Grey wallet"
-        assertThrows(IllegalArgumentException::class.java) {
-            Item(emptyName, description, "1")
-        }
+    fun initItemWithIDCorrectlyInitializesItem() {
+        val itemID = "DUMMYID"
+        val itemName = "Phone"
+        val itemTypeID = ItemType.Phone.ordinal
+        val itemDesc = "Samsung Galaxy S22"
+        val isLost = false
+
+        val item = Item(itemName, itemTypeID, itemDesc, isLost)
+        item.setItemID(itemID)
+
+        assertThat(item.itemName, IsEqual(itemName))
+        assertThat(item.getItemTypeID(), IsEqual(itemTypeID))
+        assertThat(item.itemDesc, IsEqual(itemDesc))
+        assertThat(item.isLost(), IsEqual(isLost))
+        assertThat(item.getItemID(), IsEqual(itemID))
     }
 
     @Test
-    fun validNameItemTest(){
-        val itemName = "Wallet"
-        val itemId = "1"
-        val description = "Grey wallet"
-        val validUser = Item(itemName, description, itemId)
+    fun typeNameAndIconMatchPhoneTypeEntry() {
+        val typeName = "Phone"
+        val typeIcon = R.drawable.ic_baseline_smartphone_24
 
-        assertThat(validUser.getName(), Is(itemName))
+        val item = Item("Phone", ItemType.Phone.ordinal, "DUMMYDESC", false)
 
+        assertThat(item.getItemTypeID(), IsEqual(ItemType.Phone.ordinal))
+        assertThat(ItemType.values()[item.getItemTypeID()].toString(), IsEqual(typeName))
+        assertThat(item.getRelatedIcon(), IsEqual(typeIcon))
     }
 
     @Test
-    fun validIdItemTest(){
-        val itemName = "Wallet"
-        val itemId = "1"
-        val description = "Grey wallet"
-        val validUser = Item(itemName, description, itemId)
+    fun typeNameAndIconMatchKeysTypeEntry() {
+        val typeName = "Keys"
+        val typeIcon = R.drawable.ic_baseline_vpn_key_24
 
-        assertThat(validUser.getId(), Is(itemId))
+        val item = Item("Keys", ItemType.Keys.ordinal, "DUMMYDESC", false)
 
+        assertThat(item.getItemTypeID(), IsEqual(ItemType.Keys.ordinal))
+        assertThat(ItemType.values()[item.getItemTypeID()].toString(), IsEqual(typeName))
+        assertThat(item.getRelatedIcon(), IsEqual(typeIcon))
     }
 
     @Test
-    fun descriptionTest(){
-        val itemName = "Wallet"
-        val itemId = "1"
-        val description = "Grey wallet"
-        val validUser = Item(itemName, description, itemId)
+    fun typeNameAndIconMatchCarKeysTypeEntry() {
+        val typeName = "CarKeys"
+        val typeIcon = R.drawable.ic_baseline_car_rental_24
 
-        assertThat(validUser.getDescription(), Is(description))
+        val item = Item("Car Keys", ItemType.CarKeys.ordinal, "DUMMYDESC", false)
 
+        assertThat(item.getItemTypeID(), IsEqual(ItemType.CarKeys.ordinal))
+        assertThat(ItemType.values()[item.getItemTypeID()].toString(), IsEqual(typeName))
+        assertThat(item.getRelatedIcon(), IsEqual(typeIcon))
     }
 
     @Test
-    fun setInvalidNameTest() {
-        val itemName = "Wallet"
-        val itemId = "1"
-        val description = "Grey wallet"
-        val validUser = Item(itemName, description, itemId)
+    fun typeNameAndIconMatchWalletTypeEntry() {
+        val typeName = "Wallet"
+        val typeIcon = R.drawable.ic_baseline_account_balance_wallet_24
 
-        val invalidName = "    "
+        val item = Item("Wallet", ItemType.Wallet.ordinal, "DUMMYDESC", false)
 
-        assertThrows(IllegalArgumentException::class.java) {
-            validUser.setName(invalidName)
-        }
+        assertThat(item.getItemTypeID(), IsEqual(ItemType.Wallet.ordinal))
+        assertThat(ItemType.values()[item.getItemTypeID()].toString(), IsEqual(typeName))
+        assertThat(item.getRelatedIcon(), IsEqual(typeIcon))
     }
 
     @Test
-    fun setValidNameTest(){
-        val itemName = "Wallet"
-        val itemId = "1"
-        val description = "Grey wallet"
-        val validUser = Item(itemName, description, itemId)
+    fun typeNameAndIconMatchOtherTypeEntry() {
+        val typeName = "Other"
+        val typeIcon = R.drawable.ic_baseline_add_24
 
-        val validName = "Bag"
+        val item = Item("Other", ItemType.Other.ordinal, "DUMMYDESC", false)
 
-        validUser.setName(validName)
-
-        assertThat(validUser.getName(), Is(validName))
+        assertThat(item.getItemTypeID(), IsEqual(ItemType.Other.ordinal))
+        assertThat(ItemType.values()[item.getItemTypeID()].toString(), IsEqual(typeName))
+        assertThat(item.getRelatedIcon(), IsEqual(typeIcon))
     }
 
     @Test
-    fun setDescriptionTest(){
-        val itemName = "Wallet"
-        val itemId = "1"
-        val description = "Grey wallet"
-        val validUser = Item(itemName, description, itemId)
+    fun compareIdenticalItemsReturnsEquality() {
+        val item1 = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        val item2 = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        assertThat(item1, IsEqual(item2))
+    }
 
-        val newDescription = "Black wallet"
+    @Test
+    fun compareAlmostItemsReturnsFalse() {
+        val item1 = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        val item2 = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", true)
+        assertThat(item1, IsNot(IsEqual(item2)))
+    }
 
-        validUser.setDescription(newDescription)
+    @Test
+    fun settingAndGettingLastLocationWorks() {
+        val item = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        val lon = 1.0
+        val lat = 2.0
+        item.setLastLocation(1.0, 2.0)
+        val location = item.getLastLocation()
+        assertThat(location, not(IsNull()))
+        assertThat(location!!.getLatitude(), IsEqual(lat))
+        assertThat(location.getLongitude(), IsEqual(lon))
+    }
 
-        assertThat(validUser.getDescription(), Is(newDescription))
+    @Test
+    fun hashCodeReturnsCorrectHash() {
+        val item = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
+        var result = "".hashCode()
+        result = 31 * result + "Phone".hashCode()
+        result = 31 * result + ItemType.Phone.ordinal
+        result = 31 * result + "Samsung Galaxy S22".hashCode()
+        result = 31 * result + false.hashCode()
+        assertThat(item.hashCode(), IsEqual(result))
+    }
+
+    @Test
+    fun typeNameAndIconMatchOtherTypeEntryForWrongItemTypeId() {
+        val typeName = "Other"
+        val typeIcon = R.drawable.ic_baseline_add_24
+
+        val item = Item("Other", ItemType.values().size, "DUMMYDESC", false)
+
+        assertThat(item.getItemTypeID(), IsEqual(ItemType.Other.ordinal))
+        assertThat(ItemType.values()[item.getItemTypeID()].toString(), IsEqual(typeName))
+        assertThat(item.getRelatedIcon(), IsEqual(typeIcon))
     }
 
 }
-
-
-
-
-
-

@@ -16,18 +16,20 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.*
+import com.github.brugapp.brug.ui.components.BottomNavBar
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.tasks.await
+import org.hamcrest.Matchers
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
@@ -42,53 +44,24 @@ private const val LIST_VIEW_ID: String = "$APP_PACKAGE_NAME:id/chat_listview"
 private const val LIST_ENTRY_ID: String = "$APP_PACKAGE_NAME:id/chat_entry_title"
 private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 
-private const val TEST_USER_EMAIL = "test@convMenu.com"
-private const val PASSWORD = "123456"
-
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 class ChatMenuActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
-    private val firebaseAuth = FirebaseFakeHelper().providesAuth()
-
-    companion object {
-        var testFirstTime = true
-    }
-
-
-    private fun signInTestUser() {
-        runBlocking {
-            firebaseAuth.signInWithEmailAndPassword(
-                TEST_USER_EMAIL,
-                PASSWORD
-            ).await()
-        }
-    }
-
-    private fun signOut() {
-        firebaseAuth.signOut()
-    }
-
-    private fun createTestUser() {
-        runBlocking {
-            if (testFirstTime) {
-                firebaseAuth.createUserWithEmailAndPassword(
-                    TEST_USER_EMAIL,
-                    PASSWORD
-                ).await()
-                testFirstTime = false
-            }
-        }
-    }
-
-    private val convUser = MyUser("DUMMYUID", "Firstname", "Lastname", null, mutableListOf())
+    private val convUser = User("DUMMYUID", "Firstname", "Lastname", null, mutableListOf())
     private val convList = arrayListOf(
-        Conversation("CONVID", convUser, "LOSTITEM", null),
-        Conversation("CONVID", convUser, "LOSTITEM", null),
-        Conversation("CONVID", convUser, "LOSTITEM", null),
-        Conversation("CONVID", convUser, "LOSTITEM", null)
+        Conversation("CONVID", convUser, Item("LOSTITEM", 0, "DUMMYDESC", false), null),
+        Conversation("CONVID", convUser, Item("LOSTITEM", 0, "DUMMYDESC", false), null),
+        Conversation("CONVID", convUser, Item("LOSTITEM", 0, "DUMMYDESC", false), null),
+        Conversation("CONVID", convUser, Item("LOSTITEM", 0, "DUMMYDESC", false), null)
+        )
+    private val itemsList = arrayListOf(
+        Item("LOSTITEM", 0, "DUMMYDESC", false),
+        Item("LOSTITEM", 0, "DUMMYDESC", false),
+        Item("LOSTITEM", 0, "DUMMYDESC", false),
+        Item("LOSTITEM", 0, "DUMMYDESC", false)
     )
 
     @Before
@@ -100,23 +73,29 @@ class ChatMenuActivityTest {
         ActivityScenario.launch<ChatMenuActivity>(intent)
     }
 
-
-
     @After
     fun cleanUp() {
         Intents.release()
-//        signOut()
     }
 
     //TODO: USE CACHE FOR ITEMS HERE !
     @Test
     fun changingBottomNavBarMenuToItemsListGoesToActivity() {
-        createTestUser()
-        signInTestUser()
+        intending(
+            hasComponent(
+                ComponentNameMatchers.hasClassName(
+                    ItemsMenuActivity::class.java.name
+                )
+            )
+        ).respondWith(
+            Instrumentation.ActivityResult(
+                Activity.RESULT_OK,
+                Intent().putExtra(ITEMS_TEST_LIST_KEY, itemsList)
+            )
+        )
         val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
         itemsListMenuButton.perform(click())
         intended(hasComponent(ItemsMenuActivity::class.java.name))
-        signOut()
     }
 
     @Test
@@ -226,6 +205,41 @@ class ChatMenuActivityTest {
         assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
     }
 
+    //TODO: USE CACHE FOR ITEMS HERE !
+    @Test
+    fun chatIconOnNavBar() {
+        intending(
+            hasComponent(
+                ComponentNameMatchers.hasClassName(
+                    ItemsMenuActivity::class.java.name
+                )
+            )
+        ).respondWith(
+            Instrumentation.ActivityResult(
+                Activity.RESULT_OK,
+                Intent().putExtra(ITEMS_TEST_LIST_KEY, itemsList)
+            )
+        )
+
+        onView(withId(R.id.items_list_menu_button)).perform(click())
+
+//        Espresso.pressBack()
+//        Thread.sleep(1000)
+        val selectedItem = BottomNavBar().getSelectedItem(getActivityInstance()!!)
+        assertThat(selectedItem, Matchers.`is`(R.id.chat_menu_button))
+
+    }
+
+    private fun getActivityInstance(): Activity? {
+        val currentActivity = arrayOf<Activity?>(null)
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            val resumedActivity =
+                ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED)
+            val it: Iterator<Activity> = resumedActivity.iterator()
+            currentActivity[0] = it.next()
+        }
+        return currentActivity[0]
+    }
 
     // Companion functions
     private fun isKeyboardOpenedShellCheck(): Boolean {
