@@ -80,9 +80,6 @@
                 android:value=".ui.ChatActivity" />
         </activity>
         <activity
-            android:name=".ui.RegisterUserActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.ProfilePictureSetActivity"
             android:exported="false"
             android:parentActivityName=".ui.SignInActivity">
