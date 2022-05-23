@@ -82,15 +82,12 @@ class QrCodeScanViewModel : ViewModel() {
                             firebaseAuth: FirebaseAuth,
                             firestore: FirebaseFirestore,
                             firebaseStorage: FirebaseStorage): Boolean {
-        Log.e("", "qrText: $qrText")
         if(qrText.isBlank() || !qrText.contains(":")){
-            Log.e("", "qrText is blank or doesnt contain :")
             return false
         } else {
             val isAnonymous = firebaseAuth.currentUser == null
             val convID = createNewConversation(isAnonymous, qrText, firebaseAuth, firestore)
             return if (convID == null) {
-                Log.e("", "no conversation created bc conversation already exists")
                 if(isAnonymous) firebaseAuth.signOut()
                 false
             } else {
@@ -101,7 +98,6 @@ class QrCodeScanViewModel : ViewModel() {
                     context,
                     firestore, firebaseAuth, firebaseStorage
                 )
-                Log.e("", "qrText is there")
                 if(isAnonymous) firebaseAuth.signOut()
                 hasSentMessages
             }

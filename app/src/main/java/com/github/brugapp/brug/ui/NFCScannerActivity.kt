@@ -94,8 +94,6 @@ open class NFCScannerActivity: AppCompatActivity() {
                 }
             }
             viewModel.displayReportNotification(this)
-
-
         }
     }
 

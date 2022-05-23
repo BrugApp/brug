@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.view.View
 import android.widget.TextView
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -184,27 +185,18 @@ class NFCScannerActivityTest {
             activateButton.perform(click())
             activateButton.check(matches(isDisplayed()))
         }
-    } 
+    }
 
-    /* doesn't work on cirrus 
-    @Test
+    @Test @UiThreadTest
     fun testNewIntent(){
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, NFCScannerActivity::class.java)
-        testRule.activity.runOnUiThread { testRule.activity.onNewIntent(intent) }
         testRule.activity.onNewIntent(intent)
-    } */
-
-    /* only works locally
-    @Test
-    fun testnfcLinks() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, NFCScannerActivity::class.java)
-        val contents = Editable.Factory.getInstance().newEditable("")
-        testRule.activity.runOnUiThread{
-            testRule.activity.nfcLinks(Editable.Factory.getInstance().newEditable(contents))
-        }
-        assert(true)
     }
-     */
+
+    @Test @UiThreadTest
+    fun testnfcLinks() {
+        val contents = Editable.Factory.getInstance().newEditable("")
+        testRule.activity.nfcLinks(contents)
+    }
 }
