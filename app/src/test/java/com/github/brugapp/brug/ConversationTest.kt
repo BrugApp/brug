@@ -1,9 +1,9 @@
 package com.github.brugapp.brug
 
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.services.DateService
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual
@@ -16,8 +16,8 @@ class ConversationTest {
     @Test
     fun initConvCorrectlyInitializesConversation() {
         val convID = "DUMMYID"
-        val userFields = User("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
-        val lostItem = Item("DUMMYITEMNAME", 0, "DUMMYDESC", false)
+        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
+        val lostItem = MyItem("DUMMYITEMNAME", 0, "DUMMYDESC", false)
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
                     LocalDateTime.of(
@@ -28,15 +28,15 @@ class ConversationTest {
         val conversation = Conversation(convID, userFields, lostItem, lastMessage)
         assertThat(conversation.convId, IsEqual(convID))
         assertThat(conversation.userFields, IsEqual(userFields))
-        assertThat(conversation.lostItem == lostItem, IsEqual(true))
+        assertThat(conversation.lostItem, IsEqual(lostItem))
         assertThat(conversation.lastMessage, IsEqual(lastMessage))
     }
 
     @Test
     fun compareIdenticalConversationsReturnsEquality() {
         val convID = "DUMMYID"
-        val userFields = User("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
-        val lostItem = Item("DUMMYITEMNAME", 0, "DUMMYDESC", false)
+        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
+        val lostItem = MyItem("DUMMYITEMNAME", 0, "DUMMYDESC", false)
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
                     LocalDateTime.of(
@@ -52,8 +52,8 @@ class ConversationTest {
     @Test
     fun compareAlmostIdenticalConversationsReturnsFalse() {
         val convID = "DUMMYID"
-        val userFields = User("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
-        val lostItem = Item("DUMMYITEMNAME", 0, "DUMMYDESC", false)
+        val userFields = MyUser("UID", "DUMMYFNAME", "DUMMYLNAME", null, mutableListOf())
+        val lostItem = MyItem("DUMMYITEMNAME", 0, "DUMMYDESC", false)
         val lastMessage = Message("SENDERNAME",
                 DateService.fromLocalDateTime(
                     LocalDateTime.of(

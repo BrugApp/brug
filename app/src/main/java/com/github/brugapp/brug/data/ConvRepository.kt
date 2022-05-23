@@ -6,16 +6,20 @@ import androidx.lifecycle.liveData
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.services.DateService
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.ktx.remoteMessage
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
-import java.time.LocalDateTime
 
 private const val USERS_DB = "Users"
+private const val MSG_DB = "Messages"
 private const val CONV_REFS_DB = "Conv_Refs"
 private const val CONV_DB = "Conversations"
 private const val TOKENS_DB = "Devices"
@@ -37,7 +41,6 @@ object ConvRepository {
         thisUID: String,
         uid: String,
         lostItemID: String,
-        lastMessage: Message?,
         firestore: FirebaseFirestore,
     ): FirebaseResponse {
         val response = FirebaseResponse()
@@ -75,20 +78,26 @@ object ConvRepository {
                 return response
             }
 
-            val convFields = mutableMapOf(
-                "lost_item_id" to lostItemID
-            )
-            if(lastMessage != null){
-                convFields["last_sender_id"] = lastMessage.senderName
-                convFields["last_message_text"] = lastMessage.body
-            }
-
             // FIRST ADD AN ENTRY IN THE CONVERSATIONS COLLECTION
-            Firebase.firestore.collection(CONV_DB).document(convID1).set(convFields).await()
+            Firebase.firestore.collection(CONV_DB).document(convID1).set(mapOf(
+                "lost_item_id" to lostItemID
+            )).await()
 
             // THEN ADD NEW CONV_REF ENTRY IN EACH USER'S CONV_REFS COLLECTION
             userRef.collection(CONV_REFS_DB).document(convID1).set({}).await()
             otherUserRef.collection(CONV_REFS_DB).document(convID1).set({}).await()
+
+
+            // FINALLY SEND A NOTIFICATION TO THE USER
+            otherUserRef.collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
+                FirebaseMessaging.getInstance().send(
+                    remoteMessage("290986483284@fcm.googleapis.com"){
+                        messageId = tokenDoc.id
+                        addData("title", "Item Found !")
+                        addData("body", "Your item ${item.itemName} has been found !")
+                    }
+                )
+            }
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -162,11 +171,7 @@ object ConvRepository {
             }
 
             userRef.collection(CONV_DB).get().await().mapNotNull { conv ->
-                deleteConversationFromID(
-                    conv.id,
-                    uid,
-                    firestore
-                )
+                deleteConversationFromID(conv.id, uid, firestore)
             }
 
             response.onSuccess = true
@@ -181,15 +186,13 @@ object ConvRepository {
      * Retrieves the list of messages in real-time, i.e. each time a new message is added to the conversation.
      *
      * @param uid the user ID
+     * @param context (needed to be able to execute a Coroutine outside a Coroutine Context) - the activity which will observe the data
      *
      * @return nothing, but sets the list of conversations into the cache to be accessed by the ChatActivity if successful
      */
     fun getRealtimeConvsFromUID(
-        uid: String,
-        observer: LifecycleOwner,
-        firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth,
-        firebaseStorage: FirebaseStorage
+        uid: String, context: LifecycleOwner,
+        firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth, firebaseStorage: FirebaseStorage
     ) {
         val userRef = firestore.collection(USERS_DB).document(uid)
         userRef.get().addOnCompleteListener{ task ->
@@ -200,17 +203,11 @@ object ConvRepository {
                             liveData(Dispatchers.IO){
                                 emit(
                                     value.mapNotNull { convRef ->
-                                        getConvFromRefID(
-                                            convRef.id,
-                                            uid,
-                                            firestore,
-                                            firebaseAuth,
-                                            firebaseStorage
-                                        )
+                                        getConvFromRefID(convRef.id, uid, firestore, firebaseAuth, firebaseStorage)
                                     },
                                 )
-                            }.observe(observer) { list ->
-                                BrugDataCache.setConversationsInCache(list.toMutableList())
+                            }.observe(context) { list ->
+                                BrugDataCache.setConversationsList(list)
                             }
                         } else {
                             Log.e("FIREBASE ERROR", error?.message.toString())
@@ -224,10 +221,8 @@ object ConvRepository {
     }
 
     private suspend fun getConvFromRefID(
-        convID: String,
-        authUserID: String,
-        firestore: FirebaseFirestore,
-        firebaseAuth: FirebaseAuth,
+        convID: String, authUserID: String,
+        firestore: FirebaseFirestore, firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
     ): Conversation? {
         try {
@@ -241,7 +236,7 @@ object ConvRepository {
             }
 
             //FETCH USER FIELDS
-            val userFields = UserRepository.getUserFromUID(
+            val userFields = UserRepository.getMinimalUserFromUID(
                 parseConvUserNameFromID(convID, authUserID),
                 firestore,
                 firebaseAuth,
@@ -257,15 +252,10 @@ object ConvRepository {
             }
 
 
-            //FETCH INFOS RELATED TO THE LAST SENT MESSAGE (HERE TO REDUCE NUMBER OF FIREBASE QUERIES)
             val lastMessage =
-                if(convSnapshot.contains("last_sender_id") && convSnapshot.contains("last_message_text")){
-                    Message(
-                        convSnapshot["last_sender_id"] as String,
-                        DateService.fromLocalDateTime(LocalDateTime.now()),
-                        convSnapshot["last_message_text"] as String
-                    )
-                } else null
+                convSnapshot.reference.collection(MSG_DB).get().await().mapNotNull { msgSnapshot ->
+                    retrieveMessageMetadatasFromSnapshot(msgSnapshot, authUserID, userFields.getFullName())
+                }.maxByOrNull { it.timestamp.getSeconds() }
 
             return Conversation(convID, userFields, item, lastMessage)
         } catch(e: Exception) {
@@ -274,7 +264,45 @@ object ConvRepository {
         }
     }
 
+    private fun retrieveMessageMetadatasFromSnapshot(
+        msgSnapshot: QueryDocumentSnapshot,
+        authUserID: String,
+        userName: String
+    ): Message?{
+        val senderName = if ((msgSnapshot["sender"] as String) != authUserID) userName else "Me"
+        val timestamp = msgSnapshot["timestamp"] as Timestamp
+        val messageBody = when {
+            msgSnapshot.contains("audio_url") -> {
+                "Audio 🎵"
+            }
+            msgSnapshot.contains("image_url") -> {
+                "Image 📷"
+            }
+            msgSnapshot.contains("location") -> {
+                "Location 📍"
+            }
+            msgSnapshot.contains("body") -> {
+                msgSnapshot["body"] as String
+            }
+            else -> {
+                return null
+            }
+        }
+
+        return Message(senderName, DateService.fromFirebaseTimestamp(timestamp), messageBody)
+    }
+
     private fun parseConvUserNameFromID(convID: String, uid: String): String {
         return convID.replace(uid, "", ignoreCase = false)
     }
+
+//    @OptIn(ExperimentalCoroutinesApi::class)
+//    private suspend fun Query.awaitRealtime() = suspendCancellableCoroutine<QueryResponse> { continuation ->
+//        addSnapshotListener { value, error ->
+//            if (error == null && continuation.isActive)
+//                continuation.resume(QueryResponse(value, null), null)
+//            else if (error != null && continuation.isActive)
+//                continuation.resume(QueryResponse(null, error), null)
+//        }
+//    }
 }

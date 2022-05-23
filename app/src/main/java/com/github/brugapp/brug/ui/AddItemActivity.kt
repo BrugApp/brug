@@ -6,20 +6,15 @@ import android.text.InputFilter.LengthFilter
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.AddItemViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 const val DESCRIPTION_LIMIT = 60
@@ -58,13 +53,6 @@ class AddItemActivity : AppCompatActivity() {
 
         val addButton = findViewById<Button>(R.id.add_item_button)
         addButton.setOnClickListener {
-            liveData(Dispatchers.IO){
-                emit(BrugDataCache.isNetworkAvailable())
-            }.observe(this){ result ->
-                if(!result) {
-                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
-                }
-            }
             addItemOnListener(itemName, itemNameHelper, itemType, itemDesc, firebaseAuth)
         }
     }
@@ -78,14 +66,14 @@ class AddItemActivity : AppCompatActivity() {
     ) {
         if (viewModel.verifyForm(itemNameHelper, itemName)) {
 //               user.addItemToList(newItem)
-            val newItem = Item(
+            val newItem = MyItem(
                 itemName.text.toString(),
                 itemType.selectedItemId.toInt(),
                 itemDesc.text.toString(),
                 false
             )
 
-            viewModel.viewModelScope.launch {
+            runBlocking {
                 ItemsRepository.addItemToUser(
                     newItem,
                     firebaseAuth.currentUser!!.uid,

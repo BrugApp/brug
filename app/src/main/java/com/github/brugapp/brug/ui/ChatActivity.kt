@@ -1,8 +1,9 @@
 package com.github.brugapp.brug.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -19,8 +20,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.MessageRepository
-import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
@@ -29,12 +30,20 @@ import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.view_model.ChatViewModel
+import com.github.brugapp.brug.view_model.ItemsMenuViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -60,6 +69,8 @@ class ChatActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+    private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
+
     @SuppressLint("CutPasteId") // Needed as we read values from EditText fields
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,11 +79,14 @@ class ChatActivity : AppCompatActivity() {
         val conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
         convID = conversation.convId
 
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         buttonSendTextMessage = findViewById(R.id.buttonSendMessage)
 
         initMessageList(conversation)
         initSendTextMessageButton()
-        initSendLocationButton(conversation)
+        initSendLocationButton(locationManager, fusedLocationClient)
         initSendImageCameraButton(viewModel)
         initSendImageButton()
 
@@ -102,64 +116,60 @@ class ChatActivity : AppCompatActivity() {
                 intent.extras!!.get(MESSAGE_TEST_LIST_KEY) as MutableList<Message>
             } else null
 
-        BrugDataCache.initMessageListInCache(conversation.convId)
-
         if(messagesTestList == null) {
             MessageRepository.getRealtimeMessages(
                 conversation.convId,
                 conversation.userFields.getFullName(),
                 firebaseAuth.uid!!,
                 this,
-                this,
                 firestore,
                 firebaseAuth,
                 firebaseStorage
             )
         } else {
-            BrugDataCache.setMessageListInCache(conversation.convId, messagesTestList)
+            BrugDataCache.addMessageList(conversation.convId, messagesTestList)
         }
 
-        liveData(Dispatchers.IO) {
-            emit(BrugDataCache.isNetworkAvailable())
-        }.observe(this){ status ->
-            if(!status) Toast.makeText(this, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
-        }
-
-        BrugDataCache.getCachedMessageList(conversation.convId).observe(this){ messages ->
+        BrugDataCache.getMessageList(conversation.convId).observe(this){ messages ->
             findViewById<ProgressBar>(R.id.loadingMessages).visibility = View.GONE
 
             val messageList = findViewById<RecyclerView>(R.id.messagesList)
             viewModel.initViewModel(messages, this)
-            val layoutManager = LinearLayoutManager(this)
-            layoutManager.stackFromEnd = true
-            messageList.layoutManager = layoutManager
+            messageList.layoutManager = LinearLayoutManager(this)
 
             val adapter = viewModel.getAdapter()
             messageList.adapter = adapter
 
-            adapter.setOnItemClickListener(object : ChatMessagesListAdapter.onItemClickListener {
-                override fun onItemClick(position: Int) {
-                    if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
-                        adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
-                    ) {
-                        val message = adapter.getItem(position) as LocationMessage
-                        val lon = message.location.toAndroidLocation().longitude
-                        val lat = message.location.toAndroidLocation().latitude
-                        val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
-                        myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
-                        myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
-                        startActivity(myIntent)
-                    } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
-                        adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
-                    ) {
-                        val myIntent = Intent(this@ChatActivity, FullScreenImage::class.java)
-                        val message = adapter.getItem(position) as PicMessage
-                        myIntent.putExtra("messageUrl", message.imgUrl)
-                        startActivity(myIntent)
-                    }
+        adapter.setOnItemClickListener(object : ChatMessagesListAdapter.onItemClickListener {
+            override fun onItemClick(position: Int) {
+                if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_RIGHT.ordinal ||
+                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_LOCATION_LEFT.ordinal
+                ) {
+                    val message = adapter.getItem(position) as LocationMessage
+                    val lon = message.location.toAndroidLocation().longitude
+                    val lat = message.location.toAndroidLocation().latitude
+                    liveData(Dispatchers.IO) {
+                        conversation.lostItem.setLastLocation(lon, lat)
+                        emit(ItemsRepository.updateItemFields(conversation.lostItem, firebaseAuth.currentUser!!.uid, firestore))
+                    }.observe(this@ChatActivity){}
+                    val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
+                    myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
+                    myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
+                    startActivity(myIntent)
+                } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
+                    adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
+                ) {
+                    val myIntent = Intent(this@ChatActivity, FullScreenImage::class.java)
+                    val message = adapter.getItem(position) as PicMessage
+                    myIntent.putExtra("messageUrl", message.imgUrl)
+                    startActivity(myIntent)
                 }
-            })
+            }
+        })
+
+            scrollToBottom((adapter.itemCount) - 1)
         }
+
 
         inflateActionBar(
             conversation.userFields.getFullName(), conversation.lostItem.itemName
@@ -199,17 +209,16 @@ class ChatActivity : AppCompatActivity() {
     private fun initSendImageCameraButton(model: ChatViewModel) {
         // SEND IMAGE CAMERA BUTTON
         val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImagePerCamera)
-
         buttonSendMessage.setOnClickListener {
-            val permissions = arrayOf(
-                Manifest.permission.CAMERA,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
-
-            if (model.hasPermissions(this, permissions)) {
-                model.takeCameraImage(this)
+            if (model.isCameraPermissionOk(this) && model.isExtStorageOk(this)) {
+                viewModel.takeCameraImage(this)
+            } else if (model.isExtStorageOk(this)) {
+                model.requestCamera(this)
+            } else if (model.isCameraPermissionOk(this)) {
+                model.requestExtStorage(this)
             } else {
-                model.requestPermissions(this, permissions)
+                model.requestCamera(this)
+                model.requestExtStorage(this)
             }
         }
     }
@@ -219,18 +228,21 @@ class ChatActivity : AppCompatActivity() {
         val buttonSendMessage = findViewById<ImageButton>(R.id.buttonSendImage)
         buttonSendMessage.setOnClickListener {
             viewModel.selectGalleryImage(this)
+
         }
     }
 
-    private fun initSendLocationButton(conversation: Conversation) {
+    private fun initSendLocationButton(
+        locationManager: LocationManager,
+        fusedLocationClient: FusedLocationProviderClient
+    ) {
         val buttonSendLocationMsg = findViewById<ImageButton>(R.id.buttonSendLocalisation)
         buttonSendLocationMsg.setOnClickListener {
             viewModel.requestLocation(
                 convID,
                 this,
-                firestore,
-                firebaseAuth,
-                firebaseStorage
+                fusedLocationClient,
+                locationManager, firestore, firebaseAuth, firebaseStorage
             )
         }
     }
@@ -244,12 +256,9 @@ class ChatActivity : AppCompatActivity() {
 
     private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
-            val permissions = arrayOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            )
 
-            if (model.hasPermissions(this, permissions)) {
+            if (model.isAudioPermissionOk(this) && model.isExtStorageOk(this)) {
+
                 model.setupRecording(this)
 
                 messageLayout.visibility = View.GONE
@@ -258,8 +267,13 @@ class ChatActivity : AppCompatActivity() {
                 deleteAudio.visibility = View.VISIBLE
                 audioRecMessage.visibility = View.VISIBLE
 
+            } else if (model.isAudioPermissionOk(this)) {
+                model.requestExtStorage(this)
+            } else if (model.isExtStorageOk(this)) {
+                model.requestRecording(this)
             } else {
-                model.requestPermissions(this, permissions)
+                model.requestRecording(this)
+                model.requestExtStorage(this)
             }
         }
     }

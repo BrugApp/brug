@@ -6,31 +6,25 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.HashMap
 
-private const val NOT_IMPLEMENTED: String = "No information yet"
+private const val NOT_IMPLEMENTED: String = "no information yet"
 
 @AndroidEntryPoint
 class ItemInformationActivity : AppCompatActivity() {
@@ -46,18 +40,10 @@ class ItemInformationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_item_information)
-        val item = intent.extras!!.get(ITEM_INTENT_KEY) as Item
+        val item = intent.extras!!.get(ITEM_INTENT_KEY) as MyItem
 
         val geocoder = Geocoder(this, Locale.getDefault())
-        val textSet = hashMapOf(
-            "title" to item.itemName,
-            "image" to item.getRelatedIcon().toString(),
-            "lastLocation" to viewModel.getLocationName(item.getLastLocation(), geocoder),
-            "description" to item.itemDesc,
-            "isLost" to item.isLost().toString()
-        )
-//        setTextAllView(textSet)
-
+        val textSet: HashMap<String, String> = viewModel.getText(item, firebaseAuth,geocoder)
         setTextAllView(textSet)
 
         setSwitch(item, firebaseAuth)
@@ -73,22 +59,24 @@ class ItemInformationActivity : AppCompatActivity() {
             }
         }
 
-        qrCodeButton(item)
+        qrCodeButton()
     }
 
-    private fun setSwitch(item: Item, firebaseAuth: FirebaseAuth) {
+    private fun setSwitch(item: MyItem, firebaseAuth: FirebaseAuth) {
         val switch: SwitchCompat = findViewById(R.id.isLostSwitch)
         switch.isChecked = item.isLost()
         switch.setOnCheckedChangeListener { _, isChecked ->
             item.changeLostStatus(isChecked)
-            viewModel.viewModelScope.launch {
-                val response = ItemsRepository.updateItemFields(
-                    item,
-                    firebaseAuth.currentUser!!.uid,
-                    firestore
-                ).onSuccess
-
-                val feedbackStr = if (response) {
+            liveData(Dispatchers.IO) {
+                emit(
+                    ItemsRepository.updateItemFields(
+                        item,
+                        firebaseAuth.currentUser!!.uid,
+                        firestore
+                    )
+                )
+            }.observe(this) { response ->
+                val feedbackStr = if (response.onSuccess) {
                     "Item state has been successfully changed"
                 } else {
                     "ERROR: Item state couldn't be saved"
@@ -102,13 +90,13 @@ class ItemInformationActivity : AppCompatActivity() {
         }
     }
 
-    private fun qrCodeButton(item: Item) {
+    private fun qrCodeButton() {
         //if button is clicked, go to QrCodeShow
         val button: Button = findViewById(R.id.qrGen)
         button.setOnClickListener {
             val intent = Intent(this, QrCodeShowActivity::class.java)
             //give qrId to QrCodeShow
-            intent.putExtra("qrId", "${firebaseAuth.uid}:${item.getItemID()}")
+            intent.putExtra("qrId", viewModel.getQrId())
             startActivity(intent)
         }
     }

@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -14,13 +14,9 @@ import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
-import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
 import com.github.brugapp.brug.view_model.ItemsListAdapter
@@ -75,66 +71,47 @@ class ItemsMenuActivity : AppCompatActivity() {
 
 
     // ONLY GETS THE LIST OF ITEMS RELATED TO THE USER, NOT THE FULL USER PROFILE !
-    private fun initItemsList() {
-        val itemsTestList =
-            if(intent.extras != null && intent.extras!!.containsKey(ITEMS_TEST_LIST_KEY)){
-                intent.extras!!.get(ITEMS_TEST_LIST_KEY) as MutableList<Item>
-            } else null
+    private fun initItemsList() = liveData(Dispatchers.IO) {
+        emit(ItemsRepository.getUserItemsFromUID(firebaseAuth.currentUser!!.uid, firestore))
+    }.observe(this) { itemsList ->
+        findViewById<ProgressBar>(R.id.loadingItems).visibility = View.GONE
+        val list = if (itemsList.isNullOrEmpty()) mutableListOf() else itemsList.toMutableList()
 
-        if(itemsTestList == null){
-                ItemsRepository.getRealtimeUserItemsFromUID(
-                    firebaseAuth.uid!!,
-                    this,
-                    firestore
-                )
-        } else {
-            BrugDataCache.setItemsInCache(itemsTestList)
+        val listView = findViewById<RecyclerView>(R.id.items_listview)
+        val itemsListAdapter = ItemsListAdapter(list)
+        { clickedItem ->
+            val intent = Intent(this, ItemInformationActivity::class.java)
+            intent.putExtra(ITEM_INTENT_KEY, clickedItem)
+            startActivity(intent)
         }
 
-        liveData(Dispatchers.IO) {
-            emit(BrugDataCache.isNetworkAvailable())
-        }.observe(this){ status ->
-            if(!status) Toast.makeText(this, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
-        }
+        listView.layoutManager = LinearLayoutManager(this)
 
-        BrugDataCache.getCachedItems().observe(this) { itemsList ->
-            findViewById<ProgressBar>(R.id.loadingItems).visibility = View.GONE
-            val list = if (itemsList.isNullOrEmpty()) mutableListOf() else itemsList.toMutableList()
+        val dragPair = Pair(
+            ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
+            ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
+        )
 
-            val listView = findViewById<RecyclerView>(R.id.items_listview)
-            val itemsListAdapter = ItemsListAdapter(list)
-            { clickedItem ->
-                val intent = Intent(this, ItemInformationActivity::class.java)
-                intent.putExtra(ITEM_INTENT_KEY, clickedItem)
-                startActivity(intent)
-            }
+        val swipePair = Pair(
+            ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24)!!,
+            ContextCompat.getColor(this, R.color.list_item_del_BG)
+        )
 
-            listView.layoutManager = LinearLayoutManager(this)
+        val listAdapterPair = Pair(
+            list,
+            itemsListAdapter
+        )
 
-            val dragPair = Pair(0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT))
-
-            val swipePair = Pair(
-                ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24)!!,
-                ContextCompat.getColor(this, R.color.list_item_del_BG)
-            )
-
-            val listAdapterPair = Pair(
-                list,
-                itemsListAdapter
-            )
-
-            val listCallback = viewModel.setCallback(
-                this,
-                itemsTestList != null,
-                dragPair,
-                swipePair,
-                listAdapterPair,
-                firebaseAuth,
-                firestore
-            )
-            ItemTouchHelper(listCallback).attachToRecyclerView(listView)
-            listView.adapter = itemsListAdapter
-        }
+        val listCallback = viewModel.setCallback(
+            this,
+            dragPair,
+            swipePair,
+            listAdapterPair,
+            firebaseAuth,
+            firestore
+        )
+        ItemTouchHelper(listCallback).attachToRecyclerView(listView)
+        listView.adapter = itemsListAdapter
     }
 
     private fun initFloatingAddButton() {

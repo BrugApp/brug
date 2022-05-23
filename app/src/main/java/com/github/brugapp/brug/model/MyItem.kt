@@ -5,7 +5,7 @@ import com.github.brugapp.brug.model.services.LocationService
 import java.io.Serializable
 import java.util.*
 
-class Item(
+class MyItem(
     val itemName: String,
     private var itemTypeID: Int,
     val itemDesc: String,
@@ -26,8 +26,9 @@ class Item(
     fun getLastLocation(): LocationService? {
         return lastLocation
     }
-    fun setLastLocation(lon: Double, lat: Double){
+    fun setLastLocation(lon: Double, lat: Double): MyItem {
         lastLocation = LocationService(lat, lon)
+        return this
     }
 
     fun setItemID(itemID: String) {
@@ -61,7 +62,7 @@ class Item(
     }
 
     override fun equals(other: Any?): Boolean {
-        val otherItem = other as Item
+        val otherItem = other as MyItem
         return this.itemID == otherItem.itemID
                 && this.itemName == otherItem.itemName
                 && this.itemTypeID == otherItem.itemTypeID
@@ -80,7 +81,7 @@ class Item(
 }
 
 enum class ItemType {
-    Wallet, Keys, CarKeys, Phone, Other;
+    Wallet, Keys,CarKeys,Phone,Other;
 
     /* ITEM TYPE */
     fun getRelatedIcon(): Int {

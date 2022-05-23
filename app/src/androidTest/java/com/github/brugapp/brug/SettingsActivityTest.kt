@@ -1,8 +1,5 @@
 package com.github.brugapp.brug
 
-import android.content.Intent
-import androidx.test.core.app.ActivityScenario
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -30,6 +27,10 @@ import org.junit.runner.RunWith
 class SettingsActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
+
+    @get:Rule
+    var settingsActivityRule = ActivityScenarioRule(SettingsActivity::class.java)
+
     // is always failling on Cirrus (passes on local)
 /*    @Test
     fun changeProfileButtonLaunchesIntent() {
@@ -38,11 +39,9 @@ class SettingsActivityTest {
         intended(hasComponent(ProfilePictureSetActivity::class.java.name))
         Intents.release()
     }*/
+
     @Test
     fun settingsTest() {
-        ActivityScenario.launch<SettingsActivity>(
-            Intent(ApplicationProvider.getApplicationContext(), SettingsActivity::class.java)
-        )
         Espresso.onView(ViewMatchers.withId(R.id.titleSettings))
             .check(ViewAssertions.matches(ViewMatchers.withText("Settings")))
     }

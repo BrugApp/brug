@@ -5,75 +5,70 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
-import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.mapbox.LocationPermissionHelper
 import com.github.brugapp.brug.databinding.ActivityMapBoxBinding
 import com.github.brugapp.brug.databinding.OnItemMapClickViewBinding
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.model.services.LocationService
-import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
 import com.mapbox.maps.Style
 import com.mapbox.maps.ViewAnnotationAnchor
 import com.mapbox.maps.extension.style.layers.properties.generated.IconAnchor
-import com.mapbox.maps.plugin.annotation.AnnotationPlugin
 import com.mapbox.maps.plugin.annotation.annotations
-import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
-import com.mapbox.maps.viewannotation.ViewAnnotationManager
 import com.mapbox.maps.viewannotation.viewAnnotationOptions
 import com.mapbox.navigation.ui.utils.internal.extensions.getBitmap
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 
 const val EXTRA_DESTINATION_LATITUDE = "com.github.brugapp.brug.DESTINATION_LATITUDE"
 const val EXTRA_DESTINATION_LONGITUDE = "com.github.brugapp.brug.DESTINATION_LONGITUDE"
-const val EXTRA_MAP_ZOOM = "com.github.brugapp.brug.MAP_ZOOM"
 const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 
 @AndroidEntryPoint
 class MapBoxActivity : AppCompatActivity() {
+
+    private var items: List<MyItem>? = null
     private var lon = -122.07131270212334
     private var lat = 37.411793498806624
-    private var zoom = 9.0
 
     private lateinit var locationPermissionHelper: LocationPermissionHelper
 
     private lateinit var binding: ActivityMapBoxBinding
 
-    private lateinit var annotationPlugin: AnnotationPlugin
-    private lateinit var pointAnnotationManager: PointAnnotationManager
-    private lateinit var viewAnnotationManager: ViewAnnotationManager
-
     @Inject
     lateinit var firestore: FirebaseFirestore
 
-    @Inject
-    lateinit var firebaseAuth: FirebaseAuth
+    //  GETS THE LIST OF ITEMS RELATED TO THE USER
+    private fun initItemsList() = liveData(Dispatchers.IO){
+        emit(ItemsRepository.getUserItemsFromUID(Firebase.auth.currentUser!!.uid, firestore))
+    }.observe(this) { itemsList ->
+        items = itemsList
+        onMapReady()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMapBoxBinding.inflate(layoutInflater)
-        annotationPlugin = binding.mapView.annotations
-        pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
-        viewAnnotationManager = binding.mapView.viewAnnotationManager
-
-
         setContentView(binding.root)
+
+        initItemsList()
 
         if (intent.extras != null) {
             (intent.extras!!.get(EXTRA_DESTINATION_LATITUDE) as Double?)?.apply {
@@ -81,9 +76,6 @@ class MapBoxActivity : AppCompatActivity() {
             }
             (intent.extras!!.get(EXTRA_DESTINATION_LONGITUDE) as Double?)?.apply {
                 lon = this
-            }
-            (intent.extras!!.get(EXTRA_MAP_ZOOM) as Double?)?.apply {
-                zoom = this
             }
         }
 
@@ -96,7 +88,6 @@ class MapBoxActivity : AppCompatActivity() {
     private fun onMapReady() {
         binding.mapView.getMapboxMap().setCamera(
             CameraOptions.Builder().center(Point.fromLngLat(lon, lat))
-                .zoom( zoom)
                 .build()
         )
         binding.mapView.getMapboxMap().loadStyleUri(
@@ -107,31 +98,16 @@ class MapBoxActivity : AppCompatActivity() {
     }
 
     private fun addIcons() {
-        val itemsTestList =
-            if(intent.extras != null && intent.extras!!.containsKey(ITEMS_TEST_LIST_KEY)){
-                intent.extras!!.get(ITEMS_TEST_LIST_KEY) as MutableList<Item>
-            } else null
-
-        if(itemsTestList == null){
-            // First it fetches the items from Firebase, so that the list of items is fresh
-            ItemsRepository.getRealtimeUserItemsFromUID(firebaseAuth.uid!!, this, firestore)
-        } else {
-            BrugDataCache.setItemsInCache(itemsTestList)
-        }
-
         // Create an instance of the Annotation API and get the PointAnnotationManager.
-        BrugDataCache.getCachedItems().observe(this) { items ->
-            // First we flush the contents of the map
-            viewAnnotationManager.removeAllViewAnnotations()
-            pointAnnotationManager.deleteAll()
-
-            for (item in items) {
+        if (items != null) {
+            for (item in items!!) {
                 @DrawableRes val icon: Int = item.getRelatedIcon()
                 val lastLocation = item.getLastLocation()
                 if (lastLocation != null) {
                     bitmapFromDrawableRes(this, icon)?.let { it ->
                         val point: Point = Point.fromLngLat(lastLocation.getLongitude(), lastLocation.getLatitude())
 
+                        val annotationPlugin = binding.mapView.annotations
                         val pointAnnotationOptions: PointAnnotationOptions =
                             PointAnnotationOptions()
                                 .withPoint(point)
@@ -139,8 +115,10 @@ class MapBoxActivity : AppCompatActivity() {
                                 .withIconSize(2.0)
                                 .withIconAnchor(IconAnchor.CENTER)
                                 .withDraggable(true)
+                        val pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
                         val pointAnnotation = pointAnnotationManager.create(pointAnnotationOptions)
 
+                        val viewAnnotationManager = binding.mapView.viewAnnotationManager
                         val viewAnnotation = viewAnnotationManager.addViewAnnotation(
                             resId = R.layout.on_item_map_click_view,
                             options = viewAnnotationOptions {
@@ -155,15 +133,13 @@ class MapBoxActivity : AppCompatActivity() {
                             setLinkWithNavigation(driveButton, DirectionsCriteria.PROFILE_DRIVING, lastLocation)
                             itemNameOnMap.text = item.itemName
                         }
+                        // hide annotation at start
+                        viewAnnotation.toggleViewVisibility()
 
-                        pointAnnotationManager.addClickListener{ clickedAnnotation ->
-                            val pointID = clickedAnnotation.featureIdentifier
-                            val annotation = viewAnnotationManager.getViewAnnotationByFeatureId(
-                                pointID
-                            )
-                            annotation?.toggleViewVisibility()
-                            Log.e("ANNOTATION VISIBILITY", annotation?.visibility.toString())
-
+                        pointAnnotationManager.addClickListener { clickedAnnotation ->
+                            if (pointAnnotation == clickedAnnotation) {
+                                viewAnnotation.toggleViewVisibility()
+                            }
                             true
                         }
                     }

@@ -75,10 +75,7 @@ class AddItemTest {
 
     private fun wipeItemsAndSignOut() {
         runBlocking {
-            ItemsRepository.deleteAllUserItems(
-                TEST_USER_UID,
-                firestore
-            )
+            ItemsRepository.deleteAllUserItems(TEST_USER_UID,firestore)
         }
         firebaseAuth.signOut()
     }

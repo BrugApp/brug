@@ -1,94 +1,42 @@
 package com.github.brugapp.brug.data
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.User
-import java.util.concurrent.TimeUnit
-
-const val NETWORK_ERROR_MSG = "ERROR: You have no network connectivity, loading elements from cache."
-const val ACTION_LOST_ERROR_MSG = "ERROR: You have no network connectivity. Try again later."
 
 object BrugDataCache {
-    private val cachedUser = MutableLiveData<User>()
-    private val cachedItemsList = MutableLiveData<MutableList<Item>>()
-    private val cachedConvList = MutableLiveData<MutableList<Conversation>>()
-    private val cachedMessagesLists = HashMap<String, MutableLiveData<MutableList<Message>>>()
+    private val conversationsList: MutableLiveData<MutableList<Conversation>> = MutableLiveData()
+    private val messageMap: HashMap<String, MutableLiveData<MutableList<Message>>> = HashMap()
 
-    // USER PART
-    fun setUserInCache(user: User){
-        this.cachedUser.postValue(user)
+    fun setConversationsList(data: List<Conversation>?) {
+        conversationsList.value = data?.toMutableList() ?: mutableListOf()
     }
 
-    fun getCachedUser(): MutableLiveData<User> {
-        return this.cachedUser
+    fun getConversationList(): MutableLiveData<MutableList<Conversation>> {
+        return this.conversationsList
     }
 
-    fun resetCachedUser() {
-        this.cachedUser.postValue(null)
-    }
-
-
-    // ITEMS PART
-    fun setItemsInCache(items: MutableList<Item>){
-        this.cachedItemsList.postValue(items)
-    }
-
-    fun getCachedItems(): MutableLiveData<MutableList<Item>> {
-        return this.cachedItemsList
-    }
-
-    fun resetCachedItems() {
-        this.cachedItemsList.postValue(mutableListOf())
-    }
-
-    // CONVERSATIONS PART
-    fun setConversationsInCache(conversations: MutableList<Conversation>){
-        this.cachedConvList.postValue(conversations)
-    }
-
-    fun getCachedConversations(): MutableLiveData<MutableList<Conversation>> {
-        return this.cachedConvList
-    }
-
-    fun resetCachedConversations() {
-        this.cachedConvList.postValue(mutableListOf())
-    }
-
-    // MESSAGES LIST PART
-    fun initMessageListInCache(convID: String) {
-        if(!cachedMessagesLists.containsKey(convID)){
-            this.cachedMessagesLists[convID] = MutableLiveData<MutableList<Message>>()
+    fun addMessageList(convID: String, data: MutableList<Message>){
+        if(!messageMap.containsKey(convID)){
+            messageMap[convID] = MutableLiveData()
         }
+        messageMap[convID]!!.value = data
     }
 
-    fun setMessageListInCache(convID: String, messages: MutableList<Message>){
-        this.cachedMessagesLists[convID]!!.postValue(messages)
-    }
-
-    fun deleteCachedMessageList(convID: String) {
-        this.cachedMessagesLists[convID] = MutableLiveData<MutableList<Message>>()
-    }
-
-    fun getCachedMessageList(convID: String): MutableLiveData<MutableList<Message>> {
-        return this.cachedMessagesLists[convID]!!
-    }
-
-
-    fun resetCachedMessagesLists() {
-        this.cachedMessagesLists.clear()
-    }
-
-    fun isNetworkAvailable(): Boolean {
-        return try {
-            val command = "ping -c 1 google.com"
-            Runtime.getRuntime().exec(command).waitFor() == 0
-        } catch (e: Exception) {
-            false
+    fun getMessageList(convID: String): MutableLiveData<MutableList<Message>> {
+        if(!messageMap.containsKey(convID)){
+            addMessageList(convID, mutableListOf())
         }
+        Log.e("LIVEDATA STATE", "GOT ENTRY !")
+        return this.messageMap[convID]!!
     }
 
+    fun resetConversationsList() {
+        this.conversationsList.postValue(mutableListOf())
+    }
+
+    fun resetMessages() {
+        this.messageMap.clear()
+    }
 }

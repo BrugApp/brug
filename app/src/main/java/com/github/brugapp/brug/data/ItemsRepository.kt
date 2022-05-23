@@ -2,16 +2,13 @@
 package com.github.brugapp.brug.data
 
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.liveData
-import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.model.services.LocationService
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 
 private const val USERS_DB = "Users"
@@ -30,7 +27,7 @@ object ItemsRepository {
      * @return FirebaseResponse object denoting if the action was successful
      */
     suspend fun addItemToUser(
-        item: Item,
+        item: MyItem,
         uid: String,
         firestore: FirebaseFirestore
     ): FirebaseResponse {
@@ -43,61 +40,17 @@ object ItemsRepository {
                 return response
             }
 
-            val map = mutableMapOf<String, Any>(
-                "item_name" to item.itemName,
-                "item_type" to item.getItemTypeID(),
-                "item_description" to item.itemDesc,
-                "is_lost" to item.isLost(),
-            )
-            if(item.getLastLocation() != null){
-                map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
-            }
-
-            userRef.collection(ITEMS_DB).add(map).await()
+            userRef.collection(ITEMS_DB).add(
+                mapOf(
+                    "item_name" to item.itemName,
+                    "item_type" to item.getItemTypeID(),
+                    "item_description" to item.itemDesc,
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
+                )
+            ).await()
 
             response.onSuccess = true
-        } catch (e: Exception) {
-            response.onError = e
-        }
-
-        return response
-    }
-
-    /**
-     * Sets the last location of an item.
-     *
-     * @param uid the user ID of the owner of the item
-     * @param itemID the ID of the item
-     * @param lastLocation the last location of the item
-     *
-     * @return FirebaseResponse object denoting if the action was successful
-     */
-    suspend fun addLastLocation(
-        uid: String,
-        itemID: String,
-        lastLocation: LocationService,
-        firestore: FirebaseFirestore
-    ): FirebaseResponse {
-        val response = FirebaseResponse()
-        try {
-            val userRef = firestore.collection(USERS_DB).document(uid)
-            if (!userRef.get().await().exists()) {
-                response.onError = Exception("User doesn't exist")
-                return response
-            }
-
-            val itemRef = userRef.collection(ITEMS_DB).document(itemID)
-            if (!itemRef.get().await().exists()) {
-                response.onError = Exception("Item doesn't exist")
-                return response
-            }
-
-            itemRef.update(mapOf(
-                "last_location" to lastLocation.toFirebaseGeoPoint()
-            )).await()
-
-            response.onSuccess = true
-
         } catch (e: Exception) {
             response.onError = e
         }
@@ -114,7 +67,7 @@ object ItemsRepository {
      * @return FirebaseResponse object denoting if the action was successful
      */
     suspend fun updateItemFields(
-        item: Item,
+        item: MyItem,
         uid: String,
         firestore: FirebaseFirestore
     ): FirebaseResponse {
@@ -132,17 +85,15 @@ object ItemsRepository {
                 return response
             }
 
-            val map = mutableMapOf<String, Any>(
-                "item_name" to item.itemName,
-                "item_type" to item.getItemTypeID(),
-                "item_description" to item.itemDesc,
-                "is_lost" to item.isLost(),
-            )
-            if(item.getLastLocation() != null){
-                map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
-            }
-
-            itemRef.update(map).await()
+            itemRef.update(
+                mapOf(
+                    "item_name" to item.itemName,
+                    "item_type" to item.getItemTypeID(),
+                    "item_description" to item.itemDesc,
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
+                )
+            ).await()
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -191,7 +142,7 @@ object ItemsRepository {
 
     /* RESERVED FOR TESTS */
     suspend fun addItemWithItemID(
-        item: Item,
+        item: MyItem,
         itemID: String,
         uid: String,
         firestore: FirebaseFirestore
@@ -205,17 +156,15 @@ object ItemsRepository {
                 return response
             }
 
-            val map = mutableMapOf<String, Any>(
-                "item_name" to item.itemName,
-                "item_type" to item.getItemTypeID(),
-                "item_description" to item.itemDesc,
-                "is_lost" to item.isLost(),
-            )
-            if(item.getLastLocation() != null){
-                map["last_location"] = item.getLastLocation()!!.toFirebaseGeoPoint()
-            }
-
-            userRef.collection(ITEMS_DB).document(itemID).set(map).await()
+            userRef.collection(ITEMS_DB).document(itemID).set(
+                mapOf(
+                    "item_name" to item.itemName,
+                    "item_type" to item.getItemTypeID(),
+                    "item_description" to item.itemDesc,
+                    "is_lost" to item.isLost(),
+                    "last_location" to item.getLastLocation()?.toFirebaseGeoPoint()
+                )
+            ).await()
 
             response.onSuccess = true
         } catch (e: Exception) {
@@ -236,11 +185,7 @@ object ItemsRepository {
             }
 
             userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
-                deleteItemFromUser(
-                    item.id,
-                    uid,
-                    firestore
-                )
+                deleteItemFromUser(item.id, uid, firestore)
             }
             response.onSuccess = true
         } catch (e: Exception) {
@@ -249,7 +194,7 @@ object ItemsRepository {
         return response
     }
 
-    suspend fun getSingleItemFromIDs(uid: String, itemID: String): Item? {
+    suspend fun getSingleItemFromIDs(uid: String, itemID: String): MyItem? {
         return try {
             val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
             if(!userRef.get().await().exists()){
@@ -272,62 +217,51 @@ object ItemsRepository {
     }
 
     /**
-     * Retrieves the list of items belonging to a user in real-time and saves it to the cache,
-     * given a user ID.
+     * Retrieves the list of items belonging to a user, given its user ID.
      *
      * @param uid the user ID
      *
+     * @return List<MyItem> containing all the user's items, or a null value in case of error.
      */
-    fun getRealtimeUserItemsFromUID(
-        uid: String,
-        observer: LifecycleOwner,
-        firestore: FirebaseFirestore
-    ) {
-        val userRef = firestore.collection(USERS_DB).document(uid)
-        userRef.get().addOnCompleteListener { task ->
-            if(task.isSuccessful){
-                userRef.collection(ITEMS_DB).addSnapshotListener { value, error ->
-                    if(value != null && error == null){
-                        liveData(Dispatchers.IO){
-                            emit(
-                                value.mapNotNull { itemDoc ->
-                                    getItemFromDoc(itemDoc)
-                                }
-                            )
-                        }.observe(observer) { list ->
-                            BrugDataCache.setItemsInCache(list.toMutableList())
-                        }
-                    } else {
-                        Log.e("FIREBASE ERROR", error?.message.toString())
-                    }
-                }
-            } else {
-                Log.e("FIREBASE ERROR", task.exception?.message.toString())
+    suspend fun getUserItemsFromUID(uid: String, firestore: FirebaseFirestore): List<MyItem>? {
+        return try {
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            if (!userRef.get().await().exists()) {
+                Log.e("FIREBASE ERROR", "User doesn't exist")
+                return null
             }
+
+            userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
+                getItemFromDoc(item)
+            }
+        } catch (e: Exception) {
+            Log.e("FIREBASE ERROR", e.message.toString())
+            null
         }
     }
 
 
-    private fun getItemFromDoc(itemDoc: DocumentSnapshot): Item? {
+    private fun getItemFromDoc(itemDoc: DocumentSnapshot): MyItem? {
         try {
             if (!itemDoc.contains("item_name")
                 || !itemDoc.contains("item_type")
                 || !itemDoc.contains("item_description")
                 || !itemDoc.contains("is_lost")
+                || !itemDoc.contains("last_location")
             ) {
                 Log.e("FIREBASE ERROR", "Invalid Item Format")
                 return null
             }
 
-            val item = Item(
+            val item = MyItem(
                 itemDoc["item_name"] as String,
                 (itemDoc["item_type"] as Long).toInt(),
                 itemDoc["item_description"] as String,
                 itemDoc["is_lost"] as Boolean
             )
             item.setItemID(itemDoc.id)
-            if(itemDoc.contains("last_location")){
-                val location = itemDoc["last_location"] as GeoPoint
+            val location = itemDoc["last_location"] as GeoPoint?
+            if (location != null){
                 item.setLastLocation(location.longitude, location.latitude)
             }
             return item

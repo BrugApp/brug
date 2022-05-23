@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Process.SYSTEM_UID
 import android.provider.MediaStore
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
@@ -28,9 +29,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
-import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.MyUser
 import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService.Companion.fromLocalDateTime
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
@@ -85,11 +86,7 @@ class ChatActivityTest {
     val permissionRuleCamera: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
-    private val convID = "0"
-    private val dummyItemName = "DummyItem"
-
-    private val dummyUser = User("USER1", "Rayan", "Kikou", null, mutableListOf())
-
+    private val dummyUser = MyUser("USER1", "Rayan", "Kikou", null, mutableListOf())
     private val dummyDate = fromLocalDateTime(
         LocalDateTime.of(
             2022, Month.MARCH, 23, 15, 30
@@ -98,7 +95,7 @@ class ChatActivityTest {
     private val conversation = Conversation(
         "USER1USER2",
         dummyUser,
-        Item("DummyItem", 0, "DUMMYDESC", false),
+        MyItem("DummyItem", 0, "DUMMYDESC", false),
         Message(
             dummyUser.getFullName(), dummyDate, "TestMessage"
         )
@@ -282,6 +279,8 @@ class ChatActivityTest {
             putExtra(CHAT_INTENT_KEY, conversation)
             putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
         }
+
+        val message = "Test text"
 
         ActivityScenario.launch<Activity>(intent).use {
             onView(withId(R.id.recordButton)).perform(click())

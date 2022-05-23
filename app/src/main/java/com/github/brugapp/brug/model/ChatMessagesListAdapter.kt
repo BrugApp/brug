@@ -129,9 +129,7 @@ class ChatMessagesListAdapter(
         private fun bindLocationMessage(message: LocationMessage) {
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
-            message.getImageUri().observeForever { uri ->
-                itemView.findViewById<ImageView>(R.id.map).setImageURI(uri)
-            }
+            itemView.findViewById<ImageView>(R.id.map).setImageURI(Uri.parse(message.mapUrl))
         }
 
         private fun bindAudioMessage(message: AudioMessage) {

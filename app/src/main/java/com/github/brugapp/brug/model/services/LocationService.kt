@@ -7,7 +7,7 @@ import java.io.Serializable
 /**
  * Abstraction class handling Location services.
  */
-data class LocationService constructor(
+class LocationService constructor(
     private val latitude: Double,
     private val longitude: Double
 ) : Serializable {
@@ -42,5 +42,11 @@ data class LocationService constructor(
 
     override fun toString(): String {
         return "Latitude: $latitude, Longitude: $longitude"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        val otherLoc = other as LocationService
+        return this.longitude == otherLoc.longitude
+                && this.latitude == otherLoc.latitude
     }
 }
