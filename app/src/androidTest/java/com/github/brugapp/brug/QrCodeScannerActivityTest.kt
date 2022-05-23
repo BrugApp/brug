@@ -6,8 +6,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.replaceText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
@@ -67,6 +66,7 @@ class QrCodeScannerActivityTest {
     fun reportWithEmptyTextFieldReturnsErrorToast(){
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText(""))
+        onView(withId(R.id.edit_message)).perform(closeSoftKeyboard())
         onView(withId(R.id.buttonReportItem)).perform(click())
 
         // HERE SHOULD LIE AN ASSERTION ON TOAST MESSAGES, BUT IMPOSSIBLE TO DO
@@ -82,6 +82,7 @@ class QrCodeScannerActivityTest {
     fun reportWithBadlyFormattedTextReturnsErrorToast() {
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("abc"))
+        onView(withId(R.id.edit_message)).perform(closeSoftKeyboard())
         onView(withId(R.id.buttonReportItem)).perform(click())
     }
 
@@ -106,6 +107,7 @@ class QrCodeScannerActivityTest {
 
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("$userID:$itemID"))
+        onView(withId(R.id.edit_message)).perform(closeSoftKeyboard())
         onView(withId(R.id.buttonReportItem)).perform(click())
         Thread.sleep(3000)
         intended(
