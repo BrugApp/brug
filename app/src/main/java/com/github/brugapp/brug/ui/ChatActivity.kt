@@ -110,7 +110,6 @@ class ChatActivity : AppCompatActivity() {
                 conversation.userFields.getFullName(),
                 firebaseAuth.uid!!,
                 this,
-                this,
                 firestore,
                 firebaseAuth,
                 firebaseStorage

@@ -15,6 +15,7 @@ import com.github.brugapp.brug.BuildConfig.FIREBASE_NOTIFICATION_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.FirebaseResponse
 import com.github.brugapp.brug.data.UserRepository.addNewDeviceTokenToUser
+import com.github.brugapp.brug.ui.ChatMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -69,7 +70,7 @@ class MyFCMMessagingService : FirebaseMessagingService() {
          * @param messageBody FCM message body received.
          */
         fun sendNotification(context: Context, messageTitle: String, messageBody: String) {
-            val intent = Intent(context, SignInActivity::class.java)
+            val intent = Intent(context, ChatMenuActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             val pendingIntent = PendingIntent.getActivity(
                 context, 0, intent,

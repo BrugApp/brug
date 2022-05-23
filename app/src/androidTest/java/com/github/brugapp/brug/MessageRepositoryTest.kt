@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
@@ -126,7 +125,6 @@ class MessageRepositoryTest {
             "${USER_ID1}${USER_ID2}",
             USER2.getFullName(),
             USER_ID1,
-            TestLifecycleOwner(),
             null,
             firestore,
             firebaseAuth,
@@ -161,7 +159,6 @@ class MessageRepositoryTest {
             "${USER_ID1}${USER_ID2}",
             USER2.getFullName(),
             USER_ID1,
-            TestLifecycleOwner(),
             null,
             firestore,
             firebaseAuth,
@@ -240,7 +237,6 @@ class MessageRepositoryTest {
             "${USER_ID1}${USER_ID2}",
             "USERNAME",
             USER_ID1,
-            TestLifecycleOwner(),
             null,
             firestore,
             firebaseAuth,

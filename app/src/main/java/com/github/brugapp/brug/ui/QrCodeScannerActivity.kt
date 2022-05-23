@@ -47,31 +47,24 @@ class QrCodeScannerActivity : AppCompatActivity() {
         findViewById<EditText>(R.id.edit_message).setText("J7jDsvME15fNKvLssZ9bezpABHn2:9m7SvfslSij6f7iplq68")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
-            liveData(Dispatchers.IO){
-                emit(BrugDataCache.isNetworkAvailable())
-            }.observe(this){ result ->
-                if(!result){
-                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+            val context = this
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
+                if(!BrugDataCache.isNetworkAvailable()){
+                    Toast.makeText(context, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
                 } else {
-                    val context = this
-                    liveData(Dispatchers.IO){
-                        emit(
-                            viewModel.parseTextAndCreateConv(
-                                findViewById<EditText>(R.id.edit_message).text,
-                                context,
-                                firebaseAuth, firestore, firebaseStorage
-                            )
-                        )
-                    }.observe(context){ resultingMsg ->
-                        Toast.makeText(context, resultingMsg, Toast.LENGTH_LONG).show()
-                        if(resultingMsg == SUCCESS_TEXT){
-                            val myIntent =
-                                if(firebaseAuth.currentUser == null)
-                                    Intent(context, SignInActivity::class.java)
-                                else
-                                    Intent(context, ChatMenuActivity::class.java)
-                            startActivity(myIntent)
-                        }
+                   val resultMsg = viewModel.parseTextAndCreateConv(
+                        findViewById<EditText>(R.id.edit_message).text,
+                        context,
+                        firebaseAuth, firestore, firebaseStorage
+                    )
+
+                    if(resultMsg == SUCCESS_TEXT){
+                        val myIntent =
+                            if(firebaseAuth.currentUser == null)
+                                Intent(context, SignInActivity::class.java)
+                            else
+                                Intent(context, ChatMenuActivity::class.java)
+                        startActivity(myIntent)
                     }
                 }
             }

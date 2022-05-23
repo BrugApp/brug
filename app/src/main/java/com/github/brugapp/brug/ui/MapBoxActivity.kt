@@ -114,7 +114,7 @@ class MapBoxActivity : AppCompatActivity() {
 
         if(itemsTestList == null){
             // First it fetches the items from Firebase, so that the list of items is fresh
-            ItemsRepository.getRealtimeUserItemsFromUID(firebaseAuth.uid!!, this, firestore)
+            ItemsRepository.getRealtimeUserItemsFromUID(firebaseAuth.uid!!, firestore)
         } else {
             BrugDataCache.setItemsInCache(itemsTestList)
         }

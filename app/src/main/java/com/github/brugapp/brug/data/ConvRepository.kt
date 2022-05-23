@@ -203,7 +203,6 @@ object ConvRepository {
      */
     fun getRealtimeConvsFromUID(
         uid: String,
-        observer: LifecycleOwner,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
@@ -226,7 +225,7 @@ object ConvRepository {
                                         )
                                     },
                                 )
-                            }.observe(observer) { list ->
+                            }.observeForever { list ->
                                 BrugDataCache.setConversationsInCache(list.toMutableList())
                             }
                         } else {

@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
@@ -73,7 +72,6 @@ class ConvRepositoryTest {
 
         ConvRepository.getRealtimeConvsFromUID(
             USER_ID1,
-            TestLifecycleOwner(),
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -92,7 +90,6 @@ class ConvRepositoryTest {
         val wrongConvID = "WRONGCONVID"
         ConvRepository.getRealtimeConvsFromUID(
             wrongConvID,
-            TestLifecycleOwner(),
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -107,7 +104,6 @@ class ConvRepositoryTest {
     fun getBadlyFormattedConvsReturnsEmptyList() {
         ConvRepository.getRealtimeConvsFromUID(
             USERWRONGCONV_ID,
-            TestLifecycleOwner(),
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -122,7 +118,6 @@ class ConvRepositoryTest {
     fun getConvsFromValidUserCorrectlyReturnsSuccessfully() {
         ConvRepository.getRealtimeConvsFromUID(
             USER_ID1,
-            TestLifecycleOwner(),
             firestore,
             firebaseAuth,
             firebaseStorage
@@ -177,7 +172,6 @@ class ConvRepositoryTest {
 
         ConvRepository.getRealtimeConvsFromUID(
             USER_ID1,
-            TestLifecycleOwner(),
             firestore,
             firebaseAuth,
             firebaseStorage

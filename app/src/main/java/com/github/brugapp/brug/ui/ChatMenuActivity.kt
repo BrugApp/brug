@@ -57,9 +57,13 @@ class ChatMenuActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_menu)
-
-        initChatList()
-        BottomNavBar().initBottomBar(this)
+        if((intent.extras != null && intent.extras!!.containsKey(CONVERSATION_TEST_LIST_KEY)) || firebaseAuth.uid != null){
+            initChatList()
+            BottomNavBar().initBottomBar(this)
+        } else {
+            val intent = Intent(this, SignInActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     // Initializing the top-bar
@@ -88,7 +92,6 @@ class ChatMenuActivity : AppCompatActivity() {
         if(conversationTestList == null) {
             ConvRepository.getRealtimeConvsFromUID(
                 firebaseAuth.uid!!,
-                this,
                 firestore,
                 firebaseAuth,
                 firebaseStorage

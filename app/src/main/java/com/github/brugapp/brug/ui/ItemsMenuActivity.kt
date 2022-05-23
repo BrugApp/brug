@@ -84,7 +84,6 @@ class ItemsMenuActivity : AppCompatActivity() {
         if(itemsTestList == null){
                 ItemsRepository.getRealtimeUserItemsFromUID(
                     firebaseAuth.uid!!,
-                    this,
                     firestore
                 )
         } else {

@@ -104,42 +104,35 @@ class ChatViewModel : ViewModel() {
         adapter.notifyItemInserted(messages.size - 1)
         activity.scrollToBottom(adapter.itemCount - 1)
 
-        if (firebaseAuth.currentUser == null) {
-            Snackbar.make(
-                activity.findViewById(android.R.id.content),
-                "ERROR: You are no longer logged in ! Log in again to send the message.",
-                Snackbar.LENGTH_LONG
-            ).show()
-        } else {
-            liveData(Dispatchers.IO) {
-                emit(BrugDataCache.isNetworkAvailable())
-            }.observe(activity){ status ->
-                if(!status) {
-                    Toast.makeText(activity, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
-                }
-                else {
-                    viewModelScope.launch {
-                        val error = if(firebaseAuth.currentUser!!.displayName != null){
-                            MessageRepository.addMessageToConv(
-                                message,
-                                false,
-                                firebaseAuth.uid!!,
-                                convID,
-                                firestore,
-                                firebaseAuth,
-                                firebaseStorage
-                            ).onError
-                        } else Exception("ERROR: The user name isn't available, aborting.")
+        viewModelScope.launch(Dispatchers.IO) {
+            if (firebaseAuth.currentUser == null) {
+                Snackbar.make(
+                    activity.findViewById(android.R.id.content),
+                    "ERROR: You are no longer logged in ! Log in again to send the message.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            } else if (!BrugDataCache.isNetworkAvailable()) {
+                Toast.makeText(activity, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
+            } else {
+                val error = if(firebaseAuth.currentUser!!.displayName != null){
+                    MessageRepository.addMessageToConv(
+                        message,
+                        false,
+                        firebaseAuth.uid!!,
+                        convID,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    ).onError
+                } else Exception("ERROR: The user name isn't available, aborting.")
 
-                        if(error != null){
-                            Log.e("FIREBASE ERROR", error.message.toString())
-                            Snackbar.make(
-                                activity.findViewById(android.R.id.content),
-                                "ERROR: Unable to register the new message in the database",
-                                Snackbar.LENGTH_LONG
-                            ).show()
-                        }
-                    }
+                if(error != null){
+                    Log.e("FIREBASE ERROR", error.message.toString())
+                    Snackbar.make(
+                        activity.findViewById(android.R.id.content),
+                        "ERROR: Unable to register the new message in the database",
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
         }
