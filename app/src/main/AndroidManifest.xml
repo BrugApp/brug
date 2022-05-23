@@ -101,6 +101,7 @@
         <activity
             android:name=".ui.NFCScannerActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:parentActivityName=".ui.SignInActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />

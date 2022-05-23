@@ -92,8 +92,7 @@ open class NFCScannerActivity: AppCompatActivity() {
                     }
                     else -> throw e
                 }
-            }
-            viewModel.displayReportNotification(this)
+            } //viewModel.displayReportNotification(this) don't notify when you find your own items
         }
     }
 
@@ -108,7 +107,8 @@ open class NFCScannerActivity: AppCompatActivity() {
                 retval = true
             } else {
                 if(!nfcContents.text.contains(firebaseAuth.currentUser!!.uid)){
-                    startActivity(Intent(this, ChatMenuActivity::class.java))
+                    viewModel.write(nfcContents.text.toString(), tag!!)
+                    Toast.makeText(context, "No valid tag message", Toast.LENGTH_LONG).show()
                 }else{
                     Toast.makeText(context, "You have already saved this tag", Toast.LENGTH_LONG).show()
                 }
@@ -165,6 +165,7 @@ open class NFCScannerActivity: AppCompatActivity() {
      */
     public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         setIntent(intent)
         viewModel.readFromIntent(nfcContents,intent)
         if ((ACTION_TAG_DISCOVERED) == intent.action){
