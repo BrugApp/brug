@@ -111,7 +111,7 @@ class MessageRepositoryTest {
         val response = runBlocking {
              MessageRepository.addMessageToConv(
                  TEXTMSG,
-                 false,
+                 true,
                  USER_ID1,
                  "${USER_ID1}${USER_ID2}",
                  firestore,
@@ -145,7 +145,7 @@ class MessageRepositoryTest {
 
         val response = MessageRepository.addMessageToConv(
             LOCATIONMSG,
-            false,
+            true,
             USER_ID2,
             "${USER_ID1}${USER_ID2}",
             firestore,
