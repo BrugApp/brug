@@ -108,14 +108,16 @@ class ItemInformationActivity : AppCompatActivity() {
         button.setOnClickListener {
             val intent = Intent(this, QrCodeShowActivity::class.java)
             //give qrId to QrCodeShow
+
             intent.putExtra("qrId", "${firebaseAuth.uid}:${item.getItemID()}")
+            intent.putExtra("itemName", "${firebaseAuth.uid}:${item.itemName}")
+
             startActivity(intent)
         }
     }
 
     private fun setTextAllView(textSet: HashMap<String, String>) {
         setTextView(R.id.tv_name, textSet["title"])
-        setTextView(R.id.item_name, textSet["title"])
         setTextView(R.id.item_last_location, textSet["lastLocation"])
         setTextView(R.id.item_description, textSet["description"])
 
