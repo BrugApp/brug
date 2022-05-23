@@ -124,7 +124,7 @@ object MessageRepository {
                             tokenDoc.id
                         }.toTypedArray()
                 )
-                MyFCMMessagingService.sendNotificationMessage(jsonArray, firebaseAuth.currentUser!!.displayName, m.body)
+                MyFCMMessagingService.sendNotificationMessage(jsonArray, firebaseAuth.currentUser?.displayName, m.body)
             }
 
 
