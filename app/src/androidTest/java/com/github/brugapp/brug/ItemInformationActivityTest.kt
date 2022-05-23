@@ -14,7 +14,7 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiSelector
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.model.MyItem
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.ItemInformationActivity
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -36,15 +36,16 @@ private const val TOGGLE_SWITCH_ID: String = "$APP_PACKAGE_NAME:id/isLostSwitch"
 @RunWith(AndroidJUnit4::class)
 class ItemInformationActivityTest {
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val item = MyItem("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
-        .setLastLocation(6.61,46.51)
+    private val item = Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false)
 
+    private val str = "no information yet"
 
     @get:Rule
     var rule = HiltAndroidRule(this)
 
     @Before
     fun setUp() {
+        item.setLastLocation(6.61,46.51)
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), ItemInformationActivity::class.java)
         intent.putExtra(ITEM_INTENT_KEY, item)
@@ -69,6 +70,7 @@ class ItemInformationActivityTest {
             firebaseAuth.signInWithEmailAndPassword("abcd@efgh.com", "123456").await()
         }
         val ouchy = "Av. Emile-Henri-Jaques-Dalcroze 7, 1007 Lausanne, Switzerland"
+        Thread.sleep(1000)
         onView(withId(R.id.item_last_location)).check(matches(withText(ouchy)))
         onView(withId(R.id.item_last_location)).perform(click())
         firebaseAuth.signOut()

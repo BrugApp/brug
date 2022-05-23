@@ -9,17 +9,17 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.model.MyItem
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.QrCodeShowActivity
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class QrCodeShowActivityTest{
-    private val item = MyItem("Phone", ItemType.Phone.ordinal,"my phone", false)
+    private val item = Item("Phone", ItemType.Phone.ordinal,"my phone", false)
     private val code:String = "0:23"
-    private val user= MyUser("0","Brug", "App",null, mutableListOf())
+    private val user= User("0","Brug", "App",null, mutableListOf())
 
     private val infoListIntent = Intent(
         ApplicationProvider.getApplicationContext(),

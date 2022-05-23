@@ -13,14 +13,15 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.rule.GrantPermissionRule
+import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.MESSAGE_TEST_LIST_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.*
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -47,6 +48,13 @@ class MapBoxActivityNoLocationTest {
     val permissionRule2: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
 
+    private val ITEMS = arrayListOf(
+        Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false),
+        Item("Wallet", ItemType.Wallet.ordinal, "With all my belongings", false),
+        Item("Car Keys", ItemType.CarKeys.ordinal, "Lamborghini Aventador LP-780-4", false),
+        Item("Keys", ItemType.Keys.ordinal, "Home keys", true)
+    )
+
     @Before
     fun setUp() {
         Intents.init()
@@ -57,26 +65,19 @@ class MapBoxActivityNoLocationTest {
         Intents.release()
     }
 
-    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     @Test
     fun mapboxDoesNotCrashWhenNoLocationIsProvided() {
-        runBlocking {
-            firebaseAuth.createUserWithEmailAndPassword("goa@efgh.com", "123456").await()
-            firebaseAuth.signInWithEmailAndPassword("goa@efgh.com", "123456").await()
-        }
 
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, MapBoxActivity::class.java)
-
-        ActivityScenario.launch<Activity>(intent).use{
-
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<Activity>(intent).use {
             Intents.intended(
                 Matchers.allOf(
                     IntentMatchers.toPackage("com.github.brugapp.brug")
                 )
             )
         }
-        firebaseAuth.signOut()
     }
 }

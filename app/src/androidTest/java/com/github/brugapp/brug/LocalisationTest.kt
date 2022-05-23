@@ -7,8 +7,8 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.model.MyItem
 import com.github.brugapp.brug.ui.ItemInformationActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -23,7 +23,7 @@ class LocalisationTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
-    fun setUp(item: MyItem) {
+    fun setUp(item: Item) {
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), ItemInformationActivity::class.java)
         intent.putExtra(ITEM_INTENT_KEY, item)
@@ -32,26 +32,29 @@ class LocalisationTest {
 
     @Test
     fun noLocalisationSet() {
-        val myItem = MyItem("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
+        val myItem = Item("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
         setUp(myItem)
+        Thread.sleep(1000)
         Espresso.onView(ViewMatchers.withId(R.id.item_last_location))
             .check(ViewAssertions.matches(ViewMatchers.withText("Not set")))
     }
 
     @Test
     fun correctLocalisationDisplayedAfterBadLocationUpdate() {
-        val myItem = MyItem("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
+        val myItem = Item("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
         myItem.setLastLocation(0.0,0.0) // set bad location
         setUp(myItem)
+        Thread.sleep(3000)
         Espresso.onView(ViewMatchers.withId(R.id.item_last_location))
             .check(ViewAssertions.matches(ViewMatchers.withText("(0.0, 0.0)")))
     }
 
     @Test
     fun localisationDoesNotExist(){
-        val myItem = MyItem("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
+        val myItem = Item("IPhone", ItemType.Phone.ordinal, "IPhone 13", false)
         myItem.setLastLocation(1000.0,10000.0) // set bad location (out of map) => exception
         setUp(myItem)
+        Thread.sleep(3000)
         Espresso.onView(ViewMatchers.withId(R.id.item_last_location))
             .check(ViewAssertions.matches(ViewMatchers.withText("Not available")))
     }
