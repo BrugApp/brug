@@ -206,7 +206,7 @@ class MessageRepositoryTest {
 
 
         // AUTHENTICATE USER TO FIREBASE TO BE ABLE TO USE FIREBASE STORAGE
-        val user = firebaseAuth.createUserWithEmailAndPassword(userEmail, "123456").await()
+        firebaseAuth.createUserWithEmailAndPassword(userEmail, "123456").await()
         val authUser = firebaseAuth
             .signInWithEmailAndPassword(userEmail, "123456")
             .await()

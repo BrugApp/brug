@@ -5,9 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import android.net.Uri
+import android.view.View
+import android.widget.ImageView
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.DrawableRes
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -19,6 +24,7 @@ import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.github.brugapp.brug.ui.ProfilePictureSetActivity
 import com.github.brugapp.brug.ui.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -34,9 +40,11 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import org.hamcrest.Description
+import org.hamcrest.TypeSafeMatcher
+import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 
 import org.junit.Rule
 import org.junit.Test
@@ -44,6 +52,9 @@ import org.junit.runner.RunWith
 
 private const val TEST_USERNAME = "Rayan Kikou"
 
+/**
+ * Settings Activity Tests
+ */
 @HiltAndroidTest
 @UninstallModules(ActivityResultModule::class)
 @RunWith(AndroidJUnit4::class)
@@ -149,4 +160,47 @@ class SettingsActivityTest {
             .check(ViewAssertions.matches(ViewMatchers.withText(name)))
     }
 
+    @Test
+    fun initProfilePictureAndChange(){
+        Thread.sleep(3000)
+        correctProfilePictureDisplayed()
+        cleanUp()
+        setUp()
+        profilePictureCanBeChanged()
+    }
+
+    private fun correctProfilePictureDisplayed(){
+        Thread.sleep(3000)
+        Espresso.onView(ViewMatchers.withId(R.id.settingsUserPic))
+            .check(ViewAssertions.matches(withDrawable(R.mipmap.ic_launcher_round)))
+    }
+
+
+    private fun profilePictureCanBeChanged(){
+        val drawableRes = R.mipmap.ic_launcher
+        val drawable  = ContextCompat.getDrawable(ApplicationProvider.getApplicationContext(), drawableRes)
+
+        val response = runBlocking { UserRepository.updateUserIcon(
+            firebaseAuth.currentUser!!.uid, drawable!!,firebaseAuth,firebaseStorage,firestore) }
+        ViewMatchers.assertThat(response.onSuccess, IsEqual(true))
+
+        Espresso.onView(ViewMatchers.withId(R.id.settingsUserPic))
+            .check(ViewAssertions.matches(withDrawable(drawableRes)))
+    }
+
+    private fun withDrawable(@DrawableRes id: Int) = object : TypeSafeMatcher<View>() {
+        override fun describeTo(description: Description) {
+            description.appendText("$id")
+        }
+
+        override fun matchesSafely(view: View): Boolean {
+            val context = view.context
+            val expectedBitmap = context.getDrawable(id)?.toBitmap()
+
+            return view is ImageView && view.drawable.toBitmap().sameAs(expectedBitmap)
+        }
+    }
+
+
 }
+

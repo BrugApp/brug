@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,93 +7,117 @@
     tools:context=".ui.ItemInformationActivity">
 
     <RelativeLayout
+        android:id="@+id/rellay1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".ui.ItemInformationActivity">
-
+        android:background="@drawable/grad"
+        android:paddingBottom="20dp">
 
         <RelativeLayout
-            android:id="@+id/rellay1"
-            android:layout_width="match_parent"
-            android:layout_height="263dp"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="1dp"
-            android:background="@drawable/grad"
-            android:paddingBottom="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            android:id="@+id/imgUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/circle_border">
 
-            <RelativeLayout
-                android:id="@+id/imgUser"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/circle_border">
-
-                <ImageView
-                    android:id="@+id/img"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:layout_marginStart="9dp"
-                    android:layout_marginTop="9dp"
-                    android:layout_marginEnd="9dp"
-                    android:layout_marginBottom="9dp"
-                    android:adjustViewBounds="true"
-                    android:background="@drawable/circle"
-                    android:padding="100dp"
-                    android:scaleType="centerInside"
-                    android:scaleX="-1"
-                    android:scaleY="-1"
-                    android:src="@drawable/circle" />
-
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/tv_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/imgUser"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="15sp"
-                android:fontFamily="sans-serif-light"
-                android:text=""
-                android:textColor="@color/white"
-                android:textSize="32sp" />
-
-
-            <TextView
-                android:id="@+id/item_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/tv_name"
-                android:layout_centerHorizontal="true"
-                android:fontFamily="sans-serif"
-                android:text=""
-                android:textAllCaps="true"
-                android:textColor="@color/white"
-                android:textSize="14sp" />
-
+            <ImageView
+                android:id="@+id/img"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginStart="9dp"
+                android:layout_marginTop="9dp"
+                android:layout_marginEnd="9dp"
+                android:layout_marginBottom="9dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/circle"
+                android:padding="100dp"
+                android:scaleType="centerInside"
+                android:scaleX="-1"
+                android:scaleY="-1"
+                android:src="@drawable/circle" />
 
         </RelativeLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/rellay1"
-            android:layout_margin="15sp"
-            android:layout_marginTop="15sp">
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imgUser"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15sp"
+            android:fontFamily="sans-serif-light"
+            android:text=""
+            android:textColor="@color/white"
+            android:textSize="32sp" />
 
+
+        <TextView
+            android:id="@+id/item_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_name"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="sans-serif"
+            android:text=""
+            android:textAllCaps="true"
+            android:textColor="@color/address"
+            android:textSize="14sp" />
+
+
+    </RelativeLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rellay1">
+        <ScrollView android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:fitsSystemWindows="true"
+            android:fillViewport="true"
+            >
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="UselessParent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:text="@string/device_name"
+                        android:textColor="@color/headings"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/item_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:fontFamily="sans-serif-light"
+                        android:text=""
+                        android:textColor="#000000"
+                        android:textSize="18sp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="15dp"
+                        android:background="@color/grey" />
+
+                </LinearLayout>
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -106,7 +130,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="20dp"
                         android:text="@string/last_location"
-                        android:textColor="@color/black"
+                        android:textColor="@color/headings"
                         android:textSize="13sp" />
 
                     <TextView
@@ -137,10 +161,10 @@
                         android:id="@+id/isLostSwitch"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="@string/is_lost"
                         android:layout_marginStart="20dp"
                         android:layout_marginEnd="20dp"
-                        android:text="@string/is_lost"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/headings" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -149,27 +173,21 @@
                     android:layout_marginTop="15dp"
                     android:orientation="vertical">
 
-                    <androidx.appcompat.widget.AppCompatButton
+                    <Button
                         android:id="@+id/qrGen"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:paddingStart="30dp"
                         android:layout_gravity="center"
-                        android:background="@drawable/round_button"
                         android:text="@string/qr_code"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:paddingEnd="30dp"
                         tools:layout_editor_absoluteX="156dp"
-                        tools:layout_editor_absoluteY="445dp"/>
+                        tools:layout_editor_absoluteY="445dp" />
                 </LinearLayout>
 
 
             </LinearLayout>
+        </ScrollView>
 
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </RelativeLayout>
-</ScrollView>
+</RelativeLayout>

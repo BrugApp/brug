@@ -335,32 +335,12 @@ class ChatViewModel : ViewModel() {
             } else {
                 // Launch the locationListener (updates every 1000 ms)
                 val locationGpsProvider = LocationManager.GPS_PROVIDER
-                locationManager.requestLocationUpdates(
-                    locationGpsProvider,
-                    50,
-                    0.1f
-                ) {
-                    sendLocationMessage(
-                        activity,
-                        it,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
+                locationManager.requestLocationUpdates(locationGpsProvider, 50, 0.1f) {
+                    sendLocationMessage(activity, it, convID, firestore, firebaseAuth, firebaseStorage) }
 
                 // Stop the update as we only want it once (at least for now)
                 locationManager.removeUpdates {
-                    sendLocationMessage(
-                        activity,
-                        it,
-                        convID,
-                        firestore,
-                        firebaseAuth,
-                        firebaseStorage
-                    )
-                }
+                    sendLocationMessage(activity, it, convID, firestore, firebaseAuth, firebaseStorage) }
             }
         }
     }
@@ -443,14 +423,6 @@ class ChatViewModel : ViewModel() {
 
     // PERMISSIONS RELATED =======================================================
 
-    fun requestRecording(activity: Activity) {
-        requestPermissions(
-            activity,
-            Array(1) { Manifest.permission.RECORD_AUDIO },
-            RECORDING_REQUEST_CODE
-        )
-    }
-
     fun isExtStorageOk(context: Context): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
@@ -465,6 +437,29 @@ class ChatViewModel : ViewModel() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    fun isCameraPermissionOk(context: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestCamera(activity: Activity) {
+        requestPermissions(
+            activity,
+            Array(1) { Manifest.permission.CAMERA },
+            TAKE_PICTURE_REQUEST_CODE
+        )
+    }
+
+    fun requestRecording(activity: Activity) {
+        requestPermissions(
+            activity,
+            Array(1) { Manifest.permission.RECORD_AUDIO },
+            RECORDING_REQUEST_CODE
+        )
+    }
+
     fun requestExtStorage(activity: Activity) {
         requestPermissions(
             activity,
@@ -472,6 +467,8 @@ class ChatViewModel : ViewModel() {
             STORAGE_REQUEST_CODE
         )
     }
+
+
 
     private fun requestLocationPermissions(activity: Activity) {
         requestPermissions(

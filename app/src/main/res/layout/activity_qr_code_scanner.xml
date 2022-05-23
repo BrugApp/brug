@@ -1,68 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     tools:context=".ui.QrCodeScannerActivity">
 
-    <EditText
-        android:id="@+id/edit_message"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="80dp"
-        android:layout_marginTop="146dp"
-        android:layout_marginEnd="80dp"
-        android:layout_marginBottom="232dp"
-        android:autofillHints=""
-        android:ems="10"
-        android:hint="@string/add_item"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:textColorHint="#78909C"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scanner_view" />
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.QrCodeScannerActivity">
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/buttonReportItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:paddingStart="30dp"
-        android:layout_gravity="center"
-        android:background="@drawable/round_button"
-        android:text="@string/report_item"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:paddingEnd="30dp"
-        android:layout_marginBottom="88dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
+        <EditText
+            android:id="@+id/edit_message"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="146dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginBottom="232dp"
+            android:autofillHints=""
+            android:ems="10"
+            android:hint="@string/add_item"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:textColorHint="#78909C"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/scanner_view" />
 
-    <com.budiyev.android.codescanner.CodeScannerView
-        android:id="@+id/scanner_view"
-        android:layout_width="wrap_content"
-        android:layout_height="300dp"
-        app:autoFocusButtonColor="@android:color/white"
-        app:autoFocusButtonVisible="true"
-        app:flashButtonColor="@android:color/white"
-        app:flashButtonVisible="true"
-        app:frameAspectRatioHeight="1"
-        app:frameAspectRatioWidth="1"
-        app:frameColor="@android:color/white"
-        app:frameCornersRadius="0dp"
-        app:frameCornersSize="50dp"
-        app:frameSize="0.75"
-        app:frameThickness="2dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:maskColor="#77000000">
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonReportItem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:paddingStart="30dp"
+            android:layout_gravity="center"
+            android:background="@drawable/round_button"
+            android:text="@string/report_item"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:paddingEnd="30dp"
+            android:layout_marginBottom="88dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    </com.budiyev.android.codescanner.CodeScannerView>
+        <com.budiyev.android.codescanner.CodeScannerView
+            android:id="@+id/scanner_view"
+            android:layout_width="wrap_content"
+            android:layout_height="300dp"
+            app:autoFocusButtonColor="@android:color/white"
+            app:autoFocusButtonVisible="true"
+            app:flashButtonColor="@android:color/white"
+            app:flashButtonVisible="true"
+            app:frameAspectRatioHeight="1"
+            app:frameAspectRatioWidth="1"
+            app:frameColor="@android:color/white"
+            app:frameCornersRadius="0dp"
+            app:frameCornersSize="50dp"
+            app:frameSize="0.75"
+            app:frameThickness="2dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:maskColor="#77000000">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        </com.budiyev.android.codescanner.CodeScannerView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
