@@ -152,6 +152,7 @@ object MessageRepository {
         convID: String,
         convUserName: String,
         authUserID: String,
+        observer: LifecycleOwner,
         context: Context?,
         firestore: FirebaseFirestore,
         firebaseAuth: FirebaseAuth,
@@ -165,7 +166,7 @@ object MessageRepository {
                             getMessageFromSnapshot(messageSnapshot, convUserName, authUserID, context, firebaseStorage, firebaseAuth)
                         }.sortedBy { it.timestamp.getSeconds() }
                     )
-                }.observeForever { list ->
+                }.observe(observer) { list ->
                     Log.e("FIREBASE STATE", "ADDING MESSAGES TO LIST")
                     BrugDataCache.setMessageListInCache(convID, list.toMutableList())
                 }

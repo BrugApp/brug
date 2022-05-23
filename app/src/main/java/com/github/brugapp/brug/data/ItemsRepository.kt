@@ -280,6 +280,7 @@ object ItemsRepository {
      */
     fun getRealtimeUserItemsFromUID(
         uid: String,
+        observer: LifecycleOwner,
         firestore: FirebaseFirestore
     ) {
         val userRef = firestore.collection(USERS_DB).document(uid)
@@ -293,7 +294,7 @@ object ItemsRepository {
                                     getItemFromDoc(itemDoc)
                                 }
                             )
-                        }.observeForever { list ->
+                        }.observe(observer) { list ->
                             BrugDataCache.setItemsInCache(list.toMutableList())
                         }
                     } else {

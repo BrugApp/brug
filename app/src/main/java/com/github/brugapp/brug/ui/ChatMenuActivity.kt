@@ -92,6 +92,7 @@ class ChatMenuActivity : AppCompatActivity() {
         if(conversationTestList == null) {
             ConvRepository.getRealtimeConvsFromUID(
                 firebaseAuth.uid!!,
+                this,
                 firestore,
                 firebaseAuth,
                 firebaseStorage

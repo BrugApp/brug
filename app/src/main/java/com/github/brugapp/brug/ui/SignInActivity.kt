@@ -55,13 +55,12 @@ class SignInActivity : AppCompatActivity() {
 
         // Set Listener for google sign in button
         findViewById<SignInButton>(R.id.sign_in_google_button).setOnClickListener {
+            val context = this
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
-            liveData(Dispatchers.IO){
-                emit(BrugDataCache.isNetworkAvailable())
-            }.observe(this) { result ->
-                if(!result){
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
+                if(!BrugDataCache.isNetworkAvailable()){
                     findViewById<ProgressBar>(R.id.loadingUser).visibility = View.GONE
-                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
                 } else {
                     val signInIntent: Intent = viewModel.getSignInIntent()
                     getSignInResult.launch(signInIntent)
@@ -104,7 +103,7 @@ class SignInActivity : AppCompatActivity() {
         super.onStart()
         if(viewModel.getAuth().currentUser != null){
             if(intent.extras != null && intent.extras!!.containsKey(EXTRA_SIGN_OUT)){
-                viewModel.viewModelScope.launch { viewModel.signOut(firestore) }
+                viewModel.viewModelScope.launch(Dispatchers.IO) { viewModel.signOut(firestore) }
             } else {
                 val myIntent = Intent(this, ItemsMenuActivity::class.java)
                 startActivity(myIntent)

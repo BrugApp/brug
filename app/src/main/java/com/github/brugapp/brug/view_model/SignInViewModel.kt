@@ -108,6 +108,7 @@ class SignInViewModel @Inject constructor(
         BrugDataCache.resetCachedItems()
         BrugDataCache.resetCachedConversations()
         BrugDataCache.resetCachedMessagesLists()
+
     }
 
     fun getAuth(): AuthDatabase {
