@@ -48,6 +48,9 @@ open class NFCScannerActivity: AppCompatActivity() {
     lateinit var scanMessage: TextView
     lateinit var nfcContents: TextView
     private lateinit var activateButton: Button
+    var writebool: String? = null
+    var itemid: String? = null
+
 
     @Inject
     lateinit var firestore: FirebaseFirestore
@@ -76,18 +79,22 @@ open class NFCScannerActivity: AppCompatActivity() {
         if (adapter==null) Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show() //if (adapter==null) finish()
         nfcIntent = viewModel.setupWritingTagFilters(this).first
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
-        Log.d(TAG,"write = "+intent.getStringExtra("write"))
-        Log.d(TAG,"itemid = "+intent.getStringExtra("itemid"))
+        writebool = intent.getStringExtra("write")
+        itemid = intent.getStringExtra("itemid")
 
-        if(intent.getStringExtra("write")!="true") activateButton.visibility = View.GONE
+        if(writebool==null || itemid==null){
+            activateButton.visibility = View.GONE
+            activateButton.isClickable = false
+        }
         activateButton.setOnClickListener {
             try {
-                if (tag == null) Toast.makeText(this, Error_detected, Toast.LENGTH_LONG).show()
-                else if(!nfcLinks(Editable.Factory.getInstance().newEditable(nfcContents.text))) {
-                    val newItemID = intent.getStringExtra("itemid")
-                    nfcContents.text = firebaseAuth.currentUser?.uid+':'+newItemID
+                if (tag == null) Toast.makeText(this, Error_detected, Toast.LENGTH_LONG).show() //no tag
+                else if(!nfcLinks(Editable.Factory.getInstance().newEditable(nfcContents.text))) { //no firestore link
+                    nfcContents.text = firebaseAuth.currentUser?.uid+':'+itemid
                     viewModel.write(nfcContents.text.toString(), tag!!)
                     Toast.makeText(this, "new item created:"+nfcContents.text.toString(), Toast.LENGTH_LONG).show()
+                    val myIntent = Intent(this, ItemsMenuActivity::class.java)
+                    startActivity(myIntent)
                 }
             } catch (e: Exception) {
                 when (e) {
@@ -97,7 +104,7 @@ open class NFCScannerActivity: AppCompatActivity() {
                     }
                     else -> throw e
                 }
-            } //viewModel.displayReportNotification(this) don't notify when you find your own items
+            }
         }
     }
 
@@ -106,14 +113,12 @@ open class NFCScannerActivity: AppCompatActivity() {
         var retval = false
         liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv(editable, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
             if(successState){
-                Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Thank you! The user will be notified.", Toast.LENGTH_LONG).show()
                 val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
                 startActivity(myIntent)
                 retval = true
-            } else {
-                    if(intent.getStringExtra("write")!="true") Toast.makeText(context, "You have already saved this tag", Toast.LENGTH_LONG).show()
-                    else Toast.makeText(context, "Tag saved", Toast.LENGTH_LONG).show()
-            } }
+            }
+        }
         return retval
     }
 
