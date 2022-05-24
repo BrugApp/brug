@@ -7,9 +7,11 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.liveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +20,7 @@ import com.github.brugapp.brug.CONVERSATION_TEST_LIST_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.github.brugapp.brug.ui.components.CustomTopBar
@@ -27,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 const val CHAT_SEARCH_HINT: String = "Search for a conversation…"
@@ -90,11 +94,17 @@ class ChatMenuActivity : AppCompatActivity() {
                 firebaseStorage
             )
         } else {
-            BrugDataCache.setConversationsList(conversationTestList)
+            BrugDataCache.setConversationsInCache(conversationTestList)
         }
-        // GET ELEMENTS FROM CACHE
-        BrugDataCache.getConversationList().observe(this){ conversations ->
 
+        liveData(Dispatchers.IO) {
+            emit(BrugDataCache.isNetworkAvailable())
+        }.observe(this) { status ->
+            if(!status) Toast.makeText(this, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
+        }
+
+        // GET ELEMENTS FROM CACHE
+        BrugDataCache.getCachedConversations().observe(this){ conversations ->
             findViewById<ProgressBar>(R.id.loadingConvs).visibility = View.GONE
             val listView = findViewById<RecyclerView>(R.id.chat_listview)
             val listViewAdapter = ConversationListAdapter(conversations) { clickedConv ->
