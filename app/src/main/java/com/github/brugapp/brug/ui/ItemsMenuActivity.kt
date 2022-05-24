@@ -124,7 +124,6 @@ class ItemsMenuActivity : AppCompatActivity() {
             val listCallback = viewModel.setCallback(
                 this,
                 itemsTestList != null,
-                ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT),
                 onDeleteLayoutPair,
                 listAdapterPair,
                 firebaseAuth,

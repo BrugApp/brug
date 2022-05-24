@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
-
 private const val ITEMS_ERROR_TEXT = "ERROR: Unable to save your changes remotely. Try again later."
 
 /**
@@ -26,7 +25,6 @@ class ItemsMenuViewModel : ViewModel() {
     fun setCallback(
         activity: AppCompatActivity,
         isTest: Boolean,
-        swipeValue: Int,
         onSwipeLayoutPair: Pair<Drawable, Int>,
         listAdapterPair: Pair<MutableList<Item>, ItemsListAdapter>,
         firebaseAuth: FirebaseAuth,
@@ -36,7 +34,6 @@ class ItemsMenuViewModel : ViewModel() {
         val listView = activity.findViewById<RecyclerView>(R.id.items_listview)
 
         return ListCallback(
-            swipeValue,
             onSwipeLayoutPair,
             listAdapterPair
         ) { deletedItem, position ->

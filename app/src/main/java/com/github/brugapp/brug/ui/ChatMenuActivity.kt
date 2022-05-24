@@ -132,7 +132,6 @@ class ChatMenuActivity : AppCompatActivity() {
             val listCallback = viewModel.setCallback(
                 this,
                 conversationTestList != null,
-                ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT),
                 swipePair,
                 listAdapterPair,
                 firebaseAuth,
