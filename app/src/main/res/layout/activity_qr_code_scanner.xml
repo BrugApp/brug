@@ -8,16 +8,21 @@
     android:fillViewport="true"
     tools:context=".ui.QrCodeScannerActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.QrCodeScannerActivity">
 
         <EditText
             android:id="@+id/edit_message"
-            android:layout_width="411dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="80dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="146dp"
+            android:layout_marginEnd="80dp"
+            android:layout_marginBottom="232dp"
             android:autofillHints=""
             android:ems="10"
             android:hint="@string/add_item"
@@ -25,25 +30,28 @@
             android:minHeight="48dp"
             android:textColorHint="#78909C"
             android:textSize="24sp"
-            app:layout_constraintBottom_toTopOf="@+id/buttonReportItem"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scanner_view"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toBottomOf="@+id/scanner_view" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonReportItem"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="208dp"
+            android:layout_marginTop="20dp"
+            android:paddingStart="30dp"
+            android:layout_gravity="center"
+            android:background="@drawable/round_button"
             android:text="@string/report_item"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:paddingEnd="30dp"
+            android:layout_marginBottom="88dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scanner_view"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <com.budiyev.android.codescanner.CodeScannerView
             android:id="@+id/scanner_view"
@@ -65,5 +73,6 @@
             app:maskColor="#77000000">
 
         </com.budiyev.android.codescanner.CodeScannerView>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

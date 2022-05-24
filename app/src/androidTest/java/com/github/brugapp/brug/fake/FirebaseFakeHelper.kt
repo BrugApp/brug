@@ -9,7 +9,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 
-class  FirebaseFakeHelper {
+class FirebaseFakeHelper {
 
 
     fun providesFirestore(): FirebaseFirestore {

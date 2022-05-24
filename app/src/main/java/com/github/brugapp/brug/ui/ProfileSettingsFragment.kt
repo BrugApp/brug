@@ -18,15 +18,20 @@ import android.widget.TextView
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.model.MyUser
+import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.view_model.ProfileSettingsViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ProfileSettingsFragment(
     private val registry: ActivityResultRegistry,
@@ -35,6 +40,7 @@ class ProfileSettingsFragment(
     private val firestore: FirebaseFirestore
 ) : Fragment() {
 
+    private val viewModel: ProfileSettingsViewModel by viewModels()
 
     private val getContent =
         registerForActivityResult(ActivityResultContracts.GetContent(), registry) { uri: Uri? ->
@@ -68,22 +74,25 @@ class ProfileSettingsFragment(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        liveData(Dispatchers.IO) {
-            emit(
-                UserRepository.getMinimalUserFromUID(
-                    firebaseAuth.currentUser!!.uid,
-                    firestore,
-                    firebaseAuth,
-                    firebaseStorage
-                )
+        viewModel.viewModelScope.launch {
+            val user = UserRepository.getUserFromUID(
+                firebaseAuth.currentUser!!.uid,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
             )
-        }.observe(viewLifecycleOwner) { user ->
+            if (user != null) {
+                BrugDataCache.setUserInCache(user)
+            }
+        }
+
+        BrugDataCache.getCachedUser().observe(viewLifecycleOwner){ user ->
             view.findViewById<ProgressBar>(R.id.loadingUserProfile).visibility = View.GONE
             modifyPicture(user, view)
         }
     }
 
-    private fun modifyPicture(user: MyUser?, view: View) {
+    private fun modifyPicture(user: User?, view: View) {
         if (user == null) {
             Snackbar.make(view, "ERROR: User cannot be retrieved !", Snackbar.LENGTH_LONG)
                 .show()
