@@ -154,7 +154,7 @@ class NFCScannerActivityTest {
             nfcScanTitle.check(matches(isDisplayed()))
             }
     }
-
+/*
     @Test
     fun testNfcContents() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -164,7 +164,7 @@ class NFCScannerActivityTest {
             nfcContents.check(matches(isEnabled()))
         }
     }
-
+*/
     @Test
     fun testScanMessage() {
         val context = ApplicationProvider.getApplicationContext<Context>()
