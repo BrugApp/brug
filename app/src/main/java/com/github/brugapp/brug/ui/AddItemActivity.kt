@@ -91,8 +91,7 @@ class AddItemActivity : AppCompatActivity() {
             runBlocking { ItemsRepository.addItemWithItemID(newItem, newItemID,firebaseAuth.currentUser!!.uid, firestore) }
         }
         val myIntent = Intent(this, NFCScannerActivity::class.java)
-        myIntent.putExtra("itemid", newItemID)
-        myIntent.putExtra("write","true")
+        myIntent.putExtra("itemid", newItemID).putExtra("write","true")
         startActivity(myIntent)
     }
 
@@ -104,21 +103,9 @@ class AddItemActivity : AppCompatActivity() {
         firebaseAuth: FirebaseAuth
     ) {
         if (viewModel.verifyForm(itemNameHelper, itemName)) {
-//               user.addItemToList(newItem)
-            val newItem = Item(
-                itemName.text.toString(),
-                itemType.selectedItemId.toInt(),
-                itemDesc.text.toString(),
-                false
-            )
+            val newItem = Item(itemName.text.toString(), itemType.selectedItemId.toInt(), itemDesc.text.toString(), false)
 
-            viewModel.viewModelScope.launch {
-                ItemsRepository.addItemToUser(
-                    newItem,
-                    firebaseAuth.currentUser!!.uid,
-                    firestore
-                )
-            }
+            viewModel.viewModelScope.launch { ItemsRepository.addItemToUser(newItem, firebaseAuth.currentUser!!.uid, firestore) }
 
             val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)

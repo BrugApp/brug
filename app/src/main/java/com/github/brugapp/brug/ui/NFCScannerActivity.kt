@@ -93,6 +93,9 @@ open class NFCScannerActivity: AppCompatActivity() {
                     nfcContents.text = firebaseAuth.currentUser?.uid+':'+itemid
                     viewModel.write(nfcContents.text.toString(), tag!!)
                     Toast.makeText(this, "new item created:"+nfcContents.text.toString(), Toast.LENGTH_LONG).show()
+                    writebool = null
+                    itemid = null
+                    activateButton.visibility = View.GONE
                     val myIntent = Intent(this, ItemsMenuActivity::class.java)
                     startActivity(myIntent)
                 }
@@ -113,10 +116,21 @@ open class NFCScannerActivity: AppCompatActivity() {
         var retval = false
         liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv(editable, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
             if(successState){
-                Toast.makeText(context, "Thank you! The user will be notified.", Toast.LENGTH_LONG).show()
-                val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
-                startActivity(myIntent)
-                retval = true
+                if(nfcContents.text.contains(firebaseAuth.currentUser!!.uid)){
+                    Toast.makeText(context, "You scanned your own tag", Toast.LENGTH_LONG).show()
+                }else {
+                    Toast.makeText(
+                        context,
+                        "Thank you! The user will be notified.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    val myIntent = if (firebaseAuth.currentUser == null) Intent(
+                        this,
+                        SignInActivity::class.java
+                    ) else Intent(this, ChatMenuActivity::class.java)
+                    startActivity(myIntent)
+                    retval = true
+                }
             }
         }
         return retval
