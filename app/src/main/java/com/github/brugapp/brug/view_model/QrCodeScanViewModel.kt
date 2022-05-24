@@ -83,8 +83,14 @@ class QrCodeScanViewModel : ViewModel() {
                             firestore: FirebaseFirestore,
                             firebaseStorage: FirebaseStorage): String {
 
-        if(qrText.isBlank() || !qrText.contains(":")){
+        if(qrText.isBlank() || !qrText.contains(":")) {
             return "ERROR: The item ID is badly formatted or is blank."
+        } else if (!hasPermissions(context, arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION)))
+        {
+            return "ERROR: The camera and/or location permissions are not granted."
         } else {
             val isAnonymous = firebaseAuth.currentUser == null
             val convID = createNewConversation(isAnonymous, qrText, firebaseAuth, firestore)
@@ -258,6 +264,5 @@ class QrCodeScanViewModel : ViewModel() {
     fun releaseResources() {
         codeScanner.releaseResources()
     }
-
 
 }

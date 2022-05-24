@@ -48,23 +48,29 @@ class QrCodeScannerActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
             val context = this
-            viewModel.viewModelScope.launch(Dispatchers.IO) {
-                if(!BrugDataCache.isNetworkAvailable()){
+            liveData(Dispatchers.IO) {
+                emit(BrugDataCache.isNetworkAvailable())
+            }.observe(this) { networkStatus ->
+                if(!networkStatus){
                     Toast.makeText(context, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
                 } else {
-                   val resultMsg = viewModel.parseTextAndCreateConv(
-                        findViewById<EditText>(R.id.edit_message).text,
-                        context,
-                        firebaseAuth, firestore, firebaseStorage
-                    )
+                    liveData(Dispatchers.IO){
+                        emit(viewModel.parseTextAndCreateConv(
+                            findViewById<EditText>(R.id.edit_message).text,
+                            context,
+                            firebaseAuth, firestore, firebaseStorage
+                        ))
+                    }.observe(this){ resultMsg ->
+                        Toast.makeText(context, resultMsg, Toast.LENGTH_LONG).show()
 
-                    if(resultMsg == SUCCESS_TEXT){
-                        val myIntent =
-                            if(firebaseAuth.currentUser == null)
-                                Intent(context, SignInActivity::class.java)
-                            else
-                                Intent(context, ChatMenuActivity::class.java)
-                        startActivity(myIntent)
+                        if(resultMsg == SUCCESS_TEXT){
+                            val myIntent =
+                                if(firebaseAuth.currentUser == null)
+                                    Intent(context, SignInActivity::class.java)
+                                else
+                                    Intent(context, ChatMenuActivity::class.java)
+                            startActivity(myIntent)
+                        }
                     }
                 }
             }
