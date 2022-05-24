@@ -196,7 +196,6 @@ class NFCScannerActivityTest {
 
     @Test @UiThreadTest
     fun testnfcLinks() {
-        val contents = Editable.Factory.getInstance().newEditable("")
-        testRule.activity.nfcLinks(contents)
+        testRule.activity.nfcLinks("")
     }
 }

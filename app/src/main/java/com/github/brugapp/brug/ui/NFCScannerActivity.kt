@@ -89,7 +89,7 @@ open class NFCScannerActivity: AppCompatActivity() {
         activateButton.setOnClickListener {
             try {
                 if (tag == null) Toast.makeText(this, Error_detected, Toast.LENGTH_LONG).show() //no tag
-                else if(!nfcLinks(Editable.Factory.getInstance().newEditable(nfcContents.text))) { //no firestore link
+                else if(!nfcLinks(nfcContents.text.toString())) { //no firestore link
                     nfcContents.text = firebaseAuth.currentUser?.uid+':'+itemid
                     viewModel.write(nfcContents.text.toString(), tag!!)
                     Toast.makeText(this, "new item created:"+nfcContents.text.toString(), Toast.LENGTH_LONG).show()
@@ -111,12 +111,12 @@ open class NFCScannerActivity: AppCompatActivity() {
         }
     }
 
-    fun nfcLinks(editable: Editable): Boolean {
+    fun nfcLinks(editable: String): Boolean {
         val newcontext = this
         var retval = false
         liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv(editable, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
             if(successState){
-                if(nfcContents.text.contains(firebaseAuth.currentUser!!.uid)){
+                if(firebaseAuth.currentUser!=null && nfcContents.text.contains(firebaseAuth.currentUser!!.uid)){
                     Toast.makeText(context, "You scanned your own tag", Toast.LENGTH_LONG).show()
                 }else {
                     Toast.makeText(
@@ -191,6 +191,6 @@ open class NFCScannerActivity: AppCompatActivity() {
         if ((ACTION_TAG_DISCOVERED) == intent.action){
             tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!!
         }
-        nfcLinks(Editable.Factory.getInstance().newEditable(nfcContents.text)) //maybe remove this
+        nfcLinks(nfcContents.text.toString()) //maybe remove this
     }
 }

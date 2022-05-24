@@ -15,6 +15,7 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.view_model.AddItemViewModel
+import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
