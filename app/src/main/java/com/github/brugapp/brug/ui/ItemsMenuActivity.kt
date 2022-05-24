@@ -111,9 +111,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
             listView.layoutManager = LinearLayoutManager(this)
 
-            val dragPair = Pair(0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT))
-
-            val swipePair = Pair(
+            val onDeleteLayoutPair = Pair(
                 ContextCompat.getDrawable(this, R.drawable.ic_baseline_delete_24)!!,
                 ContextCompat.getColor(this, R.color.list_item_del_BG)
             )
@@ -126,8 +124,8 @@ class ItemsMenuActivity : AppCompatActivity() {
             val listCallback = viewModel.setCallback(
                 this,
                 itemsTestList != null,
-                dragPair,
-                swipePair,
+                ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT),
+                onDeleteLayoutPair,
                 listAdapterPair,
                 firebaseAuth,
                 firestore

@@ -26,8 +26,8 @@ class ChatMenuViewModel : ViewModel() {
     fun setCallback(
         activity: AppCompatActivity,
         isTest: Boolean,
-        dragPair: Pair<Int, Int>,
-        swipePair: Pair<Drawable, Int>,
+        swipeValue: Int,
+        onSwipeLayoutPair: Pair<Drawable, Int>,
         listAdapterPair: Pair<MutableList<Conversation>, ConversationListAdapter>,
         firebaseAuth: FirebaseAuth,
         firestore: FirebaseFirestore
@@ -35,9 +35,8 @@ class ChatMenuViewModel : ViewModel() {
         val listView = activity.findViewById<RecyclerView>(R.id.chat_listview)
 
         return ListCallback(
-            CHAT_CHECK_TEXT,
-            dragPair,
-            swipePair,
+            swipeValue,
+            onSwipeLayoutPair,
             listAdapterPair
         ) { delConv, position ->
             Log.e("CONVDELETECHECK", delConv.lastMessage?.body.toString())

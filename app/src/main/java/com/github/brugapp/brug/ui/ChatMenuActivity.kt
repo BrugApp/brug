@@ -118,9 +118,6 @@ class ChatMenuActivity : AppCompatActivity() {
             }
 
             listView.layoutManager = LinearLayoutManager(this)
-            val dragPair = Pair(
-                0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
-            )
 
             val swipePair = Pair(
                 ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_circle_outline_24)!!,
@@ -135,7 +132,7 @@ class ChatMenuActivity : AppCompatActivity() {
             val listCallback = viewModel.setCallback(
                 this,
                 conversationTestList != null,
-                dragPair,
+                ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT),
                 swipePair,
                 listAdapterPair,
                 firebaseAuth,
