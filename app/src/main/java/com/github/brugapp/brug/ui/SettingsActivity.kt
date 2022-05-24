@@ -4,11 +4,15 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.UserRepository
 import com.google.android.material.snackbar.Snackbar
@@ -16,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -37,12 +42,11 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
-        val button: Button = findViewById(R.id.changeProfilePictureButton)
-        button.setOnClickListener {
-            val intent = Intent(this, ProfilePictureSetActivity::class.java)
-            startActivity(intent)
-        }
 
+        val profilePicButton = findViewById<Button>(R.id.changeProfilePictureButton)
+        profilePicButton.setOnClickListener {
+            getContent.launch("image/*")
+        }
 
         findViewById<Button>(R.id.sign_out_button).setOnClickListener {
             signOut()
@@ -50,6 +54,27 @@ class SettingsActivity : AppCompatActivity() {
 
         setPicAndName()
     }
+
+    private val getContent =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val inputStream = contentResolver?.openInputStream(uri)
+                val drawable = Drawable.createFromStream(inputStream, uri.toString())
+                liveData(Dispatchers.IO) {
+                    emit(
+                        UserRepository.updateUserIcon(
+                            firebaseAuth.currentUser!!.uid,
+                            drawable,
+                            firebaseAuth,
+                            firebaseStorage,
+                            firestore
+                        )
+                    )
+                }.observe(this) {
+                    setPicAndName()
+                }
+            }
+        }
 
     private fun setPicAndName() = runBlocking{
 

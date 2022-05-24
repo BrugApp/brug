@@ -1,5 +1,6 @@
 package com.github.brugapp.brug
 
+import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -142,7 +143,7 @@ class SettingsActivityTest {
         signInTestAccount()
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), SettingsActivity::class.java)
-        ActivityScenario.launch<ProfilePictureSetActivity>(intent)
+        ActivityScenario.launch<Activity>(intent)
     }
 
     @After

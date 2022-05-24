@@ -44,14 +44,14 @@
                 android:id="@+id/changeProfilePictureButton"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:layout_marginTop="20dp"
-                android:paddingStart="30dp"
                 android:layout_gravity="center"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/round_button"
-                android:text="Edit Profile"
+                android:paddingStart="30dp"
+                android:paddingEnd="30dp"
+                android:text="Edit Profile Picture"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
-                android:paddingEnd="30dp"/>
+                android:textColor="@color/white" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/sign_out_button"
