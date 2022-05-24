@@ -81,6 +81,7 @@
                 android:id="@+id/itemDescription"
                 android:layout_width="match_parent"
                 android:layout_height="104dp"
+                android:autofillHints=""
                 android:ems="10"
                 android:gravity="top|start"
                 android:hint="@string/item_description"
@@ -93,8 +94,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.499"
-                tools:ignore="SpeakableTextPresentCheck"
-                android:autofillHints="" />
+                tools:ignore="SpeakableTextPresentCheck" />
 
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -115,13 +115,14 @@
             android:id="@+id/add_nfc_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="567dp"
             android:text="@string/add_with_nfc"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/add_item_button"
-            app:layout_constraintVertical_bias="0.096" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/itemNameHelper"
