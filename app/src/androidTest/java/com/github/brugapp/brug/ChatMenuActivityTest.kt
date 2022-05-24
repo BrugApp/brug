@@ -21,14 +21,24 @@ import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.data.ConvRepository
+import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
+import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.ui.components.BottomNavBar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers
 import org.hamcrest.core.IsEqual
 import org.junit.After
@@ -37,6 +47,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.time.LocalDateTime
 
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
 
@@ -49,6 +60,10 @@ private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 class ChatMenuActivityTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
+
+    // ONLY FOR ONE SWIPE TEST, USING FIREBASE TO IMPROVE TEST COVERAGE
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
 
     private val convUser = User("DUMMYUID", "Firstname", "Lastname", null, mutableListOf())
     private val convList = arrayListOf(
@@ -67,20 +82,25 @@ class ChatMenuActivityTest {
     @Before
     fun setUp() {
         Intents.init()
-        val intent =
-            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
-        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
-        ActivityScenario.launch<ChatMenuActivity>(intent)
     }
 
     @After
     fun cleanUp() {
         Intents.release()
+        if(firebaseAuth.currentUser != null){
+            firebaseAuth.signOut()
+        }
     }
 
     //TODO: USE CACHE FOR ITEMS HERE !
     @Test
     fun changingBottomNavBarMenuToItemsListGoesToActivity() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         intending(
             hasComponent(
                 ComponentNameMatchers.hasClassName(
@@ -100,6 +120,12 @@ class ChatMenuActivityTest {
 
     @Test
     fun changingBottomNavBarMenuToQRScanGoesToActivity() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         val scanQRMenuButton = onView(withId(R.id.qr_scan_menu_button))
         scanQRMenuButton.perform(click())
         intended(hasComponent(QrCodeScannerActivity::class.java.name))
@@ -107,12 +133,24 @@ class ChatMenuActivityTest {
 
     @Test
     fun changingBottomNavBarMenuToChatGoesToActivity() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         val chatMenuButton = onView(withId(R.id.chat_menu_button))
         chatMenuButton.perform(click()).check(matches(isEnabled()))
     }
 
     @Test
     fun clickingOnSettingsButtonGoesToActivity() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         val settingsButton = onView(withId(R.id.my_settings))
         settingsButton.perform(click())
         intended(hasComponent(SettingsActivity::class.java.name))
@@ -129,11 +167,17 @@ class ChatMenuActivityTest {
 
 
     @Test
-    fun swipeLeftOnItemTriggersSnackBar() {
+    fun swipeLeftOnConversationDeletesConversation() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToSwipe = itemsList.getChild(
+        val convList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToSwipe = convList.getChild(
             UiSelector()
                 .resourceId(LIST_ENTRY_ID)
                 .enabled(true)
@@ -142,18 +186,25 @@ class ChatMenuActivityTest {
 
         entryToSwipe.swipeLeft(50)
 
-//        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-//        assertThat(snackBarTextView.text, IsEqual(CHAT_CHECK_TEXT))
+        Thread.sleep(1000)
+        onView(withText("Undo")).perform(click())
+        Thread.sleep(1000)
     }
 
 
 
     @Test
-    fun swipeRightOnItemDeletesItem() {
+    fun swipeRightOnConversationDeletesConversation() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-        val entryToSwipe = itemsList.getChild(
+        val convList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToSwipe = convList.getChild(
             UiSelector()
                 .resourceId(LIST_ENTRY_ID)
                 .enabled(true)
@@ -162,13 +213,80 @@ class ChatMenuActivityTest {
 
         entryToSwipe.swipeRight(50)
 
-//        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-//        assertThat(snackBarTextView.text, IsEqual(CHAT_CHECK_TEXT))
+        Thread.sleep(1000)
+        onView(withText("Undo")).perform(click())
+        Thread.sleep(1000)
+    }
+
+    @Test
+    fun swipeOnConversationWithFirebaseEnabledDeletesConversationAndReAddsIt() {
+        runBlocking {
+            firebaseAuth.signInAnonymously().await()
+
+            val userID = firebaseAuth.uid!!
+            val anonymousID = "ANONYMOUSACCOUNT"
+            val itemID = "MYITEMID"
+
+            UserRepository.addUserFromAccount(
+                userID,
+                BrugSignInAccount("CHATMENU", "SWIPEUSER", "", ""),
+                true,
+                firestore
+            )
+
+            UserRepository.addUserFromAccount(
+                "ANONYMOUSACCOUNT",
+                BrugSignInAccount("CHATSECOND", "USER2", "", ""),
+                true,
+                firestore
+            )
+
+            ItemsRepository.addItemWithItemID(
+                Item("MYITEM", 0, "NODESC", false),
+                itemID,
+                userID,
+                firestore
+            )
+
+            ConvRepository.addNewConversation(
+                userID,
+                anonymousID,
+                "${userID}:${itemID}",
+                null,
+                firestore
+            )
+        }
+
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ChatMenuActivity::class.java)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
+
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
+        val convList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToSwipe = convList.getChild(UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToSwipe.swipeRight(50)
+        Thread.sleep(1000)
+        onView(withText("Undo")).perform(click())
+        Thread.sleep(1000)
     }
 
     //TODO: Test clicking on item goes to chat
     @Test
     fun clickOnItemGoesToChatActivity() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         intending(
             hasComponent(
                 ComponentNameMatchers.hasClassName(
@@ -200,14 +318,25 @@ class ChatMenuActivityTest {
 
     @Test
     fun checkifKeyboardIsShownAfterPressingSearch() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         val searchButton = onView(withId(R.id.search_box))
         searchButton.perform(click())
         assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
     }
 
-    //TODO: USE CACHE FOR ITEMS HERE !
     @Test
     fun chatIconOnNavBar() {
+        val intent =
+            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
+        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
+        ActivityScenario.launch<ChatMenuActivity>(intent)
+        Thread.sleep(1000)
+
         intending(
             hasComponent(
                 ComponentNameMatchers.hasClassName(
