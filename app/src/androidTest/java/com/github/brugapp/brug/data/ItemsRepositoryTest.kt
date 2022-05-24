@@ -1,5 +1,5 @@
 
-package com.github.brugapp.brug
+package com.github.brugapp.brug.data
 
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
@@ -27,12 +27,11 @@ private var ITEM = MyItem("AirPods Pro Max", 0, "My Beloved AirPods", false)
 class ItemRepoTest {
 
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
-    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addUserAndItem() = runBlocking {
         UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, firestore)
+        ITEM.setLastLocation(6.61,46.51)
         ItemsRepository.addItemToUser(ITEM, DUMMY_UID, firestore)
     }
 

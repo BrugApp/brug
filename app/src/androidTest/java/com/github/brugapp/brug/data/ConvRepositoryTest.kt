@@ -1,4 +1,4 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.data
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,6 +6,7 @@ import android.net.Uri
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
