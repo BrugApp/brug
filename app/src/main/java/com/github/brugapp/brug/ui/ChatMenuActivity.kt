@@ -119,7 +119,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
             listView.layoutManager = LinearLayoutManager(this)
 
-            val swipePair = Pair(
+            val onSwipeLayoutPair = Pair(
                 ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_circle_outline_24)!!,
                 ContextCompat.getColor(this, R.color.chat_list_resolve_BG)
             )
@@ -132,7 +132,7 @@ class ChatMenuActivity : AppCompatActivity() {
             val listCallback = viewModel.setCallback(
                 this,
                 conversationTestList != null,
-                swipePair,
+                onSwipeLayoutPair,
                 listAdapterPair,
                 firebaseAuth,
                 firestore
