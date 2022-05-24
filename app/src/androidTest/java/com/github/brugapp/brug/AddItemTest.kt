@@ -1,11 +1,17 @@
 package com.github.brugapp.brug
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Spinner
+import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onData
@@ -18,12 +24,11 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.BoundedMatcher
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.ActivityTestRule
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.ui.AddItemActivity
-import com.github.brugapp.brug.ui.DESCRIPTION_LIMIT
-import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.ui.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -39,6 +44,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 
 //TODO: TRY TO PUT IMAGE ASSERTIONS NOW
 private var TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
@@ -47,9 +53,11 @@ private var TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
 @RunWith(AndroidJUnit4::class)
 class AddItemTest {
 
-
-    @get:Rule
+    @get:Rule(order = 0)
     var rule = HiltAndroidRule(this)
+
+    @get:Rule(order = 1)
+    var testRule = ActivityTestRule(AddItemActivity::class.java, false, false)
 
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
@@ -103,6 +111,19 @@ class AddItemTest {
     fun cleanUp() {
         Intents.release()
         wipeItemsAndSignOut()
+    }
+
+    @Test
+    fun addNfcItem(){
+        val validName = "Don't know"
+        val itemName = onView(withId(R.id.itemName))
+        itemName.perform(typeText(validName))
+        itemName.perform(closeSoftKeyboard())
+        val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
+        itemTypeSpinner.perform(click())
+        onData(anything()).atPosition(ItemType.Other.ordinal).perform(click())
+        onView(withId(R.id.add_nfc_item)).perform(click())
+//        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_add_24))
     }
 
 
@@ -269,7 +290,7 @@ class AddItemTest {
         val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
         itemTypeSpinner.perform(click())
         onData(anything()).atPosition(ItemType.Other.ordinal).perform(click())
-        onView(withId(R.id.add_item_button)).perform(click())
+        onView(withId(R.id.add_nfc_item)).perform(click())
 //        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_add_24))
     }
 

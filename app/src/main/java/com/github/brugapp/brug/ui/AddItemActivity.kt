@@ -76,7 +76,7 @@ class AddItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun addNfcItemOnListener(
+    fun addNfcItemOnListener(
         itemName: EditText,
         itemNameHelper: TextView,
         itemType: Int,
