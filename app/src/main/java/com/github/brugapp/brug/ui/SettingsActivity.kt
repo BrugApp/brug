@@ -42,18 +42,18 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
+
+        restoreNightModeToggleState()
+
         val button: Button = findViewById(R.id.changeProfilePictureButton)
         button.setOnClickListener {
             val intent = Intent(this, ProfilePictureSetActivity::class.java)
             startActivity(intent)
         }
 
-
         findViewById<Button>(R.id.sign_out_button).setOnClickListener {
             signOut()
         }
-
-        initNightMode()
 
         findViewById<SwitchCompat>(R.id.night_mode_toggle).setOnCheckedChangeListener{ _, checked ->
             when(checked) {
@@ -65,35 +65,29 @@ class SettingsActivity : AppCompatActivity() {
         setPicAndName()
     }
 
-    private fun initNightMode() {
+    private fun restoreNightModeToggleState() {
+        val toggle = findViewById<SwitchCompat>(R.id.night_mode_toggle)
         val settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val nightMode = settings.contains("nightMode")
-        if (nightMode) {
-            val isEnabled = settings.getBoolean("nightMode", false)
-            setNightMode(isEnabled)
-        }
-        else {
-            setNightMode(false)
-        }
+        val isEnabled = settings.getBoolean("nightMode", false)
+        toggle.isChecked = isEnabled // disabled by default
     }
 
     private fun setNightMode(enabled: Boolean){
-        val toggle = findViewById<SwitchCompat>(R.id.night_mode_toggle)
         val settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val editor = settings.edit()
 
         if(enabled) {
-            toggle.isChecked = true
             editor.putBoolean("nightMode", true)
             editor.apply()
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
         else {
-            toggle.isChecked = false
             editor.putBoolean("nightMode", false)
             editor.apply()
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
+
+        finish()
     }
 
     private fun setPicAndName() = runBlocking{

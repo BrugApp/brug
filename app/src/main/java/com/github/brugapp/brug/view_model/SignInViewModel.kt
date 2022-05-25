@@ -1,11 +1,15 @@
 package com.github.brugapp.brug.view_model
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
@@ -23,6 +27,8 @@ class SignInViewModel @Inject constructor(
     private val auth: AuthDatabase,
     private val credentialGetter: SignInCredentialGetter,
 ) : ViewModel() {
+
+    private val PREFS_NAME = "unlostPrefs"
 
     /**
      * Getter for the sign-in intent.
@@ -108,6 +114,18 @@ class SignInViewModel @Inject constructor(
         BrugDataCache.resetCachedItems()
         BrugDataCache.resetCachedConversations()
         BrugDataCache.resetCachedMessagesLists()
+    }
+
+    fun checkNightMode(activity: Activity) {
+        val settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isEnabled = settings.getBoolean("nightMode", false)
+
+        if(isEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+        else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
     }
 
     fun getAuth(): AuthDatabase {
