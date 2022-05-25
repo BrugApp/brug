@@ -23,6 +23,12 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 // Adapter that binds the list of messages to the instances of ChatItemModel
+/**
+ * Adapter that binds the list of messages to the list of views according to the ChatViewModel
+ *
+ * @property viewModel the model of messages
+ * @property messageList the list of messages to bind
+ */
 class ChatMessagesListAdapter(
     private val viewModel: ChatViewModel,
     private val messageList: MutableList<Message>
@@ -35,10 +41,19 @@ class ChatMessagesListAdapter(
         fun onItemClick(position: Int)
     }
 
+    /**
+     * Set a listener on a particular item
+     *
+     * @param listener the listener on the item
+     */
     fun setOnItemClickListener(listener: onItemClickListener) {
         mListener = listener
     }
 
+    /**
+     * Enum Class that defines the different kinds of messages
+     * We need two types per kind of messages as they can be displayed on the right/left of the screen
+     */
     enum class MessageType {
         TYPE_MESSAGE_RIGHT, TYPE_MESSAGE_LEFT, TYPE_IMAGE_RIGHT, TYPE_IMAGE_LEFT, TYPE_LOCATION_RIGHT, TYPE_LOCATION_LEFT, TYPE_AUDIO_LEFT, TYPE_AUDIO_RIGHT
     }
@@ -88,10 +103,22 @@ class ChatMessagesListAdapter(
         }
     }
 
+    /**
+     * Getter for a message at a given position
+     *
+     * @param position the index of the message in the RecyclerView
+     * @return the message at the provided position
+     */
     fun getItem(position: Int): Message{
         return messageList[position]
     }
 
+    /**
+     * Class used to bind the messages to the elements of the RecyclerView
+     *
+     * @param itemView The itemView to populate
+     * @param listener The listener that will be notified in case of changes (add a new message)
+     */
     class ViewHolder(itemView: View, listener: onItemClickListener) :
         RecyclerView.ViewHolder(itemView) {
         init {
@@ -160,6 +187,11 @@ class ChatMessagesListAdapter(
             return Triple(Uri.fromFile(newFile), width, height)
         }
 
+        /**
+         * Binds messages to the View
+         *
+         * @param messageModel the message that will be binded
+         */
         fun bind(messageModel: Message) {
             when (messageModel) {
                 is LocationMessage -> bindLocationMessage(messageModel)

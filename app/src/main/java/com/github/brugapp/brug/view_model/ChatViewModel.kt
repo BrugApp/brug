@@ -57,21 +57,26 @@ import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 
-//TODO: NEEDS DOCUMENTATION
+/**
+ * View model for the ChatActivity
+ */
 class ChatViewModel : ViewModel() {
     private lateinit var adapter: ChatMessagesListAdapter
     private lateinit var mediaRecorder: MediaRecorder
-    private lateinit var mediaPlayer: MediaPlayer
     private lateinit var audioPath: String
 
     // Uri needed to retrieve image from camera after taking a picture
     private lateinit var imageUri: Uri
 
-    //TODO: Remove initial init. and revert to lateinit var
     private var messages: MutableList<Message> = mutableListOf()
-
     private val simpleDateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRENCH)
 
+    /**
+     * Initialize the View Model
+     *
+     * @param messages the list of messages to display
+     * @param activity the ChatActivity associated to this view model
+     */
     fun initViewModel(messages: MutableList<Message>, activity: ChatActivity) {
         this.messages = messages
         this.adapter = ChatMessagesListAdapter(this, messages)
@@ -88,10 +93,25 @@ class ChatViewModel : ViewModel() {
         return URL(baseUrl + posUrl + endUrl)
     }
 
+    /**
+     * Getter for the ChatMessageListAdapter
+     *
+     * @return the adapter
+     */
     fun getAdapter(): ChatMessagesListAdapter {
         return adapter
     }
 
+    /**
+     * Add a particular message to the conversation (and update the database)
+     *
+     * @param message the message
+     * @param convID the ID on the conversation in which the message will be added
+     * @param activity the linked ChatActivity
+     * @param firestore the database (stores the messages)
+     * @param firebaseAuth the auth database (handle connections issues)
+     * @param firebaseStorage the storage database (stores the images/audios)
+     */
     fun sendMessage(
         message: Message,
         convID: String,
@@ -197,6 +217,15 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Add a particular image to the conversation (and update the database)
+     *
+     * @param activity the linked ChatActivity
+     * @param convID the ID of the conversation in which the message will be added
+     * @param firestore the database
+     * @param firebaseAuth the auth database (handle connections issues)
+     * @param firebaseStorage the storage database (stores the images/audios)
+     */
     fun sendPicMessage(
         activity: ChatActivity,
         convID: String,
@@ -222,6 +251,12 @@ class ChatViewModel : ViewModel() {
     }
 
     // IMAGE RELATED =======================================================
+    /**
+     * Takes an image using the camera of the phone
+     * (Launches the intent to take an image)
+     *
+     * @param activity the linked ChatActivity
+     */
     fun takeCameraImage(activity: ChatActivity) {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (intent.resolveActivity(activity.packageManager) != null) {
@@ -237,10 +272,21 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Stores the image URI
+     * (Needed as the MediaStore intent does not provides the URI when specified)
+     * @param uri the URI to store
+     */
     fun setImageUri(uri: Uri) {
         imageUri = uri
     }
 
+    /**
+     * Takes an image using the gallery
+     * (Launches the intent to select it into the gallery of the phone)
+     *
+     * @param activity the linked ChatActivity
+     */
     fun selectGalleryImage(activity: ChatActivity) {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
         startActivityForResult(activity, intent, SELECT_PICTURE_REQUEST_CODE, null)
@@ -264,6 +310,15 @@ class ChatViewModel : ViewModel() {
         return image
     }
 
+    /**
+     * Compute the desired width/height needed when resizing an image in order to keep the ratio
+     *
+     * @param width the actual width of the image
+     * @param height the actual height of the image
+     * @param targetWidth the maximal width possible
+     * @param targetHeight the maximal height possible
+     * @return a pair <width, height> that will never exceed the target values and which keeps the original ratio
+     */
     fun computeWidthHeight(width: Int, height: Int, targetWidth: Int, targetHeight: Int): Pair<Int, Int>{
         val ratioBM = width.toFloat() / height.toFloat()
         val idealWidth = targetWidth.toFloat()
@@ -303,6 +358,15 @@ class ChatViewModel : ViewModel() {
         return outputFile.toURI()
     }
 
+    /**
+     * Updates the location on the phone, and send a LocationMessage (updates on the database)
+     *
+     * @param convID the ID of the conversation to which the message will be added
+     * @param activity the linked ChatActivity
+     * @param firestore the database
+     * @param firebaseAuth the auth database (handle connection issues to the database)
+     * @param firebaseStorage the storage database (for images/audio)
+     */
     @SuppressLint("MissingPermission")
     fun requestLocation(
         convID: String,
@@ -362,6 +426,11 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    /**
+     * TODO @HAMZA
+     *
+     * @param activity
+     */
     fun setupRecording(activity: ChatActivity) {
 
         audioPath = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)!!.absolutePath +
@@ -381,7 +450,10 @@ class ChatViewModel : ViewModel() {
         }
     }
 
-
+    /**
+     * TODO @HAMZA
+     *
+     */
     fun deleteAudio() {
         mediaRecorder.reset()
         mediaRecorder.release()
@@ -391,11 +463,24 @@ class ChatViewModel : ViewModel() {
         }
     }
 
+    /**
+     * TODO @HAMZA
+     *
+     */
     fun stopAudio() {
         mediaRecorder.stop()
         mediaRecorder.release()
     }
 
+    /**
+     * TODO @HAMZA
+     *
+     * @param activity
+     * @param convID
+     * @param firestore
+     * @param firebaseAuth
+     * @param firebaseStorage
+     */
     fun sendAudio(
         activity: ChatActivity, convID: String,
         firestore: FirebaseFirestore,
@@ -425,11 +510,24 @@ class ChatViewModel : ViewModel() {
     }
 
     // PERMISSIONS RELATED =======================================================
+    /**
+     * TODO @MOUNIR
+     *
+     * @param context
+     * @param permissions
+     */
     fun requestPermissions(context: Context, permissions: Array<String>) {
         val permissionRequestCode = 1 // REQUESTS FOR ALL NON-SET PERMISSIONS IN THE permissions ARRAY
         requestPermissions(context as Activity, permissions, permissionRequestCode)
     }
 
+    /**
+     * TODO @MOUNIR
+     *
+     * @param context
+     * @param permissions
+     * @return
+     */
     fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }

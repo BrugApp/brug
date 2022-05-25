@@ -86,10 +86,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.ChatActivity" />
         </activity>
-        <activity
-            android:name=".ui.RegisterUserActivity"
-            android:exported="false"
-            android:label="@string/title_register_user"/>
+
         <activity
             android:name=".ui.ProfilePictureSetActivity"
             android:exported="false"
@@ -114,8 +111,10 @@
         <activity
             android:name=".ui.NFCScannerActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:parentActivityName=".ui.SignInActivity"
             android:label="@string/title_activity_nfc">
+
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />

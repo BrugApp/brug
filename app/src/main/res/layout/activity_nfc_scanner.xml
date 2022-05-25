@@ -6,43 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".ui.QrCodeScannerActivity">
 
-    <EditText
-        android:id="@+id/edit_message"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:autofillHints=""
-        android:ems="10"
-        android:gravity="center"
-        android:hint="Write to your tag"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:textColorHint="#78909C"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <Button
         android:id="@+id/buttonReportItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="88dp"
         android:text="activate tag"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_message" />
+        app:layout_constraintTop_toBottomOf="@+id/scanMessage"
+        app:layout_constraintVertical_bias="0.368" />
 
     <TextView
         android:id="@+id/nfcContents"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:editable="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-        app:layout_constraintBottom_toTopOf="@+id/edit_message"
+        app:layout_constraintBottom_toTopOf="@+id/scanMessage"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/nfcScanTitle" />
 
@@ -51,10 +34,24 @@
         style="@style/TextAppearance.AppCompat.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="164dp"
         android:text="NFC Scanner"
-        app:layout_constraintBottom_toTopOf="@+id/edit_message"
+        app:layout_constraintBottom_toTopOf="@+id/nfcContents"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/scanMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan your tag here"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteY="309dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
