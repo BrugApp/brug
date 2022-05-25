@@ -193,8 +193,6 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-        val device = UiDevice.getInstance(getInstrumentation())
-
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(UiSelector()
             .resourceId(LIST_ENTRY_ID)
@@ -209,8 +207,6 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeRightOnItemDeletesItem() {
-        val device = UiDevice.getInstance(getInstrumentation())
-
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(UiSelector()
             .resourceId(LIST_ENTRY_ID)

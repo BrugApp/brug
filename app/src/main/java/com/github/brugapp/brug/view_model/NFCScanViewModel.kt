@@ -97,7 +97,7 @@ class NFCScanViewModel : ViewModel() {
      * @return String computed from the tag's NdefMessage Array
      */
     @SuppressLint("SetTextI18n")
-    fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){ try{ nfcContents.text = "Read Tag Contents:" + initText(messages) }catch (e : UnsupportedEncodingException){ Log.e("UnsupportedEncoding",e.toString()) } }
+    fun buildTagViews(nfcContents: TextView, messages: Array<NdefMessage>){ try{ nfcContents.text = initText(messages) }catch (e : UnsupportedEncodingException){ Log.e("UnsupportedEncoding",e.toString()) } }
 
     @Throws(UnsupportedEncodingException::class)
     fun initText(messages: Array<NdefMessage>?): String {
