@@ -16,7 +16,6 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.FirebaseResponse
 import com.github.brugapp.brug.data.UserRepository.addNewDeviceTokenToUser
 import com.github.brugapp.brug.ui.ChatMenuActivity
-import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -40,8 +39,8 @@ class MyFCMMessagingService : FirebaseMessagingService() {
      */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            sendNotification(this, it.title!!, it.body!!)
+        remoteMessage.data.let {
+            sendNotification(applicationContext, it["title"]!!, it["body"]!!)
         }
     }
 
@@ -129,12 +128,10 @@ class MyFCMMessagingService : FirebaseMessagingService() {
         ): String? {
             try {
                 val root = JSONObject()
-                val notification = JSONObject()
-                notification.put("body", body)
-                notification.put("title", title)
-//            val data = JSONObject()
-//            root.put("data", data)
-                root.put("notification", notification)
+                val data = JSONObject()
+                data.put("body", body)
+                data.put("title", title)
+                root.put("data", data)
                 root.put("registration_ids", recipients)
                 val result = postToFCM(root.toString())
                 Log.d("NOTIFICATION RESULT", "Result: $result")

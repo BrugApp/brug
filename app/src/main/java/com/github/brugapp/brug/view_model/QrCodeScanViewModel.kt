@@ -71,7 +71,7 @@ class QrCodeScanViewModel : ViewModel() {
             }
             errorCallback = ErrorCallback {
                 activity.runOnUiThread {
-                    Log.e("", "Camera initialization error: ${it.message}")
+                    Log.e("Camera initialization error:", it.message.toString())
                 }
             }
         }
@@ -83,14 +83,15 @@ class QrCodeScanViewModel : ViewModel() {
                             firestore: FirebaseFirestore,
                             firebaseStorage: FirebaseStorage): String {
 
-        if(qrText.isBlank() || !qrText.contains(":")) {
-            return "ERROR: The item ID is badly formatted or is blank."
-        } else if (!hasPermissions(context, arrayOf(
+        if(!hasPermissions(context, arrayOf(
                 Manifest.permission.CAMERA,
                 Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION)))
-        {
+                Manifest.permission.ACCESS_COARSE_LOCATION))){
+            Log.e("PERMISSIONS ERROR", "NOT GRANTED")
             return "ERROR: The camera and/or location permissions are not granted."
+        }
+        else if (qrText.isBlank() || !qrText.contains(":")) {
+            return "ERROR: The item ID is badly formatted or is blank."
         } else {
             val isAnonymous = firebaseAuth.currentUser == null
             val convID = createNewConversation(isAnonymous, qrText, firebaseAuth, firestore)
@@ -112,7 +113,6 @@ class QrCodeScanViewModel : ViewModel() {
 
                 if(isAnonymous) firebaseAuth.signOut()
                 "Thank you ! The user will be notified."
-                //else "ERROR: Unable to send the messages to the user. Please send him a new message yourself."
             }
 
         }
