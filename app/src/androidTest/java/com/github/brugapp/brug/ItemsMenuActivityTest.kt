@@ -358,7 +358,6 @@ class ItemsMenuActivityTest {
         )
     }
 
-    /** THIS TEST FAILED DUE TO THE PRESSBACK, WEIRD ISSUE RELATED TO RESUMING THE ACTIVITY */
     @Test
     fun itemIconOnNavBar() {
         val intent = Intent(
@@ -381,7 +380,6 @@ class ItemsMenuActivityTest {
             )
         )
         onView(withId(R.id.chat_menu_button)).perform(click())
-//        Espresso.pressBack()
 
         val selectedItem = BottomNavBar().getSelectedItem(getActivityInstance()!!)
         assertThat(selectedItem, `is`(R.id.items_list_menu_button))
