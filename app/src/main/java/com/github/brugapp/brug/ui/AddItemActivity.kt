@@ -39,14 +39,15 @@ class AddItemActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
 
     lateinit var itemDesc : EditText
+    lateinit var itemName : EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_item)
 
         // ITEM NAME PART
-        val itemName = findViewById<EditText>(R.id.itemName)
         val itemNameHelper = findViewById<TextView>(R.id.itemNameHelper)
+        initiateNameField()
 
         // SPINNER HOLDING THE TYPES
         val itemType = findViewById<Spinner>(R.id.itemTypeSpinner)
@@ -115,6 +116,32 @@ class AddItemActivity : AppCompatActivity() {
 
                 if (s.toString().trim().isEmpty()) {
                     itemDesc.hint = "Description"
+                }else{
+                    itemDesc.hint = ""
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
+
+    }
+
+    private fun initiateNameField(){
+
+        itemName = findViewById(R.id.itemName)
+
+        itemName.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                if (s.toString().trim().isEmpty()) {
+                    itemDesc.hint = "Name"
+                }else{
+                    itemDesc.hint = ""
                 }
             }
 

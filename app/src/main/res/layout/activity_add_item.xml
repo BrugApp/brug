@@ -16,7 +16,6 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/itemNameContainer"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
@@ -34,13 +33,10 @@
                 android:hint="@string/itemName"
                 android:inputType="textEmailAddress"
                 android:lines="1" />
-
-
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/descriptionContainer"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
@@ -50,8 +46,7 @@
             app:layout_constraintHorizontal_bias="0.6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.442"
-            app:boxBackgroundColor="#E4F1F1F1">
+            app:layout_constraintVertical_bias="0.442">
 
 
             <androidx.constraintlayout.widget.Barrier
@@ -128,15 +123,18 @@
 
             <TextView
                 android:id="@+id/itemTypeText"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="match_parent"
-                android:layout_height="33dp"
+                android:layout_height="26dp"
                 android:layout_marginTop="24dp"
+                android:paddingStart="14dp"
+                android:textColor="#616161"
+                android:background="@drawable/rectangle_box"
                 android:text="@string/choose_a_type_text"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.705"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:background="@drawable/rectangle_box"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <Spinner
                 android:id="@+id/itemTypeSpinner"
