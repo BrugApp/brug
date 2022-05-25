@@ -2,7 +2,10 @@ package com.github.brugapp.brug.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputFilter.LengthFilter
+import android.text.TextWatcher
+import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -35,6 +38,8 @@ class AddItemActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+    lateinit var itemDesc : EditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_item)
@@ -50,11 +55,8 @@ class AddItemActivity : AppCompatActivity() {
             android.R.layout.simple_list_item_1,
             ItemType.values()
         )
-//        val spinnerHelper = findViewById<TextView>(R.id.spinnerHelper) //MAYBE USELESS
 
-        // Limiting the length of the description to DESCRIPTION_LIMIT chars
-        val itemDesc = findViewById<EditText>(R.id.itemDescription)
-        itemDesc.filters = arrayOf(LengthFilter(DESCRIPTION_LIMIT))
+        initiateDescriptionField()
 
         val addButton = findViewById<Button>(R.id.add_item_button)
         addButton.setOnClickListener {
@@ -96,6 +98,30 @@ class AddItemActivity : AppCompatActivity() {
             val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)
         }
+    }
+
+    private fun initiateDescriptionField(){
+
+        // Limiting the length of the description to DESCRIPTION_LIMIT chars
+        itemDesc = findViewById(R.id.itemDescription)
+        itemDesc.filters = arrayOf(LengthFilter(DESCRIPTION_LIMIT))
+
+        itemDesc.addTextChangedListener(object : TextWatcher {
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+                if (s.toString().trim().isEmpty()) {
+                    itemDesc.hint = "Description"
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+        })
+
     }
 
 }
