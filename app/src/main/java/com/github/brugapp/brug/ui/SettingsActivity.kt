@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.ui
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -9,6 +10,8 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.UserRepository
 import com.google.android.material.snackbar.Snackbar
@@ -34,6 +37,8 @@ class SettingsActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+
+    private val PREFS_NAME = "unlostPrefs"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
@@ -48,11 +53,50 @@ class SettingsActivity : AppCompatActivity() {
             signOut()
         }
 
+        initNightMode()
+
+        findViewById<SwitchCompat>(R.id.night_mode_toggle).setOnCheckedChangeListener{ _, checked ->
+            when(checked) {
+                true -> setNightMode(true)
+                false -> setNightMode(false)
+            }
+        }
+
         setPicAndName()
     }
 
-    private fun setPicAndName() = runBlocking{
+    private fun initNightMode() {
+        val settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val nightMode = settings.contains("nightMode")
+        if (nightMode) {
+            val isEnabled = settings.getBoolean("nightMode", false)
+            setNightMode(isEnabled)
+        }
+        else {
+            setNightMode(false)
+        }
+    }
 
+    private fun setNightMode(enabled: Boolean){
+        val toggle = findViewById<SwitchCompat>(R.id.night_mode_toggle)
+        val settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = settings.edit()
+
+        if(enabled) {
+            toggle.isChecked = true
+            editor.putBoolean("nightMode", true)
+            editor.apply()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+        else {
+            toggle.isChecked = false
+            editor.putBoolean("nightMode", false)
+            editor.apply()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+    }
+
+    private fun setPicAndName() = runBlocking{
         val pic = findViewById<ImageView>(R.id.settingsUserPic)
         val name = findViewById<TextView>(R.id.settingsUserName)
 
