@@ -7,7 +7,6 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation

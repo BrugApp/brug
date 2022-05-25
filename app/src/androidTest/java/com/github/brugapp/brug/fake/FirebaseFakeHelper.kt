@@ -19,9 +19,9 @@ class FirebaseFakeHelper {
         } catch (e: IllegalStateException) {
             // Already correct emulator
         }
-        val settings = FirebaseFirestoreSettings.Builder()
-            .setPersistenceEnabled(false)
-            .build()
+        //val settings = FirebaseFirestoreSettings.Builder()
+        //    .setPersistenceEnabled(false)
+        //    .build()
         //firestore.firestoreSettings = settings
         return firestore
     }
