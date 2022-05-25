@@ -47,7 +47,11 @@ class AddItemActivity : AppCompatActivity() {
 
         // ITEM NAME PART
         val itemNameHelper = findViewById<TextView>(R.id.itemNameHelper)
-        initiateNameField()
+        itemName = findViewById(R.id.itemName)
+
+        // Limiting the length of the description to DESCRIPTION_LIMIT chars
+        itemDesc = findViewById(R.id.itemDescription)
+        itemDesc.filters = arrayOf(LengthFilter(DESCRIPTION_LIMIT))
 
         // SPINNER HOLDING THE TYPES
         val itemType = findViewById<Spinner>(R.id.itemTypeSpinner)
@@ -56,8 +60,6 @@ class AddItemActivity : AppCompatActivity() {
             android.R.layout.simple_list_item_1,
             ItemType.values()
         )
-
-        initiateDescriptionField()
 
         val addButton = findViewById<Button>(R.id.add_item_button)
         addButton.setOnClickListener {
@@ -80,7 +82,6 @@ class AddItemActivity : AppCompatActivity() {
         firebaseAuth: FirebaseAuth
     ) {
         if (viewModel.verifyForm(itemNameHelper, itemName)) {
-//               user.addItemToList(newItem)
             val newItem = Item(
                 itemName.text.toString(),
                 itemType.selectedItemId.toInt(),
@@ -99,56 +100,6 @@ class AddItemActivity : AppCompatActivity() {
             val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)
         }
-    }
-
-    private fun initiateDescriptionField(){
-
-        // Limiting the length of the description to DESCRIPTION_LIMIT chars
-        itemDesc = findViewById(R.id.itemDescription)
-        itemDesc.filters = arrayOf(LengthFilter(DESCRIPTION_LIMIT))
-
-        itemDesc.addTextChangedListener(object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                if (s.toString().trim().isEmpty()) {
-                    itemDesc.hint = "Description"
-                }else{
-                    itemDesc.hint = ""
-                }
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        })
-
-    }
-
-    private fun initiateNameField(){
-
-        itemName = findViewById(R.id.itemName)
-
-        itemName.addTextChangedListener(object : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-                if (s.toString().trim().isEmpty()) {
-                    itemDesc.hint = "Name"
-                }else{
-                    itemDesc.hint = ""
-                }
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        })
-
     }
 
 }
