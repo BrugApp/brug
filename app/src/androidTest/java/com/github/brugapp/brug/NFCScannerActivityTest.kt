@@ -6,6 +6,10 @@ import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import android.os.Bundle
+import android.text.Editable
+import android.view.View
+import android.widget.TextView
+import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -142,15 +146,15 @@ class NFCScannerActivityTest {
 
 
     @Test
-    fun testEditMessage(){
+    fun testTitle(){
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, NFCScannerActivity::class.java)
         ActivityScenario.launch<Activity>(intent).use {
-                val editMessage = onView(withId(R.id.edit_message))
-                    editMessage.check(matches(isDisplayed()))
+                val nfcScanTitle = onView(withId(R.id.nfcScanTitle))
+            nfcScanTitle.check(matches(isDisplayed()))
             }
     }
-
+/*
     @Test
     fun testNfcContents() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -160,7 +164,18 @@ class NFCScannerActivityTest {
             nfcContents.check(matches(isEnabled()))
         }
     }
+*/
+    @Test
+    fun testScanMessage() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NFCScannerActivity::class.java)
+        ActivityScenario.launch<Activity>(intent).use {
+            val scanMessage = onView(withId(R.id.scanMessage))
+            scanMessage.check(matches(isDisplayed()))
+        }
+    }
 
+/*
     @Test
     fun testActivateButton(){
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -171,12 +186,16 @@ class NFCScannerActivityTest {
             activateButton.check(matches(isDisplayed()))
         }
     }
-
-    @Test
+*/
+    @Test @UiThreadTest
     fun testNewIntent(){
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, NFCScannerActivity::class.java)
-        testRule.activity.runOnUiThread { testRule.activity.onNewIntent(intent) }
         testRule.activity.onNewIntent(intent)
+    }
+
+    @Test @UiThreadTest
+    fun testnfcLinks() {
+        testRule.activity.nfcLinks("")
     }
 }
