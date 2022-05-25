@@ -10,6 +10,7 @@ import android.location.LocationManager
 import android.text.Editable
 import android.util.Log
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -77,12 +78,11 @@ class QrCodeScanViewModel : ViewModel() {
         }
     }
 
-    suspend fun parseTextAndCreateConv(qrText: Editable,
+    suspend fun parseTextAndCreateConv(qrText: String,
                                        context: Activity,
                                        firebaseAuth: FirebaseAuth,
                                        firestore: FirebaseFirestore,
                                        firebaseStorage: FirebaseStorage): Boolean {
-
         if(qrText.isBlank() || !qrText.contains(":")){
             return false
         } else {
@@ -98,21 +98,19 @@ class QrCodeScanViewModel : ViewModel() {
                     convID,
                     firebaseAuth.uid!!,
                     context,
-                    qrText.toString(),
+                    qrText,
                     firestore,
                     firebaseAuth,
                     firebaseStorage
                 )
-
                 if(isAnonymous) firebaseAuth.signOut()
                 true
             }
-
         }
     }
 
     private suspend fun createNewConversation(isAnonymous: Boolean,
-                                              qrText: Editable,
+                                              qrText: String,
                                               firebaseAuth: FirebaseAuth,
                                               firestore: FirebaseFirestore): String? {
         if (isAnonymous) {
@@ -125,12 +123,13 @@ class QrCodeScanViewModel : ViewModel() {
             )
         }
 
-        val userID = qrText.toString().split(":")[0]
+
+        val userID = qrText.split(":")[0]
 
         val response = ConvRepository.addNewConversation(
             firebaseAuth.currentUser!!.uid,
             userID,
-            qrText.toString(),
+            qrText,
             null,
             firestore
         )
