@@ -9,7 +9,6 @@ import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
-import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
@@ -50,9 +49,10 @@ class SignInViewModel @Inject constructor(
     ): Boolean {
         val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
             "unlost.app@gmail.com",
-            "123456").await()
+            "123456"
+        ).await()
 
-        if(firebaseAuthResponse.user != null){
+        if (firebaseAuthResponse.user != null) {
             return UserRepository.addUserFromAccount(
                 firebaseAuthResponse.user!!.uid,
                 BrugSignInAccount("Unlost", "DemoUser", "", ""),
@@ -96,7 +96,7 @@ class SignInViewModel @Inject constructor(
      * Performs a sign out operation on the currently connected Firebase account.
      */
     suspend fun signOut(firestore: FirebaseFirestore) {
-        if(auth.uid != null){
+        if (auth.uid != null) {
             val deviceToken = FirebaseMessaging.getInstance().token.await()
             UserRepository.deleteDeviceTokenFromUser(
                 auth.uid!!,
@@ -120,10 +120,9 @@ class SignInViewModel @Inject constructor(
         val settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isEnabled = settings.getBoolean("nightMode", false)
 
-        if(isEnabled) {
+        if (isEnabled) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        }
-        else {
+        } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
     }

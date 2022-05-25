@@ -16,6 +16,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers
@@ -37,8 +38,10 @@ import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import junit.framework.TestCase
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import org.hamcrest.Description
 import org.hamcrest.TypeSafeMatcher
 import org.hamcrest.core.IsEqual
@@ -168,6 +171,18 @@ class SettingsActivityTest {
         profilePictureCanBeChanged()
     }
 
+    @Test
+    fun toggleChangesDarkMode(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val settings = context.getSharedPreferences("unlostPrefs", Context.MODE_PRIVATE)
+        val previousState = settings.getBoolean("nightMode", false)
+
+        Espresso.onView(ViewMatchers.withId(R.id.night_mode_toggle)).perform(click())
+
+        val state = settings.getBoolean("nightMode", false)
+        TestCase.assertEquals(previousState, !state)
+    }
+
     private fun correctProfilePictureDisplayed(){
         Thread.sleep(3000)
         Espresso.onView(ViewMatchers.withId(R.id.settingsUserPic))
@@ -199,6 +214,4 @@ class SettingsActivityTest {
             return view is ImageView && view.drawable.toBitmap().sameAs(expectedBitmap)
         }
     }
-
-
 }
