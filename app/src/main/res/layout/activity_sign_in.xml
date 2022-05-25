@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".ui.SignInActivity">
 
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="227dp"
+        android:layout_height="209dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/nfc_found_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/unlost_logo" />
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/nfc_found_btn"
         android:layout_width="241dp"
@@ -17,6 +31,7 @@
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:paddingEnd="30dp"
+        android:layout_marginBottom="7dp"
         app:layout_constraintBottom_toTopOf="@+id/qr_found_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -26,58 +41,47 @@
         android:id="@+id/qr_found_btn"
         android:layout_width="241dp"
         android:layout_height="57dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="40dp"
-        android:paddingStart="30dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/round_button"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
         android:text="I found a QR tag !"
         android:textAllCaps="false"
         android:textColor="@color/white"
-        android:paddingEnd="30dp"
+        app:layout_constraintTop_toBottomOf="@id/nfc_found_btn"
         app:layout_constraintBottom_toTopOf="@+id/sign_in_google_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_google_button"
         android:layout_width="238dp"
         android:layout_height="64dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.468"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.709" />
-
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="227dp"
-        android:layout_height="209dp"
-        android:layout_marginTop="76dp"
-        android:layout_marginBottom="71dp"
-        app:layout_constraintBottom_toTopOf="@+id/qr_found_btn"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@id/demo_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/unlost_logo" />
+        app:layout_constraintTop_toBottomOf="@id/qr_found_btn"
+         />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/demo_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="84dp"
-        android:paddingStart="30dp"
         android:layout_gravity="center"
+        android:layout_marginBottom="40dp"
         android:background="@drawable/round_button"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
+        android:paddingStart="30dp"
         android:paddingEnd="30dp"
         android:text="@string/demo_text"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"/>
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sign_in_google_button" />
 
     <ProgressBar
             android:id="@+id/loadingUser"
@@ -89,7 +93,6 @@
             app:layout_constraintRight_toRightOf="parent"
             android:indeterminate="true"
             android:visibility="invisible"/>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
