@@ -32,5 +32,4 @@ class ItemInformationViewModel : ViewModel() {
         }
         return locationName
     }
-
 }

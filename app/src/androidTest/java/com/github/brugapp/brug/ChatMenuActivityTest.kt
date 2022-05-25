@@ -30,12 +30,10 @@ import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -43,11 +41,9 @@ import org.hamcrest.Matchers
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
-import java.time.LocalDateTime
 
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
 
@@ -58,8 +54,6 @@ private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 class ChatMenuActivityTest {
-    @get:Rule
-    var rule = HiltAndroidRule(this)
 
     // ONLY FOR ONE SWIPE TEST, USING FIREBASE TO IMPROVE TEST COVERAGE
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()

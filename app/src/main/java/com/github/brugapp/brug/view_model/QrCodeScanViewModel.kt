@@ -77,7 +77,7 @@ class QrCodeScanViewModel : ViewModel() {
         }
     }
 
-    suspend fun parseTextAndCreateConv(qrText: Editable,
+    suspend fun parseTextAndCreateConv(qrText: String,
                             context: Activity,
                             firebaseAuth: FirebaseAuth,
                             firestore: FirebaseFirestore,
@@ -110,16 +110,14 @@ class QrCodeScanViewModel : ViewModel() {
                     firebaseAuth,
                     firebaseStorage
                 )
-
                 if(isAnonymous) firebaseAuth.signOut()
                 "Thank you ! The user will be notified."
             }
-
         }
     }
 
     private suspend fun createNewConversation(isAnonymous: Boolean,
-                                              qrText: Editable,
+                                              qrText: String,
                                               firebaseAuth: FirebaseAuth,
                                               firestore: FirebaseFirestore): String? {
         if (isAnonymous) {
@@ -132,12 +130,12 @@ class QrCodeScanViewModel : ViewModel() {
             )
         }
 
-        val userID = qrText.toString().split(":")[0]
+        val userID = qrText.split(":")[0]
 
         val response = ConvRepository.addNewConversation(
             firebaseAuth.currentUser!!.uid,
             userID,
-            qrText.toString(),
+            qrText,
             null,
             firestore
         )

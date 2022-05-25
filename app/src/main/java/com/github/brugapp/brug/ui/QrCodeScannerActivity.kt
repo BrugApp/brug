@@ -56,7 +56,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
                 } else {
                     liveData(Dispatchers.IO){
                         emit(viewModel.parseTextAndCreateConv(
-                            findViewById<EditText>(R.id.edit_message).text,
+                            findViewById<EditText>(R.id.edit_message).text.toString(),
                             context,
                             firebaseAuth, firestore, firebaseStorage
                         ))

@@ -15,9 +15,12 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.view_model.AddItemViewModel
+import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
+import java.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -67,6 +70,30 @@ class AddItemActivity : AppCompatActivity() {
             }
             addItemOnListener(itemName, itemNameHelper, itemType, itemDesc, firebaseAuth)
         }
+
+        val addNfcButton = findViewById<Button>(R.id.add_nfc_item)
+        addNfcButton.setOnClickListener {
+            addNfcItemOnListener(itemName, itemNameHelper, itemType.selectedItemId.toInt(), itemDesc.text.toString(), firebaseAuth)
+        }
+    }
+
+    fun addNfcItemOnListener(
+        itemName: EditText,
+        itemNameHelper: TextView,
+        itemType: Int,
+        itemDesc: String,
+        firebaseAuth: FirebaseAuth
+    ) {
+        var newItemID = ""
+        if (viewModel.verifyForm(itemNameHelper, itemName)) {
+            val newItem = Item(itemName.text.toString(), itemType, itemDesc, false)
+            newItemID = UUID.randomUUID().toString().filter { char -> char!='-' }.subSequence(0,20).toString()
+            newItem.setItemID(newItemID)
+            runBlocking { ItemsRepository.addItemWithItemID(newItem, newItemID,firebaseAuth.currentUser!!.uid, firestore) }
+        }
+        val myIntent = Intent(this, NFCScannerActivity::class.java)
+        myIntent.putExtra("itemid", newItemID).putExtra("write","true")
+        startActivity(myIntent)
     }
 
     private fun addItemOnListener(
@@ -77,21 +104,9 @@ class AddItemActivity : AppCompatActivity() {
         firebaseAuth: FirebaseAuth
     ) {
         if (viewModel.verifyForm(itemNameHelper, itemName)) {
-//               user.addItemToList(newItem)
-            val newItem = Item(
-                itemName.text.toString(),
-                itemType.selectedItemId.toInt(),
-                itemDesc.text.toString(),
-                false
-            )
+            val newItem = Item(itemName.text.toString(), itemType.selectedItemId.toInt(), itemDesc.text.toString(), false)
 
-            viewModel.viewModelScope.launch {
-                ItemsRepository.addItemToUser(
-                    newItem,
-                    firebaseAuth.currentUser!!.uid,
-                    firestore
-                )
-            }
+            viewModel.viewModelScope.launch { ItemsRepository.addItemToUser(newItem, firebaseAuth.currentUser!!.uid, firestore) }
 
             val myIntent = Intent(this, ItemsMenuActivity::class.java)
             startActivity(myIntent)

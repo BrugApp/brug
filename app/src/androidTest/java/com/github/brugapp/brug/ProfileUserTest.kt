@@ -174,9 +174,6 @@ class ProfileUserTest {
         profilePictureCanBeChanged()
     }
 
-
-
-
     private fun correctProfilePictureDisplayed(){
         Thread.sleep(3000)
         onView(withId(R.id.imgProfile)).check(matches(withDrawable(R.mipmap.ic_launcher_round)))
