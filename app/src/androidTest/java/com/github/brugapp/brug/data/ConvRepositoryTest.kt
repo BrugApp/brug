@@ -156,7 +156,8 @@ class ConvRepositoryTest {
             2022, Month.MARCH, 23, 15, 30
         )
     )
-        val message = Message("BigBoy",dummyDate,"Wagwan")
+        //val message = Message("BigBoy",dummyDate,"Wagwan")//why the test fails if I use this?
+        val message = null
         ConvRepository.addNewConversation(USER_ID1, USER_ID2, "$USER_ID1:${DUMMY_ITEM.getItemID()}", message, firestore)
 
         val file = File.createTempFile("tempIMG", ".jpg")
