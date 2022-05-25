@@ -24,12 +24,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/list_item_icon"
-            android:paddingTop="16dp"
-            android:paddingStart="0dp"
-            android:paddingEnd="16dp"
             android:maxLines="1"
+            android:paddingStart="0dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:text="salut"
             android:textAppearance="?attr/textAppearanceSubtitle1"
-            android:textColor="@color/list_entry_tint"/>
+            android:textColor="@color/black" />
 
         <TextView
             android:id="@+id/list_item_desc"
@@ -38,10 +39,11 @@
             android:layout_below="@id/list_item_title"
             android:layout_gravity="center_vertical"
             android:layout_toEndOf="@id/list_item_icon"
+            android:maxLines="2"
             android:paddingStart="0dp"
             android:paddingEnd="16dp"
-            android:maxLines="2"
+            android:text="salut"
             android:textAppearance="?attr/textAppearanceBody2"
-            android:textColor="@color/list_entry_tint"/>
+            android:textColor="@color/black" />
 
 </RelativeLayout>

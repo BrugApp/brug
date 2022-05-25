@@ -40,36 +40,36 @@
                 android:textSize="28sp"
                 android:textStyle="bold"/>
 
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/changeProfilePictureButton"
+                style="@style/App.Button"
+                app:cornerRadius="40dp"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
                 android:layout_marginTop="20dp"
                 android:paddingStart="30dp"
                 android:layout_gravity="center"
-                android:background="@drawable/round_button"
                 android:text="Edit Profile"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
                 android:paddingEnd="30dp"/>
 
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/sign_out_button"
                 android:layout_width="wrap_content"
+                style="@style/App.Button"
+                app:cornerRadius="40dp"
                 android:layout_height="40dp"
                 android:layout_marginTop="20dp"
                 android:paddingStart="30dp"
                 android:layout_gravity="center"
-                android:background="@drawable/round_button"
                 android:text="@string/sign_out"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
                 android:paddingEnd="30dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/round_back_white"
+                style="@style/App.CornderLayout"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginTop="40dp"
@@ -90,13 +90,13 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
+                        style="@style/App.Text"
                         android:layout_centerVertical="true"
-                        android:textColor="@color/black"
+                        android:layout_marginStart="20dp"
                         android:layout_toEndOf="@+id/night_mode_icon"
-                        android:textStyle="bold"
                         android:text="Night Mode"
-                        android:textSize="20dp"/>
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/night_mode_toggle"
@@ -122,9 +122,9 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/App.Text"
                         android:layout_marginStart="20dp"
                         android:layout_centerVertical="true"
-                        android:textColor="@color/black"
                         android:layout_toEndOf="@+id/privacy_icon"
                         android:textStyle="bold"
                         android:text="Privacy"
@@ -147,13 +147,13 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="20dp"
                         android:layout_centerVertical="true"
-                        android:textColor="@color/black"
+                        android:layout_marginStart="20dp"
                         android:layout_toEndOf="@+id/help_icon"
-                        android:textStyle="bold"
                         android:text="Help"
-                        android:textSize="20dp"/>
+                        style="@style/App.Text"
+                        android:textSize="20dp"
+                        android:textStyle="bold" />
 
 
                 </RelativeLayout>
@@ -163,7 +163,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/round_back_white"
+                style="@style/App.CornderLayout"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginTop="40dp"
@@ -177,9 +177,9 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        style="@style/App.Text"
                         android:layout_marginStart="20dp"
                         android:layout_centerVertical="true"
-                        android:textColor="@color/black"
                         android:textStyle="bold"
                         android:text="@string/terms_amp_conditions"
                         android:textSize="20dp"/>
@@ -192,11 +192,11 @@
                     android:layout_height="wrap_content">
 
                     <TextView
+                        style="@style/App.Text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="25dp"
                         android:layout_centerVertical="true"
-                        android:textColor="@color/black"
                         android:textStyle="bold"
                         android:text="About us"
                         android:textSize="20dp"/>
