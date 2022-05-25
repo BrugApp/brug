@@ -38,6 +38,10 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
+/**
+ * Class of ChatActivity
+ * Used as a conversation between two users
+ */
 class ChatActivity : AppCompatActivity() {
 
     private val viewModel: ChatViewModel by viewModels()
@@ -235,13 +239,6 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    /* Function to test if device has a microphone,
-    private fun hasMicrophone(): Boolean {
-        val pmanager = this.packageManager
-        return pmanager.hasSystemFeature(
-            PackageManager.FEATURE_MICROPHONE)
-    }*/
-
     private fun initRecordButton(model: ChatViewModel) {
         recordButton.setOnClickListener {
             val permissions = arrayOf(
@@ -312,6 +309,11 @@ class ChatActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Scroll the RecyclerView until a specified position
+     *
+     * @param position the index of the item until which we will scroll down
+     */
     fun scrollToBottom(position: Int) {
         if(position > 0){
             val rv = findViewById<View>(R.id.messagesList) as RecyclerView
