@@ -15,6 +15,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
 import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
@@ -79,9 +80,18 @@ class SignInActivity : AppCompatActivity() {
                     Toast.makeText(context, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
                 } else {
                     val result = viewModel.goToDemoMode(firestore, firebaseAuth, firebaseStorage)
-                    if(result) startActivity(
-                        Intent(context, ItemsMenuActivity::class.java)
-                    )
+                    if(result) {
+                        val user = UserRepository.getUserFromUID(
+                            firebaseAuth.uid!!,
+                            firestore,
+                            firebaseAuth,
+                            firebaseStorage
+                        )
+                        if(user != null){
+                            BrugDataCache.setUserInCache(user)
+                            startActivity(Intent(context, ItemsMenuActivity::class.java))
+                        }
+                    }
                     else Snackbar.make(
                         context.findViewById(android.R.id.content),
                         "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG
@@ -111,11 +121,26 @@ class SignInActivity : AppCompatActivity() {
                 liveData(Dispatchers.IO){
                     emit(viewModel.createNewBrugAccount(it.data, firestore, firebaseAuth, firebaseStorage))
                 }.observe(this){ result ->
-                    if(result) startActivity(Intent(this, ItemsMenuActivity::class.java))
-                    else Snackbar.make(
-                        this.findViewById(android.R.id.content),
-                        "ERROR: Unable to connect to your account", Snackbar.LENGTH_LONG
-                    ).show()
+                    val context = this
+
+                    viewModel.viewModelScope.launch(Dispatchers.IO) {
+                        val user = UserRepository.getUserFromUID(
+                            firebaseAuth.uid!!,
+                            firestore,
+                            firebaseAuth,
+                            firebaseStorage
+                        )
+                        if(result && user != null) {
+                            BrugDataCache.setUserInCache(user)
+                            startActivity(Intent(context, ItemsMenuActivity::class.java))
+                        }
+                    else {
+                        Snackbar.make(
+                                context.findViewById(android.R.id.content),
+                                "ERROR: Unable to connect to your account", Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                    }
                 }
             }
         }
