@@ -1,11 +1,18 @@
 package com.github.brugapp.brug
 
+import android.R.attr.bitmap
 import android.app.Activity
+import android.app.Instrumentation
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultRegistry
@@ -17,15 +24,18 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.di.sign_in.module.ActivityResultModule
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
-import com.github.brugapp.brug.ui.ProfilePictureSetActivity
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.SettingsActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -41,14 +51,22 @@ import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.hamcrest.Description
+import org.hamcrest.Matcher
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.TypeSafeMatcher
 import org.hamcrest.core.IsEqual
+import org.hamcrest.core.IsNot
+import org.hamcrest.core.IsNull
 import org.junit.After
 import org.junit.Before
-
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.internal.matchers.Null
+import java.io.File
+import java.io.FileOutputStream
+import java.util.*
+
 
 private const val TEST_USERNAME = "Rayan Kikou"
 
@@ -100,6 +118,7 @@ class SettingsActivityTest {
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
     private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
+    private lateinit var image:Bitmap
 
     companion object {
         var firstTime = true
@@ -156,7 +175,7 @@ class SettingsActivityTest {
     fun correctNameIsDisplayed() {
         val name: String = TEST_USERNAME
         Thread.sleep(3000)
-        Espresso.onView(ViewMatchers.withId(R.id.settingsUserName))
+        onView(ViewMatchers.withId(R.id.settingsUserName))
             .check(ViewAssertions.matches(ViewMatchers.withText(name)))
     }
 
@@ -171,7 +190,7 @@ class SettingsActivityTest {
 
     private fun correctProfilePictureDisplayed(){
         Thread.sleep(3000)
-        Espresso.onView(ViewMatchers.withId(R.id.settingsUserPic))
+        onView(ViewMatchers.withId(R.id.settingsUserPic))
             .check(ViewAssertions.matches(withDrawable(R.mipmap.ic_launcher_round)))
     }
 
@@ -184,7 +203,7 @@ class SettingsActivityTest {
             firebaseAuth.currentUser!!.uid, drawable!!,firebaseAuth,firebaseStorage,firestore) }
         ViewMatchers.assertThat(response.onSuccess, IsEqual(true))
 
-        Espresso.onView(ViewMatchers.withId(R.id.settingsUserPic))
+        onView(ViewMatchers.withId(R.id.settingsUserPic))
             .check(ViewAssertions.matches(withDrawable(drawableRes)))
     }
 
@@ -200,6 +219,51 @@ class SettingsActivityTest {
             return view is ImageView && view.drawable.toBitmap().sameAs(expectedBitmap)
         }
     }
+    @Test
+    fun sendGalleryCorrectlyAddsChangePicture() {
+        val expectedIntent: Matcher<Intent> = IntentMatchers.hasAction(Intent.ACTION_PICK)
+        Intents.intending(expectedIntent).respondWith(storeImageAndSetResultStub())
 
+        onView(ViewMatchers.withId(R.id.settingsUserPic))
+            .check(ViewAssertions.matches(withDrawable(R.mipmap.ic_launcher_round)))
+
+        onView(ViewMatchers.withId(R.id.changeProfilePictureButton)).perform(ViewActions.click())
+
+        //get current user
+        var user: User?
+        runBlocking {
+            user = UserRepository.getUserFromUID(
+                firebaseAuth.currentUser!!.uid,
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            )
+        }
+        assertThat(user!!.getUserIconPath(),IsNot(IsNull.nullValue()))
+    }
+
+    // Helper function to create and stub an image
+    private fun storeImageAndSetResultStub(): Instrumentation.ActivityResult {
+        // create bitmap
+        // below is a base64 blue image
+        val encodedImage =
+            "iVBORw0KGgoAAAANSUhEUgAAAKQAAACZCAYAAAChUZEyAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAG0SURBVHhe7dIxAcAgEMDALx4rqKKqDxZEZLhbYiDP+/17IGLdQoIhSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSFIMSYohSTEkKYYkxZCkGJIUQ5JiSEJmDnORA7zZz2YFAAAAAElFTkSuQmCC"
+        val decodedImage = Base64.getDecoder().decode(encodedImage)
+        image = BitmapFactory.decodeByteArray(decodedImage, 0, decodedImage.size)
+
+        // create file
+        val imageFile = File.createTempFile("dummyIMG", ".jpg")
+
+        // store to outputstream
+        val outputStream = FileOutputStream(imageFile)
+        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        outputStream.close()
+
+        // return with uri as data
+        val resultData = Intent()
+        val uri = Uri.fromFile(imageFile).toString()
+        resultData.putExtra(PIC_ATTACHMENT_INTENT_KEY, uri)
+        return Instrumentation.ActivityResult(Activity.RESULT_OK, resultData)
+    }
 
 }
