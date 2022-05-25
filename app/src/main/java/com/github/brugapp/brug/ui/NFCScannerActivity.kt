@@ -1,6 +1,8 @@
 package com.github.brugapp.brug.ui
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -9,9 +11,10 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import android.nfc.Tag
 import android.os.Bundle
+import android.text.Editable
+import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -26,6 +29,7 @@ import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import java.io.IOException
+import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,9 +45,12 @@ open class NFCScannerActivity: AppCompatActivity() {
     lateinit var context: Context
     private lateinit var nfcIntent: PendingIntent
     private lateinit var writingTagFilters: Array<IntentFilter>
-    lateinit var editMessage: TextView
+    lateinit var scanMessage: TextView
     lateinit var nfcContents: TextView
     private lateinit var activateButton: Button
+    var writebool: String? = null
+    var itemid: String? = null
+
 
     @Inject
     lateinit var firestore: FirebaseFirestore
@@ -61,6 +68,8 @@ open class NFCScannerActivity: AppCompatActivity() {
      * 3) press the button
      * @param savedInstanceState
      */
+
+    @SuppressLint("SetTextI18n")
     public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
         context = this
         setContentView(R.layout.activity_nfc_scanner)
@@ -70,12 +79,25 @@ open class NFCScannerActivity: AppCompatActivity() {
         if (adapter==null) Toast.makeText(this,"This device doesn't support NFC!",Toast.LENGTH_SHORT).show() //if (adapter==null) finish()
         nfcIntent = viewModel.setupWritingTagFilters(this).first
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
+        writebool = intent.getStringExtra("write")
+        itemid = intent.getStringExtra("itemid")
+
+        if(writebool==null || itemid==null){
+            activateButton.visibility = View.GONE
+            activateButton.isClickable = false
+        }
         activateButton.setOnClickListener {
             try {
-                if (tag == null) Toast.makeText(this, Error_detected, Toast.LENGTH_LONG).show()
-                else {
-                    viewModel.write(editMessage.text.toString(), tag!!)
-                    Toast.makeText(this, Write_success, Toast.LENGTH_LONG).show()
+                if (tag == null) Toast.makeText(this, Error_detected, Toast.LENGTH_LONG).show() //no tag
+                else if(!nfcLinks(nfcContents.text.toString())) { //no firestore link
+                    nfcContents.text = firebaseAuth.currentUser?.uid+':'+itemid
+                    viewModel.write(nfcContents.text.toString(), tag!!)
+                    Toast.makeText(this, "new item created:"+nfcContents.text.toString(), Toast.LENGTH_LONG).show()
+                    writebool = null
+                    itemid = null
+                    activateButton.visibility = View.GONE
+                    val myIntent = Intent(this, ItemsMenuActivity::class.java)
+                    startActivity(myIntent)
                 }
             } catch (e: Exception) {
                 when (e) {
@@ -86,19 +108,32 @@ open class NFCScannerActivity: AppCompatActivity() {
                     else -> throw e
                 }
             }
-            viewModel.displayReportNotification(this)
-            nfcLinks()
         }
     }
-        
-    fun nfcLinks() {
+
+    fun nfcLinks(editable: String): Boolean {
         val newcontext = this
-        liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv((editMessage as EditText).text, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
+        var retval = false
+        liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv(editable, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
             if(successState){
-                Toast.makeText(context, "Thank you ! The user will be notified.", Toast.LENGTH_LONG).show()
-                val myIntent = if(firebaseAuth.currentUser == null) Intent(this, SignInActivity::class.java) else Intent(this, ChatMenuActivity::class.java)
-                startActivity(myIntent)
-            } else Toast.makeText(context, "ERROR: An error has occurred, try again.", Toast.LENGTH_LONG).show() }
+                if(firebaseAuth.currentUser!=null && nfcContents.text.contains(firebaseAuth.currentUser!!.uid)){
+                    Toast.makeText(context, "You scanned your own tag", Toast.LENGTH_LONG).show()
+                }else {
+                    Toast.makeText(
+                        context,
+                        "Thank you! The user will be notified.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    val myIntent = if (firebaseAuth.currentUser == null) Intent(
+                        this,
+                        SignInActivity::class.java
+                    ) else Intent(this, ChatMenuActivity::class.java)
+                    startActivity(myIntent)
+                    retval = true
+                }
+            }
+        }
+        return retval
     }
 
     /**
@@ -106,12 +141,10 @@ open class NFCScannerActivity: AppCompatActivity() {
      * @return true iff all textviews & buttons are found
      */
     fun findViews(): Boolean{
-
-        editMessage = findViewById<View>(R.id.edit_message) as TextView
+        scanMessage = findViewById<View>(R.id.scanMessage) as TextView
         nfcContents = findViewById<View>(R.id.nfcContents) as TextView
         activateButton = findViewById<View>(R.id.buttonReportItem) as Button
-
-        return ::editMessage.isInitialized && ::nfcContents.isInitialized && ::activateButton.isInitialized
+        return ::scanMessage.isInitialized && ::nfcContents.isInitialized && ::activateButton.isInitialized
     }
 
     public override fun onPause() {
@@ -129,13 +162,10 @@ open class NFCScannerActivity: AppCompatActivity() {
      *
      */
     fun writeModeOff(){
-
         writeMode = true
-
         if(adapter!=null) {
             adapter!!.disableForegroundDispatch(this)
         }
-
     }
 
     /**
@@ -143,11 +173,9 @@ open class NFCScannerActivity: AppCompatActivity() {
      *
      */
     fun writeModeOn(){
-
         if(adapter!=null) {
             adapter!!.enableForegroundDispatch(this,nfcIntent,writingTagFilters,null)
         }
-
     }
 
     /**
@@ -157,10 +185,12 @@ open class NFCScannerActivity: AppCompatActivity() {
      */
     public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         setIntent(intent)
         viewModel.readFromIntent(nfcContents,intent)
         if ((ACTION_TAG_DISCOVERED) == intent.action){
             tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)!!
         }
+        nfcLinks(nfcContents.text.toString()) //maybe remove this
     }
 }
