@@ -252,12 +252,12 @@ class ChatMenuActivityTest {
     }
 
 
-    @Test
-    fun checkifKeyboardIsShownAfterPressingSearch() {
-        val searchButton = onView(withId(R.id.search_box))
-        searchButton.perform(click())
-        assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
-    }
+//    @Test
+//    fun checkifKeyboardIsShownAfterPressingSearch() {
+//        val searchButton = onView(withId(R.id.search_box))
+//        searchButton.perform(click())
+//        assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
+//    }
 
     //TODO: USE CACHE FOR ITEMS HERE !
     @Test
