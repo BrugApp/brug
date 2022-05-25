@@ -91,18 +91,6 @@
             android:exported="false"
             android:label="@string/title_register_user"/>
         <activity
-            android:name=".ui.ProfilePictureSetActivity"
-            android:exported="false"
-            android:parentActivityName=".ui.SettingsActivity"
-            android:label="@string/title_activity_profile_picture">
-
-            <!-- support API level 15 and lower -->
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.SettingsActivity" />
-        </activity>
-
-        <activity
             android:name=".ui.QrCodeScannerActivity"
             android:exported="false"
             android:parentActivityName=".ui.SignInActivity"
