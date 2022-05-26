@@ -58,7 +58,7 @@ class ItemsMenuActivity : AppCompatActivity() {
 
     // For the searchbar when pressing on the top bar's search icon
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        customTopBar.inflateTopBar(menuInflater, menu, ITEMS_SEARCH_HINT)
+        customTopBar.inflateTopBar(menuInflater, menu)
         return super.onCreateOptionsMenu(menu)
     }
 

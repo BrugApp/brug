@@ -325,19 +325,6 @@ class ChatMenuActivityTest {
 
 
     @Test
-    fun checkifKeyboardIsShownAfterPressingSearch() {
-        val intent =
-            Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
-        intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
-        ActivityScenario.launch<ChatMenuActivity>(intent)
-        Thread.sleep(1000)
-
-        val searchButton = onView(withId(R.id.search_box))
-        searchButton.perform(click())
-        assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
-    }
-
-    @Test
     fun chatIconOnNavBar() {
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), ChatMenuActivity::class.java)
@@ -376,18 +363,6 @@ class ChatMenuActivityTest {
             currentActivity[0] = it.next()
         }
         return currentActivity[0]
-    }
-
-    // Companion functions
-    private fun isKeyboardOpenedShellCheck(): Boolean {
-        val checkKeyboardCmd = "dumpsys input_method | grep mInputShown"
-
-        try {
-            return UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-                .executeShellCommand(checkKeyboardCmd).contains("mInputShown=true")
-        } catch (e: IOException) {
-            throw RuntimeException("Keyboard check failed", e)
-        }
     }
 
 }

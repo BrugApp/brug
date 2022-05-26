@@ -15,7 +15,6 @@ import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
 import com.github.brugapp.brug.data.BrugDataCache
-import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
@@ -45,8 +44,10 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
-        findViewById<Button>(R.id.nfc_found_btn).setOnClickListener{
-            val myIntent = Intent(this,NFCScannerActivity::class.java)
+        viewModel.checkNightMode(this)
+
+        findViewById<Button>(R.id.nfc_found_btn).setOnClickListener {
+            val myIntent = Intent(this, NFCScannerActivity::class.java)
             startActivity(myIntent)
         }
 
@@ -110,7 +111,12 @@ class SignInActivity : AppCompatActivity() {
             if (it.resultCode == Activity.RESULT_OK) {
                 // CALL FUNCTION TO CREATE USER & GO TO ITEMSMENUACTIVITY
                 liveData(Dispatchers.IO){
-                    emit(viewModel.createNewBrugAccount(it.data, firestore, firebaseAuth, firebaseStorage))
+                    emit(viewModel.createNewBrugAccount(
+                        it.data,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage)
+                    )
                 }.observe(this){ result ->
                     val context = this
 

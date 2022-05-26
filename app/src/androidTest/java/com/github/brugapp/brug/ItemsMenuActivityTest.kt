@@ -333,20 +333,6 @@ class ItemsMenuActivityTest {
     }
 
     @Test
-    fun checkIfKeyboardIsShownAfterPressingSearch() {
-        val intent = Intent(
-            ApplicationProvider.getApplicationContext(),
-            ItemsMenuActivity::class.java)
-        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
-        ActivityScenario.launch<ItemsMenuActivity>(intent)
-        Thread.sleep(1000)
-
-        val searchButton = onView(withId(R.id.search_box))
-        searchButton.perform(click())
-        assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
-    }
-
-    @Test
     fun goToAddItemPageOnAddButton() {
         val intent = Intent(
             ApplicationProvider.getApplicationContext(),
@@ -403,15 +389,4 @@ class ItemsMenuActivityTest {
         return currentActivity[0]
     }
 
-    // Companion functions
-    private fun isKeyboardOpenedShellCheck(): Boolean {
-        val checkKeyboardCmd = "dumpsys input_method | grep mInputShown"
-
-        try {
-            return UiDevice.getInstance(getInstrumentation())
-                .executeShellCommand(checkKeyboardCmd).contains("mInputShown=true")
-        } catch (e: IOException) {
-            throw RuntimeException("Keyboard check failed", e)
-        }
-    }
 }

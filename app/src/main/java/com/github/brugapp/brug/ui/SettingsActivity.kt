@@ -1,5 +1,6 @@
 package com.github.brugapp.brug.ui
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
@@ -9,6 +10,8 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.UserRepository
 import com.google.android.material.snackbar.Snackbar
@@ -34,25 +37,60 @@ class SettingsActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+
+    private val PREFS_NAME = "unlostPrefs"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
+
+        restoreNightModeToggleState()
+
         val button: Button = findViewById(R.id.changeProfilePictureButton)
         button.setOnClickListener {
             val intent = Intent(this, ProfilePictureSetActivity::class.java)
             startActivity(intent)
         }
 
-
         findViewById<Button>(R.id.sign_out_button).setOnClickListener {
             signOut()
+        }
+
+        findViewById<SwitchCompat>(R.id.night_mode_toggle).setOnCheckedChangeListener{ _, checked ->
+            when(checked) {
+                true -> setNightMode(true)
+                false -> setNightMode(false)
+            }
         }
 
         setPicAndName()
     }
 
-    private fun setPicAndName() = runBlocking{
+    private fun restoreNightModeToggleState() {
+        val toggle = findViewById<SwitchCompat>(R.id.night_mode_toggle)
+        val settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isEnabled = settings.getBoolean("nightMode", false)
+        toggle.isChecked = isEnabled // disabled by default
+    }
 
+    private fun setNightMode(enabled: Boolean){
+        val settings = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = settings.edit()
+
+        if(enabled) {
+            editor.putBoolean("nightMode", true)
+            editor.apply()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+        else {
+            editor.putBoolean("nightMode", false)
+            editor.apply()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
+
+        finish()
+    }
+
+    private fun setPicAndName() = runBlocking{
         val pic = findViewById<ImageView>(R.id.settingsUserPic)
         val name = findViewById<TextView>(R.id.settingsUserName)
 

@@ -68,7 +68,7 @@ class ChatMenuActivity : AppCompatActivity() {
 
     // Initializing the top-bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        customTopBar.inflateTopBar(menuInflater, menu, CHAT_SEARCH_HINT)
+        customTopBar.inflateTopBar(menuInflater, menu)
         return super.onCreateOptionsMenu(menu)
     }
 

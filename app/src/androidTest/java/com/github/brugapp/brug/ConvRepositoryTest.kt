@@ -11,6 +11,7 @@ import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.model.message_types.PicMessage
 import com.github.brugapp.brug.model.services.DateService
@@ -29,6 +30,7 @@ import org.junit.Test
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
+import java.time.Month
 
 
 private const val USER_ID1 = "USER1"
@@ -149,7 +151,14 @@ class ConvRepositoryTest {
             .user
         assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
         assertThat(firebaseAuth.currentUser!!.uid, IsEqual(authUser!!.uid))
-        ConvRepository.addNewConversation(USER_ID1, USER_ID2, "$USER_ID1:${DUMMY_ITEM.getItemID()}", null, firestore)
+        val dummyDate = DateService.fromLocalDateTime(
+        LocalDateTime.of(
+            2022, Month.MARCH, 23, 15, 30
+        )
+        )
+        val message = Message("BigBoy",dummyDate,"Wagwan")//why the test fails if I use this?
+
+        ConvRepository.addNewConversation(USER_ID1, USER_ID2, "$USER_ID1:${DUMMY_ITEM.getItemID()}", message, firestore)
 
         val file = File.createTempFile("tempIMG", ".jpg")
         val fos = FileOutputStream(file)
@@ -165,7 +174,8 @@ class ConvRepositoryTest {
         )
         fos.close()
 
-        assertThat(MessageRepository.addMessageToConv(
+        assertThat(
+            MessageRepository.addMessageToConv(
             picMessage,
             false,
             USER_ID1,
