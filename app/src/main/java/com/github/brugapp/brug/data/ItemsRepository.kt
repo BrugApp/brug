@@ -189,7 +189,15 @@ object ItemsRepository {
         return response
     }
 
-    /* RESERVED FOR TESTS */
+    /**
+     * Adds a new item to the database with a specific ID.
+     *
+     * @param item the item to add
+     * @param itemID the specific ID that references the new item
+     * @param uid the user ID of the item's owner
+     *
+     * @return FirebaseResponse object denoting if the action was successful
+     */
     suspend fun addItemWithItemID(
         item: Item,
         itemID: String,
@@ -225,30 +233,14 @@ object ItemsRepository {
         return response
     }
 
-    suspend fun deleteAllUserItems(uid: String, firestore: FirebaseFirestore): FirebaseResponse {
-        val response = FirebaseResponse()
-
-        try {
-            val userRef = firestore.collection(USERS_DB).document(uid)
-            if (!userRef.get().await().exists()) {
-                response.onError = Exception("User doesn't exist")
-                return response
-            }
-
-            userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
-                deleteItemFromUser(
-                    item.id,
-                    uid,
-                    firestore
-                )
-            }
-            response.onSuccess = true
-        } catch (e: Exception) {
-            response.onError = e
-        }
-        return response
-    }
-
+    /**
+     * Retrieves a specific item from a user.
+     *
+     * @param uid the user ID of the item's owner
+     * @param itemID the item ID belonging to the requested item
+     *
+     * @return the item if the operation was successful, null otherwise.
+     */
     suspend fun getSingleItemFromIDs(uid: String, itemID: String): Item? {
         return try {
             val userRef = Firebase.firestore.collection(USERS_DB).document(uid)
@@ -307,6 +299,30 @@ object ItemsRepository {
         }
     }
 
+    /* RESERVED FOR TESTS */
+    suspend fun deleteAllUserItems(uid: String, firestore: FirebaseFirestore): FirebaseResponse {
+        val response = FirebaseResponse()
+
+        try {
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            if (!userRef.get().await().exists()) {
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            userRef.collection(ITEMS_DB).get().await().mapNotNull { item ->
+                deleteItemFromUser(
+                    item.id,
+                    uid,
+                    firestore
+                )
+            }
+            response.onSuccess = true
+        } catch (e: Exception) {
+            response.onError = e
+        }
+        return response
+    }
 
     private fun getItemFromDoc(itemDoc: DocumentSnapshot): Item? {
         try {

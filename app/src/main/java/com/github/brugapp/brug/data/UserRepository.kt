@@ -18,7 +18,6 @@ import java.io.File
 private const val USERS_ASSETS = "users_assets/"
 private const val USERS_DB = "Users"
 private const val TOKENS_DB = "Devices"
-//private const val TIMEOUT_VAL = 2000
 
 /**
  * Repository class handling bindings between the User objects in Firebase & in local.
@@ -204,29 +203,6 @@ object UserRepository {
         return response
     }
 
-    /* ONLY FOR TEST PURPOSES */
-    suspend fun resetUserIcon(uid: String, firestore: FirebaseFirestore): FirebaseResponse {
-        val response = FirebaseResponse()
-        try {
-            val userRef = firestore.collection(USERS_DB).document(uid)
-            if (!userRef.get().await().exists()) {
-                response.onError = Exception("User doesn't exist")
-                return response
-            }
-
-            firestore.collection(USERS_DB).document(uid).update(
-                mapOf(
-                    "user_icon" to ""
-                )
-            ).await()
-            response.onSuccess = true
-        } catch (e: Exception) {
-            response.onError = e
-        }
-
-        return response
-    }
-
     /**
      * Deletes a user from the database, given a user ID.
      *
@@ -298,6 +274,29 @@ object UserRepository {
             Log.e("FIREBASE ERROR", e.message.toString())
             return null
         }
+    }
+
+    /* ONLY FOR TEST PURPOSES */
+    suspend fun resetUserIcon(uid: String, firestore: FirebaseFirestore): FirebaseResponse {
+        val response = FirebaseResponse()
+        try {
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            if (!userRef.get().await().exists()) {
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            firestore.collection(USERS_DB).document(uid).update(
+                mapOf(
+                    "user_icon" to ""
+                )
+            ).await()
+            response.onSuccess = true
+        } catch (e: Exception) {
+            response.onError = e
+        }
+
+        return response
     }
 
     private suspend fun downloadUserIconInTemp(

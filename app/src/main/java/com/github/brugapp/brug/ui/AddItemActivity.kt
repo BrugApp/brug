@@ -94,7 +94,9 @@ class AddItemActivity : AppCompatActivity() {
             val newItem = Item(itemName.text.toString(), itemType, itemDesc, false)
             newItemID = UUID.randomUUID().toString().filter { char -> char!='-' }.subSequence(0,20).toString()
             newItem.setItemID(newItemID)
-            runBlocking { ItemsRepository.addItemWithItemID(newItem, newItemID,firebaseAuth.currentUser!!.uid, firestore) }
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
+                ItemsRepository.addItemWithItemID(newItem, newItemID,firebaseAuth.currentUser!!.uid, firestore)
+            }
         }
         val myIntent = Intent(this, NFCScannerActivity::class.java)
         myIntent.putExtra("itemid", newItemID).putExtra("write","true")
