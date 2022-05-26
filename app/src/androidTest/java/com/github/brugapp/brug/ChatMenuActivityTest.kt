@@ -34,6 +34,7 @@ import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
@@ -41,6 +42,7 @@ import org.hamcrest.Matchers
 import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
@@ -54,6 +56,8 @@ private const val SNACKBAR_ID: String = "$APP_PACKAGE_NAME:id/snackbar_text"
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
 class ChatMenuActivityTest {
+    @get:Rule
+    val rule = HiltAndroidRule(this)
 
     // ONLY FOR ONE SWIPE TEST, USING FIREBASE TO IMPROVE TEST COVERAGE
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
@@ -144,6 +148,16 @@ class ChatMenuActivityTest {
         intent.putExtra(CONVERSATION_TEST_LIST_KEY, convList)
         ActivityScenario.launch<ChatMenuActivity>(intent)
         Thread.sleep(1000)
+
+        runBlocking {
+            firebaseAuth.signInAnonymously().await()
+            UserRepository.addUserFromAccount(
+                firebaseAuth.uid!!,
+                BrugSignInAccount("CHAT", "ANONYMOUSUSER", "", ""),
+                true,
+                firestore
+            )
+        }
 
         val settingsButton = onView(withId(R.id.my_settings))
         settingsButton.perform(click())

@@ -105,7 +105,7 @@ class QrCodeScanViewModel : ViewModel() {
                     convID,
                     firebaseAuth.uid!!,
                     context,
-                    qrText.toString(),
+                    qrText,
                     firestore,
                     firebaseAuth,
                     firebaseStorage
@@ -144,7 +144,7 @@ class QrCodeScanViewModel : ViewModel() {
     }
 
     @SuppressLint("MissingPermission")
-    fun getLocationAndNotifyUser(
+    private fun getLocationAndNotifyUser(
         senderName: String,
         convID: String,
         authUID: String,
@@ -156,9 +156,6 @@ class QrCodeScanViewModel : ViewModel() {
     ) {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-        if (isLocationPermissionsDenied(context)) {
-            requestLocationPermissions(context)
-        }
 
         fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
             if (lastKnownLocation != null) {
@@ -233,26 +230,6 @@ class QrCodeScanViewModel : ViewModel() {
             LocationService.fromAndroidLocation(location),
             firestore
         ).onSuccess
-    }
-
-    private fun requestLocationPermissions(context: Activity) {
-        ActivityCompat.requestPermissions(
-            context, arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ), LOCATION_REQUEST_CODE
-        )
-    }
-
-    private fun isLocationPermissionsDenied(context: Activity): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-
     }
 
     fun startPreview() {

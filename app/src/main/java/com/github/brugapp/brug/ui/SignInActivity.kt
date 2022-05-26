@@ -81,16 +81,7 @@ class SignInActivity : AppCompatActivity() {
                 } else {
                     val result = viewModel.goToDemoMode(firestore, firebaseAuth, firebaseStorage)
                     if(result) {
-                        val user = UserRepository.getUserFromUID(
-                            firebaseAuth.uid!!,
-                            firestore,
-                            firebaseAuth,
-                            firebaseStorage
-                        )
-                        if(user != null){
-                            BrugDataCache.setUserInCache(user)
-                            startActivity(Intent(context, ItemsMenuActivity::class.java))
-                        }
+                        startActivity(Intent(context, ItemsMenuActivity::class.java))
                     }
                     else Snackbar.make(
                         context.findViewById(android.R.id.content),
@@ -123,23 +114,13 @@ class SignInActivity : AppCompatActivity() {
                 }.observe(this){ result ->
                     val context = this
 
-                    viewModel.viewModelScope.launch(Dispatchers.IO) {
-                        val user = UserRepository.getUserFromUID(
-                            firebaseAuth.uid!!,
-                            firestore,
-                            firebaseAuth,
-                            firebaseStorage
-                        )
-                        if(result && user != null) {
-                            BrugDataCache.setUserInCache(user)
-                            startActivity(Intent(context, ItemsMenuActivity::class.java))
-                        }
-                    else {
+                    if(result) {
+                        startActivity(Intent(context, ItemsMenuActivity::class.java))
+                    } else {
                         Snackbar.make(
-                                context.findViewById(android.R.id.content),
-                                "ERROR: Unable to connect to your account", Snackbar.LENGTH_LONG
-                            ).show()
-                        }
+                            context.findViewById(android.R.id.content),
+                            "ERROR: Unable to connect to your account", Snackbar.LENGTH_LONG
+                        ).show()
                     }
                 }
             }

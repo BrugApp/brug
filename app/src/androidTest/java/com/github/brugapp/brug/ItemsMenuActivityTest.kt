@@ -177,6 +177,15 @@ class ItemsMenuActivityTest {
         ActivityScenario.launch<ItemsMenuActivity>(intent)
         Thread.sleep(1000)
 
+        runBlocking {
+            firebaseAuth.signInAnonymously().await()
+            UserRepository.addUserFromAccount(
+                firebaseAuth.uid!!,
+                BrugSignInAccount("CHAT", "ANONYMOUSUSER", "", ""),
+                true,
+                firestore
+            )
+        }
 
         val settingsButton = onView(withId(R.id.my_settings))
         settingsButton.perform(click())
