@@ -1,96 +1,189 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:theme="@style/Theme.Brug"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.SignInActivity">
+<?xml version="1.0" encoding="utf-8"?> 
 
-    <Button
-        android:id="@+id/nfc_found_btn"
-        style="@style/App.Button"
-        app:cornerRadius="40dp"
-        android:layout_width="241dp"
-        android:layout_height="57dp"
-        android:paddingStart="30dp"
-        android:layout_gravity="center"
-        android:text="I found a NFC tag !"
-        android:textAllCaps="false"
-        android:paddingEnd="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/qr_found_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView3"/>
+ <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" 
 
-    <Button
-        android:id="@+id/qr_found_btn"
-        style="@style/App.Button"
-        app:cornerRadius="40dp"
-        android:layout_width="241dp"
-        android:layout_height="57dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="40dp"
-        android:paddingStart="30dp"
-        android:layout_gravity="center"
-        android:text="I found a QR tag !"
-        android:textAllCaps="false"
-        android:paddingEnd="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/sign_in_google_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+     xmlns:app="http://schemas.android.com/apk/res-auto" 
 
-    <com.google.android.gms.common.SignInButton
-        android:id="@+id/sign_in_google_button"
-        android:layout_width="238dp"
-        android:layout_height="64dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.468"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.709" />
+     xmlns:tools="http://schemas.android.com/tools" 
 
-    <ImageView
-        android:id="@+id/imageView3"
-        android:layout_width="227dp"
-        android:layout_height="209dp"
-        android:layout_marginTop="76dp"
-        android:layout_marginBottom="71dp"
-        app:layout_constraintBottom_toTopOf="@+id/qr_found_btn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/unlost_logo" />
+     android:theme="@style/Theme.Brug" 
 
-    <Button
-        android:id="@+id/demo_button"
-        style="@style/App.Button"
-        app:cornerRadius="40dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="84dp"
-        android:paddingStart="30dp"
-        android:layout_gravity="center"
-        android:textAllCaps="false"
-        android:paddingEnd="30dp"
-        android:text="@string/demo_text"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"/>
+     android:layout_width="match_parent" 
 
-    <ProgressBar
-            android:id="@+id/loadingUser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            android:indeterminate="true"
-            android:visibility="invisible"/>
+     android:layout_height="match_parent" 
 
+     tools:context=".ui.SignInActivity"> 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+  
 
+     <Button 
+
+         android:id="@+id/nfc_found_btn" 
+
+         style="@style/App.Button" 
+
+         app:cornerRadius="40dp" 
+
+         android:layout_width="241dp" 
+
+         android:layout_height="57dp" 
+
+         android:paddingStart="30dp" 
+
+         android:layout_gravity="center" 
+
+         android:text="I found a NFC tag !" 
+
+         android:textAllCaps="false" 
+
+         android:paddingEnd="30dp" 
+
+         app:layout_constraintBottom_toTopOf="@+id/qr_found_btn" 
+
+         app:layout_constraintEnd_toEndOf="parent" 
+
+         app:layout_constraintStart_toStartOf="parent" 
+
+         app:layout_constraintTop_toBottomOf="@+id/imageView3"/> 
+
+  
+
+     <Button 
+
+         android:id="@+id/qr_found_btn" 
+
+         style="@style/App.Button" 
+
+         app:cornerRadius="40dp" 
+
+         android:layout_width="241dp" 
+
+         android:layout_height="57dp" 
+
+         android:layout_marginTop="20dp" 
+
+         android:layout_marginBottom="40dp" 
+
+         android:paddingStart="30dp" 
+
+         android:layout_gravity="center" 
+
+         android:text="I found a QR tag !" 
+
+         android:textAllCaps="false" 
+
+         android:paddingEnd="30dp" 
+
+         app:layout_constraintBottom_toTopOf="@+id/sign_in_google_button" 
+
+         app:layout_constraintEnd_toEndOf="parent" 
+
+         app:layout_constraintStart_toStartOf="parent"/> 
+
+  
+
+     <com.google.android.gms.common.SignInButton 
+
+         android:id="@+id/sign_in_google_button" 
+
+         android:layout_width="238dp" 
+
+         android:layout_height="64dp" 
+
+         app:layout_constraintBottom_toBottomOf="parent" 
+
+         app:layout_constraintEnd_toEndOf="parent" 
+
+         app:layout_constraintHorizontal_bias="0.468" 
+
+         app:layout_constraintStart_toStartOf="parent" 
+
+         app:layout_constraintTop_toTopOf="parent" 
+
+         app:layout_constraintVertical_bias="0.709" /> 
+
+  
+
+     <ImageView 
+
+         android:id="@+id/imageView3" 
+
+         android:layout_width="227dp" 
+
+         android:layout_height="209dp" 
+
+         android:layout_marginTop="76dp" 
+
+         android:layout_marginBottom="71dp" 
+
+         app:layout_constraintBottom_toTopOf="@+id/qr_found_btn" 
+
+         app:layout_constraintEnd_toEndOf="parent" 
+
+         app:layout_constraintStart_toStartOf="parent" 
+
+         app:layout_constraintTop_toTopOf="parent" 
+
+         app:srcCompat="@drawable/unlost_logo" /> 
+
+  
+
+     <Button 
+
+         android:id="@+id/demo_button" 
+
+         style="@style/App.Button" 
+
+         app:cornerRadius="40dp" 
+
+         android:layout_width="wrap_content" 
+
+         android:layout_height="wrap_content" 
+
+         android:layout_marginBottom="84dp" 
+
+         android:paddingStart="30dp" 
+
+         android:layout_gravity="center" 
+
+         android:textAllCaps="false" 
+
+         android:paddingEnd="30dp" 
+
+         android:text="@string/demo_text" 
+
+         app:layout_constraintBottom_toBottomOf="parent" 
+
+         app:layout_constraintEnd_toEndOf="parent" 
+
+         app:layout_constraintHorizontal_bias="0.498" 
+
+         app:layout_constraintStart_toStartOf="parent"/> 
+
+  
+
+     <ProgressBar 
+
+             android:id="@+id/loadingUser" 
+
+             android:layout_width="wrap_content" 
+
+             android:layout_height="wrap_content" 
+
+             app:layout_constraintTop_toTopOf="parent" 
+
+             app:layout_constraintBottom_toBottomOf="parent" 
+
+             app:layout_constraintLeft_toLeftOf="parent" 
+
+             app:layout_constraintRight_toRightOf="parent" 
+
+             android:indeterminate="true" 
+
+             android:visibility="invisible"/> 
+
+  
+
+  
+
+ </androidx.constraintlayout.widget.ConstraintLayout>
