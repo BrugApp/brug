@@ -1,10 +1,11 @@
-package com.github.brugapp.brug
+package com.github.brugapp.brug.data
 
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
+import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.FirebaseResponse
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
@@ -271,6 +272,33 @@ class UserRepositoryTest {
             DUMMY_UID,
             FirebaseFakeHelper().providesFirestore()
         ).onSuccess, IsEqual(true))
+    }
+
+    @Test
+    fun downloadUserIconReturnNullWhenNoUser() = runBlocking {
+        val email = "test@whereisthepicture.com"
+        val password = "123456"
+        firebaseAuth.createUserWithEmailAndPassword(email,password).await()
+        firebaseAuth
+            .signInWithEmailAndPassword(email, password)
+            .await()
+        val uid = firebaseAuth.currentUser!!.uid
+        UserRepository.addUserFromAccount(
+            uid,
+            DUMMY_ACCOUNT,
+            true,
+            FirebaseFakeHelper().providesFirestore()
+        )
+        firebaseAuth.signOut()
+        val userNoIcon = UserRepository.getUserFromUID(
+            uid,
+            FirebaseFakeHelper().providesFirestore(),
+            FirebaseFakeHelper().providesAuth(),
+            FirebaseFakeHelper().providesStorage()
+        )
+        val icon = userNoIcon?.getUserIconPath()
+        assertThat(userNoIcon, IsNot(IsNull.nullValue()))
+        assertThat(icon, IsNull.nullValue())
     }
 
 
