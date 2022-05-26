@@ -282,8 +282,8 @@ class ChatMenuActivityTest {
 
         entryToSwipe.swipeRight(50)
         Thread.sleep(1000)
-        onView(withText("Undo")).perform(click())
-        Thread.sleep(1000)
+//        onView(withText("Undo")).perform(click())
+//        Thread.sleep(1000)
     }
 
     //TODO: Test clicking on item goes to chat

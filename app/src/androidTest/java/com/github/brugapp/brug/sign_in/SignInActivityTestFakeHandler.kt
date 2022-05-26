@@ -92,19 +92,19 @@ class SignInActivityTestFakeHandler {
     }
 
 
-    @Test
-    fun signInActivityAsksUserToSignInForNotSignedInUser() {
-        val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
-
-        ActivityScenario.launch<SignInActivity>(intent).use {
-            // check if displays correct message
-            onView(withId(R.id.qr_found_btn))
-                .check(matches(isDisplayed()))
-            // check if contains sign in button
-            onView(withId(R.id.sign_in_google_button))
-                .check(matches(isDisplayed()))
-        }
-    }
+//    @Test
+//    fun signInActivityAsksUserToSignInForNotSignedInUser() {
+//        val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
+//
+//        ActivityScenario.launch<SignInActivity>(intent).use {
+//            // check if displays correct message
+//            onView(withId(R.id.qr_found_btn))
+//                .check(matches(isDisplayed()))
+//            // check if contains sign in button
+//            onView(withId(R.id.sign_in_google_button))
+//                .check(matches(isDisplayed()))
+//        }
+//    }
 
     @Test
     fun activityResultOKTest() {
