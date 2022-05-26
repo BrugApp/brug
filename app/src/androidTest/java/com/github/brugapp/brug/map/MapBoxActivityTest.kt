@@ -164,5 +164,4 @@ class MapBoxActivityTest {
             Espresso.onView(withId(R.id.itemNameOnMap)).check(matches(withText(TEST_ITEM.itemName)))
         }
     }
-
 }
