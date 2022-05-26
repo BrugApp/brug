@@ -180,5 +180,4 @@ class MapBoxActivityTest {
             Espresso.onView(withId(R.id.driveButton)).check(matches(not(isDisplayed())))
         }
     }
-
 }
