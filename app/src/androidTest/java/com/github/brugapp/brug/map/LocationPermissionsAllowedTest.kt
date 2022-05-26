@@ -16,8 +16,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.ui.MapBoxActivity
+import com.google.firebase.analytics.FirebaseAnalytics.Param.ITEMS
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.After
@@ -30,8 +35,15 @@ class LocationPermissionsAllowedTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
+    private val ITEMS = arrayListOf(
+        Item("Phone", ItemType.Phone.ordinal, "Samsung Galaxy S22", false),
+        Item("Wallet", ItemType.Wallet.ordinal, "With all my belongings", false),
+        Item("Car Keys", ItemType.CarKeys.ordinal, "Lamborghini Aventador LP-780-4", false),
+        Item("Keys", ItemType.Keys.ordinal, "Home keys", true)
+    )
+
     private val PERMISSIONS_DIALOG_DELAY = 2000L
-    private val GRANT_BUTTON_INDEX = 0 // 0 to accept, 1 to accept only once, 2 to reject
+    private val GRANT_BUTTON_INDEX = 1 // 0 to accept, 1 to accept only once, 2 to reject
 
     private fun pressOnPermission(permissionNeeded: String?) {
         try {
@@ -64,6 +76,7 @@ class LocationPermissionsAllowedTest {
     @After
     fun cleanUp(){
         Intents.release()
+        BrugDataCache.resetCachedItems()
     }
 
     private fun hasNeededPermission(permissionNeeded: String): Boolean {
@@ -77,7 +90,7 @@ class LocationPermissionsAllowedTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, MapBoxActivity::class.java)
-
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
         ActivityScenario.launch<Activity>(intent).use {
             Thread.sleep(10000)
             pressOnPermission("Manifest.permission.ACCESS_FINE_LOCATION")
