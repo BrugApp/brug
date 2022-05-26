@@ -53,13 +53,12 @@ class SignInActivity : AppCompatActivity() {
 
         // Set Listener for google sign in button
         findViewById<SignInButton>(R.id.sign_in_google_button).setOnClickListener {
+            val context = this
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
-            liveData(Dispatchers.IO) {
-                emit(BrugDataCache.isNetworkAvailable())
-            }.observe(this) { result ->
-                if (!result) {
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
+                if(!BrugDataCache.isNetworkAvailable()){
                     findViewById<ProgressBar>(R.id.loadingUser).visibility = View.GONE
-                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
                 } else {
                     val signInIntent: Intent = viewModel.getSignInIntent()
                     getSignInResult.launch(signInIntent)
@@ -75,34 +74,30 @@ class SignInActivity : AppCompatActivity() {
         findViewById<Button>(R.id.demo_button).setOnClickListener {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
             // ONLY FOR DEMO MODE
-            liveData(Dispatchers.IO) {
-                emit(BrugDataCache.isNetworkAvailable())
-            }.observe(this) { isConnected ->
-                if (!isConnected) {
+            val context = this
+            viewModel.viewModelScope.launch(Dispatchers.IO) {
+                if(!BrugDataCache.isNetworkAvailable()){
                     findViewById<ProgressBar>(R.id.loadingUser).visibility = View.GONE
-                    Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
                 } else {
-                    liveData(Dispatchers.IO) {
-                        emit(viewModel.goToDemoMode(firestore, firebaseAuth, firebaseStorage))
-                    }.observe(this) { result ->
-                        if (result) startActivity(Intent(this, ItemsMenuActivity::class.java))
-                        else Snackbar.make(
-                            this.findViewById(android.R.id.content),
-                            "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG
-                        ).show()
+                    val result = viewModel.goToDemoMode(firestore, firebaseAuth, firebaseStorage)
+                    if(result) {
+                        startActivity(Intent(context, ItemsMenuActivity::class.java))
                     }
+                    else Snackbar.make(
+                        context.findViewById(android.R.id.content),
+                        "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
-
-
         }
     }
 
     override fun onStart() {
         super.onStart()
-        if (viewModel.getAuth().currentUser != null) {
-            if (intent.extras != null && intent.extras!!.containsKey(EXTRA_SIGN_OUT)) {
-                viewModel.viewModelScope.launch { viewModel.signOut(firestore) }
+        if(viewModel.getAuth().currentUser != null){
+            if(intent.extras != null && intent.extras!!.containsKey(EXTRA_SIGN_OUT)){
+                viewModel.viewModelScope.launch(Dispatchers.IO) { viewModel.signOut(firestore) }
             } else {
                 val myIntent = Intent(this, ItemsMenuActivity::class.java)
                 startActivity(myIntent)
@@ -115,21 +110,24 @@ class SignInActivity : AppCompatActivity() {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
                 // CALL FUNCTION TO CREATE USER & GO TO ITEMSMENUACTIVITY
-                liveData(Dispatchers.IO) {
-                    emit(
-                        viewModel.createNewBrugAccount(
-                            it.data,
-                            firestore,
-                            firebaseAuth,
-                            firebaseStorage
-                        )
+                liveData(Dispatchers.IO){
+                    emit(viewModel.createNewBrugAccount(
+                        it.data,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage)
                     )
-                }.observe(this) { result ->
-                    if (result) startActivity(Intent(this, ItemsMenuActivity::class.java))
-                    else Snackbar.make(
-                        this.findViewById(android.R.id.content),
-                        "ERROR: Unable to connect to your account", Snackbar.LENGTH_LONG
-                    ).show()
+                }.observe(this){ result ->
+                    val context = this
+
+                    if(result) {
+                        startActivity(Intent(context, ItemsMenuActivity::class.java))
+                    } else {
+                        Snackbar.make(
+                            context.findViewById(android.R.id.content),
+                            "ERROR: Unable to connect to your account", Snackbar.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         }

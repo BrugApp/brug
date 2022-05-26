@@ -3,7 +3,6 @@ package com.github.brugapp.brug
 import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
@@ -29,13 +28,14 @@ class QrCodeShowActivityTest{
     ).apply {
         item.setItemID("23")
         putExtra("qrId", user.uid+":"+item.getItemID())
-        putExtra("itemName", item.itemName)
+        putExtra("itemName", user.uid+":"+item.getItemID())
     }
 
     @Test
-    fun launchingQrCOdeShowDoesNotCrash(){
+    fun correctQrIsShown(){
         ActivityScenario.launch<QrCodeShowActivity>(infoListIntent).use {
-            onView(withId(R.id.itemNameShow)).check(matches(withText(item.itemName)))
+            onView(ViewMatchers.withId(R.id.itemNameShow)).check(matches(withText(code)))
         }
     }
 }
+

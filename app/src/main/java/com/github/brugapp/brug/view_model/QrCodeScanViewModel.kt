@@ -7,15 +7,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.text.Editable
 import android.util.Log
 import android.widget.EditText
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.budiyev.android.codescanner.*
-import com.github.brugapp.brug.LOCATION_REQUEST_CODE
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.ItemsRepository
@@ -38,6 +35,13 @@ class QrCodeScanViewModel : ViewModel() {
 
     private lateinit var codeScanner: CodeScanner
 
+    /**
+     * Checks if permissions for the camera & location are granted,
+     * and asks the user for them if it is not the case.
+     *
+     * @param context the activity from which the permissions are asked
+     *
+     */
     fun checkPermissions(context: Context) {
         val permissionRequestCode = 1
         val permissions = arrayOf(
@@ -72,25 +76,42 @@ class QrCodeScanViewModel : ViewModel() {
             }
             errorCallback = ErrorCallback {
                 activity.runOnUiThread {
-                    Log.e("", "Camera initialization error: ${it.message}")
+                    Log.e("Camera initialization error:", it.message.toString())
                 }
             }
         }
     }
 
+    /**
+     * Parses the content of the scanned QR code and notifies the owner of the found item
+     * if the QR content is valid.
+     *
+     * @param qrText the content of the scanned QR code
+     * @param context the activity from which we want to have UI interaction for error messages
+     *
+     * @return the feedback message to display to the user, to put into a snackbar
+     */
     suspend fun parseTextAndCreateConv(qrText: String,
-                                       context: Activity,
-                                       firebaseAuth: FirebaseAuth,
-                                       firestore: FirebaseFirestore,
-                                       firebaseStorage: FirebaseStorage): Boolean {
-        if(qrText.isBlank() || !qrText.contains(":")){
-            return false
+                            context: Activity,
+                            firebaseAuth: FirebaseAuth,
+                            firestore: FirebaseFirestore,
+                            firebaseStorage: FirebaseStorage): String {
+
+        if(!hasPermissions(context, arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION))){
+            Log.e("PERMISSIONS ERROR", "NOT GRANTED")
+            return "ERROR: The camera and/or location permissions are not granted."
+        }
+        else if (qrText.isBlank() || !qrText.contains(":")) {
+            return "ERROR: The item ID is badly formatted or is blank."
         } else {
             val isAnonymous = firebaseAuth.currentUser == null
             val convID = createNewConversation(isAnonymous, qrText, firebaseAuth, firestore)
             return if (convID == null) {
                 if(isAnonymous) firebaseAuth.signOut()
-                false
+                "ERROR: The user/item don't exist, or you already notified the user for this object."
             } else {
                 val senderName = if(isAnonymous) "Anonymous User" else "Me"
                 getLocationAndNotifyUser(
@@ -104,7 +125,7 @@ class QrCodeScanViewModel : ViewModel() {
                     firebaseStorage
                 )
                 if(isAnonymous) firebaseAuth.signOut()
-                true
+                "Thank you ! The user will be notified."
             }
         }
     }
@@ -123,7 +144,6 @@ class QrCodeScanViewModel : ViewModel() {
             )
         }
 
-
         val userID = qrText.split(":")[0]
 
         val response = ConvRepository.addNewConversation(
@@ -138,7 +158,7 @@ class QrCodeScanViewModel : ViewModel() {
     }
 
     @SuppressLint("MissingPermission")
-    fun getLocationAndNotifyUser(
+    private fun getLocationAndNotifyUser(
         senderName: String,
         convID: String,
         authUID: String,
@@ -150,9 +170,6 @@ class QrCodeScanViewModel : ViewModel() {
     ) {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-        if (isLocationPermissionsDenied(context)) {
-            requestLocationPermissions(context)
-        }
 
         fusedLocationClient.lastLocation.addOnSuccessListener { lastKnownLocation: Location? ->
             if (lastKnownLocation != null) {
@@ -204,6 +221,7 @@ class QrCodeScanViewModel : ViewModel() {
             viewModelScope.launch {
                 MessageRepository.addMessageToConv(
                     message,
+                    true,
                     authUID,
                     convID,
                     firestore,
@@ -228,26 +246,6 @@ class QrCodeScanViewModel : ViewModel() {
         ).onSuccess
     }
 
-    private fun requestLocationPermissions(context: Activity) {
-        ActivityCompat.requestPermissions(
-            context, arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ), LOCATION_REQUEST_CODE
-        )
-    }
-
-    private fun isLocationPermissionsDenied(context: Activity): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) != PackageManager.PERMISSION_GRANTED
-
-    }
-
     fun startPreview() {
         codeScanner.startPreview()
     }
@@ -255,6 +253,5 @@ class QrCodeScanViewModel : ViewModel() {
     fun releaseResources() {
         codeScanner.releaseResources()
     }
-
 
 }

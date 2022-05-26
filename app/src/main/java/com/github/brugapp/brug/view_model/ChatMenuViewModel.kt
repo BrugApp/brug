@@ -23,11 +23,11 @@ private const val CHAT_ERROR_TEXT = "ERROR: Unable to save your changes remotely
  * ViewModel of the Chat Menu UI, handling its UI logic.
  */
 class ChatMenuViewModel : ViewModel() {
+
     fun setCallback(
         activity: AppCompatActivity,
         isTest: Boolean,
-        dragPair: Pair<Int, Int>,
-        swipePair: Pair<Drawable, Int>,
+        onSwipeLayoutPair: Pair<Drawable, Int>,
         listAdapterPair: Pair<MutableList<Conversation>, ConversationListAdapter>,
         firebaseAuth: FirebaseAuth,
         firestore: FirebaseFirestore
@@ -35,9 +35,7 @@ class ChatMenuViewModel : ViewModel() {
         val listView = activity.findViewById<RecyclerView>(R.id.chat_listview)
 
         return ListCallback(
-            CHAT_CHECK_TEXT,
-            dragPair,
-            swipePair,
+            onSwipeLayoutPair,
             listAdapterPair
         ) { delConv, position ->
             Log.e("CONVDELETECHECK", delConv.lastMessage?.body.toString())

@@ -13,6 +13,7 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.di.sign_in.AuthDatabase
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.di.sign_in.SignInClient
@@ -23,6 +24,7 @@ import com.github.brugapp.brug.di.sign_in.module.SignInClientModule
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
+import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -136,7 +138,9 @@ class SignInActivityTestFake {
 
     @Test
     fun signInActivitySignsOutCorrectlyFromSettings() {
-
+        BrugDataCache.setUserInCache(
+            User("DUMMYUID", "SIGNINTEST", "USER", null, mutableListOf())
+        )
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         runBlocking{
             firebaseAuth.signInWithEmailAndPassword(
