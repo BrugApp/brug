@@ -9,6 +9,8 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.Intents.intended
+import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.R
@@ -115,6 +117,24 @@ class NavigationToItemTest {
             Espresso.onView(ViewMatchers.withId(R.id.stop)).check(
                 ViewAssertions.matches(ViewMatchers.isDisplayed())
             )
+        }
+    }
+
+    @Test
+    fun clickingOnStopStopsNavigationAndGoesBackToMapBoxActivity() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, NavigationToItemActivity::class.java).apply {
+            putExtra(EXTRA_DESTINATION_LATITUDE, MICROSOFT_COORDINATES.first)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, MICROSOFT_COORDINATES.second)
+            putExtra(EXTRA_NAVIGATION_MODE, DirectionsCriteria.PROFILE_DRIVING)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            Thread.sleep(10000)
+            Espresso.onView(ViewMatchers.withId(R.id.start_navigation_button)).perform(ViewActions.click())
+            Thread.sleep(10000)
+            Espresso.onView(ViewMatchers.withId(R.id.stop)).perform(ViewActions.click())
+            Thread.sleep(10000)
+            intended(IntentMatchers.hasComponent(MapBoxActivity::class.java.name))
         }
     }
 
