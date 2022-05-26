@@ -58,6 +58,12 @@ class QrCodeScanViewModel : ViewModel() {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
     }
 
+    /**
+     * Initializes the scanner and sets the callback for the scanner.
+     *
+     * @param context the activity from which the scanner is initialized
+     *
+     */
     fun codeScanner(activity: Activity) {
         val scannerView = activity.findViewById<CodeScannerView>(R.id.scanner_view)
         codeScanner = CodeScanner(activity.applicationContext, scannerView)
@@ -246,10 +252,16 @@ class QrCodeScanViewModel : ViewModel() {
         ).onSuccess
     }
 
+    /**
+    * starts the camera
+    */
     fun startPreview() {
         codeScanner.startPreview()
     }
 
+    /**
+     * releases the camera when the activity is destroyed or the app is closed/paused
+    */
     fun releaseResources() {
         codeScanner.releaseResources()
     }
