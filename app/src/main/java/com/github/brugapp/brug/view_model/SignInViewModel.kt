@@ -9,6 +9,7 @@ import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.*
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
@@ -51,12 +52,12 @@ class SignInViewModel @Inject constructor(
             "unlost.app@gmail.com",
             "123456"
         ).await()
-
+auth
         if (firebaseAuthResponse.user != null) {
             return UserRepository.addUserFromAccount(
                 firebaseAuthResponse.user!!.uid,
                 BrugSignInAccount("Unlost", "DemoUser", "", ""),
-                false,
+        false,
                 firestore
             ).onSuccess
         }
@@ -127,9 +128,11 @@ class SignInViewModel @Inject constructor(
         val settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isEnabled = settings.getBoolean("nightMode", false)
 
-        if (isEnabled) {
+
+        if(isEnabled) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        } else {
+        }
+        else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
     }

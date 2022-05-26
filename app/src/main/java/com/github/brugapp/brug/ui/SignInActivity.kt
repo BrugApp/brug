@@ -46,8 +46,12 @@ class SignInActivity : AppCompatActivity() {
 
         viewModel.checkNightMode(this)
 
+
+       
+
         findViewById<Button>(R.id.nfc_found_btn).setOnClickListener {
             val myIntent = Intent(this, NFCScannerActivity::class.java)
+
             startActivity(myIntent)
         }
 
