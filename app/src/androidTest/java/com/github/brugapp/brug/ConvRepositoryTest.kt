@@ -152,9 +152,9 @@ class ConvRepositoryTest {
         assertThat(firebaseAuth.currentUser, IsNot(IsNull.nullValue()))
         assertThat(firebaseAuth.currentUser!!.uid, IsEqual(authUser!!.uid))
         val dummyDate = DateService.fromLocalDateTime(
-        LocalDateTime.of(
-            2022, Month.MARCH, 23, 15, 30
-        )
+            LocalDateTime.of(
+                2022, Month.MARCH, 23, 15, 30
+            )
         )
         val message = Message("BigBoy",dummyDate,"Wagwan")//why the test fails if I use this?
 
@@ -176,13 +176,14 @@ class ConvRepositoryTest {
 
         assertThat(
             MessageRepository.addMessageToConv(
-            picMessage,
-            USER_ID1,
-            "${USER_ID1}${USER_ID2}",
-            firestore,
-            firebaseAuth,
-            firebaseStorage
-        ).onSuccess, IsEqual(true))
+                picMessage,
+                true,
+                USER_ID1,
+                "${USER_ID1}${USER_ID2}",
+                firestore,
+                firebaseAuth,
+                firebaseStorage
+            ).onSuccess, IsEqual(true))
 
         ConvRepository.getRealtimeConvsFromUID(
             USER_ID1,

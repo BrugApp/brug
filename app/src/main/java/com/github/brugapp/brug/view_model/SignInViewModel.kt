@@ -1,6 +1,9 @@
 package com.github.brugapp.brug.view_model
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
@@ -24,6 +27,8 @@ class SignInViewModel @Inject constructor(
     private val credentialGetter: SignInCredentialGetter,
 ) : ViewModel() {
 
+    private val PREFS_NAME = "unlostPrefs"
+
     /**
      * Getter for the sign-in intent.
      * @return Intent the sign in intent
@@ -35,7 +40,7 @@ class SignInViewModel @Inject constructor(
     /**
      * Creates a demo user account in the database, if it is not already present.
      *
-     * @return Boolean value denoting the state of the sign in procedure (true if successfull, false otherwise)
+     * @return Boolean value denoting the state of the sign in procedure (true if successful, false otherwise)
      */
     suspend fun goToDemoMode(
         firestore: FirebaseFirestore,
@@ -44,9 +49,10 @@ class SignInViewModel @Inject constructor(
     ): Boolean {
         val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
             "unlost.app@gmail.com",
-            "123456").await()
+            "123456"
+        ).await()
 
-        if(firebaseAuthResponse.user != null){
+        if (firebaseAuthResponse.user != null) {
             return UserRepository.addUserFromAccount(
                 firebaseAuthResponse.user!!.uid,
                 BrugSignInAccount("Unlost", "DemoUser", "", ""),
@@ -78,19 +84,25 @@ class SignInViewModel @Inject constructor(
         val userID = getAuth().signInWithCredential(credential) ?: return false
 
         // Finally, add the account if it isn't already in the database
-        return UserRepository.addUserFromAccount(
+        val result = UserRepository.addUserFromAccount(
             userID,
             account,
             false,
             firestore
         ).onSuccess
+
+        if(result){
+            val user = UserRepository.getUserFromUID(userID, firestore, firebaseAuth, firebaseStorage) ?: return false
+            BrugDataCache.setUserInCache(user)
+        }
+        return result
     }
 
     /**
      * Performs a sign out operation on the currently connected Firebase account.
      */
     suspend fun signOut(firestore: FirebaseFirestore) {
-        if(auth.uid != null){
+        if (auth.uid != null) {
             val deviceToken = FirebaseMessaging.getInstance().token.await()
             UserRepository.deleteDeviceTokenFromUser(
                 auth.uid!!,
@@ -108,6 +120,18 @@ class SignInViewModel @Inject constructor(
         BrugDataCache.resetCachedItems()
         BrugDataCache.resetCachedConversations()
         BrugDataCache.resetCachedMessagesLists()
+
+    }
+
+    fun checkNightMode(activity: Activity) {
+        val settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val isEnabled = settings.getBoolean("nightMode", false)
+
+        if (isEnabled) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        }
     }
 
     fun getAuth(): AuthDatabase {

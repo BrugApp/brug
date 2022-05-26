@@ -14,17 +14,21 @@ import androidx.test.espresso.matcher.ViewMatchers.withHint
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.ui.ChatMenuActivity
 import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.github.brugapp.brug.ui.SignInActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +45,20 @@ class QrCodeScannerActivityTest {
     @get:Rule
     var qrCodeScannerActivityRule = ActivityScenarioRule(QrCodeScannerActivity::class.java)
 
+    @get:Rule
+    val permissionRuleCoarseLocation: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+
+    @get:Rule
+    val permissionRuleFineLocation: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+
+    @get:Rule
+    val permissionRuleCamera: GrantPermissionRule =
+        GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
 
     @Before
     fun setUp(){
@@ -51,6 +68,9 @@ class QrCodeScannerActivityTest {
     @After
     fun cleanUp(){
         Intents.release()
+        if(firebaseAuth.currentUser != null){
+            firebaseAuth.signOut()
+        }
     }
 
     @Test
@@ -102,10 +122,50 @@ class QrCodeScannerActivityTest {
 
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("$userID:$itemID"))
+        closeSoftKeyboard()
         onView(withId(R.id.buttonReportItem)).perform(scrollTo(), click())
         Thread.sleep(3000)
         intended(
             IntentMatchers.hasComponent(SignInActivity::class.java.name)
+        )
+    }
+
+
+    @Test
+    fun reportWithValidQRStringAsValidUserGoesToChatMenuActivity(){
+        val userID = "woinaoxkqiuwhhweanh01109u921lk"
+        val itemID = "993uwjwjaiuhiu"
+        runBlocking {
+            firebaseAuth.createUserWithEmailAndPassword("qrscanrealuser@test.com", "123456").await()
+            firebaseAuth.signInWithEmailAndPassword("qrscanrealuser@test.com", "123456").await()
+            UserRepository.addUserFromAccount(
+                firebaseAuth.uid!!,
+                BrugSignInAccount("MYNEW", "USER", "", ""),
+                true,
+                firestore
+            )
+
+            UserRepository.addUserFromAccount(
+                userID,
+                BrugSignInAccount("Test", "User", "", ""),
+                true,
+                firestore
+            )
+
+            ItemsRepository.addItemWithItemID(
+                Item("DummyItem", 0, "DummyDesc", true),
+                itemID,
+                userID,
+                firestore
+            )
+        }
+
+        val editTextItem = onView(withId(R.id.edit_message))
+        editTextItem.perform(replaceText("$userID:$itemID"))
+        onView(withId(R.id.buttonReportItem)).perform(scrollTo(), click())
+        Thread.sleep(3000)
+        intended(
+            IntentMatchers.hasComponent(ChatMenuActivity::class.java.name)
         )
     }
 

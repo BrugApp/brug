@@ -9,6 +9,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
+import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
@@ -25,6 +26,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import org.json.JSONArray
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URL
@@ -55,6 +57,7 @@ object MessageRepository {
      */
     suspend fun addMessageToConv(
         m: Message,
+        forLostNotification: Boolean,
         senderID: String,
         convID: String,
         firestore: FirebaseFirestore,
@@ -109,6 +112,21 @@ object MessageRepository {
                     "last_message_text" to m.body
                 )
             ).await()
+
+            // THEN, NOTIFY THE USER THAT A NEW MESSAGE HAS BEEN SENT,
+            // ONLY IF THE MESSAGE IS NOT ONE OF THOSE THAT ARE SENT
+            // WHEN SCANNING THE QR CODE
+            if(!forLostNotification) {
+                val otherUserID = parseConvUserNameFromID(convID, senderID)
+                val jsonArray = JSONArray(
+                    firestore.collection(USERS_DB).document(otherUserID)
+                        .collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
+                            tokenDoc.id
+                        }.toTypedArray()
+                )
+                MyFCMMessagingService.sendNotificationMessage(jsonArray, firebaseAuth.currentUser?.displayName, m.body)
+            }
+
 
             addResponse.onSuccess = true
         } catch (e: Exception) {

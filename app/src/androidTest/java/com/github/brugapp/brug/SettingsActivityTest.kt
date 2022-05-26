@@ -2,6 +2,7 @@ package com.github.brugapp.brug
 
 import android.app.Activity
 import android.app.Instrumentation
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -15,6 +16,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
@@ -30,6 +32,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import junit.framework.TestCase
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.hamcrest.Description
@@ -138,6 +141,18 @@ class SettingsActivityTest {
         cleanUp()
         setUp()
         profilePictureCanBeChanged()
+    }
+
+    @Test
+    fun toggleChangesDarkMode(){
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val settings = context.getSharedPreferences("unlostPrefs", Context.MODE_PRIVATE)
+        val previousState = settings.getBoolean("nightMode", false)
+
+        onView(ViewMatchers.withId(R.id.night_mode_toggle)).perform(click())
+
+        val state = settings.getBoolean("nightMode", false)
+        TestCase.assertEquals(previousState, !state)
     }
 
     private fun correctProfilePictureDisplayed(){

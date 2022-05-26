@@ -12,22 +12,20 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
-import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
-import com.github.brugapp.brug.model.Message
-import com.github.brugapp.brug.model.User
-import com.github.brugapp.brug.model.message_types.TextMessage
-import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
+import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -39,39 +37,19 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.time.LocalDateTime
-import java.time.Month
 
 @HiltAndroidTest
 @RunWith(AndroidJUnit4::class)
-class ChatActivityPermissionDeniedTest {
+class QrCodeScannerActivityPermissionDeniedTest {
     @get:Rule
     var rule = HiltAndroidRule(this)
 
-    private val dummyUser = User("USER1", "Rayan", "Kikou", null, mutableListOf())
-    private val dummyDate = DateService.fromLocalDateTime(
-        LocalDateTime.of(
-            2022, Month.MARCH, 23, 15, 30
-        )
-    )
-    private val conversation = Conversation(
-        "USER1USER2",
-        dummyUser,
-        Item("DummyItem", 0, "DUMMYDESC", false),
-        Message(
-            dummyUser.getFullName(), dummyDate, "TestMessage"
-        )
-    )
-
-    private val messagesList = arrayListOf(
-        TextMessage(
-            dummyUser.getFullName(), dummyDate, "TestMessage"
-        )
-    )
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
 
     // adapted from https://gist.github.com/rocboronat/65b1187a9fca9eabfebb5121d818a3c4
     private val PERMISSIONS_DIALOG_DELAY = 2000L
-    private val GRANT_BUTTON_INDEX = 1 // 0 to accept, 1 to deny
+    private var GRANT_BUTTON_INDEX = 1 // 0 to accept, 1 to deny
 
     private fun pressOnPermission(permissionNeeded: String?) {
         try {
@@ -96,25 +74,22 @@ class ChatActivityPermissionDeniedTest {
         }
     }
 
-    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    private var isFirstTime: Boolean = true
 
     @Before
-    fun setUp(){
+    fun setUp() {
         Intents.init()
-        runBlocking {
-            firebaseAuth.signInAnonymously().await()
-            UserRepository.addUserFromAccount(
-                firebaseAuth.uid!!,
-                BrugSignInAccount("CHATACTIVITYLOCATION", "DENIED", "", ""),
-                true,
-                firestore
-            )
+
+        if(isFirstTime) {
+            runBlocking {
+                firebaseAuth.createUserWithEmailAndPassword("qrpermissions@test.com","123456").await()
+            }
+            isFirstTime = false
         }
     }
 
     @After
-    fun cleanUp(){
+    fun cleanUp() {
         Intents.release()
         if(firebaseAuth.currentUser != null){
             firebaseAuth.signOut()
@@ -128,54 +103,51 @@ class ChatActivityPermissionDeniedTest {
     }
 
     @Test
-    fun locationPermissionDenied() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
+    fun denyPermissions() {
+        val userID = "DUMMYUSER"
+        val itemID = "DUMMYITEMID"
+        runBlocking {
+            firebaseAuth.signInWithEmailAndPassword("qrpermissions@test.com", "123456").await()
 
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
+            UserRepository.addUserFromAccount(
+                firebaseAuth.uid!!,
+                BrugSignInAccount("USER", "ONE", "", ""),
+                true,
+                firestore
+            )
+
+            UserRepository.addUserFromAccount(
+                userID,
+                BrugSignInAccount("QRSCAN", "CODETEST", "", ""),
+            true,
+                firestore
+            )
+
+            ItemsRepository.addItemWithItemID(
+                Item("DUMMYITEM", 0, "DESC", false),
+                itemID,
+                userID,
+                firestore
+            )
+
         }
 
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, QrCodeScannerActivity::class.java)
         ActivityScenario.launch<Activity>(intent).use {
-            Espresso.onView(ViewMatchers.withId(R.id.buttonSendLocalisation))
-                .perform(ViewActions.click())
-
             // deny permissions
+            pressOnPermission("Manifest.permission.CAMERA")
+            GRANT_BUTTON_INDEX = 2 // NEED TO CHANGE THE INDEX VALUE FOR LOCATION PERMISSIONS
             pressOnPermission("Manifest.permission.ACCESS_FINE_LOCATION")
 
-            Espresso.onView(ViewMatchers.withId(R.id.buttonSendLocalisation))
+            val editTextItem = Espresso.onView(ViewMatchers.withId(R.id.edit_message))
+            editTextItem.perform(ViewActions.replaceText("${userID}:${itemID}"))
+            Espresso.closeSoftKeyboard()
+
+            Espresso.onView(ViewMatchers.withId(R.id.buttonReportItem))
                 .perform(ViewActions.click())
 
-            // deny permissions (again)
-            pressOnPermission("Manifest.permission.ACCESS_FINE_LOCATION")
+            Thread.sleep(1000)
         }
     }
-
-    @Test
-    fun audioPermissionDenied() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
-        }
-
-        ActivityScenario.launch<Activity>(intent).use {
-            Espresso.onView(ViewMatchers.withId(R.id.recordButton))
-                .perform(ViewActions.click())
-
-            // deny permissions
-            pressOnPermission("Manifest.permission.RECORD_AUDIO")
-            pressOnPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE")
-
-            Espresso.onView(ViewMatchers.withId(R.id.recordButton))
-                .perform(ViewActions.click())
-
-            // deny permissions (again)
-            pressOnPermission("Manifest.permission.RECORD_AUDIO")
-            pressOnPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE")
-        }
-    }
-
-
 }

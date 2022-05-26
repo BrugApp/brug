@@ -3,6 +3,7 @@ package com.github.brugapp.brug.data
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
+import com.github.brugapp.brug.messaging.MyFCMMessagingService
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.services.DateService
@@ -14,6 +15,7 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
+import org.json.JSONArray
 
 private const val USERS_DB = "Users"
 private const val CONV_REFS_DB = "Conv_Refs"
@@ -44,10 +46,12 @@ object ConvRepository {
         try {
             //FIRST CHECK IF THE USERS EXIST OR NOT
             val userRef = firestore.collection(USERS_DB).document(thisUID)
-            if (!userRef.get().await().exists()) {
+            val userDoc = userRef.get().await()
+            if (!userDoc.exists()) {
                 response.onError = Exception("User doesn't exist")
                 return response
             }
+            val userName = "${userDoc["first_name"] as String} ${userDoc["last_name"] as String}"
 
             val otherUserRef = firestore.collection(USERS_DB).document(uid)
             if (!otherUserRef.get().await().exists()) {
@@ -89,6 +93,19 @@ object ConvRepository {
             // THEN ADD NEW CONV_REF ENTRY IN EACH USER'S CONV_REFS COLLECTION
             userRef.collection(CONV_REFS_DB).document(convID1).set({}).await()
             otherUserRef.collection(CONV_REFS_DB).document(convID1).set({}).await()
+
+
+            // FINALLY SEND A NOTIFICATION TO THE USER
+            val jsonArray = JSONArray(
+                otherUserRef.collection(TOKENS_DB).get().await().mapNotNull { tokenDoc ->
+                    tokenDoc.id
+                }.toTypedArray()
+            )
+            MyFCMMessagingService.sendNotificationMessage(
+                jsonArray,
+                "New Item Found",
+                "User $userName has found your item ${item.itemName} !"
+            )
 
             response.onSuccess = true
         } catch (e: Exception) {

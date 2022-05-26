@@ -57,9 +57,13 @@ class ChatMenuActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_menu)
-
-        initChatList()
-        BottomNavBar().initBottomBar(this)
+        if((intent.extras != null && intent.extras!!.containsKey(CONVERSATION_TEST_LIST_KEY)) || firebaseAuth.uid != null){
+            initChatList()
+            BottomNavBar().initBottomBar(this)
+        } else {
+            val intent = Intent(this, SignInActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     // Initializing the top-bar
@@ -114,11 +118,8 @@ class ChatMenuActivity : AppCompatActivity() {
             }
 
             listView.layoutManager = LinearLayoutManager(this)
-            val dragPair = Pair(
-                0, ItemTouchHelper.LEFT.or(ItemTouchHelper.RIGHT)
-            )
 
-            val swipePair = Pair(
+            val onSwipeLayoutPair = Pair(
                 ContextCompat.getDrawable(this, R.drawable.ic_baseline_check_circle_outline_24)!!,
                 ContextCompat.getColor(this, R.color.chat_list_resolve_BG)
             )
@@ -131,8 +132,7 @@ class ChatMenuActivity : AppCompatActivity() {
             val listCallback = viewModel.setCallback(
                 this,
                 conversationTestList != null,
-                dragPair,
-                swipePair,
+                onSwipeLayoutPair,
                 listAdapterPair,
                 firebaseAuth,
                 firestore
