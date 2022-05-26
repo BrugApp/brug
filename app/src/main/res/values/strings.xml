@@ -89,6 +89,7 @@
     <string name="content_description_close">ez</string>
     <string name="map">Map</string>
     <string name="fullscreen_description">Image displayed in fullscreen</string>
+    <string name="add_with_nfc">ADD WITH NFC</string>
     <string name="title_activity_qr_code_show">Your Item\'s QRCode</string>
     <string name="title_activity_map">Your Items\' Last Positions</string>
     <string name="title_activity_add_item">Add a New Item</string>

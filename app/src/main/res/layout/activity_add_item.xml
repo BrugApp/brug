@@ -14,21 +14,6 @@
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/AddItemText"
-            android:layout_width="120dp"
-            android:layout_height="37dp"
-            android:text="@string/new_item_text"
-            android:textAlignment="center"
-            android:textColor="#1E1D20"
-            android:textSize="24sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.463"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.022" />
-
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/itemNameContainer"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
@@ -37,10 +22,9 @@
             android:layout_marginHorizontal="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.85"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.146">
+            app:layout_constraintVertical_bias="0.117">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/itemName"
@@ -48,7 +32,8 @@
                 android:layout_height="40dp"
                 android:hint="@string/itemName"
                 android:inputType="textEmailAddress"
-                android:lines="1" />
+                android:lines="1"
+                tools:ignore="TextContrastCheck,TextContrastCheck,TouchTargetSizeCheck" />
 
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -80,6 +65,7 @@
                 android:id="@+id/itemDescription"
                 android:layout_width="match_parent"
                 android:layout_height="104dp"
+                android:autofillHints=""
                 android:ems="10"
                 android:gravity="top|start"
                 android:hint="@string/item_description"
@@ -97,17 +83,37 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/add_item_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:paddingStart="30dp"
+            android:layout_gravity="center"
+            android:background="@drawable/round_button"
             android:text="@string/addButton"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:paddingEnd="30dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.609" />
+            app:layout_constraintVertical_bias="0.609"/>
+
+        <Button
+            android:id="@+id/add_nfc_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="567dp"
+            android:text="@string/add_with_nfc"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/itemNameHelper"

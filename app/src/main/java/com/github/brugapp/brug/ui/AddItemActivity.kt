@@ -2,7 +2,10 @@ package com.github.brugapp.brug.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
 import android.text.InputFilter.LengthFilter
+import android.text.TextWatcher
+import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -15,9 +18,12 @@ import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.view_model.AddItemViewModel
+import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
+import java.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,13 +41,20 @@ class AddItemActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+    lateinit var itemDesc : EditText
+    lateinit var itemName : EditText
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_item)
 
         // ITEM NAME PART
-        val itemName = findViewById<EditText>(R.id.itemName)
         val itemNameHelper = findViewById<TextView>(R.id.itemNameHelper)
+        itemName = findViewById(R.id.itemName)
+
+        // Limiting the length of the description to DESCRIPTION_LIMIT chars
+        itemDesc = findViewById(R.id.itemDescription)
+        itemDesc.filters = arrayOf(LengthFilter(DESCRIPTION_LIMIT))
 
         // SPINNER HOLDING THE TYPES
         val itemType = findViewById<Spinner>(R.id.itemTypeSpinner)
@@ -50,11 +63,6 @@ class AddItemActivity : AppCompatActivity() {
             android.R.layout.simple_list_item_1,
             ItemType.values()
         )
-//        val spinnerHelper = findViewById<TextView>(R.id.spinnerHelper) //MAYBE USELESS
-
-        // Limiting the length of the description to DESCRIPTION_LIMIT chars
-        val itemDesc = findViewById<EditText>(R.id.itemDescription)
-        itemDesc.filters = arrayOf(LengthFilter(DESCRIPTION_LIMIT))
 
         val addButton = findViewById<Button>(R.id.add_item_button)
         addButton.setOnClickListener {
@@ -67,6 +75,30 @@ class AddItemActivity : AppCompatActivity() {
             }
             addItemOnListener(itemName, itemNameHelper, itemType, itemDesc, firebaseAuth)
         }
+
+        val addNfcButton = findViewById<Button>(R.id.add_nfc_item)
+        addNfcButton.setOnClickListener {
+            addNfcItemOnListener(itemName, itemNameHelper, itemType.selectedItemId.toInt(), itemDesc.text.toString(), firebaseAuth)
+        }
+    }
+
+    fun addNfcItemOnListener(
+        itemName: EditText,
+        itemNameHelper: TextView,
+        itemType: Int,
+        itemDesc: String,
+        firebaseAuth: FirebaseAuth
+    ) {
+        var newItemID = ""
+        if (viewModel.verifyForm(itemNameHelper, itemName)) {
+            val newItem = Item(itemName.text.toString(), itemType, itemDesc, false)
+            newItemID = UUID.randomUUID().toString().filter { char -> char!='-' }.subSequence(0,20).toString()
+            newItem.setItemID(newItemID)
+            runBlocking { ItemsRepository.addItemWithItemID(newItem, newItemID,firebaseAuth.currentUser!!.uid, firestore) }
+        }
+        val myIntent = Intent(this, NFCScannerActivity::class.java)
+        myIntent.putExtra("itemid", newItemID).putExtra("write","true")
+        startActivity(myIntent)
     }
 
     private fun addItemOnListener(
@@ -77,7 +109,6 @@ class AddItemActivity : AppCompatActivity() {
         firebaseAuth: FirebaseAuth
     ) {
         if (viewModel.verifyForm(itemNameHelper, itemName)) {
-//               user.addItemToList(newItem)
             val newItem = Item(
                 itemName.text.toString(),
                 itemType.selectedItemId.toInt(),

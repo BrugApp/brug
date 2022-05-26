@@ -7,7 +7,10 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.github.brugapp.brug.R
 
-
+/**
+ * Class of the FullScreenImage activity
+ * Used to display PicMessages in full screen
+ */
 class FullScreenImage : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

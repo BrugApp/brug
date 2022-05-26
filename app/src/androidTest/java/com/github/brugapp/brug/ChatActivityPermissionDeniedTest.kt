@@ -136,6 +136,32 @@ class ChatActivityPermissionDeniedTest {
         }
     }
 
+    @Test
+    fun audioPermissionDenied() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
+        val intent = Intent(context, ChatActivity::class.java).apply {
+            putExtra(CHAT_INTENT_KEY, conversation)
+            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
+        }
+
+        ActivityScenario.launch<Activity>(intent).use {
+            Espresso.onView(ViewMatchers.withId(R.id.recordButton))
+                .perform(ViewActions.click())
+
+            // deny permissions
+            pressOnPermission("Manifest.permission.RECORD_AUDIO")
+            pressOnPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE")
+
+            Espresso.onView(ViewMatchers.withId(R.id.recordButton))
+                .perform(ViewActions.click())
+
+            // deny permissions (again)
+            pressOnPermission("Manifest.permission.RECORD_AUDIO")
+            pressOnPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE")
+        }
+    }
+
 //    @Test
 //    fun cameraPermissionDenied() {
 //        val context = ApplicationProvider.getApplicationContext<Context>()
