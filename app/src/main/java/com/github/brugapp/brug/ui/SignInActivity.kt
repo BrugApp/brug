@@ -3,7 +3,6 @@ package com.github.brugapp.brug.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -16,8 +15,6 @@ import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
 import com.github.brugapp.brug.data.BrugDataCache
-import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.di.sign_in.DatabaseUser
 import com.github.brugapp.brug.view_model.SignInViewModel
 import com.google.android.gms.common.SignInButton
 import com.google.android.material.snackbar.Snackbar
@@ -27,7 +24,6 @@ import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -48,18 +44,20 @@ class SignInActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_in)
 
-        findViewById<Button>(R.id.nfc_found_btn).setOnClickListener{
-            val myIntent = Intent(this,NFCScannerActivity::class.java)
+        viewModel.checkNightMode(this)
+
+        findViewById<Button>(R.id.nfc_found_btn).setOnClickListener {
+            val myIntent = Intent(this, NFCScannerActivity::class.java)
             startActivity(myIntent)
         }
 
         // Set Listener for google sign in button
         findViewById<SignInButton>(R.id.sign_in_google_button).setOnClickListener {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
-            liveData(Dispatchers.IO){
+            liveData(Dispatchers.IO) {
                 emit(BrugDataCache.isNetworkAvailable())
             }.observe(this) { result ->
-                if(!result){
+                if (!result) {
                     findViewById<ProgressBar>(R.id.loadingUser).visibility = View.GONE
                     Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
                 } else {
@@ -77,17 +75,17 @@ class SignInActivity : AppCompatActivity() {
         findViewById<Button>(R.id.demo_button).setOnClickListener {
             findViewById<ProgressBar>(R.id.loadingUser).visibility = View.VISIBLE
             // ONLY FOR DEMO MODE
-            liveData(Dispatchers.IO){
+            liveData(Dispatchers.IO) {
                 emit(BrugDataCache.isNetworkAvailable())
             }.observe(this) { isConnected ->
-                if(!isConnected){
+                if (!isConnected) {
                     findViewById<ProgressBar>(R.id.loadingUser).visibility = View.GONE
                     Toast.makeText(this, ACTION_LOST_ERROR_MSG, Toast.LENGTH_LONG).show()
                 } else {
-                    liveData(Dispatchers.IO){
+                    liveData(Dispatchers.IO) {
                         emit(viewModel.goToDemoMode(firestore, firebaseAuth, firebaseStorage))
-                    }.observe(this){ result ->
-                        if(result) startActivity(Intent(this, ItemsMenuActivity::class.java))
+                    }.observe(this) { result ->
+                        if (result) startActivity(Intent(this, ItemsMenuActivity::class.java))
                         else Snackbar.make(
                             this.findViewById(android.R.id.content),
                             "ERROR: Unable to connect for demo mode", Snackbar.LENGTH_LONG
@@ -102,8 +100,8 @@ class SignInActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if(viewModel.getAuth().currentUser != null){
-            if(intent.extras != null && intent.extras!!.containsKey(EXTRA_SIGN_OUT)){
+        if (viewModel.getAuth().currentUser != null) {
+            if (intent.extras != null && intent.extras!!.containsKey(EXTRA_SIGN_OUT)) {
                 viewModel.viewModelScope.launch { viewModel.signOut(firestore) }
             } else {
                 val myIntent = Intent(this, ItemsMenuActivity::class.java)
@@ -117,10 +115,17 @@ class SignInActivity : AppCompatActivity() {
             // Handle the returned Uri
             if (it.resultCode == Activity.RESULT_OK) {
                 // CALL FUNCTION TO CREATE USER & GO TO ITEMSMENUACTIVITY
-                liveData(Dispatchers.IO){
-                    emit(viewModel.createNewBrugAccount(it.data, firestore, firebaseAuth, firebaseStorage))
-                }.observe(this){ result ->
-                    if(result) startActivity(Intent(this, ItemsMenuActivity::class.java))
+                liveData(Dispatchers.IO) {
+                    emit(
+                        viewModel.createNewBrugAccount(
+                            it.data,
+                            firestore,
+                            firebaseAuth,
+                            firebaseStorage
+                        )
+                    )
+                }.observe(this) { result ->
+                    if (result) startActivity(Intent(this, ItemsMenuActivity::class.java))
                     else Snackbar.make(
                         this.findViewById(android.R.id.content),
                         "ERROR: Unable to connect to your account", Snackbar.LENGTH_LONG

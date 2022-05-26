@@ -10,13 +10,13 @@ import com.github.brugapp.brug.ui.SettingsActivity
 
 class CustomTopBar {
 
-    fun inflateTopBar(menuInflater: MenuInflater, menu: Menu?, searchHint: String) {
+    fun inflateTopBar(menuInflater: MenuInflater, menu: Menu?) {
         menuInflater.inflate(R.menu.custom_top_bar, menu)
 
-        val searchChat = menu?.findItem(R.id.search_box)
-        val searchView = searchChat?.actionView as androidx.appcompat.widget.SearchView
-
-        searchView.queryHint = searchHint
+//        val searchChat = menu?.findItem(R.id.search_box)
+//        val searchView = searchChat?.actionView as androidx.appcompat.widget.SearchView
+//
+//        searchView.queryHint = searchHint
     }
 
     fun defineTopBarActions(item: MenuItem, currentActivity: Activity) {

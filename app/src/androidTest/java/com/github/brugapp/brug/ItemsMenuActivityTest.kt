@@ -193,8 +193,6 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
-        val device = UiDevice.getInstance(getInstrumentation())
-
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(UiSelector()
             .resourceId(LIST_ENTRY_ID)
@@ -209,8 +207,6 @@ class ItemsMenuActivityTest {
 
     @Test
     fun swipeRightOnItemDeletesItem() {
-        val device = UiDevice.getInstance(getInstrumentation())
-
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(UiSelector()
             .resourceId(LIST_ENTRY_ID)
@@ -294,13 +290,6 @@ class ItemsMenuActivityTest {
         val button = onView(withId(R.id.qrGen))
         button.perform(click())
         intended(hasComponent(QrCodeShowActivity::class.java.name))
-    }
-
-    @Test
-    fun checkIfKeyboardIsShownAfterPressingSearch() {
-        val searchButton = onView(withId(R.id.search_box))
-        searchButton.perform(click())
-        assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
     }
 
     // Companion functions

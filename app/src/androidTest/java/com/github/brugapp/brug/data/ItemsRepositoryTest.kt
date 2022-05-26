@@ -1,5 +1,5 @@
 
-package com.github.brugapp.brug
+package com.github.brugapp.brug.data
 
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.github.brugapp.brug.data.BrugDataCache
@@ -32,17 +32,9 @@ class ItemsRepositoryTest {
 
     //NEEDED SINCE @Before FUNCTIONS NEED TO BE VOID
     private fun addUserAndItem() = runBlocking {
-        UserRepository.addUserFromAccount(
-            DUMMY_UID,
-            DUMMY_ACCOUNT,
-            true,
-            firestore
-        )
-        ItemsRepository.addItemToUser(
-            ITEM,
-            DUMMY_UID,
-            firestore
-        )
+        UserRepository.addUserFromAccount(DUMMY_UID, DUMMY_ACCOUNT, true, firestore)
+        ITEM.setLastLocation(6.61,46.51)
+        ItemsRepository.addItemToUser(ITEM, DUMMY_UID, firestore)
     }
 
     private fun wipeAllItems() = runBlocking {

@@ -107,7 +107,7 @@
                         android:layout_marginStart="20dp"
                         android:fontFamily="sans-serif-light"
                         android:text=""
-                        android:textColor="#000000"
+                        style="@style/App.Text"
                         android:textSize="18sp" />
 
                     <View
@@ -140,7 +140,7 @@
                         android:layout_marginStart="20dp"
                         android:fontFamily="sans-serif-light"
                         android:text=""
-                        android:textColor="#000000"
+                        style="@style/App.Text"
                         android:textSize="18sp" />
 
                     <View
@@ -175,6 +175,7 @@
 
                     <Button
                         android:id="@+id/qrGen"
+                        style="@style/App.Button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
