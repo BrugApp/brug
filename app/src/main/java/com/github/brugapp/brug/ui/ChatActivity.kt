@@ -21,6 +21,7 @@ import com.github.brugapp.brug.*
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.MessageRepository
 import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
+import com.github.brugapp.brug.data.UserRepository.getImageUri
 import com.github.brugapp.brug.model.ChatMessagesListAdapter
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
@@ -326,8 +327,7 @@ class ChatActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
             if (requestCode == SELECT_PICTURE_REQUEST_CODE) {
-                val imageUri =
-                    data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                val imageUri = getImageUri(data)
                 viewModel.setImageUri(imageUri)
                 viewModel.sendPicMessage(this, convID, firestore, firebaseAuth, firebaseStorage)
             } else if (requestCode == TAKE_PICTURE_REQUEST_CODE) {

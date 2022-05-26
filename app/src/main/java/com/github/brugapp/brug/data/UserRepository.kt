@@ -1,10 +1,13 @@
 package com.github.brugapp.brug.data
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.util.Log
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
+import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.model.User
 import com.google.firebase.auth.FirebaseAuth
@@ -153,6 +156,17 @@ object UserRepository {
         }
 
         return response
+    }
+
+    /**
+     * Get Uri from Intent.
+     *
+     * @param data the intent to get the uri from
+     *
+     * @return Uri of the image
+     */
+    fun getImageUri(data: Intent?): Uri {
+        return data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
     }
 
     /**
