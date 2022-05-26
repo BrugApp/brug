@@ -38,8 +38,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
     lateinit var firebaseAuth: FirebaseAuth
 
     /**
-     * TODO
-     *
+     * on activity creation, we want to send the user to sign-in if anonymous else we send the user to the chat menu
      * @param savedInstanceState
      */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +47,6 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.checkPermissions(this)
         viewModel.codeScanner(this)
 
-        //TODO: REMOVE THIS HARDCODED TEXT
         findViewById<EditText>(R.id.edit_message).setText("J7jDsvME15fNKvLssZ9bezpABHn2:9m7SvfslSij6f7iplq68")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
@@ -84,8 +82,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
 
 
     /**
-     * TODO
-     *
+     * we resume the Qr scan activity
      */
     override fun onResume() {
         super.onResume()
@@ -93,8 +90,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
     }
 
     /**
-     * TODO
-     *
+     * we pause the Qr scan activity
      */
     override fun onPause() {
         viewModel.releaseResources()

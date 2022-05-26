@@ -2,10 +2,7 @@ package com.github.brugapp.brug.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
 import android.text.InputFilter.LengthFilter
-import android.text.TextWatcher
-import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -15,17 +12,16 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.model.Item
+import com.github.brugapp.brug.model.ItemType
 import com.github.brugapp.brug.view_model.AddItemViewModel
-import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.runBlocking
-import java.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import java.util.*
 import javax.inject.Inject
 
 const val DESCRIPTION_LIMIT = 60
@@ -44,11 +40,10 @@ class AddItemActivity : AppCompatActivity() {
 
     /**
      * when creating the addItemActivity we make 2 buttons: one for nfc, one without
-     *
      * @param savedInstanceState
      */
 
-    lateinit var itemDesc : EditText
+    private lateinit var itemDesc : EditText
     lateinit var itemName : EditText
 
 
@@ -92,15 +87,14 @@ class AddItemActivity : AppCompatActivity() {
 
 
     /**
-     * the nfc button generates new itemid for linked item on click
-     *
+     * the nfc button generates new item id for linked item on click
      * @param itemName
      * @param itemNameHelper
      * @param itemType
      * @param itemDesc
      * @param firebaseAuth
      */
-    fun addNfcItemOnListener(
+    private fun addNfcItemOnListener(
 
         itemName: EditText,
         itemNameHelper: TextView,
@@ -122,7 +116,6 @@ class AddItemActivity : AppCompatActivity() {
 
     /**
      * we create and add item to current user's inventory
-     *
      * @param itemName
      * @param itemNameHelper
      * @param itemType
@@ -156,5 +149,4 @@ class AddItemActivity : AppCompatActivity() {
             startActivity(myIntent)
         }
     }
-
 }
