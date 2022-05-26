@@ -12,7 +12,6 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObjectNotFoundException
@@ -31,13 +30,12 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 import java.time.LocalDateTime
 import java.time.Month
 
 @HiltAndroidTest
-@RunWith(AndroidJUnit4::class)
-class ChatActivityPermissionDeniedTest {
+class ChatActivityCameraPermissionsTest {
+
     @get:Rule
     var rule = HiltAndroidRule(this)
 
@@ -113,7 +111,7 @@ class ChatActivityPermissionDeniedTest {
     }
 
     @Test
-    fun locationPermissionDenied() {
+    fun cameraPermissionDenied() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
         val intent = Intent(context, ChatActivity::class.java).apply {
@@ -122,45 +120,17 @@ class ChatActivityPermissionDeniedTest {
         }
 
         ActivityScenario.launch<Activity>(intent).use {
-            Espresso.onView(ViewMatchers.withId(R.id.buttonSendLocalisation))
+            Espresso.onView(ViewMatchers.withId(R.id.buttonSendImagePerCamera))
                 .perform(ViewActions.click())
 
             // deny permissions
-            pressOnPermission("Manifest.permission.ACCESS_FINE_LOCATION")
+            pressOnPermission("Manifest.permission.CAMERA")
 
-            Espresso.onView(ViewMatchers.withId(R.id.buttonSendLocalisation))
+            Espresso.onView(ViewMatchers.withId(R.id.buttonSendImagePerCamera))
                 .perform(ViewActions.click())
 
             // deny permissions (again)
-            pressOnPermission("Manifest.permission.ACCESS_FINE_LOCATION")
+            pressOnPermission("Manifest.permission.CAMERA")
         }
     }
-
-    @Test
-    fun audioPermissionDenied() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
-        }
-
-        ActivityScenario.launch<Activity>(intent).use {
-            Espresso.onView(ViewMatchers.withId(R.id.recordButton))
-                .perform(ViewActions.click())
-
-            // deny permissions
-            pressOnPermission("Manifest.permission.RECORD_AUDIO")
-            pressOnPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE")
-
-            Espresso.onView(ViewMatchers.withId(R.id.recordButton))
-                .perform(ViewActions.click())
-
-            // deny permissions (again)
-            pressOnPermission("Manifest.permission.RECORD_AUDIO")
-            pressOnPermission("Manifest.permission.WRITE_EXTERNAL_STORAGE")
-        }
-    }
-
-
 }
