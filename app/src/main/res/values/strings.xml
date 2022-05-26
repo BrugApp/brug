@@ -101,4 +101,5 @@
     <string name="title_activity_nfc">Scan an NFC Tag</string>
     <string name="title_activity_item_information">Item Information</string>
     <string name="title_navigation_to_item_activity">Navigate To Your Item</string>
+    <string name="edit_profile">Edit Profile</string>
 </resources>
