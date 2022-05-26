@@ -117,7 +117,7 @@ class SettingsActivityTest {
         signInTestAccount()
         val intent =
             Intent(ApplicationProvider.getApplicationContext(), SettingsActivity::class.java)
-        ActivityScenario.launch<Activity>(intent)
+        ActivityScenario.launch<SettingsActivity>(intent)
     }
 
     @After
@@ -129,14 +129,12 @@ class SettingsActivityTest {
     @Test
     fun correctNameIsDisplayed() {
         val name: String = TEST_USERNAME
-        Thread.sleep(3000)
         onView(ViewMatchers.withId(R.id.settingsUserName))
             .check(ViewAssertions.matches(ViewMatchers.withText(name)))
     }
 
     @Test
     fun initProfilePictureAndChange(){
-        Thread.sleep(3000)
         correctProfilePictureDisplayed()
         cleanUp()
         setUp()
@@ -156,7 +154,6 @@ class SettingsActivityTest {
     }
 
     private fun correctProfilePictureDisplayed(){
-        Thread.sleep(3000)
         onView(ViewMatchers.withId(R.id.settingsUserPic))
             .check(ViewAssertions.matches(withDrawable(R.mipmap.ic_launcher_round)))
     }
