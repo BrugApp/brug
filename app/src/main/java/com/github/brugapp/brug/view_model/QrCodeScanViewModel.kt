@@ -7,14 +7,12 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.text.Editable
 import android.util.Log
 import android.widget.EditText
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.budiyev.android.codescanner.*
-import com.github.brugapp.brug.LOCATION_REQUEST_CODE
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ConvRepository
 import com.github.brugapp.brug.data.ItemsRepository
@@ -77,6 +75,15 @@ class QrCodeScanViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Parses the content of the scanned QR code and notifies the owner of the found item
+     * if the QR content is valid.
+     *
+     * @param qrText the content of the scanned QR code
+     * @param context the activity from which we want to have UI interaction for error messages
+     *
+     * @return the feedback message to display to the user, to put into a snackbar
+     */
     suspend fun parseTextAndCreateConv(qrText: String,
                             context: Activity,
                             firebaseAuth: FirebaseAuth,

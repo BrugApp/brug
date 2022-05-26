@@ -122,6 +122,7 @@ class QrCodeScannerActivityTest {
 
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("$userID:$itemID"))
+        closeSoftKeyboard()
         onView(withId(R.id.buttonReportItem)).perform(scrollTo(), click())
         Thread.sleep(3000)
         intended(

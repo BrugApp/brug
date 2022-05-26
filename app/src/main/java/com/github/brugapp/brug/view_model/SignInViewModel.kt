@@ -35,7 +35,7 @@ class SignInViewModel @Inject constructor(
     /**
      * Creates a demo user account in the database, if it is not already present.
      *
-     * @return Boolean value denoting the state of the sign in procedure (true if successfull, false otherwise)
+     * @return Boolean value denoting the state of the sign in procedure (true if successful, false otherwise)
      */
     suspend fun goToDemoMode(
         firestore: FirebaseFirestore,
