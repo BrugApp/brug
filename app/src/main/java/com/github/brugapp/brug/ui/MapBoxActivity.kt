@@ -33,8 +33,13 @@ import com.mapbox.maps.plugin.annotation.annotations
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationManager
 import com.mapbox.maps.plugin.annotation.generated.PointAnnotationOptions
 import com.mapbox.maps.plugin.annotation.generated.createPointAnnotationManager
+import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.viewannotation.ViewAnnotationManager
 import com.mapbox.maps.viewannotation.viewAnnotationOptions
+import com.mapbox.navigation.base.options.NavigationOptions
+import com.mapbox.navigation.core.MapboxNavigationProvider
+import com.mapbox.navigation.ui.maps.camera.state.NavigationCameraState
 import com.mapbox.navigation.ui.utils.internal.extensions.getBitmap
 import dagger.hilt.android.AndroidEntryPoint
 import java.lang.ref.WeakReference
@@ -47,9 +52,11 @@ const val EXTRA_NAVIGATION_MODE = "com.github.brugapp.brug.NAVIGATION_MODE"
 
 @AndroidEntryPoint
 class MapBoxActivity : AppCompatActivity() {
-    private var lon = -122.07131270212334
-    private var lat = 37.411793498806624
-    private var zoom = 9.0
+    private var currentLon = -36.436588
+    private var currentLat = 39.038628
+    private var cameraLon = -36.436588
+    private var cameraLat = 39.038628
+    private var zoom = 1.0
 
     private lateinit var locationPermissionHelper: LocationPermissionHelper
 
@@ -72,15 +79,31 @@ class MapBoxActivity : AppCompatActivity() {
         pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
         viewAnnotationManager = binding.mapView.viewAnnotationManager
 
-
         setContentView(binding.root)
+
+        binding.mapView.location.apply {
+            enabled = true
+        }
+
+        binding.mapView.location.addOnIndicatorPositionChangedListener {
+            currentLon = it.longitude()
+            currentLat = it.latitude()
+        }
+
+        binding.recenter.setOnClickListener {
+            binding.mapView.getMapboxMap()
+                .setCamera(CameraOptions.Builder().center(Point.fromLngLat(currentLon, currentLat))
+                .zoom(9.0)
+                .build())
+            binding.mapView.gestures.focalPoint = binding.mapView.getMapboxMap().pixelForCoordinate(Point.fromLngLat(currentLon, currentLat))
+        }
 
         if (intent.extras != null) {
             (intent.extras!!.get(EXTRA_DESTINATION_LATITUDE) as Double?)?.apply {
-                lat = this
+                cameraLat = this
             }
             (intent.extras!!.get(EXTRA_DESTINATION_LONGITUDE) as Double?)?.apply {
-                lon = this
+                cameraLon = this
             }
             (intent.extras!!.get(EXTRA_MAP_ZOOM) as Double?)?.apply {
                 zoom = this
@@ -93,10 +116,14 @@ class MapBoxActivity : AppCompatActivity() {
         }
     }
 
+
+
+
+
     private fun onMapReady() {
         binding.mapView.getMapboxMap().setCamera(
-            CameraOptions.Builder().center(Point.fromLngLat(lon, lat))
-                .zoom( zoom)
+            CameraOptions.Builder().center(Point.fromLngLat(cameraLon, cameraLat))
+                .zoom(zoom)
                 .build()
         )
         binding.mapView.getMapboxMap().loadStyleUri(
@@ -138,7 +165,6 @@ class MapBoxActivity : AppCompatActivity() {
                                 .withIconImage(it)
                                 .withIconSize(2.0)
                                 .withIconAnchor(IconAnchor.CENTER)
-                                .withDraggable(true)
                         val pointAnnotation = pointAnnotationManager.create(pointAnnotationOptions)
 
                         val viewAnnotation = viewAnnotationManager.addViewAnnotation(
