@@ -12,13 +12,16 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
+import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -90,24 +93,35 @@ class SettingsActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun setPicAndName() = runBlocking{
+    private fun setPicAndName() {
         val pic = findViewById<ImageView>(R.id.settingsUserPic)
         val name = findViewById<TextView>(R.id.settingsUserName)
 
-        val user = UserRepository.getUserFromUID(
-            firebaseAuth.currentUser!!.uid,
-            firestore,
-            firebaseAuth,
-            firebaseStorage
-        )
+        liveData(Dispatchers.IO) {
+            emit(
+                UserRepository.getUserFromUID(
+                    firebaseAuth.currentUser!!.uid,
+                    firestore,
+                    firebaseAuth,
+                    firebaseStorage
+                )
+            )
+        }.observe(this) { resultUser ->
+            if(resultUser != null){
+                BrugDataCache.setUserInCache(resultUser)
+            } else {
+                Snackbar.make(
+                    findViewById(android.R.id.content),
+                    "ERROR: User cannot be retrieved !", Snackbar.LENGTH_LONG
+                ).show()
+            }
+        }
 
-        if (user == null) {
-            Snackbar.make(findViewById(android.R.id.content),
-                "ERROR: User cannot be retrieved !", Snackbar.LENGTH_LONG)
-                .show()
-
-        } else {
-            val profilePicDrawable = Drawable.createFromPath(user.getUserIconPath())
+        BrugDataCache.getCachedUser().observe(this) { user ->
+            val userIcon = user?.getUserIconPath()
+            val profilePicDrawable = if(userIcon != null){
+                Drawable.createFromPath(userIcon)
+            } else null
 
             if (profilePicDrawable != null) {
                 pic.setImageDrawable(resize(profilePicDrawable))
@@ -115,9 +129,8 @@ class SettingsActivity : AppCompatActivity() {
                 pic.setImageResource(R.mipmap.ic_launcher_round)
             }
 
-            name.text = user.getFullName()
+            name.text = user?.getFullName()
         }
-
     }
 
     private fun signOut() {

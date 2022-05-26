@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.ui.ITEMS_DELETE_TEXT
@@ -15,7 +14,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
-
 
 private const val ITEMS_ERROR_TEXT = "ERROR: Unable to save your changes remotely. Try again later."
 
@@ -27,8 +25,7 @@ class ItemsMenuViewModel : ViewModel() {
     fun setCallback(
         activity: AppCompatActivity,
         isTest: Boolean,
-        dragPair: Pair<Int, Int>,
-        swipePair: Pair<Drawable, Int>,
+        onSwipeLayoutPair: Pair<Drawable, Int>,
         listAdapterPair: Pair<MutableList<Item>, ItemsListAdapter>,
         firebaseAuth: FirebaseAuth,
         firestore: FirebaseFirestore
@@ -37,9 +34,7 @@ class ItemsMenuViewModel : ViewModel() {
         val listView = activity.findViewById<RecyclerView>(R.id.items_listview)
 
         return ListCallback(
-            ITEMS_DELETE_TEXT,
-            dragPair,
-            swipePair,
+            onSwipeLayoutPair,
             listAdapterPair
         ) { deletedItem, position ->
             if(!isTest){

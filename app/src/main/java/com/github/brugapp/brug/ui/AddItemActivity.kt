@@ -90,6 +90,7 @@ class AddItemActivity : AppCompatActivity() {
         }
     }
 
+
     /**
      * the nfc button generates new itemid for linked item on click
      *
@@ -100,6 +101,7 @@ class AddItemActivity : AppCompatActivity() {
      * @param firebaseAuth
      */
     fun addNfcItemOnListener(
+
         itemName: EditText,
         itemNameHelper: TextView,
         itemType: Int,

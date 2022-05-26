@@ -124,41 +124,35 @@ class ChatViewModel : ViewModel() {
         adapter.notifyItemInserted(messages.size - 1)
         activity.scrollToBottom(adapter.itemCount - 1)
 
-        if (firebaseAuth.currentUser == null) {
-            Snackbar.make(
-                activity.findViewById(android.R.id.content),
-                "ERROR: You are no longer logged in ! Log in again to send the message.",
-                Snackbar.LENGTH_LONG
-            ).show()
-        } else {
-            liveData(Dispatchers.IO) {
-                emit(BrugDataCache.isNetworkAvailable())
-            }.observe(activity){ status ->
-                if(!status) {
-                    Toast.makeText(activity, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
-                }
-                else {
-                    viewModelScope.launch {
-                        val error = if(firebaseAuth.currentUser!!.displayName != null){
-                            MessageRepository.addMessageToConv(
-                                message,
-                                firebaseAuth.uid!!,
-                                convID,
-                                firestore,
-                                firebaseAuth,
-                                firebaseStorage
-                            ).onError
-                        } else Exception("ERROR: The user name isn't available, aborting.")
+        viewModelScope.launch(Dispatchers.IO) {
+            if (firebaseAuth.currentUser == null) {
+                Snackbar.make(
+                    activity.findViewById(android.R.id.content),
+                    "ERROR: You are no longer logged in ! Log in again to send the message.",
+                    Snackbar.LENGTH_LONG
+                ).show()
+            } else if (!BrugDataCache.isNetworkAvailable()) {
+                Toast.makeText(activity, NETWORK_ERROR_MSG, Toast.LENGTH_LONG).show()
+            } else {
+                val error = if(firebaseAuth.currentUser!!.displayName != null){
+                    MessageRepository.addMessageToConv(
+                        message,
+                        false,
+                        firebaseAuth.uid!!,
+                        convID,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    ).onError
+                } else Exception("ERROR: The user name isn't available, aborting.")
 
-                        if(error != null){
-                            Log.e("FIREBASE ERROR", error.message.toString())
-                            Snackbar.make(
-                                activity.findViewById(android.R.id.content),
-                                "ERROR: Unable to register the new message in the database",
-                                Snackbar.LENGTH_LONG
-                            ).show()
-                        }
-                    }
+                if(error != null){
+                    Log.e("FIREBASE ERROR", error.message.toString())
+                    Snackbar.make(
+                        activity.findViewById(android.R.id.content),
+                        "ERROR: Unable to register the new message in the database",
+                        Snackbar.LENGTH_LONG
+                    ).show()
                 }
             }
         }
@@ -511,10 +505,10 @@ class ChatViewModel : ViewModel() {
 
     // PERMISSIONS RELATED =======================================================
     /**
-     * TODO @MOUNIR
+     * Asks the user to grant a set of permissions.
      *
-     * @param context
-     * @param permissions
+     * @param context the activity from which the permissions are requested
+     * @param permissions the set of permissions to ask for
      */
     fun requestPermissions(context: Context, permissions: Array<String>) {
         val permissionRequestCode = 1 // REQUESTS FOR ALL NON-SET PERMISSIONS IN THE permissions ARRAY
@@ -522,11 +516,11 @@ class ChatViewModel : ViewModel() {
     }
 
     /**
-     * TODO @MOUNIR
+     * Checks if a set of permissions have been granted or not.
      *
-     * @param context
-     * @param permissions
-     * @return
+     * @param context the activity from which the permissions check is requested
+     * @param permissions the set of permissions to ask for
+     * @return true if all permissions in the given set were granted, false otherwise
      */
     fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED

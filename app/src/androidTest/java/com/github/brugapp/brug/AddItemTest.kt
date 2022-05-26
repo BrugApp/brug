@@ -112,20 +112,26 @@ class AddItemTest {
         Intents.release()
         wipeItemsAndSignOut()
     }
-/*  works locally
+
     @Test
     fun addNfcItem(){
         val validName = "Don't know"
         val itemName = onView(withId(R.id.itemName))
         itemName.perform(typeText(validName))
         itemName.perform(closeSoftKeyboard())
-        val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
-        itemTypeSpinner.perform(click())
-        onData(anything()).atPosition(ItemType.Other.ordinal).perform(click())
-        onView(withId(R.id.add_nfc_item)).perform(click())
+
+
+        onView(withId(R.id.add_nfc_item)).perform(scrollTo(), click())
+
+
+        Intents.intended(
+            allOf(
+                hasComponent(NFCScannerActivity::class.java.name)
+            )
+        )
 //        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_add_24))
     }
- */
+
 
 
     @Test
@@ -173,7 +179,7 @@ class AddItemTest {
         val expectedHelperText = "Name must contain at least 1 character"
 
         val addButton = onView(withId(R.id.add_item_button))
-        addButton.perform(click())
+        addButton.perform(scrollTo(), click())
 
         // Verify that the Helper text changed after invalid name, and hence we are still in the AddItem activity
         nameHelperText.check(matches(withText(expectedHelperText)))
@@ -190,7 +196,7 @@ class AddItemTest {
            in order not to get a SecurityException
         */
         itemName.perform(closeSoftKeyboard())
-        onView(withId(R.id.add_item_button)).perform(click())
+        onView(withId(R.id.add_item_button)).perform(scrollTo(), click())
 
         // Verify that the app goes to the Item List activity if the User enters valid info for his/her new item.
         Intents.intended(
@@ -281,7 +287,7 @@ class AddItemTest {
         onView(withId(R.id.add_item_button)).perform(click())
 //        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_smartphone_24))
     }
-/*  local test works
+
     @Test
     fun addOtherCorrectIcon(){
         val validName = "Dunno"
@@ -291,9 +297,9 @@ class AddItemTest {
         val itemTypeSpinner = onView(withId(R.id.itemTypeSpinner))
         itemTypeSpinner.perform(click())
         onData(anything()).atPosition(ItemType.Other.ordinal).perform(click())
-        onView(withId(R.id.add_nfc_item)).perform(click())
+        onView(withId(R.id.add_item_button)).perform(click())
 //        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_add_24))
-    }*/
+    }
 
 
     // TO MATCH IMAGES INSIDE ITEM LIST

@@ -14,7 +14,7 @@ class BrugAppTest {
     val rule = HiltAndroidRule(this)
 
     @Test
-    fun lauchingBrugAppDoesNotCrashTest() {
+    fun launchingBrugAppDoesNotCrashTest() {
           BrugApp()
     }
 

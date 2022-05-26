@@ -1,15 +1,17 @@
 package com.github.brugapp.brug.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.databinding.ActivityNavigationToItemBinding
 import com.mapbox.api.directions.v5.DirectionsCriteria
@@ -22,9 +24,7 @@ import com.mapbox.maps.EdgeInsets
 import com.mapbox.maps.MapView
 import com.mapbox.maps.MapboxMap
 import com.mapbox.maps.Style
-import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
-import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.navigation.base.TimeFormat
 import com.mapbox.navigation.base.extensions.applyDefaultNavigationOptions
@@ -37,7 +37,6 @@ import com.mapbox.navigation.core.directions.session.RoutesObserver
 import com.mapbox.navigation.core.formatter.MapboxDistanceFormatter
 import com.mapbox.navigation.core.replay.MapboxReplayer
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
-import com.mapbox.navigation.core.replay.history.ReplaySetNavigationRoute
 import com.mapbox.navigation.core.replay.route.ReplayProgressObserver
 import com.mapbox.navigation.core.replay.route.ReplayRouteMapper
 import com.mapbox.navigation.core.trip.session.LocationMatcherResult
@@ -60,7 +59,6 @@ import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineApi
 import com.mapbox.navigation.ui.maps.route.line.api.MapboxRouteLineView
 import com.mapbox.navigation.ui.maps.route.line.model.MapboxRouteLineOptions
 import com.mapbox.navigation.ui.maps.route.line.model.NavigationRouteLine
-import com.mapbox.navigation.ui.maps.route.line.model.RouteLine
 import com.mapbox.navigation.ui.tripprogress.api.MapboxTripProgressApi
 import com.mapbox.navigation.ui.tripprogress.model.DistanceRemainingFormatter
 import com.mapbox.navigation.ui.tripprogress.model.EstimatedTimeToArrivalFormatter
@@ -74,7 +72,9 @@ import com.mapbox.navigation.ui.voice.model.SpeechAnnouncement
 import com.mapbox.navigation.ui.voice.model.SpeechError
 import com.mapbox.navigation.ui.voice.model.SpeechValue
 import com.mapbox.navigation.ui.voice.model.SpeechVolume
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
+import javax.inject.Inject
 
 /**
  * This example demonstrates a basic turn-by-turn navigation experience by putting together some UI elements to showcase
@@ -89,10 +89,6 @@ import java.util.Locale
  *     <string name="mapbox_access_token"><PUT_YOUR_ACCESS_TOKEN_HERE></string>
  * </resources>
  *
- * The example assumes that you have granted location permissions and does not enforce it. However,
- * the permission is essential for proper functioning of this example. The example also uses replay
- * location engine to facilitate navigation without actually physically moving.
- *
  * How to use this example:
  * - You can long-click the map to select a destination.
  * - The guidance will start to the selected destination while simulating location updates.
@@ -101,6 +97,7 @@ import java.util.Locale
  * - At any point in time you can finish guidance or select a new destination.
  * - You can use buttons to mute/unmute voice instructions, recenter the camera, or show the route overview.
  */
+@AndroidEntryPoint
 class NavigationToItemActivity : AppCompatActivity() {
 
     private companion object {
@@ -110,21 +107,6 @@ class NavigationToItemActivity : AppCompatActivity() {
     private var destinationLatitude: Double? = null
     private var destinationLongitude: Double? = null
     private var navigationMode: String = DirectionsCriteria.PROFILE_DRIVING
-
-    /**
-     * Debug tool used to play, pause and seek route progress events that can be used to produce mocked location updates along the route.
-     */
-    private val mapboxReplayer = MapboxReplayer()
-
-    /**
-     * Debug tool that mocks location updates with an input from the [mapboxReplayer].
-     */
-    private val replayLocationEngine = ReplayLocationEngine(mapboxReplayer)
-
-    /**
-     * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
-     */
-    private val replayProgressObserver = ReplayProgressObserver(mapboxReplayer)
 
     /**
      * Bindings to the example layout.
@@ -153,6 +135,24 @@ class NavigationToItemActivity : AppCompatActivity() {
      * Produces the camera frames based on the location and routing data for the [navigationCamera] to execute.
      */
     private lateinit var viewportDataSource: MapboxNavigationViewportDataSource
+
+    /**
+     * Debug tool used to play, pause and seek route progress events that can be used to produce mocked location updates along the route.
+     */
+    val mapboxReplayer = MapboxReplayer()
+
+    @Inject
+    lateinit var navigationOptions: NavigationOptions
+
+    /**
+     * Debug tool that mocks location updates with an input from the [mapboxReplayer].
+     */
+    private val replayLocationEngine = ReplayLocationEngine(mapboxReplayer)
+
+    /**
+     * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
+     */
+    private val replayProgressObserver = ReplayProgressObserver(mapboxReplayer)
 
     /*
      * Below are generated camera padding values to ensure that the route fits well on screen while
@@ -427,16 +427,9 @@ class NavigationToItemActivity : AppCompatActivity() {
             this.pulsingColor = Color.WHITE
         }
 
-//        // initialize the location puck
+        // initialize the location puck
         binding.mapView.location.apply {
-//            this.locationPuck = LocationPuck2D(
-//                bearingImage = ContextCompat.getDrawable(
-//                    this@NavigationToItemActivity,
-//                    R.drawable.circle
-//                )
-//            )
             setLocationProvider(navigationLocationProvider)
-//            enabled = true
         }
 
         // initialize Mapbox Navigation
@@ -444,11 +437,7 @@ class NavigationToItemActivity : AppCompatActivity() {
             MapboxNavigationProvider.retrieve()
         } else {
             MapboxNavigationProvider.create(
-                NavigationOptions.Builder(this.applicationContext)
-                    .accessToken(getString(R.string.mapbox_access_token))
-                    // comment out the location engine setting block to disable simulation
-//                    .locationEngine(replayLocationEngine)
-                    .build()
+                navigationOptions
             )
         }
 
@@ -468,10 +457,10 @@ class NavigationToItemActivity : AppCompatActivity() {
             // shows/hide the recenter button depending on the camera state
             when (navigationCameraState) {
                 NavigationCameraState.TRANSITION_TO_FOLLOWING,
-                NavigationCameraState.FOLLOWING -> binding.recenter.visibility = View.INVISIBLE
+                NavigationCameraState.FOLLOWING -> binding.recenterNav.visibility = View.INVISIBLE
                 NavigationCameraState.TRANSITION_TO_OVERVIEW,
                 NavigationCameraState.OVERVIEW,
-                NavigationCameraState.IDLE -> binding.recenter.visibility = View.VISIBLE
+                NavigationCameraState.IDLE -> binding.recenterNav.visibility = View.VISIBLE
             }
         }
         // set the padding values depending on screen orientation and visible view layout
@@ -554,6 +543,9 @@ class NavigationToItemActivity : AppCompatActivity() {
         mapboxMap.loadStyleUri(
             Style.MAPBOX_STREETS
         ) {
+        }
+
+        binding.startNavigationButton.setOnClickListener {
             destinationLatitude?.let{ lat ->
                 destinationLongitude?.let { lon ->
                     findRoute(Point.fromLngLat(lon, lat), navigationMode)
@@ -564,14 +556,19 @@ class NavigationToItemActivity : AppCompatActivity() {
         // initialize view interactions
         binding.stop.setOnClickListener {
             clearRouteAndStopNavigation()
+            val intent = Intent(this, MapBoxActivity::class.java)
+            intent.putExtra(EXTRA_MAP_ZOOM, 9.0)
+            intent.putExtra(EXTRA_DESTINATION_LONGITUDE, destinationLongitude)
+            intent.putExtra(EXTRA_DESTINATION_LATITUDE, destinationLatitude)
+            startActivity(intent)
         }
-        binding.recenter.setOnClickListener {
+        binding.recenterNav.setOnClickListener {
             navigationCamera.requestNavigationCameraToFollowing()
             binding.routeOverview.showTextAndExtend(BUTTON_ANIMATION_DURATION)
         }
         binding.routeOverview.setOnClickListener {
             navigationCamera.requestNavigationCameraToOverview()
-            binding.recenter.showTextAndExtend(BUTTON_ANIMATION_DURATION)
+            binding.recenterNav.showTextAndExtend(BUTTON_ANIMATION_DURATION)
         }
         binding.soundButton.setOnClickListener {
             // mute/unmute voice instructions
@@ -689,9 +686,9 @@ class NavigationToItemActivity : AppCompatActivity() {
 
         // start location simulation along the primary route
         startSimulation(routes.first().directionsRoute)
-//        setRouteAndStartNavigation(routes)
 
         // show UI elements
+        binding.startNavigationButton.visibility = View.INVISIBLE
         binding.soundButton.visibility = View.VISIBLE
         binding.routeOverview.visibility = View.VISIBLE
         binding.tripProgressCard.visibility = View.VISIBLE
@@ -712,6 +709,7 @@ class NavigationToItemActivity : AppCompatActivity() {
         binding.maneuverView.visibility = View.INVISIBLE
         binding.routeOverview.visibility = View.INVISIBLE
         binding.tripProgressCard.visibility = View.INVISIBLE
+        binding.startNavigationButton.visibility = View.VISIBLE
     }
 
     private fun startSimulation(route: DirectionsRoute) {
