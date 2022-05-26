@@ -7,21 +7,12 @@
         android:padding="5dp">
 
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/imgMessageImage"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_alignBottom="@id/rightLayout"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="2dp"
-            android:src="@drawable/ic_launcher_background" />
-
         <RelativeLayout
             android:id="@+id/rightLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
-            android:layout_toStartOf="@+id/imgMessageImage"
+            android:layout_alignParentEnd="true"
             android:padding="5dp">
 
             <me.jagar.chatvoiceplayerlibrary.VoicePlayerView

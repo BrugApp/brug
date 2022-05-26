@@ -133,8 +133,6 @@ class ChatMessagesListAdapter(
         }
 
         private fun bindTextMessage(message: Message) {
-            itemView.findViewById<ImageView>(R.id.picture)
-                .setImageResource(R.mipmap.ic_launcher)
             itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.senderName
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
