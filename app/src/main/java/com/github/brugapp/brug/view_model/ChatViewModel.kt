@@ -505,10 +505,10 @@ class ChatViewModel : ViewModel() {
 
     // PERMISSIONS RELATED =======================================================
     /**
-     * TODO @MOUNIR
+     * Asks the user to grant a set of permissions.
      *
-     * @param context
-     * @param permissions
+     * @param context the activity from which the permissions are requested
+     * @param permissions the set of permissions to ask for
      */
     fun requestPermissions(context: Context, permissions: Array<String>) {
         val permissionRequestCode = 1 // REQUESTS FOR ALL NON-SET PERMISSIONS IN THE permissions ARRAY
@@ -516,11 +516,11 @@ class ChatViewModel : ViewModel() {
     }
 
     /**
-     * TODO @MOUNIR
+     * Checks if a set of permissions have been granted or not.
      *
-     * @param context
-     * @param permissions
-     * @return
+     * @param context the activity from which the permissions check is requested
+     * @param permissions the set of permissions to ask for
+     * @return true if all permissions in the given set were granted, false otherwise
      */
     fun hasPermissions(context: Context, permissions: Array<String>): Boolean = permissions.all {
         ActivityCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED

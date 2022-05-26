@@ -35,6 +35,13 @@ class QrCodeScanViewModel : ViewModel() {
 
     private lateinit var codeScanner: CodeScanner
 
+    /**
+     * Checks if permissions for the camera & location are granted,
+     * and asks the user for them if it is not the case.
+     *
+     * @param context the activity from which the permissions are asked
+     *
+     */
     fun checkPermissions(context: Context) {
         val permissionRequestCode = 1
         val permissions = arrayOf(
