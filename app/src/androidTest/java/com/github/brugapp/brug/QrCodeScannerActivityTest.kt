@@ -162,7 +162,7 @@ class QrCodeScannerActivityTest {
 
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("$userID:$itemID"))
-        onView(withId(R.id.buttonReportItem)).perform(click())
+        onView(withId(R.id.buttonReportItem)).perform(scrollTo(), click())
         Thread.sleep(3000)
         intended(
             IntentMatchers.hasComponent(ChatMenuActivity::class.java.name)

@@ -17,6 +17,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.Message
@@ -25,8 +28,12 @@ import com.github.brugapp.brug.model.message_types.TextMessage
 import com.github.brugapp.brug.model.services.DateService
 import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
 import com.github.brugapp.brug.ui.ChatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -62,13 +69,6 @@ class ChatActivityPermissionDeniedTest {
         )
     )
 
-    private val itemsList = arrayListOf(
-        Item("LOSTITEM", 0, "DUMMYDESC", false),
-        Item("LOSTITEM", 0, "DUMMYDESC", false),
-        Item("LOSTITEM", 0, "DUMMYDESC", false),
-        Item("LOSTITEM", 0, "DUMMYDESC", false)
-    )
-
     // adapted from https://gist.github.com/rocboronat/65b1187a9fca9eabfebb5121d818a3c4
     private val PERMISSIONS_DIALOG_DELAY = 2000L
     private val GRANT_BUTTON_INDEX = 1 // 0 to accept, 1 to deny
@@ -96,14 +96,29 @@ class ChatActivityPermissionDeniedTest {
         }
     }
 
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+
     @Before
     fun setUp(){
         Intents.init()
+        runBlocking {
+            firebaseAuth.signInAnonymously().await()
+            UserRepository.addUserFromAccount(
+                firebaseAuth.uid!!,
+                BrugSignInAccount("CHATACTIVITYLOCATION", "DENIED", "", ""),
+                true,
+                firestore
+            )
+        }
     }
 
     @After
     fun cleanUp(){
         Intents.release()
+        if(firebaseAuth.currentUser != null){
+            firebaseAuth.signOut()
+        }
     }
 
     private fun hasNeededPermission(permissionNeeded: String): Boolean {
