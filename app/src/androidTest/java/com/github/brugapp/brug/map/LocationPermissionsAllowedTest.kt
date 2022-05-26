@@ -31,7 +31,7 @@ class LocationPermissionsAllowedTest {
     var rule = HiltAndroidRule(this)
 
     private val PERMISSIONS_DIALOG_DELAY = 2000L
-    private val GRANT_BUTTON_INDEX = 1// 0 to accept, 1 to accept only once, 2 to reject
+    private val GRANT_BUTTON_INDEX = 0 // 0 to accept, 1 to accept only once, 2 to reject
 
     private fun pressOnPermission(permissionNeeded: String?) {
         try {
