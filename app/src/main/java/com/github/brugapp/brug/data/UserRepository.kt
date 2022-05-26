@@ -56,6 +56,7 @@ object UserRepository {
                 val deviceToken = FirebaseMessaging.getInstance().token.await()
                 Log.e("TOKEN FEEDBACK", deviceToken)
                 userDoc.collection(TOKENS_DB).document(deviceToken).set({})
+                Log.e("TOKEN FEEDBACK", deviceToken)
             }
 
             response.onSuccess = true

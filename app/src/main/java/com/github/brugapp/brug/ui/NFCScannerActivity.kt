@@ -2,7 +2,6 @@ package com.github.brugapp.brug.ui
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -11,8 +10,6 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import android.nfc.Tag
 import android.os.Bundle
-import android.text.Editable
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -21,6 +18,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.SUCCESS_TEXT
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -29,7 +27,6 @@ import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import java.io.IOException
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -89,7 +86,8 @@ open class NFCScannerActivity: AppCompatActivity() {
         activateButton.setOnClickListener {
             try {
                 if (tag == null) Toast.makeText(this, Error_detected, Toast.LENGTH_LONG).show() //no tag
-                else if(!nfcLinks(nfcContents.text.toString())) { //no firestore link
+                else  { //no firestore link
+                    nfcLinks(nfcContents.text.toString())
                     nfcContents.text = firebaseAuth.currentUser?.uid+':'+itemid
                     viewModel.write(nfcContents.text.toString(), tag!!)
                     Toast.makeText(this, "new item created:"+nfcContents.text.toString(), Toast.LENGTH_LONG).show()
@@ -111,29 +109,27 @@ open class NFCScannerActivity: AppCompatActivity() {
         }
     }
 
-    fun nfcLinks(editable: String): Boolean {
-        val newcontext = this
-        var retval = false
-        liveData(Dispatchers.IO){ emit(qrviewModel.parseTextAndCreateConv(editable, newcontext, firebaseAuth, firestore, firebaseStorage))}.observe(newcontext){ successState ->
-            if(successState){
-                if(firebaseAuth.currentUser!=null && nfcContents.text.contains(firebaseAuth.currentUser!!.uid)){
-                    Toast.makeText(context, "You scanned your own tag", Toast.LENGTH_LONG).show()
-                }else {
-                    Toast.makeText(
-                        context,
-                        "Thank you! The user will be notified.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    val myIntent = if (firebaseAuth.currentUser == null) Intent(
-                        this,
-                        SignInActivity::class.java
-                    ) else Intent(this, ChatMenuActivity::class.java)
-                    startActivity(myIntent)
-                    retval = true
+    fun nfcLinks(editable: String) {
+        val newContext = this
+        liveData(Dispatchers.IO){
+            emit(qrviewModel.parseTextAndCreateConv(
+                editable,
+                newContext,
+                firebaseAuth,
+                firestore,
+                firebaseStorage
+            ))
+        }.observe(newContext) { resultTxt ->
+            Toast.makeText(context, resultTxt, Toast.LENGTH_LONG).show()
+            if (resultTxt == SUCCESS_TEXT) {
+                val myIntent = if (firebaseAuth.currentUser == null) {
+                    Intent(this, SignInActivity::class.java)
+                } else {
+                    Intent(this, ChatMenuActivity::class.java)
                 }
+                startActivity(myIntent)
             }
         }
-        return retval
     }
 
     /**

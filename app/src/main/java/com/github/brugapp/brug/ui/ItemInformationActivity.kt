@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.ITEM_INTENT_KEY
@@ -24,11 +23,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
-import kotlin.collections.HashMap
 
 private const val NOT_IMPLEMENTED: String = "No information yet"
 
@@ -52,13 +50,18 @@ class ItemInformationActivity : AppCompatActivity() {
         val textSet = hashMapOf(
             "title" to item.itemName,
             "image" to item.getRelatedIcon().toString(),
-            "lastLocation" to viewModel.getLocationName(item.getLastLocation(), geocoder),
+            "lastLocation" to "Loading...",
             "description" to item.itemDesc,
             "isLost" to item.isLost().toString()
         )
-//        setTextAllView(textSet)
-
         setTextAllView(textSet)
+
+        liveData(Dispatchers.IO){
+            emit(viewModel.getLocationName(item.getLastLocation(), geocoder))
+        }.observe(this){ locationName ->
+            textSet["lastLocation"] = locationName
+            setTextAllView(textSet)
+        }
 
         setSwitch(item, firebaseAuth)
         //if user click on the localisation textview, we will open the map

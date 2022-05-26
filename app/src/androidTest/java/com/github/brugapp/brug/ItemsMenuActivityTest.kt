@@ -5,7 +5,6 @@ import android.app.Instrumentation
 import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -17,13 +16,13 @@ import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
 import androidx.test.espresso.intent.matcher.IntentMatchers.toPackage
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiScrollable
 import androidx.test.uiautomator.UiSelector
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
@@ -34,7 +33,6 @@ import com.github.brugapp.brug.ui.*
 import com.github.brugapp.brug.ui.components.BottomNavBar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.runBlocking
@@ -67,75 +65,48 @@ private val ITEMS = arrayListOf(
 @HiltAndroidTest
 class ItemsMenuActivityTest {
 
-    private var testUserUid: String = ""
-    private val TEST_PASSWORD: String = "123456"
-    private val TEST_EMAIL: String = "unlost@itemMenuActivity.com"
-    private val ACCOUNT1 = BrugSignInAccount("Rayan", "Kikou", "", "")
-
-    @get:Rule
-    val rule = HiltAndroidRule(this)
-
+    // ONLY FOR ONE SWIPE TEST, USING FIREBASE TO IMPROVE TEST COVERAGE
     private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
     private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    private val firebaseStorage: FirebaseStorage = FirebaseFakeHelper().providesStorage()
 
-    companion object {
-        var firstTimeCreate = true
-        var firstTimeAccount = true
-    }
-
-    private fun createTestUser(){
-        runBlocking {
-            if(firstTimeCreate){
-                firebaseAuth.createUserWithEmailAndPassword(TEST_EMAIL, TEST_PASSWORD).await()
-                firstTimeCreate = false
-            }
-        }
-    }
-
-    private fun signInTestAccount(){
-        runBlocking{
-            firebaseAuth.signInWithEmailAndPassword(
-                TEST_EMAIL,
-                TEST_PASSWORD
-            ).await()
-            testUserUid = firebaseAuth.currentUser!!.uid
-            if(firstTimeAccount) {
-                UserRepository
-                    .addUserFromAccount(testUserUid, ACCOUNT1, true, firestore)
-                firstTimeAccount = false
-            }
-        }
-    }
-
-    private fun signOut(){
-        firebaseAuth.signOut()
-    }
+    @get:Rule
+    var rule = HiltAndroidRule(this)
 
     @Before
     fun setUp() {
         Intents.init()
+    }
+
+    @After
+    fun cleanUp() {
+        Intents.release()
+        if(firebaseAuth.currentUser != null){
+            firebaseAuth.signOut()
+        }
+    }
+
+    @Test
+    fun changingBottomNavBarMenuToItemsListKeepsFocus() {
         val intent = Intent(
             ApplicationProvider.getApplicationContext(),
             ItemsMenuActivity::class.java)
         intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
         ActivityScenario.launch<ItemsMenuActivity>(intent)
         Thread.sleep(1000)
-    }
 
-    @After
-    fun cleanUp() {
-        Intents.release()
-    }
-
-    @Test
-    fun changingBottomNavBarMenuToItemsListKeepsFocus() {
         val itemsListMenuButton = onView(withId(R.id.items_list_menu_button))
         itemsListMenuButton.perform(click()).check(matches(isEnabled()))
     }
 
     @Test
     fun changingBottomNavBarMenuToQRScanGoesToActivity() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
         val scanQRMenuButton = onView(withId(R.id.qr_scan_menu_button))
         scanQRMenuButton.perform(click())
         intended(hasComponent(QrCodeScannerActivity::class.java.name))
@@ -144,6 +115,14 @@ class ItemsMenuActivityTest {
 
     @Test
     fun changingBottomNavBarMenuToChatGoesToActivity() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
+
         intending(
             hasComponent(
                 ComponentNameMatchers.hasClassName(
@@ -164,6 +143,14 @@ class ItemsMenuActivityTest {
 
     @Test
     fun changingBottomNavBarMenuToMapGoesToActivity() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
+
         intending(
             hasComponent(
                 ComponentNameMatchers.hasClassName(
@@ -183,16 +170,40 @@ class ItemsMenuActivityTest {
 
     @Test
     fun clickingOnSettingsButtonGoesToActivity() {
-        createTestUser()
-        signInTestAccount()
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
+        runBlocking {
+            firebaseAuth.signInAnonymously().await()
+            UserRepository.addUserFromAccount(
+                firebaseAuth.uid!!,
+                BrugSignInAccount("CHAT", "ANONYMOUSUSER", "", ""),
+                true,
+                firestore
+            )
+        }
+
         val settingsButton = onView(withId(R.id.my_settings))
         settingsButton.perform(click())
         intended(hasComponent(SettingsActivity::class.java.name))
-        signOut()
     }
 
     @Test
     fun swipeLeftOnItemTriggersSnackBar() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
+
+        UiDevice.getInstance(getInstrumentation())
+
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(UiSelector()
             .resourceId(LIST_ENTRY_ID)
@@ -201,12 +212,23 @@ class ItemsMenuActivityTest {
 
         entryToSwipe.swipeLeft(50)
 
-//        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-//        assertThat(snackBarTextView.text, IsEqual(ITEMS_DELETE_TEXT))
+        Thread.sleep(1000)
+        onView(withText("Undo")).perform(click())
+        Thread.sleep(1000)
     }
 
     @Test
     fun swipeRightOnItemDeletesItem() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
+
+        UiDevice.getInstance(getInstrumentation())
+
         val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
         val entryToSwipe = itemsList.getChild(UiSelector()
             .resourceId(LIST_ENTRY_ID)
@@ -215,53 +237,63 @@ class ItemsMenuActivityTest {
 
         entryToSwipe.swipeRight(50)
 
-//        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-//        assertThat(snackBarTextView.text, IsEqual(ITEMS_DELETE_TEXT))
+        Thread.sleep(1000)
+        onView(withText("Undo")).perform(click())
+        Thread.sleep(1000)
     }
 
-//    @Test
-//    fun dragUpOnItemReordersList(){
-//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//
-//        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-//        val entryToDrag = itemsList.getChild(UiSelector()
-//            .resourceId(LIST_ENTRY_ID)
-//            .enabled(true)
-//            .instance(1))
-//
-//        val finalDestination = itemsList.getChild(UiSelector()
-//            .resourceId(LIST_ENTRY_ID)
-//            .enabled(true)
-//            .instance(0))
-//
-//        entryToDrag.dragTo(0, finalDestination.bounds.centerY() - 50,40)
-//
-//        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-//        assertThat(snackBarTextView.text, IsEqual(ITEMS_MOVE_TEXT))
-//    }
-//
-//    @Test
-//    fun dragDownOnItemReordersList(){
-//        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-//
-//        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
-//        val entryToDrag = itemsList.getChild(UiSelector()
-//            .resourceId(LIST_ENTRY_ID)
-//            .enabled(true)
-//            .instance(1))
-//
-//        val finalDestination = itemsList.getChild(UiSelector()
-//            .resourceId(LIST_ENTRY_ID)
-//            .enabled(true)
-//            .instance(2))
-//
-//        entryToDrag.dragTo(0, finalDestination.bounds.centerY() + 50,40)
-//        val snackBarTextView = device.findObject(UiSelector().resourceId(SNACKBAR_ID))
-//        assertThat(snackBarTextView.text, IsEqual(ITEMS_MOVE_TEXT))
-//    }
+    @Test
+    fun swipeOnItemWithFirebaseEnabledDeletesItemAndReAddsIt() {
+        runBlocking {
+            firebaseAuth.signInAnonymously().await()
+
+            val userID = firebaseAuth.uid!!
+
+            UserRepository.addUserFromAccount(
+                userID,
+                BrugSignInAccount("ITEMSMENU", "SWIPEUSER", "", ""),
+                true,
+                firestore
+            )
+
+            ItemsRepository.addItemWithItemID(
+                Item("MYITEM", 0, "NODESC", false),
+                "MYITEMID",
+                userID,
+                firestore
+            )
+        }
+
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
+
+        UiDevice.getInstance(getInstrumentation())
+
+        val itemsList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
+        val entryToSwipe = itemsList.getChild(UiSelector()
+            .resourceId(LIST_ENTRY_ID)
+            .enabled(true)
+            .instance(0))
+
+        entryToSwipe.swipeRight(50)
+        Thread.sleep(1000)
+        onView(withText("Undo")).perform(click())
+        Thread.sleep(1000)
+    }
 
     @Test
     fun clickOnItemTriggersInformationItem() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
         UiDevice.getInstance(getInstrumentation())
 
         val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
@@ -277,6 +309,14 @@ class ItemsMenuActivityTest {
 
     @Test
     fun clickOnButtonTriggersQrCode() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
+
         UiDevice.getInstance(getInstrumentation())
 
         val chatList = UiScrollable(UiSelector().resourceId(LIST_VIEW_ID))
@@ -292,20 +332,15 @@ class ItemsMenuActivityTest {
         intended(hasComponent(QrCodeShowActivity::class.java.name))
     }
 
-    // Companion functions
-    private fun isKeyboardOpenedShellCheck(): Boolean {
-        val checkKeyboardCmd = "dumpsys input_method | grep mInputShown"
-
-        try {
-            return UiDevice.getInstance(getInstrumentation())
-                .executeShellCommand(checkKeyboardCmd).contains("mInputShown=true")
-        } catch (e: IOException) {
-            throw RuntimeException("Keyboard check failed", e)
-        }
-    }
-
     @Test
     fun goToAddItemPageOnAddButton() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
         onView(withId(R.id.add_new_item_button)).perform(click())
         // Verify that the app goes to the Item List activity if the User enters valid info for his/her new item.
         intended(
@@ -316,9 +351,15 @@ class ItemsMenuActivityTest {
         )
     }
 
-    /** THIS TEST FAILED DUE TO THE PRESSBACK, WEIRD ISSUE RELATED TO RESUMING THE ACTIVITY */
     @Test
     fun itemIconOnNavBar() {
+        val intent = Intent(
+            ApplicationProvider.getApplicationContext(),
+            ItemsMenuActivity::class.java)
+        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
+        ActivityScenario.launch<ItemsMenuActivity>(intent)
+        Thread.sleep(1000)
+
         intending(
             hasComponent(
                 ComponentNameMatchers.hasClassName(
@@ -332,7 +373,6 @@ class ItemsMenuActivityTest {
             )
         )
         onView(withId(R.id.chat_menu_button)).perform(click())
-//        Espresso.pressBack()
 
         val selectedItem = BottomNavBar().getSelectedItem(getActivityInstance()!!)
         assertThat(selectedItem, `is`(R.id.items_list_menu_button))
@@ -348,4 +388,5 @@ class ItemsMenuActivityTest {
         }
         return currentActivity[0]
     }
+
 }

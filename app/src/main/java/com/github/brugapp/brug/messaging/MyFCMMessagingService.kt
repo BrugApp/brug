@@ -11,14 +11,24 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.MutableLiveData
+import com.github.brugapp.brug.BuildConfig.FIREBASE_NOTIFICATION_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.FirebaseResponse
 import com.github.brugapp.brug.data.UserRepository.addNewDeviceTokenToUser
-import com.github.brugapp.brug.ui.SignInActivity
+import com.github.brugapp.brug.ui.ChatMenuActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.IOException
 
 class MyFCMMessagingService : FirebaseMessagingService() {
 
@@ -29,8 +39,8 @@ class MyFCMMessagingService : FirebaseMessagingService() {
      */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            sendNotification(this, it.title!!, it.body!!)
+        remoteMessage.data.let {
+            sendNotification(applicationContext, it["title"]!!, it["body"]!!)
         }
     }
 
@@ -59,7 +69,7 @@ class MyFCMMessagingService : FirebaseMessagingService() {
          * @param messageBody FCM message body received.
          */
         fun sendNotification(context: Context, messageTitle: String, messageBody: String) {
-            val intent = Intent(context, SignInActivity::class.java)
+            val intent = Intent(context, ChatMenuActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             val pendingIntent = PendingIntent.getActivity(
                 context, 0, intent,
@@ -105,6 +115,44 @@ class MyFCMMessagingService : FirebaseMessagingService() {
                 )
                 notificationManager.createNotificationChannel(channel)
             }
+        }
+
+
+        // PART HANDLING SENDING NOTIFICATION MESSAGES
+        private const val FCM_MESSAGE_URL = "https://fcm.googleapis.com/fcm/send"
+        var mClient: OkHttpClient = OkHttpClient()
+        fun sendNotificationMessage(
+            recipients: JSONArray?,
+            title: String?,
+            body: String?
+        ): String? {
+            try {
+                val root = JSONObject()
+                val data = JSONObject()
+                data.put("body", body)
+                data.put("title", title)
+                root.put("data", data)
+                root.put("registration_ids", recipients)
+                val result = postToFCM(root.toString())
+                Log.d("NOTIFICATION RESULT", "Result: $result")
+                return result
+            } catch (e: Exception) {
+                Log.e("NOTIFICATION ERROR", e.message.toString())
+            }
+            return null
+        }
+
+        @Throws(IOException::class)
+        private fun postToFCM(bodyString: String?): String {
+            val serverKey = FIREBASE_NOTIFICATION_KEY
+            val body: RequestBody = bodyString.toString().toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+            val request: Request = Request.Builder()
+                .url(FCM_MESSAGE_URL)
+                .post(body)
+                .addHeader("Authorization", "key=$serverKey")
+                .build()
+            val response: Response = mClient.newCall(request).execute()
+            return response.body?.string() ?: "NO RESPONSE FOUND !!"
         }
     }
 

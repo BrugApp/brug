@@ -40,7 +40,7 @@ class SignInViewModel @Inject constructor(
     /**
      * Creates a demo user account in the database, if it is not already present.
      *
-     * @return Boolean value denoting the state of the sign in procedure (true if successfull, false otherwise)
+     * @return Boolean value denoting the state of the sign in procedure (true if successful, false otherwise)
      */
     suspend fun goToDemoMode(
         firestore: FirebaseFirestore,
@@ -84,12 +84,18 @@ class SignInViewModel @Inject constructor(
         val userID = getAuth().signInWithCredential(credential) ?: return false
 
         // Finally, add the account if it isn't already in the database
-        return UserRepository.addUserFromAccount(
+        val result = UserRepository.addUserFromAccount(
             userID,
             account,
             false,
             firestore
         ).onSuccess
+
+        if(result){
+            val user = UserRepository.getUserFromUID(userID, firestore, firebaseAuth, firebaseStorage) ?: return false
+            BrugDataCache.setUserInCache(user)
+        }
+        return result
     }
 
     /**
@@ -114,6 +120,7 @@ class SignInViewModel @Inject constructor(
         BrugDataCache.resetCachedItems()
         BrugDataCache.resetCachedConversations()
         BrugDataCache.resetCachedMessagesLists()
+
     }
 
     fun checkNightMode(activity: Activity) {
