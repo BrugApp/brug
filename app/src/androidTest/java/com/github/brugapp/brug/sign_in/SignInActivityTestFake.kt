@@ -5,7 +5,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
@@ -15,22 +14,22 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
-import com.github.brugapp.brug.data.UserRepository
 import com.github.brugapp.brug.di.sign_in.AuthDatabase
 import com.github.brugapp.brug.di.sign_in.SignInAccount
 import com.github.brugapp.brug.di.sign_in.SignInClient
-import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.di.sign_in.firebase.AuthFirebase
 import com.github.brugapp.brug.di.sign_in.module.DatabaseAuthModule
 import com.github.brugapp.brug.di.sign_in.module.SignInAccountModule
 import com.github.brugapp.brug.di.sign_in.module.SignInClientModule
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FakeSignInClient
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.User
 import com.github.brugapp.brug.ui.ItemsMenuActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -87,7 +86,6 @@ class SignInActivityTestFake {
     val rule = HiltAndroidRule(this)
 
     val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
-    val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
     private val email = "test@signIn.com"
     private val password = "123456"
     companion object{
@@ -107,26 +105,12 @@ class SignInActivityTestFake {
     fun setUp() {
         Intents.init()
         createUser()
-        runBlocking {
-            UserRepository.addUserFromAccount(
-                "DUMMYUSERID",
-                FakeSignInAccountModule.provideFakeSignInAccount(),
-                true,
-                firestore
-            )
-            BrugDataCache.setUserInCache(
-                User("DUMMYUSERID", "SIGNINUSER", "NAME", null, mutableListOf())
-            )
-        }
     }
 
     @After
     fun cleanUp() {
         Intents.release()
-//        if(firebaseAuth.currentUser != null){
-//            firebaseAuth.signOut()
-//        }
-        BrugDataCache.resetCachedUser()
+        firebaseAuth.signOut()
     }
 
     @Test
@@ -148,12 +132,15 @@ class SignInActivityTestFake {
                     )
                 )
             )
+            firebaseAuth.signOut()
         }
     }
 
     @Test
     fun signInActivitySignsOutCorrectlyFromSettings() {
-
+        BrugDataCache.setUserInCache(
+            User("DUMMYUID", "SIGNINTEST", "USER", null, mutableListOf())
+        )
         val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
         runBlocking{
             firebaseAuth.signInWithEmailAndPassword(
@@ -162,11 +149,10 @@ class SignInActivityTestFake {
             ).await()
         }
         ActivityScenario.launch<SignInActivity>(intent).use {
+
             val settingsButton = onView(withId(R.id.my_settings))
             settingsButton.perform(click())
-            Thread.sleep(2000)
-
-            onView(withId(R.id.sign_out_button)).perform(scrollTo(), click())
+            onView(withId(R.id.sign_out_button)).perform(click())
 
             // check if contains guest button
             onView(withId(R.id.qr_found_btn))
