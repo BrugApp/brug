@@ -18,11 +18,10 @@ class QrCodeShowActivity : AppCompatActivity() {
         setContentView(R.layout.activity_qr_code_show)
         //get Extra from intent
         val qrId: String? = intent.getStringExtra("qrId")
-        val itemName: String? = intent.getStringExtra("itemName")
         //print to log the qrId
 
         val itemNameText = findViewById<TextView>(R.id.itemNameShow)
-        itemNameText.text = itemName!!
+        itemNameText.text = qrId!!
 
         val imageView = findViewById<ImageView>(R.id.showQrCode)
         //create Bitmap from string qrId
