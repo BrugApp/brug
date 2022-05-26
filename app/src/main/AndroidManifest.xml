@@ -31,11 +31,8 @@
         android:theme="@style/Theme.Brug">
         <activity
             android:name=".ui.NavigationToItemActivity"
-            android:exported="false" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="${MAPS_API_KEY}" />
+            android:exported="false"
+            android:label="@string/title_navigation_to_item_activity"/>
 
         <activity
             android:name=".ui.QrCodeShowActivity"

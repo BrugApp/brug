@@ -18,6 +18,7 @@ import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
+import com.github.brugapp.brug.di.sign_in.module.NavigationOptionsModule
 import com.github.brugapp.brug.helpers.EspressoHelper
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
@@ -25,6 +26,7 @@ import com.github.brugapp.brug.ui.*
 import com.mapbox.maps.extension.style.expressions.dsl.generated.zoom
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
 import org.junit.After
@@ -79,7 +81,6 @@ class MapBoxActivityTest {
             Thread.sleep(10000)
             EspressoHelper.clickIn(10,10)
             Thread.sleep(10000)
-            // if view annotation is not displayed, this will throw an exception
             Espresso.onView(withId(R.id.driveButton)).check(matches(not(isDisplayed())))
         }
     }
@@ -95,7 +96,7 @@ class MapBoxActivityTest {
         }
         ActivityScenario.launch<Activity>(intent).use{
             Thread.sleep(10000)
-            val mapViewMatcher = allOf(withId(R.id.mapView), ViewMatchers.hasMinimumChildCount(1))
+            val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Log.e("ZOOM VALUE", zoom().getLiteral<Int>().toString())
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(10000)
@@ -118,7 +119,6 @@ class MapBoxActivityTest {
             val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(10000)
-
             Espresso.onView(withId(R.id.walkButton)).perform(click())
             Thread.sleep(10000)
             intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
@@ -139,7 +139,6 @@ class MapBoxActivityTest {
             val mapViewMatcher = allOf(withId(R.id.mapView), hasMinimumChildCount(1))
             Espresso.onView(mapViewMatcher).perform(EspressoHelper.clickInFraction(0.5,0.5))
             Thread.sleep(10000)
-
             Espresso.onView(withId(R.id.driveButton)).perform(click())
             Thread.sleep(10000)
             intended(IntentMatchers.hasComponent(NavigationToItemActivity::class.java.name))
@@ -162,6 +161,23 @@ class MapBoxActivityTest {
             Thread.sleep(10000)
 
             Espresso.onView(withId(R.id.itemNameOnMap)).check(matches(withText(TEST_ITEM.itemName)))
+        }
+    }
+
+    @Test
+    fun recenterItemDoesNotOpenViewAnnotation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val intent = Intent(context, MapBoxActivity::class.java).apply {
+            putExtra(ITEMS_TEST_LIST_KEY, setTestList())
+            putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
+            putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
+            putExtra(EXTRA_DESTINATION_LONGITUDE, EPFL_COORDINATES.second)
+        }
+        ActivityScenario.launch<Activity>(intent).use{
+            Thread.sleep(10000)
+            Espresso.onView(withId(R.id.recenter)).perform(click())
+            Thread.sleep(10000)
+            Espresso.onView(withId(R.id.driveButton)).check(matches(not(isDisplayed())))
         }
     }
 
