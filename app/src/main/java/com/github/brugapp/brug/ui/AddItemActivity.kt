@@ -38,6 +38,11 @@ class AddItemActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+    /**
+     * TODO
+     *
+     * @param savedInstanceState
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_item)
@@ -77,6 +82,15 @@ class AddItemActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * TODO
+     *
+     * @param itemName
+     * @param itemNameHelper
+     * @param itemType
+     * @param itemDesc
+     * @param firebaseAuth
+     */
     fun addNfcItemOnListener(
         itemName: EditText,
         itemNameHelper: TextView,
@@ -96,6 +110,15 @@ class AddItemActivity : AppCompatActivity() {
         startActivity(myIntent)
     }
 
+    /**
+     * TODO
+     *
+     * @param itemName
+     * @param itemNameHelper
+     * @param itemType
+     * @param itemDesc
+     * @param firebaseAuth
+     */
     private fun addItemOnListener(
         itemName: EditText,
         itemNameHelper: TextView,

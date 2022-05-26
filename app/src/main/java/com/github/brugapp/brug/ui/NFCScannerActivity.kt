@@ -111,6 +111,12 @@ open class NFCScannerActivity: AppCompatActivity() {
         }
     }
 
+    /**
+     * TODO
+     *
+     * @param editable
+     * @return
+     */
     fun nfcLinks(editable: String): Boolean {
         val newcontext = this
         var retval = false
@@ -147,11 +153,19 @@ open class NFCScannerActivity: AppCompatActivity() {
         return ::scanMessage.isInitialized && ::nfcContents.isInitialized && ::activateButton.isInitialized
     }
 
+    /**
+     * TODO
+     *
+     */
     public override fun onPause() {
         super.onPause()
         writeModeOff()
     }
 
+    /**
+     * TODO
+     *
+     */
     public override fun onResume(){
         super.onResume()
         writeModeOn()

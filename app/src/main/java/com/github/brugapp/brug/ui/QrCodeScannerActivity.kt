@@ -34,6 +34,11 @@ class QrCodeScannerActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+    /**
+     * TODO
+     *
+     * @param savedInstanceState
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qr_code_scanner)
@@ -78,13 +83,19 @@ class QrCodeScannerActivity : AppCompatActivity() {
     }
 
 
-
-
+    /**
+     * TODO
+     *
+     */
     override fun onResume() {
         super.onResume()
         viewModel.startPreview()
     }
 
+    /**
+     * TODO
+     *
+     */
     override fun onPause() {
         viewModel.releaseResources()
         super.onPause()

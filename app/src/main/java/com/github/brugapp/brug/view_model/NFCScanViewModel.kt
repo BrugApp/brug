@@ -27,23 +27,27 @@ private const val NFC_REQUEST_CODE = 1000101
 
 class NFCScanViewModel : ViewModel() {
     /**
+     * makes sure we have NFC permissions
      * @param context1
      */
     fun checkNFCPermission(context1: Context){ if(PackageManager.PERMISSION_DENIED == checkSelfPermission(context1,Manifest.permission.NFC)) requestPermissions(context1 as Activity, arrayOf(Manifest.permission.NFC), NFC_REQUEST_CODE) }
 
     /**
+     * initializes Nfc adapter if it exists
      * @param this1
      * @return
      */
     fun setupAdapter(this1: Context): NfcAdapter? { return try{ NfcAdapter.getDefaultAdapter(this1) }catch(e: Exception){ null } }
 
     /**
+     * prepares the Intent needed to call setupTag()
      * @param this1
      * @return Pair<PendingIntent,Array<IntentFilter>>
      */
     fun setupWritingTagFilters(this1: Context): Pair<PendingIntent,Array<IntentFilter>>{ return Pair(PendingIntent.getActivity(this1, 0, Intent(this1, this1.javaClass).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), FLAG_MUTABLE),arrayOf(setupTag())) }
 
     /**
+     * sets up an IntentFilter that matches against the action of tag discovery
      * @use prepares the IntentFilter needed to produce the 2nd Pair element of setupWritingTagFilters
      * @return IntentFilter with an added default category
      */
@@ -54,12 +58,14 @@ class NFCScanViewModel : ViewModel() {
     }
 
     /**
+     * we read the Nfc tag and output the message in the textview parameter
      * @param nfcContents
      * @param intent
      */
     fun readFromIntent(nfcContents: TextView, intent: Intent){ if (checkIntentAction(intent)&&rawMessageToMessage(intent).first){ buildTagViews(nfcContents, rawMessageToMessage(intent).second) } }
 
     /**
+     * makes sure an appropriate action justifies calling readFromIntent
      * @use combines 3 condition checks into a single boolean for calling readFromIntent
      * @param intent used to get the associated action for testing if tag is discovered
      * @return true when the intent action corresponds to a tag being discovered false otherwise
@@ -72,6 +78,7 @@ class NFCScanViewModel : ViewModel() {
     }
 
     /**
+     * builds the array of Ndefmessages from the Nfc adapter
      * @use sets up the data and conditions needed for calling buildTagViews
      * @param intent used for getting extended data from this intent
      * @return Boolean: this object checks if the extended data from intent is null
@@ -91,6 +98,7 @@ class NFCScanViewModel : ViewModel() {
     }
 
     /**
+     * set a Textview text to a String converted from an array of NdefMessages
      * @use converts NdefMessage Array into a String message understandable to humans
      * @param nfcContents
      * @param messages is an array of NdefMessages, a lightweight binary format for tags
@@ -117,6 +125,7 @@ class NFCScanViewModel : ViewModel() {
     }
 
     /**
+     * writes a given text to the given tag
      * @param text
      * @param tag
      */
@@ -125,7 +134,8 @@ class NFCScanViewModel : ViewModel() {
         Ndef.get(tag).writeNdefMessage(NdefMessage(arrayOf(createRecord(text))))
         Ndef.get(tag).close() }
 
-    /** the write function calls createRecord in order to write a given message to the tag
+    /**
+     * the write function calls createRecord to write a given message to the tag
      * @param text the string message we want to build the record from
      * @return an immutable NdefRecord
      */
