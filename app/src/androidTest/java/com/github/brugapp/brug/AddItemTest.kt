@@ -203,24 +203,24 @@ class AddItemTest {
     }
 
     //JUnit test to move to JUnit tests
-    @Test
-    fun itemAddedAfterValidForm(){
-        val validName = "Wallet"
-        val itemName = onView(withId(R.id.itemName))
-        itemName.perform(typeText(validName))
+  //  @Test
+  //  fun itemAddedAfterValidForm(){
+  //      val validName = "Wallet"
+  //      val itemName = onView(withId(R.id.itemName))
+  //      itemName.perform(typeText(validName))
 
-        /* Added the following two lines to make sure the keyboard is closed when we switch to ItemMenu activity,
-           in order not to get a SecurityException
-        */
-        itemName.perform(closeSoftKeyboard())
+  //      /* Added the following two lines to make sure the keyboard is closed when we switch to ItemMenu activity,
+  //         in order not to get a SecurityException
+  //      */
+  //      itemName.perform(closeSoftKeyboard())
 
-        onView(withId(R.id.add_item_button)).perform(click())
+  //      onView(withId(R.id.add_item_button)).perform(click())
 
-        onView(withId(R.id.items_listview)).check(matches(
-            hasItemAtPosition(0, hasDescendant(
-                withText(validName)
-            ))))
-    }
+  //      onView(withId(R.id.items_listview)).check(matches(
+  //          hasItemAtPosition(0, hasDescendant(
+  //              withText(validName)
+  //          ))))
+  //  }
 
     //TODO: BE ABLE TO COMPARE TWO DRAWABLE IMAGES
     @Test

@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.NoActivityResumedException
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.matcher.ViewMatchers
@@ -110,7 +111,7 @@ class ChatActivityCameraPermissionsTest {
         return permissionStatus == PackageManager.PERMISSION_GRANTED
     }
 
-    @Test
+    @Test(expected = NoActivityResumedException::class)
     fun cameraPermissionDenied() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
