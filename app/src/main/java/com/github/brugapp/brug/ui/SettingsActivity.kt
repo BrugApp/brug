@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.data.UserRepository.getImageUri
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -164,8 +165,7 @@ class SettingsActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == RESULT_OK) {
             if (requestCode == SELECT_PICTURE_REQUEST_CODE) {
-                val imageUri =
-                    data!!.data ?: Uri.parse(data.extras?.getString(PIC_ATTACHMENT_INTENT_KEY))
+                val imageUri = getImageUri(data)
 
                 val inputStream = contentResolver?.openInputStream(imageUri)
                 val drawable = Drawable.createFromStream(inputStream, imageUri.toString())
