@@ -131,7 +131,7 @@ class NavigationToItemTest {
         ActivityScenario.launch<Activity>(intent).use{
             Thread.sleep(10000)
             Espresso.onView(ViewMatchers.withId(R.id.start_navigation_button)).perform(ViewActions.click())
-            Thread.sleep(10000)
+            Thread.sleep(5000)
             Espresso.onView(ViewMatchers.withId(R.id.stop)).perform(ViewActions.click())
             Thread.sleep(10000)
             intended(IntentMatchers.hasComponent(MapBoxActivity::class.java.name))

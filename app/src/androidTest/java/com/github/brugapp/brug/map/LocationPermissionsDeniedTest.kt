@@ -85,6 +85,7 @@ class LocationPermissionsDeniedTest {
         val intent = Intent(context, MapBoxActivity::class.java)
 
         ActivityScenario.launch<Activity>(intent).use {
+            Thread.sleep(10000)
             pressOnPermission("Manifest.permission.ACCESS_FINE_LOCATION")
             Thread.sleep(10000)
             Espresso.onView(ViewMatchers.withId(R.id.mapView)).check(

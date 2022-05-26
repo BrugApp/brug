@@ -89,7 +89,6 @@ import javax.inject.Inject
  *     <string name="mapbox_access_token"><PUT_YOUR_ACCESS_TOKEN_HERE></string>
  * </resources>
  *
- *
  * How to use this example:
  * - You can long-click the map to select a destination.
  * - The guidance will start to the selected destination while simulating location updates.
@@ -689,6 +688,7 @@ class NavigationToItemActivity : AppCompatActivity() {
         startSimulation(routes.first().directionsRoute)
 
         // show UI elements
+        binding.startNavigationButton.visibility = View.INVISIBLE
         binding.soundButton.visibility = View.VISIBLE
         binding.routeOverview.visibility = View.VISIBLE
         binding.tripProgressCard.visibility = View.VISIBLE
@@ -709,6 +709,7 @@ class NavigationToItemActivity : AppCompatActivity() {
         binding.maneuverView.visibility = View.INVISIBLE
         binding.routeOverview.visibility = View.INVISIBLE
         binding.tripProgressCard.visibility = View.INVISIBLE
+        binding.startNavigationButton.visibility = View.VISIBLE
     }
 
     private fun startSimulation(route: DirectionsRoute) {
