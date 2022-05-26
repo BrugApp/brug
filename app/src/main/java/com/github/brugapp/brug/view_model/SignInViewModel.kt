@@ -53,12 +53,19 @@ class SignInViewModel @Inject constructor(
         ).await()
 
         if (firebaseAuthResponse.user != null) {
-            return UserRepository.addUserFromAccount(
+            val result = UserRepository.addUserFromAccount(
                 firebaseAuthResponse.user!!.uid,
                 BrugSignInAccount("Unlost", "DemoUser", "", ""),
                 false,
                 firestore
             ).onSuccess
+
+            if(result){
+                val user = UserRepository.getUserFromUID(firebaseAuthResponse.user!!.uid, firestore, firebaseAuth, firebaseStorage) ?: return result
+                BrugDataCache.setUserInCache(user)
+            }
+
+            return result
         }
         return false
     }
