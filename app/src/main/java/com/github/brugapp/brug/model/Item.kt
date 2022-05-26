@@ -32,6 +32,9 @@ class Item(
 
     /**
      * set the item's last location
+     *
+     * @param lon longitude of the item
+     * @param lat latitude of the item
      */
     fun setLastLocation(lon: Double, lat: Double){
         lastLocation = LocationService(lat, lon)
@@ -39,6 +42,8 @@ class Item(
 
     /**
      * sets the item's id
+     *
+     * @param itemID the item id
      */
     fun setItemID(itemID: String) {
         this.itemID = itemID
