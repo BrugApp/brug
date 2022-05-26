@@ -107,20 +107,21 @@ class SettingsActivity : AppCompatActivity() {
                 )
             )
         }.observe(this) { resultUser ->
-            if (resultUser == null) {
+            if(resultUser != null){
+                BrugDataCache.setUserInCache(resultUser)
+            } else {
                 Snackbar.make(
                     findViewById(android.R.id.content),
                     "ERROR: User cannot be retrieved !", Snackbar.LENGTH_LONG
-                )
-                    .show()
-
-            } else {
-                BrugDataCache.setUserInCache(resultUser)
+                ).show()
             }
         }
 
         BrugDataCache.getCachedUser().observe(this) { user ->
-            val profilePicDrawable = Drawable.createFromPath(user.getUserIconPath())
+            val userIcon = user?.getUserIconPath()
+            val profilePicDrawable = if(userIcon != null){
+                Drawable.createFromPath(userIcon)
+            } else null
 
             if (profilePicDrawable != null) {
                 pic.setImageDrawable(resize(profilePicDrawable))
@@ -128,7 +129,7 @@ class SettingsActivity : AppCompatActivity() {
                 pic.setImageResource(R.mipmap.ic_launcher_round)
             }
 
-            name.text = user.getFullName()
+            name.text = user?.getFullName()
         }
     }
 
