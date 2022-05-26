@@ -292,13 +292,6 @@ class ItemsMenuActivityTest {
         intended(hasComponent(QrCodeShowActivity::class.java.name))
     }
 
-    @Test
-    fun checkIfKeyboardIsShownAfterPressingSearch() {
-        val searchButton = onView(withId(R.id.search_box))
-        searchButton.perform(click())
-        assertThat(isKeyboardOpenedShellCheck(), IsEqual(true))
-    }
-
     // Companion functions
     private fun isKeyboardOpenedShellCheck(): Boolean {
         val checkKeyboardCmd = "dumpsys input_method | grep mInputShown"
