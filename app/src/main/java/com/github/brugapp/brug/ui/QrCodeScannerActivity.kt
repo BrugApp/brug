@@ -80,18 +80,11 @@ class QrCodeScannerActivity : AppCompatActivity() {
         }
     }
 
-
-    /**
-     * we resume the Qr scan activity
-     */
     override fun onResume() {
         super.onResume()
         viewModel.startPreview()
     }
 
-    /**
-     * we pause the Qr scan activity
-     */
     override fun onPause() {
         viewModel.releaseResources()
         super.onPause()
