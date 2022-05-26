@@ -11,6 +11,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.ui.NFCScannerActivity
 import com.github.brugapp.brug.ui.QrCodeScannerActivity
 import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -76,11 +77,12 @@ class SignInActivityButtonTest {
             )
         )
     }
-}
-/*
     @Test
     fun nfcButtonGoesToNFCScannerActivity(){
         onView(withId(R.id.nfc_found_btn)).perform(click())
-        intended(allOf(toPackage("com.github.brugapp.brug"), hasComponent(NFCScannerActivity::class.java.name)))
+        intended(hasComponent(NFCScannerActivity::class.java.name))
     }
-}*/
+}
+
+
+

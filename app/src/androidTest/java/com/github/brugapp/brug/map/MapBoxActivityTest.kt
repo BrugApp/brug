@@ -34,7 +34,7 @@ import org.junit.Test
 
 private val TEST_ITEM = Item("Wallet", ItemType.Wallet.ordinal, "With all my belongings", false)
 private val EPFL_COORDINATES = Pair(46.5197, 6.5657) // LAT, LON
-private const val ZOOM_FACTOR = 22.0
+private const val ZOOM_FACTOR = 10.0
 
 @HiltAndroidTest
 class MapBoxActivityTest {
