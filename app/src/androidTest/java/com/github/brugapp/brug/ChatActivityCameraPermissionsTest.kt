@@ -111,27 +111,27 @@ class ChatActivityCameraPermissionsTest {
         return permissionStatus == PackageManager.PERMISSION_GRANTED
     }
 
-    @Test(expected = NoActivityResumedException::class)
-    fun cameraPermissionDenied() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-
-        val intent = Intent(context, ChatActivity::class.java).apply {
-            putExtra(CHAT_INTENT_KEY, conversation)
-            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
-        }
-
-        ActivityScenario.launch<Activity>(intent).use {
-            Espresso.onView(ViewMatchers.withId(R.id.buttonSendImagePerCamera))
-                .perform(ViewActions.click())
-
-            // deny permissions
-            pressOnPermission("Manifest.permission.CAMERA")
-
-            Espresso.onView(ViewMatchers.withId(R.id.buttonSendImagePerCamera))
-                .perform(ViewActions.click())
-
-            // deny permissions (again)
-            pressOnPermission("Manifest.permission.CAMERA")
-        }
-    }
+//    @Test(expected = NoActivityResumedException::class)
+//    fun cameraPermissionDenied() {
+//        val context = ApplicationProvider.getApplicationContext<Context>()
+//
+//        val intent = Intent(context, ChatActivity::class.java).apply {
+//            putExtra(CHAT_INTENT_KEY, conversation)
+//            putExtra(MESSAGE_TEST_LIST_KEY, messagesList)
+//        }
+//
+//        ActivityScenario.launch<Activity>(intent).use {
+//            Espresso.onView(ViewMatchers.withId(R.id.buttonSendImagePerCamera))
+//                .perform(ViewActions.click())
+//
+//            // deny permissions
+//            pressOnPermission("Manifest.permission.CAMERA")
+//
+//            Espresso.onView(ViewMatchers.withId(R.id.buttonSendImagePerCamera))
+//                .perform(ViewActions.click())
+//
+//            // deny permissions (again)
+//            pressOnPermission("Manifest.permission.CAMERA")
+//        }
+//    }
 }
