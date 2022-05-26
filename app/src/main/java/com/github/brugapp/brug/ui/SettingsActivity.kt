@@ -5,24 +5,31 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.liveData
+import com.github.brugapp.brug.PIC_ATTACHMENT_INTENT_KEY
+import com.github.brugapp.brug.R
+import com.github.brugapp.brug.SELECT_PICTURE_REQUEST_CODE
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
-import androidx.lifecycle.liveData
-import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.data.UserRepository.getImageUri
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 
@@ -30,6 +37,7 @@ const val EXTRA_SIGN_OUT = "com.github.brugapp.brug.SIGN_OUT"
 
 @AndroidEntryPoint
 class SettingsActivity : AppCompatActivity() {
+
 
     @Inject
     lateinit var firestore: FirebaseFirestore
@@ -47,11 +55,15 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.settings_activity)
 
         restoreNightModeToggleState()
-
-        val button: Button = findViewById(R.id.changeProfilePictureButton)
-        button.setOnClickListener {
-            val intent = Intent(this, ProfilePictureSetActivity::class.java)
-            startActivity(intent)
+        val profilePicButton = findViewById<Button>(R.id.changeProfilePictureButton)
+        profilePicButton.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+            ActivityCompat.startActivityForResult(
+                this,
+                intent,
+                SELECT_PICTURE_REQUEST_CODE,
+                null
+            )
         }
 
         findViewById<Button>(R.id.sign_out_button).setOnClickListener {
@@ -67,6 +79,7 @@ class SettingsActivity : AppCompatActivity() {
 
         setPicAndName()
     }
+
 
     private fun restoreNightModeToggleState() {
         val toggle = findViewById<SwitchCompat>(R.id.night_mode_toggle)
@@ -146,4 +159,32 @@ class SettingsActivity : AppCompatActivity() {
         val bitmapResized = Bitmap.createScaledBitmap(b, 200, 200, false)
         return BitmapDrawable(resources, bitmapResized)
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SELECT_PICTURE_REQUEST_CODE) {
+                val imageUri = getImageUri(data)
+
+                val inputStream = contentResolver?.openInputStream(imageUri)
+                val drawable = Drawable.createFromStream(inputStream, imageUri.toString())
+                liveData(Dispatchers.IO) {
+                    emit(
+                        UserRepository.updateUserIcon(
+                            firebaseAuth.currentUser!!.uid,
+                            drawable,
+                            firebaseAuth,
+                            firebaseStorage,
+                            firestore
+                        )
+                    )
+                }.observe(this) {
+                    setPicAndName()
+                }
+            }
+        }
+    }
+
+
 }
