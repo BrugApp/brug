@@ -14,8 +14,12 @@ import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.di.sign_in.module.NavigationOptionsModule
+import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.ui.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.navigation.base.options.NavigationOptions
 import com.mapbox.navigation.core.replay.ReplayLocationEngine
@@ -27,6 +31,8 @@ import dagger.hilt.android.qualifiers.ActivityContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
@@ -54,6 +60,7 @@ class NavigationToItemTest {
         }
     }
 
+    private var TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
     private val MICROSOFT_COORDINATES = Pair(37.41261747639361, -122.07098371482229) // LAT, LON
 
     @get:Rule
@@ -63,15 +70,58 @@ class NavigationToItemTest {
     @get:Rule
     val fineLocationPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    private val firebaseAuth: FirebaseAuth = FirebaseFakeHelper().providesAuth()
+    private val firestore: FirebaseFirestore = FirebaseFakeHelper().providesFirestore()
+    companion object{
+        var firstTime = true
+    }
+
+    private fun createUser(){
+        runBlocking{
+            if(firstTime) {
+                firebaseAuth.createUserWithEmailAndPassword("navigation@unlost.com", "123456").await()
+                firstTime = false
+            }
+        }
+    }
+    private fun signInTestUser() {
+        runBlocking {
+            firebaseAuth.signInWithEmailAndPassword(
+                "navigation@unlost.com",
+                "123456").await()
+        }
+    }
+
+    private fun wipeItemsAndSignOut() {
+        runBlocking {
+            ItemsRepository.deleteAllUserItems(
+                TEST_USER_UID,
+                firestore
+            )
+        }
+        firebaseAuth.signOut()
+    }
 
     @Before
     fun setUp() {
         Intents.init()
+        createUser()
+        signInTestUser()
+        getUserUid()
+        val intent = Intent(ApplicationProvider.getApplicationContext(), AddItemActivity::class.java)
+        ActivityScenario.launch<AddItemActivity>(intent)
+    }
+
+    private fun getUserUid() {
+        runBlocking {
+            TEST_USER_UID = firebaseAuth.currentUser?.uid!!
+        }
     }
 
     @After
     fun cleanUp() {
         Intents.release()
+        wipeItemsAndSignOut()
     }
 
     @Test
