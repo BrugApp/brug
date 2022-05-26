@@ -43,7 +43,7 @@ class AddItemActivity : AppCompatActivity() {
 
 
     /**
-     * TODO
+     * when creating the addItemActivity we make 2 buttons: one for nfc, one without
      *
      * @param savedInstanceState
      */
@@ -91,7 +91,7 @@ class AddItemActivity : AppCompatActivity() {
     }
 
     /**
-     * TODO
+     * the nfc button generates new itemid for linked item on click
      *
      * @param itemName
      * @param itemNameHelper
@@ -119,7 +119,7 @@ class AddItemActivity : AppCompatActivity() {
     }
 
     /**
-     * TODO
+     * we create and add item to current user's inventory
      *
      * @param itemName
      * @param itemNameHelper
