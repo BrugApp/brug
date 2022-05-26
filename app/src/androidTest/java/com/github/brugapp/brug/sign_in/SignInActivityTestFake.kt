@@ -5,6 +5,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.scrollTo
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
@@ -148,7 +149,7 @@ class SignInActivityTestFake {
 
             val settingsButton = onView(withId(R.id.my_settings))
             settingsButton.perform(click())
-            onView(withId(R.id.sign_out_button)).perform(click())
+            onView(withId(R.id.sign_out_button)).perform(scrollTo(), click())
 
             // check if contains guest button
             onView(withId(R.id.qr_found_btn))
