@@ -4,20 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="1dp"
-    android:paddingStart="10dp"
-    android:paddingEnd="10dp"
     android:contentDescription="@string/message">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:orientation="vertical"
+        android:layout_margin="10dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/rounded_edge"
-        app:layout_constraintTop_toTopOf="parent">
+        android:backgroundTint="?colorSecondaryVariant"
+        android:layout_gravity="end">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -31,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="@string/sender"
-                android:textColor="@color/black"
+                android:textColor="?colorOnPrimary"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -50,7 +48,7 @@
                 android:layout_marginEnd="8dp"
                 android:maxWidth="270dp"
                 android:text="@string/long_message"
-                android:textColor="@color/black" />
+                android:textColor="?colorOnPrimary" />
         </LinearLayout>
 
         <LinearLayout
@@ -66,7 +64,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="@string/timestamp_example"
-                android:textColor="#989898" />
+                android:textColor="?colorOnPrimary" />
 
         </LinearLayout>
     </LinearLayout>
