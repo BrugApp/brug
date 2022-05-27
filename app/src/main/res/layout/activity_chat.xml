@@ -41,6 +41,7 @@
                 android:ems="10"
                 android:hint="@string/message"
                 android:inputType="textPersonName"
+                android:textColor="@color/black"
                 android:textColorHint="#757575"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/buttonSendLocalisation"

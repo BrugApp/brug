@@ -164,36 +164,6 @@ object ConvRepository {
         return response
     }
 
-    /* ONLY FOR TESTS */
-    suspend fun deleteAllUserConversations(
-        uid: String,
-        firestore: FirebaseFirestore
-    ): FirebaseResponse {
-        val response = FirebaseResponse()
-
-        try {
-            val userRef = firestore.collection(USERS_DB).document(uid)
-            if (!userRef.get().await().exists()) {
-                response.onError = Exception("User doesn't exist")
-                return response
-            }
-
-            userRef.collection(CONV_DB).get().await().mapNotNull { conv ->
-                deleteConversationFromID(
-                    conv.id,
-                    uid,
-                    firestore
-                )
-            }
-
-            response.onSuccess = true
-        } catch (e: Exception) {
-            response.onError = e
-        }
-
-        return response
-    }
-
     /**
      * Retrieves the list of messages in real-time, i.e. each time a new message is added to the conversation.
      *
@@ -238,6 +208,36 @@ object ConvRepository {
                 Log.e("FIREBASE ERROR", task.exception?.message.toString())
             }
         }
+    }
+
+    /* ONLY FOR TESTS */
+    suspend fun deleteAllUserConversations(
+        uid: String,
+        firestore: FirebaseFirestore
+    ): FirebaseResponse {
+        val response = FirebaseResponse()
+
+        try {
+            val userRef = firestore.collection(USERS_DB).document(uid)
+            if (!userRef.get().await().exists()) {
+                response.onError = Exception("User doesn't exist")
+                return response
+            }
+
+            userRef.collection(CONV_DB).get().await().mapNotNull { conv ->
+                deleteConversationFromID(
+                    conv.id,
+                    uid,
+                    firestore
+                )
+            }
+
+            response.onSuccess = true
+        } catch (e: Exception) {
+            response.onError = e
+        }
+
+        return response
     }
 
     private suspend fun getConvFromRefID(

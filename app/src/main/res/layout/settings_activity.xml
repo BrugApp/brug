@@ -36,7 +36,7 @@
                 android:layout_marginTop="10dp"
                 android:fontFamily="sans-serif-light"
                 android:text=""
-                android:textColor="@color/black"
+                android:textColor="?android:textColorPrimary"
                 android:textSize="28sp"
                 android:textStyle="bold"/>
 

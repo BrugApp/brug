@@ -113,7 +113,6 @@ class ItemInformationActivity : AppCompatActivity() {
             //give qrId to QrCodeShow
 
             intent.putExtra("qrId", "${firebaseAuth.uid}:${item.getItemID()}")
-            intent.putExtra("itemName", "${firebaseAuth.uid}:${item.itemName}")
 
             startActivity(intent)
         }

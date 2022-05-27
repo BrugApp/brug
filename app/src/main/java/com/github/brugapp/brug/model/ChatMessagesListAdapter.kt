@@ -60,10 +60,10 @@ class ChatMessagesListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layout = when (viewType) {
-            TYPE_MESSAGE_RIGHT.ordinal -> R.layout.chat_item_layout_right
             TYPE_MESSAGE_LEFT.ordinal -> R.layout.chat_item_layout_left
-            TYPE_IMAGE_RIGHT.ordinal -> R.layout.chat_image_layout_right
+            TYPE_MESSAGE_RIGHT.ordinal -> R.layout.chat_item_layout_right
             TYPE_IMAGE_LEFT.ordinal -> R.layout.chat_image_layout_left
+            TYPE_IMAGE_RIGHT.ordinal -> R.layout.chat_image_layout_right
             TYPE_LOCATION_LEFT.ordinal -> R.layout.chat_location_layout_left
             TYPE_LOCATION_RIGHT.ordinal -> R.layout.chat_location_layout_right
             TYPE_AUDIO_LEFT.ordinal -> R.layout.left_audio_layout
@@ -88,17 +88,17 @@ class ChatMessagesListAdapter(
         val message: Message = messageList[position]
         return if (message.senderName == "Me") {
             when (message) {
-                is PicMessage -> TYPE_IMAGE_LEFT.ordinal
-                is LocationMessage -> TYPE_LOCATION_LEFT.ordinal
+                is PicMessage -> TYPE_IMAGE_RIGHT.ordinal
+                is LocationMessage -> TYPE_LOCATION_RIGHT.ordinal
                 is AudioMessage -> TYPE_AUDIO_RIGHT.ordinal
-                else -> TYPE_MESSAGE_LEFT.ordinal
+                else -> TYPE_MESSAGE_RIGHT.ordinal
             }
         } else {
             when (message) {
-                is PicMessage -> TYPE_IMAGE_RIGHT.ordinal
+                is PicMessage -> TYPE_IMAGE_LEFT.ordinal
                 is LocationMessage -> TYPE_LOCATION_LEFT.ordinal
                 is AudioMessage -> TYPE_AUDIO_LEFT.ordinal
-                else -> TYPE_MESSAGE_RIGHT.ordinal
+                else -> TYPE_MESSAGE_LEFT.ordinal
             }
         }
     }
@@ -133,8 +133,6 @@ class ChatMessagesListAdapter(
         }
 
         private fun bindTextMessage(message: Message) {
-            itemView.findViewById<ImageView>(R.id.picture)
-                .setImageResource(R.mipmap.ic_launcher)
             itemView.findViewById<TextView>(R.id.chat_item_sender).text = message.senderName
             itemView.findViewById<TextView>(R.id.chat_item_datetime).text =
                 formatDateTime(message.timestamp.toLocalDateTime())
