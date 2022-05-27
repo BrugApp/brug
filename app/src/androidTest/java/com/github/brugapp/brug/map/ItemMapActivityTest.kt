@@ -12,13 +12,11 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.Intents.intended
 import androidx.test.espresso.intent.matcher.IntentMatchers
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.rule.GrantPermissionRule
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
-import com.github.brugapp.brug.di.sign_in.module.NavigationOptionsModule
 import com.github.brugapp.brug.helpers.EspressoHelper
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
@@ -26,7 +24,6 @@ import com.github.brugapp.brug.ui.*
 import com.mapbox.maps.extension.style.expressions.dsl.generated.zoom
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import dagger.hilt.android.testing.UninstallModules
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.not
 import org.junit.After
@@ -39,7 +36,7 @@ private val EPFL_COORDINATES = Pair(46.5197, 6.5657) // LAT, LON
 private const val ZOOM_FACTOR = 10.0
 
 @HiltAndroidTest
-class MapBoxActivityTest {
+class ItemMapActivityTest {
 
     @get:Rule
     var rule = HiltAndroidRule(this)
@@ -71,7 +68,7 @@ class MapBoxActivityTest {
     @Test
     fun clickOnRandomPositionDoesNotOpenViewAnnotation() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, MapBoxActivity::class.java).apply {
+        val intent = Intent(context, ItemMapActivity::class.java).apply {
             putExtra(ITEMS_TEST_LIST_KEY, setTestList())
             putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
             putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
@@ -88,7 +85,7 @@ class MapBoxActivityTest {
     @Test
     fun clickOnItemOpensViewAnnotation() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, MapBoxActivity::class.java).apply {
+        val intent = Intent(context, ItemMapActivity::class.java).apply {
             putExtra(ITEMS_TEST_LIST_KEY, setTestList())
             putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
             putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
@@ -108,7 +105,7 @@ class MapBoxActivityTest {
     @Test
     fun clickOnWalkButtonOpensNavigation() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, MapBoxActivity::class.java).apply {
+        val intent = Intent(context, ItemMapActivity::class.java).apply {
             putExtra(ITEMS_TEST_LIST_KEY, setTestList())
             putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
             putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
@@ -128,7 +125,7 @@ class MapBoxActivityTest {
     @Test
     fun clickOnDriveButtonOpensNavigation() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, MapBoxActivity::class.java).apply {
+        val intent = Intent(context, ItemMapActivity::class.java).apply {
             putExtra(ITEMS_TEST_LIST_KEY, setTestList())
             putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
             putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
@@ -148,7 +145,7 @@ class MapBoxActivityTest {
     @Test
     fun viewAnnotationDisplaysNameOfItem() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, MapBoxActivity::class.java).apply {
+        val intent = Intent(context, ItemMapActivity::class.java).apply {
             putExtra(ITEMS_TEST_LIST_KEY, setTestList())
             putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
             putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)
@@ -167,7 +164,7 @@ class MapBoxActivityTest {
     @Test
     fun recenterItemDoesNotOpenViewAnnotation() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, MapBoxActivity::class.java).apply {
+        val intent = Intent(context, ItemMapActivity::class.java).apply {
             putExtra(ITEMS_TEST_LIST_KEY, setTestList())
             putExtra(EXTRA_MAP_ZOOM, ZOOM_FACTOR)
             putExtra(EXTRA_DESTINATION_LATITUDE, EPFL_COORDINATES.first)

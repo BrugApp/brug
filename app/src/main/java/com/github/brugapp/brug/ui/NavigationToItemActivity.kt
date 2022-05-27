@@ -8,10 +8,8 @@ import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.databinding.ActivityNavigationToItemBinding
 import com.mapbox.api.directions.v5.DirectionsCriteria
@@ -77,25 +75,10 @@ import java.util.Locale
 import javax.inject.Inject
 
 /**
- * This example demonstrates a basic turn-by-turn navigation experience by putting together some UI elements to showcase
- * navigation camera transitions, guidance instructions banners and playback, and progress along the route.
+ * Turn-by-turn navigation to Item's last location
  *
- * Before running the example make sure you have put your access_token in the correct place
- * inside [app/src/main/res/values/mapbox_access_token.xml]. If not present then add this file
- * at the location mentioned above and add the following content to it
+ * Click on play button to start navigation
  *
- * <?xml version="1.0" encoding="utf-8"?>
- * <resources xmlns:tools="http://schemas.android.com/tools">
- *     <string name="mapbox_access_token"><PUT_YOUR_ACCESS_TOKEN_HERE></string>
- * </resources>
- *
- * How to use this example:
- * - You can long-click the map to select a destination.
- * - The guidance will start to the selected destination while simulating location updates.
- * You can disable simulation by commenting out the [replayLocationEngine] setter in [NavigationOptions].
- * Then, the device's real location will be used.
- * - At any point in time you can finish guidance or select a new destination.
- * - You can use buttons to mute/unmute voice instructions, recenter the camera, or show the route overview.
  */
 @AndroidEntryPoint
 class NavigationToItemActivity : AppCompatActivity() {
@@ -143,11 +126,6 @@ class NavigationToItemActivity : AppCompatActivity() {
 
     @Inject
     lateinit var navigationOptions: NavigationOptions
-
-    /**
-     * Debug tool that mocks location updates with an input from the [mapboxReplayer].
-     */
-    private val replayLocationEngine = ReplayLocationEngine(mapboxReplayer)
 
     /**
      * Debug observer that makes sure the replayer has always an up-to-date information to generate mock updates.
@@ -556,7 +534,7 @@ class NavigationToItemActivity : AppCompatActivity() {
         // initialize view interactions
         binding.stop.setOnClickListener {
             clearRouteAndStopNavigation()
-            val intent = Intent(this, MapBoxActivity::class.java)
+            val intent = Intent(this, ItemMapActivity::class.java)
             intent.putExtra(EXTRA_MAP_ZOOM, 9.0)
             intent.putExtra(EXTRA_DESTINATION_LONGITUDE, destinationLongitude)
             intent.putExtra(EXTRA_DESTINATION_LATITUDE, destinationLatitude)

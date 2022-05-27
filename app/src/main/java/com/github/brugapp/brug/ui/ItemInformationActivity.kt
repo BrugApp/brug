@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
@@ -14,9 +13,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
-import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
-import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.view_model.ItemInformationViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -68,7 +65,7 @@ class ItemInformationActivity : AppCompatActivity() {
         val localisation = item.getLastLocation()
         if(localisation != null) {
             findViewById<TextView>(R.id.item_last_location).setOnClickListener {
-                val intent = Intent(this, MapBoxActivity::class.java)
+                val intent = Intent(this, ItemMapActivity::class.java)
                 intent.putExtra(ITEM_INTENT_KEY, item)
                 intent.putExtra(EXTRA_DESTINATION_LONGITUDE, localisation.getLongitude())
                 intent.putExtra(EXTRA_DESTINATION_LATITUDE, localisation.getLatitude())

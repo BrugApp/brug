@@ -23,7 +23,6 @@ import javax.inject.Inject
 class SignInViewModel @Inject constructor(
     private val signInClient: SignInClient,
     private val signInResultHandler: SignInResultHandler,
-    lastSignedInAccount: SignInAccount?,
     private val auth: AuthDatabase,
     private val credentialGetter: SignInCredentialGetter,
 ) : ViewModel() {
@@ -52,7 +51,7 @@ class SignInViewModel @Inject constructor(
             "unlost.app@gmail.com",
             "123456"
         ).await()
-auth
+
         if (firebaseAuthResponse.user != null) {
             val result = UserRepository.addUserFromAccount(
                 firebaseAuthResponse.user!!.uid,
@@ -131,6 +130,11 @@ auth
 
     }
 
+    /**
+     * Checks if night mode is on
+     *
+     * @param activity
+     */
     fun checkNightMode(activity: Activity) {
         val settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isEnabled = settings.getBoolean("nightMode", false)

@@ -20,4 +20,8 @@ const val SUCCESS_TEXT = "Thank you ! The user will be notified."
 
 
 @HiltAndroidApp
+/**
+ * Hilt Android Application needed to use Hilt
+ *
+ */
 class BrugApp : Application()

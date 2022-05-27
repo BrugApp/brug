@@ -150,7 +150,7 @@ class ChatActivity : AppCompatActivity() {
                         val message = adapter.getItem(position) as LocationMessage
                         val lon = message.location.toAndroidLocation().longitude
                         val lat = message.location.toAndroidLocation().latitude
-                        val myIntent = Intent(this@ChatActivity, MapBoxActivity::class.java)
+                        val myIntent = Intent(this@ChatActivity, ItemMapActivity::class.java)
                         myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
                         myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
                         startActivity(myIntent)

@@ -39,13 +39,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.tasks.await
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.allOf
-import org.hamcrest.core.IsEqual
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.IOException
 
 private const val APP_PACKAGE_NAME: String = "com.github.brugapp.brug"
 
@@ -154,7 +152,7 @@ class ItemsMenuActivityTest {
         intending(
             hasComponent(
                 ComponentNameMatchers.hasClassName(
-                    MapBoxActivity::class.java.name
+                    ItemMapActivity::class.java.name
                 )
             )
         ).respondWith(
@@ -165,7 +163,7 @@ class ItemsMenuActivityTest {
         )
         val itemMenuButton = onView(withId(R.id.item_map_button))
         itemMenuButton.perform(click())
-        intended(hasComponent(MapBoxActivity::class.java.name))
+        intended(hasComponent(ItemMapActivity::class.java.name))
     }
 
     @Test

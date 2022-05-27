@@ -27,6 +27,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
+/**
+ * Sign In Activity displayed on Home Menu
+ *
+ */
 class SignInActivity : AppCompatActivity() {
 
     private val viewModel: SignInViewModel by viewModels()
@@ -45,9 +49,6 @@ class SignInActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sign_in)
 
         viewModel.checkNightMode(this)
-
-
-       
 
         findViewById<Button>(R.id.nfc_found_btn).setOnClickListener {
             val myIntent = Intent(this, NFCScannerActivity::class.java)
@@ -109,6 +110,9 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Sign in result getter from activity result
+     */
     val getSignInResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             // Handle the returned Uri

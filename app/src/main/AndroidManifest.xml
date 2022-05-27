@@ -41,7 +41,7 @@
             android:label="@string/title_activity_qr_code_show"/>
 
         <activity
-            android:name=".ui.MapBoxActivity"
+            android:name=".ui.ItemMapActivity"
             android:exported="false"
             android:label="@string/title_activity_map"
             android:parentActivityName=".ui.ItemsMenuActivity" />
@@ -136,7 +136,7 @@
             android:label="@string/title_activity_item_information"/>
 
         <service
-            android:name=".messaging.MyFCMMessagingService"
+            android:name=".messaging.BrugFCMMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

@@ -171,7 +171,7 @@ class NavigationToItemTest {
     }
 
     @Test
-    fun clickingOnStopStopsNavigationAndGoesBackToMapBoxActivity() {
+    fun clickingOnStopStopsNavigationAndGoesBackToItemMapActivity() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, NavigationToItemActivity::class.java).apply {
             putExtra(EXTRA_DESTINATION_LATITUDE, MICROSOFT_COORDINATES.first)
@@ -184,7 +184,7 @@ class NavigationToItemTest {
             Thread.sleep(5000)
             Espresso.onView(ViewMatchers.withId(R.id.stop)).perform(ViewActions.click())
             Thread.sleep(10000)
-            intended(IntentMatchers.hasComponent(MapBoxActivity::class.java.name))
+            intended(IntentMatchers.hasComponent(ItemMapActivity::class.java.name))
         }
     }
 

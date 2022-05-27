@@ -28,7 +28,6 @@ class BottomNavBar {
                     true
                 }
                 R.id.qr_scan_menu_button -> {
-                    //TODO: HANDLE CASE PROPERLY
                     if (currentActivity is ItemsMenuActivity || currentActivity is ChatMenuActivity) {
                         currentActivity.startActivity(
                             Intent(
@@ -52,7 +51,7 @@ class BottomNavBar {
                 }
                 R.id.item_map_button -> {
                     if(currentActivity is ItemsMenuActivity || currentActivity is ChatMenuActivity){
-                        currentActivity.startActivity(Intent(currentActivity, MapBoxActivity::class.java))
+                        currentActivity.startActivity(Intent(currentActivity, ItemMapActivity::class.java))
                     }
                     true
                 }

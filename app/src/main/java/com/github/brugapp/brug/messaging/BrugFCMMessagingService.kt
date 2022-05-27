@@ -30,7 +30,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
-class MyFCMMessagingService : FirebaseMessagingService() {
+/**
+ * Firebase Cloud Messaging Service
+ *
+ */
+class BrugFCMMessagingService : FirebaseMessagingService() {
 
     /**
      * Called when message is received.

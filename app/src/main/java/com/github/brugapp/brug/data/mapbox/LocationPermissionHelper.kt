@@ -6,9 +6,19 @@ import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import java.lang.ref.WeakReference
 
+/**
+ * Location permissions helper
+ *
+ * @property activity activity requiring location permissions
+ */
 class LocationPermissionHelper(val activity: WeakReference<Activity>) {
     private lateinit var permissionsManager: PermissionsManager
 
+    /**
+     * Checks if permissions are granted and acts accordingly
+     *
+     * @param onMapReady function to call if location is granted
+     */
     fun checkPermissions(onMapReady: () -> Unit) {
         if (PermissionsManager.areLocationPermissionsGranted(activity.get())) {
             onMapReady()
@@ -33,6 +43,13 @@ class LocationPermissionHelper(val activity: WeakReference<Activity>) {
         }
     }
 
+    /**
+     * Handles permissions request results
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<String>,

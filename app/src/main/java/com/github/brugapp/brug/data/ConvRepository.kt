@@ -3,7 +3,7 @@ package com.github.brugapp.brug.data
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
-import com.github.brugapp.brug.messaging.MyFCMMessagingService
+import com.github.brugapp.brug.messaging.BrugFCMMessagingService
 import com.github.brugapp.brug.model.Conversation
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.services.DateService
@@ -101,7 +101,7 @@ object ConvRepository {
                     tokenDoc.id
                 }.toTypedArray()
             )
-            MyFCMMessagingService.sendNotificationMessage(
+            BrugFCMMessagingService.sendNotificationMessage(
                 jsonArray,
                 "New Item Found",
                 "User $userName has found your item ${item.itemName} !"

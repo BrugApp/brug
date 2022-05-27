@@ -10,10 +10,19 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 
-
+/**
+ * Sign in result handler that handles the result with Google API
+ *
+ */
 class SignInResultHandlerGoogle : SignInResultHandler() {
     private var account: GoogleSignInAccount? = null
 
+    /**
+     * Returns an account from the result
+     *
+     * @param result Intent
+     * @return SignInAccount
+     */
     override fun handleSignInResult(result: Intent?): SignInAccount {
         val task: Task<GoogleSignInAccount> =
             GoogleSignIn.getSignedInAccountFromIntent(result)
@@ -21,6 +30,11 @@ class SignInResultHandlerGoogle : SignInResultHandler() {
         return SignInAccountGoogle(account)
     }
 
+    /**
+     * Returns sign in account
+     *
+     * @param task Task<GoogleSignInAccount>
+     */
     private fun getSignInResultFromTask(task: Task<GoogleSignInAccount>) {
         try {
             account = task.getResult(ApiException::class.java)

@@ -57,24 +57,15 @@ class SignInActivityTestFakeGoogle {
         )
     }
 
-//    @Before
-//    fun setUp(){
-//        SignInActivityTestFake.FakeSignInClientModule.provideFakeSignInClient().signOut()
-//    }
 
     @Test
     fun signInActivityFailsForDefaultSignedInUser() {
 
-//        val intent = Intent(ApplicationProvider.getApplicationContext(), SignInActivity::class.java)
-//
-//        ActivityScenario.launch<SignInActivity>(intent).use {
-            // check if contains guest button
-            onView(withId(R.id.qr_found_btn))
-                .check(matches(isDisplayed()))
-            // check if contains sign out button
-            onView(withId(R.id.sign_in_google_button))
-                .check(matches(isDisplayed()))
-//        }
+        onView(withId(R.id.qr_found_btn))
+            .check(matches(isDisplayed()))
+        // check if contains sign out button
+        onView(withId(R.id.sign_in_google_button))
+            .check(matches(isDisplayed()))
 
     }
 }

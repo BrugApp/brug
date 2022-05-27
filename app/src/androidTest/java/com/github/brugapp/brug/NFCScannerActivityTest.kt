@@ -154,17 +154,7 @@ class NFCScannerActivityTest {
             nfcScanTitle.check(matches(isDisplayed()))
             }
     }
-/*
-    @Test
-    fun testNfcContents() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, NFCScannerActivity::class.java)
-        ActivityScenario.launch<Activity>(intent).use {
-            val nfcContents = onView(withId(R.id.nfcContents))
-            nfcContents.check(matches(isEnabled()))
-        }
-    }
-*/
+
     @Test
     fun testScanMessage() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -175,18 +165,6 @@ class NFCScannerActivityTest {
         }
     }
 
-/*
-    @Test
-    fun testActivateButton(){
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val intent = Intent(context, NFCScannerActivity::class.java)
-        ActivityScenario.launch<Activity>(intent).use {
-            val activateButton = onView(withId(R.id.buttonReportItem))
-            activateButton.perform(click())
-            activateButton.check(matches(isDisplayed()))
-        }
-    }
-*/
     @Test @UiThreadTest
     fun testNewIntent(){
         val context = ApplicationProvider.getApplicationContext<Context>()
