@@ -23,26 +23,49 @@ class Item(
     private var itemID: String = ""
     private var lastLocation: LocationService? = null
 
+    /**
+     * returns the item's last location
+     */
     fun getLastLocation(): LocationService? {
         return lastLocation
     }
+
+    /**
+     * set the item's last location
+     *
+     * @param lon longitude of the item
+     * @param lat latitude of the item
+     */
     fun setLastLocation(lon: Double, lat: Double){
         lastLocation = LocationService(lat, lon)
     }
 
+    /**
+     * sets the item's id
+     *
+     * @param itemID the item id
+     */
     fun setItemID(itemID: String) {
         this.itemID = itemID
     }
 
+    /**
+     * returns the item's id
+     */
     fun getItemID(): String {
         return this.itemID
     }
 
+    /**
+     * returns the item type's id
+     */
     fun getItemTypeID(): Int {
         return this.itemTypeID
     }
 
-    /* ITEM TYPE */
+    /**
+     * returns the icon of the item
+     */
     fun getRelatedIcon(): Int {
         return getRelatedItemType().getRelatedIcon()
     }
@@ -51,11 +74,18 @@ class Item(
         return ItemType.values()[itemTypeID]
     }
 
-    /* ITEM STATE */
+    /**
+     * return true if the item is lost
+     */
     fun isLost(): Boolean {
         return this.isLost
     }
 
+    /**
+     * sets the lost status of the object to the new status
+     *
+     * @param newStatus the new lost status of the item
+     */
     fun changeLostStatus(newStatus: Boolean) {
         this.isLost = newStatus
     }
@@ -82,7 +112,9 @@ class Item(
 enum class ItemType {
     Wallet, Keys, CarKeys, Phone, Other;
 
-    /* ITEM TYPE */
+    /**
+     * returns the item's icon
+     */
     fun getRelatedIcon(): Int {
         return when(this){
             Wallet -> R.drawable.ic_baseline_account_balance_wallet_24

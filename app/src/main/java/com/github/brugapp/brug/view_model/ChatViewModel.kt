@@ -421,7 +421,7 @@ class ChatViewModel : ViewModel() {
     }
 
     /**
-     * TODO @HAMZA
+     * Sets up and starts the recording
      *
      * @param activity
      */
@@ -445,7 +445,7 @@ class ChatViewModel : ViewModel() {
     }
 
     /**
-     * TODO @HAMZA
+     * Deletes the audio when the user presses the delete audio button
      *
      */
     fun deleteAudio() {
@@ -458,7 +458,7 @@ class ChatViewModel : ViewModel() {
     }
 
     /**
-     * TODO @HAMZA
+     * Stops the recording of the audio
      *
      */
     fun stopAudio() {
@@ -467,13 +467,13 @@ class ChatViewModel : ViewModel() {
     }
 
     /**
-     * TODO @HAMZA
+     * Sends the audio message to the corresponding conversation
      *
-     * @param activity
-     * @param convID
-     * @param firestore
-     * @param firebaseAuth
-     * @param firebaseStorage
+     * @param convID the ID of the conversation to which the message will be added
+     * @param activity the linked ChatActivity
+     * @param firestore the database
+     * @param firebaseAuth the auth database (handle connection issues to the database)
+     * @param firebaseStorage the storage database (for images/audio)
      */
     fun sendAudio(
         activity: ChatActivity, convID: String,
