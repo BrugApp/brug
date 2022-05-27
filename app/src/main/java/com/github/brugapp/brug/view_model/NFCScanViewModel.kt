@@ -17,7 +17,7 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.ViewModel
-import com.github.brugapp.brug.messaging.MyFCMMessagingService
+import com.github.brugapp.brug.messaging.BrugFCMMessagingService
 import java.io.IOException
 import java.io.UnsupportedEncodingException
 import java.nio.charset.Charset
@@ -158,5 +158,5 @@ class NFCScanViewModel : ViewModel() {
      * @use notify owner that their item is found
      * @param thisContext
      */
-    fun displayReportNotification(thisContext: Context) { MyFCMMessagingService.sendNotification(thisContext, "Item found", "One of your items was found!") }
+    fun displayReportNotification(thisContext: Context) { BrugFCMMessagingService.sendNotification(thisContext, "Item found", "One of your items was found!") }
 }

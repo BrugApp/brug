@@ -21,8 +21,7 @@ import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.ui.MapBoxActivity
-import com.google.firebase.analytics.FirebaseAnalytics.Param.ITEMS
+import com.github.brugapp.brug.ui.ItemMapActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.After
@@ -89,7 +88,7 @@ class LocationPermissionsAllowedTest {
     fun locationPermissionAllowedDisplaysButtons() {
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val intent = Intent(context, MapBoxActivity::class.java)
+        val intent = Intent(context, ItemMapActivity::class.java)
         intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
         ActivityScenario.launch<Activity>(intent).use {
             Thread.sleep(10000)

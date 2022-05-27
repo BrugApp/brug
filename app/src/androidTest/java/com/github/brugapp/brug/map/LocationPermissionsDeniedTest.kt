@@ -1,39 +1,23 @@
 package com.github.brugapp.brug.map
 
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
-import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.NoActivityResumedException
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
-import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
-import com.github.brugapp.brug.MESSAGE_TEST_LIST_KEY
-import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.model.Item
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.ui.CHAT_INTENT_KEY
-import com.github.brugapp.brug.ui.ChatActivity
-import com.github.brugapp.brug.ui.MapBoxActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 
 @HiltAndroidTest
 class LocationPermissionsDeniedTest {

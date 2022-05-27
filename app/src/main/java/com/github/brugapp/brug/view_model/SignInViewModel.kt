@@ -124,6 +124,11 @@ auth
 
     }
 
+    /**
+     * Checks if night mode is on
+     *
+     * @param activity
+     */
     fun checkNightMode(activity: Activity) {
         val settings = activity.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isEnabled = settings.getBoolean("nightMode", false)

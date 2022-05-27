@@ -9,7 +9,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.liveData
-import com.github.brugapp.brug.messaging.MyFCMMessagingService
+import com.github.brugapp.brug.messaging.BrugFCMMessagingService
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.model.Message
 import com.github.brugapp.brug.model.message_types.AudioMessage
@@ -124,7 +124,7 @@ object MessageRepository {
                             tokenDoc.id
                         }.toTypedArray()
                 )
-                MyFCMMessagingService.sendNotificationMessage(jsonArray, firebaseAuth.currentUser?.displayName, m.body)
+                BrugFCMMessagingService.sendNotificationMessage(jsonArray, firebaseAuth.currentUser?.displayName, m.body)
             }
 
 
