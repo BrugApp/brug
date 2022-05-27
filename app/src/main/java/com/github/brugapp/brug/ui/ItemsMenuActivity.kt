@@ -82,6 +82,10 @@ class ItemsMenuActivity : AppCompatActivity() {
             } else null
 
         if(itemsTestList == null){
+                if (firebaseAuth.uid == null) {
+                    val intent = Intent(this, SignInActivity::class.java)
+                    startActivity(intent)
+                }
                 ItemsRepository.getRealtimeUserItemsFromUID(
                     firebaseAuth.uid!!,
                     this,

@@ -87,7 +87,6 @@ class ItemsRepositoryTest {
 
         assertThat(response.onSuccess, IsEqual(true))
         assertThat(BrugDataCache.getCachedItems().value.isNullOrEmpty(), IsEqual(false))
-//        assertThat(ItemsRepo.getUserItemsFromUID(USER.uid)!!.contains(ITEM), IsEqual(true))
     }
 
     @Test

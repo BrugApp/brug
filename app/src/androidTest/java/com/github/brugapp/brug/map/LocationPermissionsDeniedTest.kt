@@ -74,23 +74,5 @@ class LocationPermissionsDeniedTest {
         return permissionStatus == PackageManager.PERMISSION_GRANTED
     }
 
-//    @Test(expected = NoActivityResumedException::class)
-//    fun locationPermissionDeniedClosesMap() {
-//        val context = ApplicationProvider.getApplicationContext<Context>()
-//
-//        val intent = Intent(context, MapBoxActivity::class.java)
-//        intent.putExtra(ITEMS_TEST_LIST_KEY, ITEMS)
-//        ActivityScenario.launch<Activity>(intent).use {
-//            Thread.sleep(10000)
-//            pressOnPermission("Manifest.permission.ACCESS_FINE_LOCATION")
-//            Thread.sleep(10000)
-//            Espresso.onView(ViewMatchers.withId(R.id.recenter)).check(
-//                ViewAssertions.matches(
-//                    Matchers.not(ViewMatchers.isDisplayed())
-//                )
-//            )
-//        }
-//    }
-
 
 }

@@ -23,7 +23,6 @@ import javax.inject.Inject
 class SignInViewModel @Inject constructor(
     private val signInClient: SignInClient,
     private val signInResultHandler: SignInResultHandler,
-    lastSignedInAccount: SignInAccount?,
     private val auth: AuthDatabase,
     private val credentialGetter: SignInCredentialGetter,
 ) : ViewModel() {
@@ -52,7 +51,7 @@ class SignInViewModel @Inject constructor(
             "unlost.app@gmail.com",
             "123456"
         ).await()
-auth
+
         if (firebaseAuthResponse.user != null) {
             return UserRepository.addUserFromAccount(
                 firebaseAuthResponse.user!!.uid,

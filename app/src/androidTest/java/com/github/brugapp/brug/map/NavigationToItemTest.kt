@@ -171,7 +171,7 @@ class NavigationToItemTest {
     }
 
     @Test
-    fun clickingOnStopStopsNavigationAndGoesBackToMapBoxActivity() {
+    fun clickingOnStopStopsNavigationAndGoesBackToItemMapActivity() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val intent = Intent(context, NavigationToItemActivity::class.java).apply {
             putExtra(EXTRA_DESTINATION_LATITUDE, MICROSOFT_COORDINATES.first)

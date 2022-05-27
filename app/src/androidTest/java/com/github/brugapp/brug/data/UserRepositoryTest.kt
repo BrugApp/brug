@@ -250,9 +250,6 @@ class UserRepositoryTest {
 
         assertThat(updatedUser, IsNot(IsNull.nullValue()))
         assertThat(updatedUser!!.getUserIconPath(), IsNot(IsNull.nullValue()))
-//        assertThat(
-//            updatedUser.getUserIconPath()!!.intrinsicWidth / updatedUser.getUserIcon()!!.intrinsicHeight,
-//            IsEqual(drawable.intrinsicWidth / drawable.intrinsicHeight))
     }
 
     @Test
