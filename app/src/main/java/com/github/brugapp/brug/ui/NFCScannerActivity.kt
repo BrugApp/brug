@@ -61,8 +61,9 @@ open class NFCScannerActivity: AppCompatActivity() {
     /**
      * To test the report item functionality:
      * 1) sign in to unlost.app account
-     * 2) input the following text: 9fA9cFUJFcXnnUNfKUrGIKvMEDu2:2yl32B8cmEZEEGPaxbev
-     * 3) press the button
+     * 2) add an nfc item
+     * 3) log out of account and scan nfc anonymously
+     * 3) log back in to initial account and go to new conversation linked to lost object (takes 10-15s to load)
      * @param savedInstanceState
      */
 
@@ -109,6 +110,13 @@ open class NFCScannerActivity: AppCompatActivity() {
         }
     }
 
+
+    /**
+     * checks text input, if valid we send user to sign-in or chat menu correspondingly
+     * @param editable
+     * @return
+     */
+
     fun nfcLinks(editable: String) {
         val newContext = this
         liveData(Dispatchers.IO){
@@ -143,11 +151,17 @@ open class NFCScannerActivity: AppCompatActivity() {
         return ::scanMessage.isInitialized && ::nfcContents.isInitialized && ::activateButton.isInitialized
     }
 
+    /**
+     * disables the nfc write mode while activity is paused
+     */
     public override fun onPause() {
         super.onPause()
         writeModeOff()
     }
 
+    /**
+     * enables the nfc write mode once activity is resumed
+     */
     public override fun onResume(){
         super.onResume()
         writeModeOn()
@@ -155,7 +169,6 @@ open class NFCScannerActivity: AppCompatActivity() {
 
     /**
      * allows us to stop writing to NFC tag when app is paused
-     *
      */
     fun writeModeOff(){
         writeMode = true

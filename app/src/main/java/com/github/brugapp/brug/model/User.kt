@@ -10,10 +10,16 @@ data class User(
     val tokenList: MutableList<String>
 ): Serializable {
 
+    /**
+     * returns the full name of the user
+     */
     fun getFullName(): String {
         return "$firstName $lastName"
     }
 
+    /**
+     * return the path of the user icon
+     */
     fun getUserIconPath(): String? {
         return this.userIconPath
     }
