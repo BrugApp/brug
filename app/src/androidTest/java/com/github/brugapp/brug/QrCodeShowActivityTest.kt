@@ -28,7 +28,6 @@ class QrCodeShowActivityTest{
     ).apply {
         item.setItemID("23")
         putExtra("qrId", user.uid+":"+item.getItemID())
-        putExtra("itemName", user.uid+":"+item.getItemID())
     }
 
     @Test

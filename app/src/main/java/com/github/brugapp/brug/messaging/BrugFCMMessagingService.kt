@@ -125,6 +125,16 @@ class BrugFCMMessagingService : FirebaseMessagingService() {
         // PART HANDLING SENDING NOTIFICATION MESSAGES
         private const val FCM_MESSAGE_URL = "https://fcm.googleapis.com/fcm/send"
         var mClient: OkHttpClient = OkHttpClient()
+
+        /**
+         * Sends a notification message to a list of devices.
+         *
+         * @param recipients the list of device tokens to target
+         * @param title the title of the notification
+         * @param body the content of the notification
+         *
+         * @return the HTTP result of the operation
+         */
         fun sendNotificationMessage(
             recipients: JSONArray?,
             title: String?,
