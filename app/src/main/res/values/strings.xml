@@ -110,4 +110,6 @@
     <string name="qr_found_btn_txt">I found a QR tag !</string>
     <string name="nfc_found_btn_txt">I found a NFC tag !</string>
     <string name="logo_desc">unlost_logo</string>
+    <string name="night_mode_icn_desc">night_mode_icon</string>
+    <string name="night_mode_txt">Night Mode</string>
 </resources>

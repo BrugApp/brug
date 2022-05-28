@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:insetTop="0dp"
+            app:layout_constraintVertical_chainStyle="packed"
             android:orientation="vertical">
 
             <de.hdodenhof.circleimageview.CircleImageView
@@ -19,10 +20,10 @@
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="9dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
-                android:layout_marginBottom="9dp"
                 app:civ_border_color="#000000"
                 app:civ_border_width="2dp" />
 
@@ -31,9 +32,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:fontFamily="sans-serif-light"
-                android:text=""
                 android:textColor="?android:textColorPrimary"
                 android:textSize="28sp"
                 android:textStyle="bold"/>
@@ -55,7 +56,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginTop="20dp"
                 android:text="@string/sign_out"
                 android:textAlignment="center"
                 android:textAllCaps="false"
@@ -67,7 +67,7 @@
                 style="@style/App.CornderLayout"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="20dp"
                 android:orientation="vertical"
                 android:padding="15dp">
 
@@ -80,7 +80,8 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:padding="12dp"
-                        android:src="@drawable/ic_dark_mode" />
+                        android:src="@drawable/ic_dark_mode"
+                        android:contentDescription="@string/night_mode_icn_desc" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -89,7 +90,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginStart="20dp"
                         android:layout_toEndOf="@+id/night_mode_icon"
-                        android:text="Night Mode"
+                        android:text="@string/night_mode_txt"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -103,109 +104,8 @@
 
                 </RelativeLayout>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/privacy_icon"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_baseline_privacy_tip_24"
-                        android:contentDescription="@string/privacy_icon_desc" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/App.Text"
-                        android:layout_marginStart="20dp"
-                        android:layout_centerVertical="true"
-                        android:layout_toEndOf="@+id/privacy_icon"
-                        android:textStyle="bold"
-                        android:text="@string/privacy"
-                        android:textSize="20sp"/>
-
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/help_icon"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_baseline_help_24"
-                        android:contentDescription="@string/help_icon_desc" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="20dp"
-                        android:layout_toEndOf="@+id/help_icon"
-                        android:text="@string/help"
-                        style="@style/App.Text"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-
-                </RelativeLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/App.CornderLayout"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="40dp"
-                android:orientation="vertical"
-                android:padding="15dp">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/App.Text"
-                        android:layout_marginStart="20dp"
-                        android:layout_centerVertical="true"
-                        android:textStyle="bold"
-                        android:text="@string/terms_amp_conditions"
-                        android:textSize="20sp"/>
-
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        style="@style/App.Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="25dp"
-                        android:layout_centerVertical="true"
-                        android:textStyle="bold"
-                        android:text="@string/about_us"
-                        android:textSize="20sp"/>
-
-
-                </RelativeLayout>
-
-
             </LinearLayout>
 
         </LinearLayout>
 
-    </ScrollView>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
