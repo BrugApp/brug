@@ -11,8 +11,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:insetTop="0dp"
-            app:layout_constraintVertical_chainStyle="packed"
             android:orientation="vertical">
 
             <de.hdodenhof.circleimageview.CircleImageView
@@ -72,6 +70,7 @@
                         android:src="@drawable/ic_dark_mode" />
 
                     <TextView
+                        android:id="@+id/night_mode_txt"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/App.Text"
@@ -86,6 +85,7 @@
                         android:id="@+id/night_mode_toggle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/night_mode_txt"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:switchMinWidth="50dp" />
@@ -93,6 +93,7 @@
                 </RelativeLayout>
 
             </LinearLayout>
+
                 <Button
                     android:id="@+id/sign_out_button"
                     android:layout_width="match_parent"
