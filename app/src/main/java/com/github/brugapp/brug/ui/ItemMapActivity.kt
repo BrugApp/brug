@@ -12,6 +12,7 @@ import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import com.github.brugapp.brug.ITEMMAPACTIVITY_NAMEKEY
 import com.github.brugapp.brug.EXTRA_ACTIVITY_NAME_KEY
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
@@ -133,7 +134,7 @@ class ItemMapActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        if(parentActivityName == "CHATACTIVITY"){
+        if(parentActivityName == ITEMMAPACTIVITY_NAMEKEY){
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
     }

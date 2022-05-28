@@ -37,7 +37,6 @@
         <activity
             android:name=".ui.QrCodeShowActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity"
             android:label="@string/title_activity_qr_code_show"/>
 
         <activity
@@ -47,8 +46,7 @@
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
-            android:label="Settings"
-            android:parentActivityName=".ui.ItemsMenuActivity"/>
+            android:label="Settings" />
         <!--
          Set custom default icon. This is used when no icon is set for incoming notification messages.
         See README(https://goo.gl/l4GJaQ) for more.
@@ -81,11 +79,7 @@
         <activity
             android:name=".ui.QrCodeScannerActivity"
             android:exported="false"
-            android:parentActivityName=".ui.SignInActivity"
             android:label="@string/title_activity_scan_qr_code">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.SignInActivity" />
         </activity>
         <activity
             android:name=".ui.NFCScannerActivity"
@@ -126,7 +120,6 @@
         <activity
             android:name=".ui.ItemInformationActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity"
             android:label="@string/title_activity_item_information"/>
 
         <service

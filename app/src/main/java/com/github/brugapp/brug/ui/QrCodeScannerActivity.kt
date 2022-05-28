@@ -2,6 +2,7 @@ package com.github.brugapp.brug.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -43,6 +44,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_qr_code_scanner)
         viewModel.checkPermissions(this)
         viewModel.codeScanner(this)
@@ -90,4 +92,10 @@ class QrCodeScannerActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
+    }
 }

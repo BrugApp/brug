@@ -111,6 +111,7 @@ class ItemsMenuActivity : AppCompatActivity() {
                 val intent = Intent(this, ItemInformationActivity::class.java)
                 intent.putExtra(ITEM_INTENT_KEY, clickedItem)
                 startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
 
             listView.layoutManager = LinearLayoutManager(this)

@@ -166,7 +166,7 @@ class ChatActivity : AppCompatActivity() {
                         val myIntent = Intent(this@ChatActivity, ItemMapActivity::class.java)
                         myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
                         myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
-                        myIntent.putExtra(EXTRA_ACTIVITY_NAME_KEY, "CHATACTIVITY")
+                        myIntent.putExtra(EXTRA_ACTIVITY_NAME_KEY, ITEMMAPACTIVITY_NAMEKEY)
                         startActivity(myIntent)
                         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
