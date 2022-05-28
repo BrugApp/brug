@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:contentDescription="@string/message">
@@ -15,13 +14,8 @@
         app:layout_constraintTop_toTopOf="parent"
         android:background="@drawable/rounded_edge"
         android:backgroundTint="?colorSecondaryVariant"
+        android:padding="5dp"
         android:layout_gravity="end">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/chat_item_sender"
@@ -30,15 +24,8 @@
                 android:layout_marginEnd="8dp"
                 android:text="@string/sender"
                 android:textColor="?colorOnPrimary"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:orientation="horizontal">
+                android:textStyle="bold"
+                android:layout_gravity="end"/>
 
             <TextView
                 android:id="@+id/chat_item_content"
@@ -48,14 +35,8 @@
                 android:layout_marginEnd="8dp"
                 android:maxWidth="270dp"
                 android:text="@string/long_message"
-                android:textColor="?colorOnPrimary" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:orientation="horizontal">
+                android:textColor="?colorOnPrimary"
+                android:layout_gravity="end"/>
 
             <TextView
                 android:id="@+id/chat_item_datetime"
@@ -64,9 +45,10 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="@string/timestamp_example"
-                android:textColor="?colorOnPrimary" />
+                android:textColor="?colorOnPrimary"
+                android:textSize="11sp"
+                android:layout_gravity="end"/>
 
-        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

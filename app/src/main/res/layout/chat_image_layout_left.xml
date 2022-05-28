@@ -38,7 +38,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/timestamp_example"
-                android:textColor="#989898" />
+                android:textColor="#989898"
+                android:textSize="11sp"/>
 
         </LinearLayout>
 

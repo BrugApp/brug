@@ -25,7 +25,7 @@
     <string name="night_mode">Night mode</string>
     <string name="action_settings">settings</string>
     <string name="settings">Settings</string>
-    <string name="add_item">Enter the ID located on the tag you found…</string>
+    <string name="qr_scan_textbox_hint">Scan the tag or type its ID…</string>
     <string name="report_item">Report</string>
     <string name="Icon_for_item">desc_item_icon</string>
     <string name="my_items_temp_button">My Items (demo)</string>
@@ -64,7 +64,7 @@
     <string name="send_image_via_camera">Send image via camera</string>
     <string name="deleteAudio">deleteAudio</string>
     <string name="sendAudio">sendAudio</string>
-    <string name="RecordingAudio">Recording ...</string>
+    <string name="RecordingAudio">Recording…</string>
     <string name="demo_text">DEMO</string>
     <string name="profile_picture">Profile picture</string>
     <string name="load_profile_picture">Load from gallery</string>
@@ -80,7 +80,7 @@
     <string name="change">change</string>
     <string name="imagesent">ImageSent</string>
     <string name="sender">Sender</string>
-    <string name="long_message">Hi, this is a very very long message that should be wrapped!</string>
+    <string name="long_message">Hi, this is a very long message that should be wrapped!</string>
     <string name="timestamp_example">220317133700</string>
     <string name="profile_picture_description">Profile picture</string>
     <string name="location">location</string>
