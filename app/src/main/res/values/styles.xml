@@ -19,7 +19,7 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
-    <style name="App.CornderLayout" parent="">
+    <style name="App.CornerLayout" parent="">
         <item name="android:background">@drawable/round_back_white</item>
     </style>
 </resources>

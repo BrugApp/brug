@@ -25,7 +25,7 @@
     <string name="night_mode">Night mode</string>
     <string name="action_settings">settings</string>
     <string name="settings">Settings</string>
-    <string name="add_item">Report item…</string>
+    <string name="add_item">Enter the ID located on the tag you found…</string>
     <string name="report_item">Report</string>
     <string name="Icon_for_item">desc_item_icon</string>
     <string name="my_items_temp_button">My Items (demo)</string>

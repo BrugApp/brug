@@ -47,7 +47,7 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.checkPermissions(this)
         viewModel.codeScanner(this)
 
-        findViewById<EditText>(R.id.edit_message).setText("J7jDsvME15fNKvLssZ9bezpABHn2:9m7SvfslSij6f7iplq68")
+        findViewById<EditText>(R.id.edit_message)
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
             val context = this
