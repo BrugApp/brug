@@ -112,4 +112,6 @@
     <string name="logo_desc">unlost_logo</string>
     <string name="night_mode_icn_desc">night_mode_icon</string>
     <string name="night_mode_txt">Night Mode</string>
+    <string name="sign_out_btn_txt">Sign Out</string>
+    <string name="sign_out_icn_desc">sign_out_icon</string>
 </resources>
