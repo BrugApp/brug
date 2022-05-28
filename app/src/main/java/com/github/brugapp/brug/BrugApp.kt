@@ -16,6 +16,7 @@ const val STORAGE_REQUEST_CODE = 2000
 const val ITEMS_TEST_LIST_KEY = "ItemsTestList"
 const val MESSAGE_TEST_LIST_KEY = "MessageTestList"
 const val CONVERSATION_TEST_LIST_KEY = "ConvTestList"
+const val EXTRA_ACTIVITY_NAME_KEY: String = "ActivityNameKey"
 const val SUCCESS_TEXT = "Thank you ! The user will be notified."
 
 

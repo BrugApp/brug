@@ -6,11 +6,13 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import com.github.brugapp.brug.EXTRA_ACTIVITY_NAME_KEY
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.BrugDataCache
@@ -67,6 +69,8 @@ class ItemMapActivity : AppCompatActivity() {
     private lateinit var pointAnnotationManager: PointAnnotationManager
     private lateinit var viewAnnotationManager: ViewAnnotationManager
 
+    private var parentActivityName: String? = null
+
     @Inject
     lateinit var firestore: FirebaseFirestore
 
@@ -80,6 +84,8 @@ class ItemMapActivity : AppCompatActivity() {
      */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         binding = ActivityMapBoxBinding.inflate(layoutInflater)
         annotationPlugin = binding.mapView.annotations
         pointAnnotationManager = annotationPlugin.createPointAnnotationManager()
@@ -114,12 +120,29 @@ class ItemMapActivity : AppCompatActivity() {
             (intent.extras!!.get(EXTRA_MAP_ZOOM) as Double?)?.apply {
                 zoom = this
             }
+            (intent.extras!!.get(EXTRA_ACTIVITY_NAME_KEY) as String?).apply {
+                parentActivityName = this
+            }
         }
 
         locationPermissionHelper = LocationPermissionHelper(WeakReference(this))
         locationPermissionHelper.checkPermissions {
             onMapReady()
         }
+    }
+
+    override fun finish() {
+        super.finish()
+        if(parentActivityName == "CHATACTIVITY"){
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun onMapReady() {

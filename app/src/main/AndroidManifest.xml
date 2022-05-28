@@ -43,8 +43,7 @@
         <activity
             android:name=".ui.ItemMapActivity"
             android:exported="false"
-            android:label="@string/title_activity_map"
-            android:parentActivityName=".ui.ItemsMenuActivity" />
+            android:label="@string/title_activity_map" />
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
@@ -76,11 +75,7 @@
         <activity
             android:name=".ui.FullScreenImage"
             android:exported="true"
-            android:parentActivityName=".ui.ChatActivity"
             android:label="@string/title_activity_image">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ChatActivity" />
         </activity>
 
         <activity

@@ -45,7 +45,6 @@ import javax.inject.Inject
  * Used as a conversation between two users
  */
 class ChatActivity : AppCompatActivity() {
-
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var convID: String
 
@@ -167,7 +166,9 @@ class ChatActivity : AppCompatActivity() {
                         val myIntent = Intent(this@ChatActivity, ItemMapActivity::class.java)
                         myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
                         myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
+                        myIntent.putExtra(EXTRA_ACTIVITY_NAME_KEY, "CHATACTIVITY")
                         startActivity(myIntent)
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
                         adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
                     ) {
@@ -175,6 +176,7 @@ class ChatActivity : AppCompatActivity() {
                         val message = adapter.getItem(position) as PicMessage
                         myIntent.putExtra("messageUrl", message.imgUrl)
                         startActivity(myIntent)
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     }
                 }
             })
