@@ -68,12 +68,11 @@
             android:name=".ui.AddItemActivity"
             android:exported="false"
             android:parentActivityName=".ui.ItemsMenuActivity"
-            android:label="@string/title_activity_add_item"/>/>
+            android:label="@string/title_activity_add_item"/>
         <activity
             android:name=".ui.ChatActivity"
             android:exported="false"
-            android:label="@string/title_activity_chat"
-            android:parentActivityName=".ui.ChatMenuActivity" />
+            android:label="@string/title_activity_chat" />
         <activity
             android:name=".ui.FullScreenImage"
             android:exported="true"

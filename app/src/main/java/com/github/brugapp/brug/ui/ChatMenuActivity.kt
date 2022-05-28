@@ -115,6 +115,7 @@ class ChatMenuActivity : AppCompatActivity() {
                 val intent = Intent(this, ChatActivity::class.java)
                 intent.putExtra(CHAT_INTENT_KEY, clickedConv)
                 startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
 
             listView.layoutManager = LinearLayoutManager(this)
