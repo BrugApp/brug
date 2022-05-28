@@ -31,8 +31,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_below="@+id/settingsUserPic"
-                android:layout_centerHorizontal="true"
                 android:layout_marginTop="10dp"
                 android:fontFamily="sans-serif-light"
                 android:text=""
@@ -43,25 +41,25 @@
             <Button
                 android:id="@+id/changeProfilePictureButton"
                 style="@style/App.Button"
-                app:cornerRadius="40dp"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:textAlignment="center"
                 android:text="@string/edit_profile"
-                android:textAllCaps="false" />
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                app:cornerRadius="40dp" />
+
             <Button
                 android:id="@+id/sign_out_button"
-                android:layout_width="wrap_content"
                 style="@style/App.Button"
-                app:cornerRadius="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginTop="20dp"
                 android:text="@string/sign_out"
-                android:textAllCaps="false"
                 android:textAlignment="center"
-                />
+                android:textAllCaps="false"
+                app:cornerRadius="40dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -92,7 +90,7 @@
                         android:layout_marginStart="20dp"
                         android:layout_toEndOf="@+id/night_mode_icon"
                         android:text="Night Mode"
-                        android:textSize="20dp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <androidx.appcompat.widget.SwitchCompat
@@ -114,7 +112,8 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:padding="12dp"
-                        android:src="@drawable/ic_baseline_privacy_tip_24" />
+                        android:src="@drawable/ic_baseline_privacy_tip_24"
+                        android:contentDescription="@string/privacy_icon_desc" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -124,8 +123,8 @@
                         android:layout_centerVertical="true"
                         android:layout_toEndOf="@+id/privacy_icon"
                         android:textStyle="bold"
-                        android:text="Privacy"
-                        android:textSize="20dp"/>
+                        android:text="@string/privacy"
+                        android:textSize="20sp"/>
 
 
                 </RelativeLayout>
@@ -139,7 +138,8 @@
                         android:layout_width="50dp"
                         android:layout_height="50dp"
                         android:padding="12dp"
-                        android:src="@drawable/ic_baseline_help_24" />
+                        android:src="@drawable/ic_baseline_help_24"
+                        android:contentDescription="@string/help_icon_desc" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -147,9 +147,9 @@
                         android:layout_centerVertical="true"
                         android:layout_marginStart="20dp"
                         android:layout_toEndOf="@+id/help_icon"
-                        android:text="Help"
+                        android:text="@string/help"
                         style="@style/App.Text"
-                        android:textSize="20dp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
 
@@ -179,7 +179,7 @@
                         android:layout_centerVertical="true"
                         android:textStyle="bold"
                         android:text="@string/terms_amp_conditions"
-                        android:textSize="20dp"/>
+                        android:textSize="20sp"/>
 
 
                 </RelativeLayout>
@@ -195,8 +195,8 @@
                         android:layout_marginStart="25dp"
                         android:layout_centerVertical="true"
                         android:textStyle="bold"
-                        android:text="About us"
-                        android:textSize="20dp"/>
+                        android:text="@string/about_us"
+                        android:textSize="20sp"/>
 
 
                 </RelativeLayout>

@@ -102,4 +102,12 @@
     <string name="title_activity_item_information">Item Information</string>
     <string name="title_navigation_to_item_activity">Navigate To Your Item</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="about_us">About us</string>
+    <string name="help">Help</string>
+    <string name="privacy">Privacy</string>
+    <string name="help_icon_desc">help_icon</string>
+    <string name="privacy_icon_desc">privacy_icon</string>
+    <string name="qr_found_btn_txt">I found a QR tag !</string>
+    <string name="nfc_found_btn_txt">I found a NFC tag !</string>
+    <string name="logo_desc">unlost_logo</string>
 </resources>
