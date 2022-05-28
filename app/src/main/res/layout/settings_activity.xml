@@ -91,7 +91,6 @@
                         android:switchMinWidth="50dp" />
 
                 </RelativeLayout>
-
             </LinearLayout>
 
                 <Button

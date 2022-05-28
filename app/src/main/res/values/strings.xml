@@ -34,10 +34,10 @@
     <string name="item_name">Name</string>
     <string name="new_item_text">New Item</string>
     <string name="item_description">Description</string>
-    <string name="required">required</string>
+    <string name="required">Required</string>
     <string name="itemName">Name</string>
     <string name="optional">optional</string>
-    <string name="addButton">Add</string>
+    <string name="addButton">Save item</string>
     <string name="added_on">Added On:</string>
     <string name="owner">Owner</string>
     <string name="device_name">Name</string>
@@ -89,7 +89,7 @@
     <string name="content_description_close">ez</string>
     <string name="map">Map</string>
     <string name="fullscreen_description">Image displayed in fullscreen</string>
-    <string name="add_with_nfc">ADD WITH NFC</string>
+    <string name="add_with_nfc">Write to NFC</string>
     <string name="title_activity_qr_code_show">Your Item\'s QRCode</string>
     <string name="title_activity_map">Your Items\' Last Positions</string>
     <string name="title_activity_add_item">Add a New Item</string>
