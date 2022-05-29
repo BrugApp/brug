@@ -98,4 +98,9 @@ class QrCodeScannerActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
+    }
 }

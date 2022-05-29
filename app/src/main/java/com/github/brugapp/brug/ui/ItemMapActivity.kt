@@ -136,6 +136,8 @@ class ItemMapActivity : AppCompatActivity() {
         super.finish()
         if(parentActivityName == ITEMMAPACTIVITY_NAMEKEY){
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        } else {
+            overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
         }
     }
 

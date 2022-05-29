@@ -64,7 +64,6 @@
         <activity
             android:name=".ui.AddItemActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity"
             android:label="@string/title_activity_add_item"/>
         <activity
             android:name=".ui.ChatActivity"

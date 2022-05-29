@@ -1,5 +1,9 @@
 <resources>
 
+    <style name="DefaultAnimations" parent="">
+        <item name="android:windowAnimationStyle">@style/CustomActivityAnimation</item>
+    </style>
+
     <style name="Widget.Theme.Brug.ButtonBar.Fullscreen" parent="">
         <item name="android:background">@color/black_overlay</item>
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
@@ -21,5 +25,12 @@
 
     <style name="App.CornerLayout" parent="">
         <item name="android:background">@drawable/round_back_white</item>
+    </style>
+    
+    <style name="CustomActivityAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/default_anim</item>
+        <item name="android:activityOpenExitAnimation">@anim/default_anim</item>
+        <item name="android:activityCloseEnterAnimation">@anim/default_anim</item>
+        <item name="android:activityCloseExitAnimation">@anim/default_anim</item>
     </style>
 </resources>

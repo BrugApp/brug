@@ -3,6 +3,7 @@ package com.github.brugapp.brug.ui
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputFilter.LengthFilter
+import android.view.MenuItem
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -49,6 +50,7 @@ class AddItemActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_add_item)
 
         // ITEM NAME PART
@@ -83,6 +85,13 @@ class AddItemActivity : AppCompatActivity() {
         addNfcButton.setOnClickListener {
             addNfcItemOnListener(itemName, itemNameHelper, itemType.selectedItemId.toInt(), itemDesc.text.toString(), firebaseAuth)
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 

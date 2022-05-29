@@ -24,6 +24,7 @@ class BottomNavBar {
                                 ItemsMenuActivity::class.java
                             )
                         )
+                        currentActivity.overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
                     }
                     true
                 }
@@ -35,6 +36,7 @@ class BottomNavBar {
                                 QrCodeScannerActivity::class.java
                             )
                         )
+                        currentActivity.overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
                     }
                     true
                 }
@@ -46,12 +48,14 @@ class BottomNavBar {
                                 ChatMenuActivity::class.java
                             )
                         )
+                        currentActivity.overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
                     }
                     true
                 }
                 R.id.item_map_button -> {
                     if(currentActivity is ItemsMenuActivity || currentActivity is ChatMenuActivity){
                         currentActivity.startActivity(Intent(currentActivity, ItemMapActivity::class.java))
+                        currentActivity.overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
                     }
                     true
                 }
