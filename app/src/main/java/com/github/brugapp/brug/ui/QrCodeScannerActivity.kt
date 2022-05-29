@@ -10,6 +10,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.github.brugapp.brug.EXTRA_ACTIVITY_NAME_KEY
+import com.github.brugapp.brug.QRSCANACTIVITY_NAMEKEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.SUCCESS_TEXT
 import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
@@ -38,6 +40,8 @@ class QrCodeScannerActivity : AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+    private var intentOriginName: String? = null
+
     /**
      * on activity creation, we want to send the user to sign-in if anonymous else we send the user to the chat menu
      * @param savedInstanceState
@@ -49,7 +53,13 @@ class QrCodeScannerActivity : AppCompatActivity() {
         viewModel.checkPermissions(this)
         viewModel.codeScanner(this)
 
-        findViewById<EditText>(R.id.edit_message)
+        if(intent.extras != null){
+            (intent.extras!!.get(EXTRA_ACTIVITY_NAME_KEY) as String?).apply {
+                intentOriginName = this
+            }
+        }
+
+        findViewById<EditText>(R.id.edit_message).setText("J7jDsvME15fNKvLssZ9bezpABHn2:9m7SvfslSij6f7iplq68")
 
         findViewById<Button>(R.id.buttonReportItem).setOnClickListener {
             val context = this
@@ -69,12 +79,14 @@ class QrCodeScannerActivity : AppCompatActivity() {
                         Toast.makeText(context, resultMsg, Toast.LENGTH_LONG).show()
 
                         if(resultMsg == SUCCESS_TEXT){
-                            val myIntent =
-                                if(firebaseAuth.currentUser == null)
-                                    Intent(context, SignInActivity::class.java)
-                                else
-                                    Intent(context, ChatMenuActivity::class.java)
-                            startActivity(myIntent)
+                            if(firebaseAuth.currentUser == null) {
+                                startActivity(Intent(context, SignInActivity::class.java))
+                                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+                            }
+                            else {
+                                startActivity(Intent(context, ChatMenuActivity::class.java))
+                                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
+                            }
                         }
                     }
                 }
@@ -101,6 +113,10 @@ class QrCodeScannerActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
+        if(intentOriginName == QRSCANACTIVITY_NAMEKEY) {
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        } else {
+            overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
+        }
     }
 }
