@@ -10,6 +10,7 @@ import android.nfc.NfcAdapter
 import android.nfc.NfcAdapter.ACTION_TAG_DISCOVERED
 import android.nfc.Tag
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -68,8 +69,10 @@ open class NFCScannerActivity: AppCompatActivity() {
      */
 
     @SuppressLint("SetTextI18n")
-    public override fun onCreate(savedInstanceState: Bundle?){ super.onCreate(savedInstanceState)
+    public override fun onCreate(savedInstanceState: Bundle?){
+        super.onCreate(savedInstanceState)
         context = this
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_nfc_scanner)
         viewModel.checkNFCPermission(this)
         adapter = viewModel.setupAdapter(this)
@@ -108,6 +111,13 @@ open class NFCScannerActivity: AppCompatActivity() {
                 }
             }
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 

@@ -84,7 +84,6 @@
             android:name=".ui.NFCScannerActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:parentActivityName=".ui.SignInActivity"
             android:label="@string/title_activity_nfc">
 
             <intent-filter>
