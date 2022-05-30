@@ -76,7 +76,7 @@ class QrCodeScannerActivityTest {
     @Test
     fun hintTextIsCorrect(){
         onView(withId(R.id.edit_message))
-            .check(matches((withHint("Report item…"))))
+            .check(matches((withHint("Scan the tag or type its ID…"))))
     }
 
     @Test
@@ -91,7 +91,7 @@ class QrCodeScannerActivityTest {
     @Test
     fun canSeeHintWhenCameraIsClicked() {
         onView(withId(R.id.edit_message))
-            .check(matches((withHint("Report item…"))))
+            .check(matches((withHint("Scan the tag or type its ID…"))))
     }
 
     @Test
