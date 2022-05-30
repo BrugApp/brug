@@ -19,7 +19,7 @@ const val CONVERSATION_TEST_LIST_KEY = "ConvTestList"
 const val EXTRA_ACTIVITY_NAME_KEY: String = "ActivityNameKey"
 const val SUCCESS_TEXT = "Thank you ! The user will be notified."
 const val ITEMMAPACTIVITY_NAMEKEY = "ACTIVITY"
-const val QRSCANACTIVITY_NAMEKEY = "SIGNIN"
+const val SCANACTIVITY_NAMEKEY = "SIGNIN"
 
 
 @HiltAndroidApp

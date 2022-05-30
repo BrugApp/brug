@@ -18,7 +18,9 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
+import com.github.brugapp.brug.EXTRA_ACTIVITY_NAME_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.SCANACTIVITY_NAMEKEY
 import com.github.brugapp.brug.SUCCESS_TEXT
 import com.github.brugapp.brug.view_model.NFCScanViewModel
 import com.github.brugapp.brug.view_model.QrCodeScanViewModel
@@ -59,6 +61,8 @@ open class NFCScannerActivity: AppCompatActivity() {
     @Inject
     lateinit var firebaseAuth: FirebaseAuth
 
+    private var intentOriginName: String? = null
+
     /**
      * To test the report item functionality:
      * 1) sign in to unlost.app account
@@ -82,6 +86,12 @@ open class NFCScannerActivity: AppCompatActivity() {
         writingTagFilters = viewModel.setupWritingTagFilters(this).second
         writebool = intent.getStringExtra("write")
         itemid = intent.getStringExtra("itemid")
+
+        if(intent.extras != null) {
+            (intent.extras!!.get(EXTRA_ACTIVITY_NAME_KEY) as String?).apply {
+                intentOriginName = this
+            }
+        }
 
         if(writebool==null || itemid==null){
             activateButton.visibility = View.GONE
@@ -118,6 +128,13 @@ open class NFCScannerActivity: AppCompatActivity() {
             android.R.id.home -> onBackPressed()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun finish() {
+        super.finish()
+        if(intentOriginName == SCANACTIVITY_NAMEKEY) {
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
     }
 
 
