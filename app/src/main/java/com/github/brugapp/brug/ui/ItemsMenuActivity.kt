@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.brugapp.brug.ITEMS_TEST_LIST_KEY
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
+import com.github.brugapp.brug.SCANACTIVITY_NAMEKEY
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.ItemsRepository
 import com.github.brugapp.brug.data.NETWORK_ERROR_MSG
@@ -65,6 +66,11 @@ class ItemsMenuActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         BottomNavBar().setDefaultSelectedItem(this, R.id.items_list_menu_button)
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
     }
 
     // For the settings icon on top bar

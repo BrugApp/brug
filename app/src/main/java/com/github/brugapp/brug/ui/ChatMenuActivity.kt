@@ -78,6 +78,11 @@ class ChatMenuActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
+    }
+
     override fun onResume() {
         super.onResume()
         BottomNavBar().setDefaultSelectedItem(this, R.id.chat_menu_button)
