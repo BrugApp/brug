@@ -83,7 +83,7 @@ class QrCodeScannerActivityTest {
     fun reportWithEmptyTextFieldReturnsErrorToast(){
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText(""))
-        onView(withId(R.id.buttonReportItem)).perform(scrollTo(), click())
+        onView(withId(R.id.buttonReportItem)).perform(click())
 
         // HERE SHOULD LIE AN ASSERTION ON TOAST MESSAGES, BUT IMPOSSIBLE TO DO
     }
@@ -98,7 +98,7 @@ class QrCodeScannerActivityTest {
     fun reportWithBadlyFormattedTextReturnsErrorToast() {
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("abc"))
-        onView(withId(R.id.buttonReportItem)).perform(scrollTo(), click())
+        onView(withId(R.id.buttonReportItem)).perform(click())
     }
 
     @Test
@@ -123,7 +123,7 @@ class QrCodeScannerActivityTest {
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("$userID:$itemID"))
         closeSoftKeyboard()
-        onView(withId(R.id.buttonReportItem)).perform(scrollTo(), click())
+        onView(withId(R.id.buttonReportItem)).perform(click())
         Thread.sleep(3000)
         intended(
             IntentMatchers.hasComponent(SignInActivity::class.java.name)
@@ -162,7 +162,7 @@ class QrCodeScannerActivityTest {
 
         val editTextItem = onView(withId(R.id.edit_message))
         editTextItem.perform(replaceText("$userID:$itemID"))
-        onView(withId(R.id.buttonReportItem)).perform(scrollTo(), click())
+        onView(withId(R.id.buttonReportItem)).perform(click())
         Thread.sleep(3000)
         intended(
             IntentMatchers.hasComponent(ChatMenuActivity::class.java.name)
