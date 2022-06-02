@@ -58,7 +58,7 @@ class SignInActivity : AppCompatActivity() {
             startActivity(myIntent)
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
-
+ 
         // Set Listener for google sign in button
         findViewById<SignInButton>(R.id.sign_in_google_button).setOnClickListener {
             val context = this
