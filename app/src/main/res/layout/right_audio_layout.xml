@@ -4,7 +4,7 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp">
+        android:paddingTop="5dp">
 
 
         <RelativeLayout
@@ -20,19 +20,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:enableVisualizer="true"
-                app:playPauseBackgroundColor="@color/colorPrimary"
+                app:playPauseBackgroundColor="@color/black"
                 app:playPauseCornerRadius="100"
-                app:playProgressbarColor="@color/colorPrimary"
-                app:progressTimeColor="@color/black"
-                app:seekBarProgressColor="#000"
-                app:seekBarThumbColor="@color/colorPrimary"
+                app:playProgressbarColor="?colorOnPrimary"
+                app:progressTimeColor="?colorOnPrimary"
+                app:seekBarProgressColor="?colorOnPrimary"
+                app:seekBarThumbColor="?colorOnPrimary"
                 app:shareCornerRadius="100"
                 app:showShareButton="false"
                 app:showTiming="true"
-                app:viewBackground="@color/black_overlay"
+                app:viewBackground="?colorSecondaryVariant"
                 app:viewCornerRadius="10"
-                app:visualizationNotPlayedColor="@color/colorPrimary"
-                app:visualizationPlayedColor="@color/colorPrimary" />
+                app:visualizationNotPlayedColor="?colorOnPrimary"
+                app:visualizationPlayedColor="?colorOnPrimary" />
 
         </RelativeLayout>
 

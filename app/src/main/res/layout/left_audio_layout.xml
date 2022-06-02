@@ -11,26 +11,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
-            android:padding="5dp">
+            android:padding="5dp"
+            android:background="?background">
 
             <me.jagar.chatvoiceplayerlibrary.VoicePlayerView
                 android:id="@+id/voicePlayerView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:enableVisualizer="true"
-                app:playPauseBackgroundColor="@color/colorAccent"
+                app:playPauseBackgroundColor="@color/black"
                 app:playPauseCornerRadius="100"
-                app:playProgressbarColor="@color/colorAccent"
-                app:progressTimeColor="@color/white"
-                app:seekBarProgressColor="#000"
-                app:seekBarThumbColor="@color/colorAccent"
+                app:playProgressbarColor="?colorOnPrimary"
+                app:progressTimeColor="?colorOnPrimary"
+                app:seekBarProgressColor="?colorOnPrimary"
+                app:seekBarThumbColor="?colorOnPrimary"
                 app:shareCornerRadius="100"
                 app:showShareButton="false"
                 app:showTiming="true"
-                app:viewBackground="@color/teal_700"
+                app:viewBackground="?colorPrimary"
                 app:viewCornerRadius="10"
-                app:visualizationNotPlayedColor="@color/colorAccent"
-                app:visualizationPlayedColor="@color/colorAccent" />
+                app:visualizationNotPlayedColor="?colorOnPrimary"
+                app:visualizationPlayedColor="?colorOnPrimary" />
 
         </RelativeLayout>
 

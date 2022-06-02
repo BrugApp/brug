@@ -19,7 +19,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="fill_parent"
         android:layout_height="60dp"
-        android:background="#FFFFFF"
+        android:background="?colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -41,7 +41,7 @@
                 android:ems="10"
                 android:hint="@string/message"
                 android:inputType="textPersonName"
-                android:textColor="@color/black"
+                android:textColor="?colorOnPrimary"
                 android:textColorHint="#757575"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/buttonSendLocalisation"
@@ -49,39 +49,36 @@
 
             <ImageButton
                 android:id="@+id/buttonSendLocalisation"
-                style="@android:style/Widget.Holo.ImageButton"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:backgroundTint="#FFFFFF"
                 android:contentDescription="@string/send_localisation"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
                 app:srcCompat="@drawable/ic_baseline_location_on_24"
-                app:tint="#616161" />
+                app:tint="?colorOnPrimary"
+                android:backgroundTint="?colorPrimary" />
 
             <ImageButton
                 android:id="@+id/buttonSendImage"
-                style="@android:style/Widget.Holo.ImageButton"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:backgroundTint="#FFFFFF"
                 android:contentDescription="@string/send_image"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:srcCompat="@drawable/ic_baseline_image_24"
-                app:tint="#616161" />
+                app:tint="?colorOnPrimary"
+                android:backgroundTint="?colorPrimary" />
 
             <ImageButton
                 android:id="@+id/buttonSendImagePerCamera"
-                style="@android:style/Widget.Holo.ImageButton"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:backgroundTint="#FFFFFF"
                 android:contentDescription="@string/send_image_via_camera"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:srcCompat="@drawable/ic_baseline_camera_24"
-                app:tint="#616161" />
+                app:tint="?colorOnPrimary"
+                android:backgroundTint="?colorPrimary" />
 
         </LinearLayout>
 
@@ -103,49 +100,49 @@
 
         <ImageButton
             android:id="@+id/deleteAudio"
-            style="@android:style/Widget.Holo.ImageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:contentDescription="@string/deleteAudio"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_baseline_delete_24"
+            app:tint="?colorOnPrimary"
+            android:backgroundTint="?colorPrimary"
             android:visibility="gone"/>
 
         <ImageButton
             android:id="@+id/buttonSendAudio"
-            style="@android:style/Widget.Holo.ImageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:contentDescription="@string/sendAudio"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_baseline_send_24"
+            android:backgroundTint="?colorPrimary"
             android:visibility="gone"/>
 
         <ImageButton
             android:id="@+id/recordButton"
             android:layout_width="44dp"
             android:layout_height="50dp"
-            android:backgroundTint="#FFFFFF"
             android:contentDescription="@string/send"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_mic"
-            app:tint="#616161"
+            app:tint="?colorOnPrimary"
+            android:backgroundTint="?colorPrimary"
             android:visibility="visible"/>
 
         <ImageButton
             android:id="@+id/buttonSendMessage"
-            style="@android:style/Widget.Holo.ImageButton"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:backgroundTint="#FFFFFF"
             android:contentDescription="@string/send"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:srcCompat="@drawable/ic_baseline_send_24"
-            app:tint="#616161"
+            app:tint="?colorOnPrimary"
+            android:backgroundTint="?colorPrimary"
             android:visibility="gone"/>
 
     </LinearLayout>

@@ -78,6 +78,11 @@ class ChatMenuActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.default_anim, R.anim.default_anim)
+    }
+
     override fun onResume() {
         super.onResume()
         BottomNavBar().setDefaultSelectedItem(this, R.id.chat_menu_button)
@@ -115,6 +120,7 @@ class ChatMenuActivity : AppCompatActivity() {
                 val intent = Intent(this, ChatActivity::class.java)
                 intent.putExtra(CHAT_INTENT_KEY, clickedConv)
                 startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
 
             listView.layoutManager = LinearLayoutManager(this)

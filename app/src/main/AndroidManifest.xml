@@ -37,19 +37,16 @@
         <activity
             android:name=".ui.QrCodeShowActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity"
             android:label="@string/title_activity_qr_code_show"/>
 
         <activity
             android:name=".ui.ItemMapActivity"
             android:exported="false"
-            android:label="@string/title_activity_map"
-            android:parentActivityName=".ui.ItemsMenuActivity" />
+            android:label="@string/title_activity_map" />
         <activity
             android:name=".ui.SettingsActivity"
             android:exported="false"
-            android:label="Settings"
-            android:parentActivityName=".ui.ItemsMenuActivity"/>
+            android:label="Settings" />
         <!--
          Set custom default icon. This is used when no icon is set for incoming notification messages.
         See README(https://goo.gl/l4GJaQ) for more.
@@ -67,37 +64,26 @@
         <activity
             android:name=".ui.AddItemActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity"
-            android:label="@string/title_activity_add_item"/>/>
+            android:label="@string/title_activity_add_item"/>
         <activity
             android:name=".ui.ChatActivity"
             android:exported="false"
-            android:label="@string/title_activity_chat"
-            android:parentActivityName=".ui.ChatMenuActivity" />
+            android:label="@string/title_activity_chat" />
         <activity
             android:name=".ui.FullScreenImage"
             android:exported="true"
-            android:parentActivityName=".ui.ChatActivity"
             android:label="@string/title_activity_image">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.ChatActivity" />
         </activity>
 
         <activity
             android:name=".ui.QrCodeScannerActivity"
             android:exported="false"
-            android:parentActivityName=".ui.SignInActivity"
             android:label="@string/title_activity_scan_qr_code">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.SignInActivity" />
         </activity>
         <activity
             android:name=".ui.NFCScannerActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:parentActivityName=".ui.SignInActivity"
             android:label="@string/title_activity_nfc">
 
             <intent-filter>
@@ -132,7 +118,6 @@
         <activity
             android:name=".ui.ItemInformationActivity"
             android:exported="false"
-            android:parentActivityName=".ui.ItemsMenuActivity"
             android:label="@string/title_activity_item_information"/>
 
         <service

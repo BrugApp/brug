@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
@@ -44,7 +45,6 @@ import javax.inject.Inject
  * Used as a conversation between two users
  */
 class ChatActivity : AppCompatActivity() {
-
     private val viewModel: ChatViewModel by viewModels()
     private lateinit var convID: String
 
@@ -69,6 +69,7 @@ class ChatActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val conversation = intent.getSerializableExtra(CHAT_INTENT_KEY) as Conversation
         convID = conversation.convId
@@ -99,6 +100,18 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun initMessageList(conversation: Conversation) {
@@ -153,7 +166,9 @@ class ChatActivity : AppCompatActivity() {
                         val myIntent = Intent(this@ChatActivity, ItemMapActivity::class.java)
                         myIntent.putExtra(EXTRA_DESTINATION_LONGITUDE, lon)
                         myIntent.putExtra(EXTRA_DESTINATION_LATITUDE, lat)
+                        myIntent.putExtra(EXTRA_ACTIVITY_NAME_KEY, ITEMMAPACTIVITY_NAMEKEY)
                         startActivity(myIntent)
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     } else if (adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_RIGHT.ordinal ||
                         adapter.getItemViewType(position) == ChatMessagesListAdapter.MessageType.TYPE_IMAGE_LEFT.ordinal
                     ) {
@@ -161,6 +176,7 @@ class ChatActivity : AppCompatActivity() {
                         val message = adapter.getItem(position) as PicMessage
                         myIntent.putExtra("messageUrl", message.imgUrl)
                         startActivity(myIntent)
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
                     }
                 }
             })

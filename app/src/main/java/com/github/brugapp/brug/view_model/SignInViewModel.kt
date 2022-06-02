@@ -7,10 +7,13 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.di.sign_in.*
+import com.github.brugapp.brug.di.sign_in.AuthDatabase
+import com.github.brugapp.brug.di.sign_in.SignInClient
+import com.github.brugapp.brug.di.sign_in.SignInCredentialGetter
+import com.github.brugapp.brug.di.sign_in.SignInResultHandler
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
-import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.FirebaseStorage
@@ -47,27 +50,40 @@ class SignInViewModel @Inject constructor(
         firebaseAuth: FirebaseAuth,
         firebaseStorage: FirebaseStorage
     ): Boolean {
-        val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
-            "unlost.app@gmail.com",
-            "123456"
-        ).await()
+        try {
+            val firebaseAuthResponse = firebaseAuth.signInWithEmailAndPassword(
+                "unlost.app@gmail.com",
+                "123456"
+            ).await()
 
-        if (firebaseAuthResponse.user != null) {
-            val result = UserRepository.addUserFromAccount(
-                firebaseAuthResponse.user!!.uid,
-                BrugSignInAccount("Unlost", "DemoUser", "", ""),
-        false,
-                firestore
-            ).onSuccess
+            if (firebaseAuthResponse.user != null) {
+                val result = UserRepository.addUserFromAccount(
+                    firebaseAuthResponse.user!!.uid,
+                    BrugSignInAccount("Unlost", "DemoUser", "", ""),
+                    false,
+                    firestore
+                ).onSuccess
 
-            if(result){
-                val user = UserRepository.getUserFromUID(firebaseAuthResponse.user!!.uid, firestore, firebaseAuth, firebaseStorage) ?: return result
-                BrugDataCache.setUserInCache(user)
+                if (result) {
+                    val user = UserRepository.getUserFromUID(
+                        firebaseAuthResponse.user!!.uid,
+                        firestore,
+                        firebaseAuth,
+                        firebaseStorage
+                    ) ?: return result
+                    BrugDataCache.setUserInCache(user)
+                }
+
+                return result
             }
-
-            return result
+            return false
+        } catch (e: FirebaseAuthInvalidUserException) {
+            firebaseAuth.createUserWithEmailAndPassword(
+                "unlost.app@gmail.com",
+                "123456"
+            ).await()
+            return firebaseAuth.currentUser != null
         }
-        return false
     }
 
     /**

@@ -25,7 +25,7 @@
     <string name="night_mode">Night mode</string>
     <string name="action_settings">settings</string>
     <string name="settings">Settings</string>
-    <string name="add_item">Report item…</string>
+    <string name="qr_scan_textbox_hint">Scan the tag or type its ID…</string>
     <string name="report_item">Report</string>
     <string name="Icon_for_item">desc_item_icon</string>
     <string name="my_items_temp_button">My Items (demo)</string>
@@ -34,10 +34,10 @@
     <string name="item_name">Name</string>
     <string name="new_item_text">New Item</string>
     <string name="item_description">Description</string>
-    <string name="required">required</string>
+    <string name="required">Required</string>
     <string name="itemName">Name</string>
     <string name="optional">optional</string>
-    <string name="addButton">Add</string>
+    <string name="addButton">Save item</string>
     <string name="added_on">Added On:</string>
     <string name="owner">Owner</string>
     <string name="device_name">Name</string>
@@ -64,7 +64,7 @@
     <string name="send_image_via_camera">Send image via camera</string>
     <string name="deleteAudio">deleteAudio</string>
     <string name="sendAudio">sendAudio</string>
-    <string name="RecordingAudio">Recording ...</string>
+    <string name="RecordingAudio">Recording…</string>
     <string name="demo_text">DEMO</string>
     <string name="profile_picture">Profile picture</string>
     <string name="load_profile_picture">Load from gallery</string>
@@ -80,7 +80,7 @@
     <string name="change">change</string>
     <string name="imagesent">ImageSent</string>
     <string name="sender">Sender</string>
-    <string name="long_message">Hi, this is a very very long message that should be wrapped!</string>
+    <string name="long_message">Hi, this is a very long message that should be wrapped!</string>
     <string name="timestamp_example">220317133700</string>
     <string name="profile_picture_description">Profile picture</string>
     <string name="location">location</string>
@@ -89,7 +89,7 @@
     <string name="content_description_close">ez</string>
     <string name="map">Map</string>
     <string name="fullscreen_description">Image displayed in fullscreen</string>
-    <string name="add_with_nfc">ADD WITH NFC</string>
+    <string name="add_with_nfc">Write to NFC</string>
     <string name="title_activity_qr_code_show">Your Item\'s QRCode</string>
     <string name="title_activity_map">Your Items\' Last Positions</string>
     <string name="title_activity_add_item">Add a New Item</string>
@@ -102,4 +102,16 @@
     <string name="title_activity_item_information">Item Information</string>
     <string name="title_navigation_to_item_activity">Navigate To Your Item</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="about_us">About us</string>
+    <string name="help">Help</string>
+    <string name="privacy">Privacy</string>
+    <string name="help_icon_desc">help_icon</string>
+    <string name="privacy_icon_desc">privacy_icon</string>
+    <string name="qr_found_btn_txt">I found a QR tag !</string>
+    <string name="nfc_found_btn_txt">I found a NFC tag !</string>
+    <string name="logo_desc">unlost_logo</string>
+    <string name="night_mode_icn_desc">night_mode_icon</string>
+    <string name="night_mode_txt">Night Mode</string>
+    <string name="sign_out_btn_txt">Sign Out</string>
+    <string name="sign_out_icn_desc">sign_out_icon</string>
 </resources>

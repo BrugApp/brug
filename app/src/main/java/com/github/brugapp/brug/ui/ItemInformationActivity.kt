@@ -3,6 +3,7 @@ package com.github.brugapp.brug.ui
 import android.content.Intent
 import android.location.Geocoder
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
@@ -11,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.github.brugapp.brug.EXTRA_ACTIVITY_NAME_KEY
+import com.github.brugapp.brug.ITEMMAPACTIVITY_NAMEKEY
 import com.github.brugapp.brug.ITEM_INTENT_KEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ItemsRepository
@@ -40,6 +43,7 @@ class ItemInformationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_item_information)
         val item = intent.extras!!.get(ITEM_INTENT_KEY) as Item
 
@@ -69,11 +73,25 @@ class ItemInformationActivity : AppCompatActivity() {
                 intent.putExtra(ITEM_INTENT_KEY, item)
                 intent.putExtra(EXTRA_DESTINATION_LONGITUDE, localisation.getLongitude())
                 intent.putExtra(EXTRA_DESTINATION_LATITUDE, localisation.getLatitude())
+                intent.putExtra(EXTRA_ACTIVITY_NAME_KEY, ITEMMAPACTIVITY_NAMEKEY)
                 startActivity(intent)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
             }
         }
 
         qrCodeButton(item)
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun setSwitch(item: Item, firebaseAuth: FirebaseAuth) {
@@ -108,10 +126,9 @@ class ItemInformationActivity : AppCompatActivity() {
         button.setOnClickListener {
             val intent = Intent(this, QrCodeShowActivity::class.java)
             //give qrId to QrCodeShow
-
             intent.putExtra("qrId", "${firebaseAuth.uid}:${item.getItemID()}")
-
             startActivity(intent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
     }
 

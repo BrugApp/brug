@@ -121,7 +121,7 @@ class AddItemTest {
         itemName.perform(closeSoftKeyboard())
 
 
-        onView(withId(R.id.add_nfc_item)).perform(scrollTo(), click())
+        onView(withId(R.id.add_nfc_item)).perform(click())
 
 
         Intents.intended(
@@ -178,7 +178,7 @@ class AddItemTest {
         val expectedHelperText = "Name must contain at least 1 character"
 
         val addButton = onView(withId(R.id.add_item_button))
-        addButton.perform(scrollTo(), click())
+        addButton.perform(click())
 
         // Verify that the Helper text changed after invalid name, and hence we are still in the AddItem activity
         nameHelperText.check(matches(withText(expectedHelperText)))
@@ -195,7 +195,7 @@ class AddItemTest {
            in order not to get a SecurityException
         */
         itemName.perform(closeSoftKeyboard())
-        onView(withId(R.id.add_item_button)).perform(scrollTo(), click())
+        onView(withId(R.id.add_item_button)).perform(click())
 
         // Verify that the app goes to the Item List activity if the User enters valid info for his/her new item.
         Intents.intended(

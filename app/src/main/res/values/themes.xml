@@ -8,11 +8,12 @@
         <item name="android:textColorSecondary">@color/black</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/black</item>
-        <item name="colorSecondaryVariant">@color/black</item>
+        <item name="colorSecondaryVariant">@color/gray_400</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="background">@drawable/rounded_edge_light_withborder</item>
     </style>
 
     <style name="ThemeOverlay.Brug.FullscreenContainer" parent="">

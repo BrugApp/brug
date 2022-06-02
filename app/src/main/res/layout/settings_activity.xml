@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_marginTop="50dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             android:orientation="vertical">
 
             <de.hdodenhof.circleimageview.CircleImageView
@@ -19,10 +19,10 @@
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="9dp"
                 android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
-                android:layout_marginBottom="9dp"
                 app:civ_border_color="#000000"
                 app:civ_border_width="2dp" />
 
@@ -31,11 +31,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_below="@+id/settingsUserPic"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:fontFamily="sans-serif-light"
-                android:text=""
                 android:textColor="?android:textColorPrimary"
                 android:textSize="28sp"
                 android:textStyle="bold"/>
@@ -43,33 +41,20 @@
             <Button
                 android:id="@+id/changeProfilePictureButton"
                 style="@style/App.Button"
-                app:cornerRadius="40dp"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/edit_profile"
-                android:textAllCaps="false"
-                android:paddingEnd="30dp"/>
-            <Button
-                android:id="@+id/sign_out_button"
-                android:layout_width="wrap_content"
-                style="@style/App.Button"
-                app:cornerRadius="40dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="20dp"
-                android:paddingStart="30dp"
-                android:layout_gravity="center"
-                android:text="@string/sign_out"
-                android:textAllCaps="false"
-                android:paddingEnd="30dp"/>
+                android:textAlignment="center"
+                app:cornerRadius="40dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/App.CornderLayout"
+                style="@style/App.CornerLayout"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="20dp"
                 android:orientation="vertical"
                 android:padding="15dp">
 
@@ -81,131 +66,47 @@
                         android:id="@+id/night_mode_icon"
                         android:layout_width="50dp"
                         android:layout_height="50dp"
+                        android:contentDescription="@string/night_mode_icn_desc"
                         android:padding="12dp"
                         android:src="@drawable/ic_dark_mode" />
 
                     <TextView
+                        android:id="@+id/night_mode_txt"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         style="@style/App.Text"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="20dp"
                         android:layout_toEndOf="@+id/night_mode_icon"
-                        android:text="Night Mode"
-                        android:textSize="20dp"
+                        android:text="@string/night_mode_txt"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/night_mode_toggle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_toEndOf="@id/night_mode_txt"
                         android:layout_alignParentEnd="true"
                         android:layout_centerVertical="true"
                         android:switchMinWidth="50dp" />
 
                 </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/privacy_icon"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_baseline_privacy_tip_24" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/App.Text"
-                        android:layout_marginStart="20dp"
-                        android:layout_centerVertical="true"
-                        android:layout_toEndOf="@+id/privacy_icon"
-                        android:textStyle="bold"
-                        android:text="Privacy"
-                        android:textSize="20dp"/>
-
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/help_icon"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:padding="12dp"
-                        android:src="@drawable/ic_baseline_help_24" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="20dp"
-                        android:layout_toEndOf="@+id/help_icon"
-                        android:text="Help"
-                        style="@style/App.Text"
-                        android:textSize="20dp"
-                        android:textStyle="bold" />
-
-
-                </RelativeLayout>
-
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                style="@style/App.CornderLayout"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="40dp"
-                android:orientation="vertical"
-                android:padding="15dp">
-
-                <RelativeLayout
+                <Button
+                    android:id="@+id/sign_out_button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/App.Text"
-                        android:layout_marginStart="20dp"
-                        android:layout_centerVertical="true"
-                        android:textStyle="bold"
-                        android:text="@string/terms_amp_conditions"
-                        android:textSize="20dp"/>
-
-
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        style="@style/App.Text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="25dp"
-                        android:layout_centerVertical="true"
-                        android:textStyle="bold"
-                        android:text="About us"
-                        android:textSize="20dp"/>
-
-
-                </RelativeLayout>
-
-
-            </LinearLayout>
+                    android:layout_height="wrap_content"
+                    style="@style/App.Button"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical"
+                    android:padding="15dp"
+                    android:text="@string/sign_out_btn_txt"
+                    app:cornerRadius="20dp"/>
 
         </LinearLayout>
 
-    </ScrollView>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

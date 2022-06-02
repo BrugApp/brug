@@ -12,6 +12,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.github.brugapp.brug.EXTRA_ACTIVITY_NAME_KEY
+import com.github.brugapp.brug.SCANACTIVITY_NAMEKEY
 import com.github.brugapp.brug.R
 import com.github.brugapp.brug.data.ACTION_LOST_ERROR_MSG
 import com.github.brugapp.brug.data.BrugDataCache
@@ -52,10 +54,11 @@ class SignInActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.nfc_found_btn).setOnClickListener {
             val myIntent = Intent(this, NFCScannerActivity::class.java)
-
+            myIntent.putExtra(EXTRA_ACTIVITY_NAME_KEY, SCANACTIVITY_NAMEKEY)
             startActivity(myIntent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
-
+ 
         // Set Listener for google sign in button
         findViewById<SignInButton>(R.id.sign_in_google_button).setOnClickListener {
             val context = this
@@ -73,7 +76,9 @@ class SignInActivity : AppCompatActivity() {
 
         findViewById<Button>(R.id.qr_found_btn).setOnClickListener {
             val myIntent = Intent(this, QrCodeScannerActivity::class.java)
+            myIntent.putExtra(EXTRA_ACTIVITY_NAME_KEY, SCANACTIVITY_NAMEKEY)
             startActivity(myIntent)
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left)
         }
 
         findViewById<Button>(R.id.demo_button).setOnClickListener {

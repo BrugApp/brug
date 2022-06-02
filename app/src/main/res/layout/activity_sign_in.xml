@@ -8,88 +8,94 @@
      android:layout_height="match_parent"
      tools:context=".ui.SignInActivity">
 
-     <Button
-         android:id="@+id/nfc_found_btn"
-         style="@style/App.Button"
-         app:cornerRadius="40dp"
-         android:layout_width="241dp"
-         android:layout_height="57dp"
-         android:paddingStart="30dp"
-         android:layout_gravity="center"
-         android:text="I found a NFC tag !"
-         android:textAllCaps="false"
-         android:paddingEnd="30dp"
-         app:layout_constraintBottom_toTopOf="@+id/qr_found_btn"
-         app:layout_constraintEnd_toEndOf="parent"
-         app:layout_constraintStart_toStartOf="parent"
-         app:layout_constraintTop_toBottomOf="@+id/imageView3"/>
+    <ProgressBar
+        android:id="@+id/loadingUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:translationZ="100dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-     <Button
-         android:id="@+id/qr_found_btn"
-         style="@style/App.Button"
-         app:cornerRadius="40dp"
-         android:layout_width="241dp"
-         android:layout_height="57dp"
-         android:layout_marginTop="20dp"
-         android:layout_marginBottom="40dp"
-         android:paddingStart="30dp"
-         android:layout_gravity="center"
-         android:text="I found a QR tag !"
-         android:textAllCaps="false"
-         android:paddingEnd="30dp"
-         app:layout_constraintBottom_toTopOf="@+id/sign_in_google_button"
-         app:layout_constraintEnd_toEndOf="parent"
-         app:layout_constraintStart_toStartOf="parent"/>
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:layout_constraintBottom_toTopOf="@+id/nfc_found_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:srcCompat="@drawable/unlost_logo"
+        android:contentDescription="@string/logo_desc" />
+
+
+    <Button
+        android:id="@+id/nfc_found_btn"
+        style="@style/App.Button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:insetTop="30dp"
+        android:insetBottom="10dp"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:padding="15dp"
+        android:text="@string/nfc_found_btn_txt"
+        app:cornerRadius="50dp"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toTopOf="@id/qr_found_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+
+    <Button
+        android:id="@+id/qr_found_btn"
+        style="@style/App.Button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:insetTop="10dp"
+        android:insetBottom="10dp"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:padding="15dp"
+        android:text="@string/qr_found_btn_txt"
+        app:cornerRadius="50dp"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toTopOf="@+id/sign_in_google_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/nfc_found_btn" />
 
      <com.google.android.gms.common.SignInButton
          android:id="@+id/sign_in_google_button"
-         android:layout_width="238dp"
-         android:layout_height="64dp"
-         app:layout_constraintBottom_toBottomOf="parent"
-         app:layout_constraintEnd_toEndOf="parent"
-         app:layout_constraintHorizontal_bias="0.468"
-         app:layout_constraintStart_toStartOf="parent"
-         app:layout_constraintTop_toTopOf="parent"
-         app:layout_constraintVertical_bias="0.709" />
-
-     <ImageView
-         android:id="@+id/imageView3"
-         android:layout_width="227dp"
-         android:layout_height="209dp"
-         android:layout_marginTop="76dp"
-         android:layout_marginBottom="71dp"
-         app:layout_constraintBottom_toTopOf="@+id/qr_found_btn"
-         app:layout_constraintEnd_toEndOf="parent"
-         app:layout_constraintStart_toStartOf="parent"
-         app:layout_constraintTop_toTopOf="parent"
-         app:srcCompat="@drawable/unlost_logo" />
-
-     <Button
-         android:id="@+id/demo_button"
-         style="@style/App.Button"
-         app:cornerRadius="40dp"
-         android:layout_width="wrap_content"
-         android:layout_height="wrap_content"
-         android:layout_marginBottom="84dp"
-         android:paddingStart="30dp"
+         android:layout_width="205dp"
+         android:layout_height="60dp"
          android:layout_gravity="center"
-         android:textAllCaps="false"
-         android:paddingEnd="30dp"
-         android:text="@string/demo_text"
-         app:layout_constraintBottom_toBottomOf="parent"
-         app:layout_constraintEnd_toEndOf="parent"
-         app:layout_constraintHorizontal_bias="0.498"
-         app:layout_constraintStart_toStartOf="parent"/>
+         app:layout_constraintVertical_chainStyle="packed"
+         app:layout_constraintTop_toBottomOf="@id/qr_found_btn"
+         app:layout_constraintBottom_toTopOf="@id/demo_button"
+         app:layout_constraintStart_toStartOf="parent"
+         app:layout_constraintEnd_toEndOf="parent" />
 
-     <ProgressBar
-             android:id="@+id/loadingUser"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             app:layout_constraintTop_toTopOf="parent"
-             app:layout_constraintBottom_toBottomOf="parent"
-             app:layout_constraintLeft_toLeftOf="parent"
-             app:layout_constraintRight_toRightOf="parent"
-             android:indeterminate="true"
-             android:visibility="invisible"/> 
+    <Button
+        android:id="@+id/demo_button"
+        style="@style/App.Button"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:insetTop="10dp"
+        android:insetBottom="10dp"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:padding="15dp"
+        android:text="@string/demo_text"
+        app:cornerRadius="50dp"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sign_in_google_button" />
 
- </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,6 +3,7 @@ package com.github.brugapp.brug.ui
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Bundle
+import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 class QrCodeShowActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setContentView(R.layout.activity_qr_code_show)
         //get Extra from intent
         val qrId: String? = intent.getStringExtra("qrId")
@@ -40,7 +42,17 @@ class QrCodeShowActivity : AppCompatActivity() {
         } catch (e: WriterException) {
             e.printStackTrace()
         }
+    }
 
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            android.R.id.home -> onBackPressed()
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
