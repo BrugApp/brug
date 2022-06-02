@@ -7,9 +7,11 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.ViewModel
 import com.github.brugapp.brug.data.BrugDataCache
 import com.github.brugapp.brug.data.UserRepository
-import com.github.brugapp.brug.di.sign_in.*
+import com.github.brugapp.brug.di.sign_in.AuthDatabase
+import com.github.brugapp.brug.di.sign_in.SignInClient
+import com.github.brugapp.brug.di.sign_in.SignInCredentialGetter
+import com.github.brugapp.brug.di.sign_in.SignInResultHandler
 import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
-import com.github.brugapp.brug.ui.SignInActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
