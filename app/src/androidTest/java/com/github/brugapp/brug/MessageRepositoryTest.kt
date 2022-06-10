@@ -56,13 +56,6 @@ private val LOCATIONMSG = LocationMessage(
     LocationService.fromGeoPoint(GeoPoint(24.5, 10.8)))
 
 
-//TODO: TEST AUDIOMESSAGE WHEN IMPLEMENTATION IS COMPLETE
-private val AUDIOMSG = AudioMessage(
-    USER2.getFullName(),
-    DateService.fromLocalDateTime(LocalDateTime.now()),
-    "AudioMessage",
-    "", "")
-
 private const val userEmail = "test@Message.com"
 private const val passwd = "123456"
 
@@ -88,6 +81,9 @@ class MessageRepositoryTest {
     @After
     fun cleanUp(){
         BrugDataCache.resetCachedMessagesLists()
+        if(firebaseAuth.currentUser != null){
+            firebaseAuth.signOut()
+        }
     }
 
     @Test
@@ -104,7 +100,6 @@ class MessageRepositoryTest {
         assertThat(response.onError, IsNot(IsNull.nullValue()))
     }
 
-    //TODO: FIX TEST
     @Test
     fun addTextMessageCorrectlyAddsNewTextMessage() {
         BrugDataCache.initMessageListInCache("${USER_ID1}${USER_ID2}")
@@ -250,12 +245,6 @@ class MessageRepositoryTest {
         delay(2000)
 
         assertThat(BrugDataCache.getCachedMessageList("${USER_ID1}${USER_ID2}").value.isNullOrEmpty(), IsEqual(false))
-//        val splitPath = filePath.toString().split("/")
-//        val firebasePicMessage = PicMessage(picMsg.senderName,
-//            picMsg.timestamp,
-//            picMsg.body,
-//            "${CONV_ASSETS}${conv[0].convId}/${splitPath[splitPath.size-1]}")
-//        assertThat(conv[0].messages.contains(firebasePicMessage), IsEqual(true))
         firebaseAuth.signOut()
     }
 

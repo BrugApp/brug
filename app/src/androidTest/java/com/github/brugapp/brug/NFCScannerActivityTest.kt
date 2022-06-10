@@ -112,7 +112,6 @@ class NFCScannerActivityTest {
     fun mockAdapter(){
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
         mockActivity.onCreate(null)
-        //mockActivity.adapter = mock(NfcAdapter::class.java)
         mockActivity.writeModeOff()
         mockActivity.writeModeOn()
         assertThat(mockActivity.adapter,`is`(IsNull.nullValue()))
@@ -123,7 +122,6 @@ class NFCScannerActivityTest {
         val mockActivity: NFCScannerActivity = mock(NFCScannerActivity::class.java)
         val bundle = Bundle()
         mockActivity.onCreate(bundle)
-        //mockActivity.findViews()
         mockActivity.onPause()
         mockActivity.onResume()
         mockActivity.writeModeOff()
@@ -134,7 +132,7 @@ class NFCScannerActivityTest {
 
         val record = viewModel.createRecord("hello")
         val ndefArray = arrayOf(NdefMessage(record))
-        val context = InstrumentationRegistry.getInstrumentation().context;//mock(Context::class.java)
+        val context = InstrumentationRegistry.getInstrumentation().context
         mockActivity.context = context
         viewModel.checkNFCPermission(context)
         viewModel.setupTag()
