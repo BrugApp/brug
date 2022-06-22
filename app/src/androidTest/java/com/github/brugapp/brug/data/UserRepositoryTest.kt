@@ -304,7 +304,6 @@ class UserRepositoryTest {
             true,
             FirebaseFakeHelper().providesFirestore()
         )
-//        UserRepo.addAuthUser(DUMMY_USER)
         assertThat(UserRepository.deleteUserFromID(
             DUMMY_UID,
             FirebaseFakeHelper().providesFirestore()
@@ -361,7 +360,6 @@ class UserRepositoryTest {
             FirebaseFakeHelper().providesAuth(),
             FirebaseFakeHelper().providesStorage()
         ), IsEqual(userWithToken))
-        //        UserRepo.addAuthUser(DUMMY_USER)
         assertThat(UserRepository.deleteDeviceTokenFromUser(
             DUMMY_UID,
             DEVICE_TOKEN,

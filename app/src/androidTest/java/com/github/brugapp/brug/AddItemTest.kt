@@ -1,17 +1,11 @@
 package com.github.brugapp.brug
 
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Spinner
-import android.widget.TextView
 import androidx.annotation.DrawableRes
 import androidx.core.graphics.drawable.toBitmap
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onData
@@ -26,9 +20,14 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.github.brugapp.brug.data.ItemsRepository
+import com.github.brugapp.brug.data.UserRepository
+import com.github.brugapp.brug.di.sign_in.brug_account.BrugSignInAccount
 import com.github.brugapp.brug.fake.FirebaseFakeHelper
 import com.github.brugapp.brug.model.ItemType
-import com.github.brugapp.brug.ui.*
+import com.github.brugapp.brug.ui.AddItemActivity
+import com.github.brugapp.brug.ui.DESCRIPTION_LIMIT
+import com.github.brugapp.brug.ui.ItemsMenuActivity
+import com.github.brugapp.brug.ui.NFCScannerActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -44,7 +43,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 
 //TODO: TRY TO PUT IMAGE ASSERTIONS NOW
 private var TEST_USER_UID = "TwSXfeusCKN95UvlGgY4uvEnXpl2"
@@ -78,6 +76,13 @@ class AddItemTest {
             firebaseAuth.signInWithEmailAndPassword(
                 "addItem@unlost.com",
                 "123456").await()
+
+            UserRepository.addUserFromAccount(
+                firebaseAuth.uid!!,
+                BrugSignInAccount("AddItem", "Unlost", "", ""),
+                true,
+                firestore
+            )
         }
     }
 
@@ -111,6 +116,9 @@ class AddItemTest {
     fun cleanUp() {
         Intents.release()
         wipeItemsAndSignOut()
+        if(firebaseAuth.currentUser != null){
+            firebaseAuth.signOut()
+        }
     }
 
     @Test
@@ -120,9 +128,7 @@ class AddItemTest {
         itemName.perform(typeText(validName))
         itemName.perform(closeSoftKeyboard())
 
-
         onView(withId(R.id.add_nfc_item)).perform(click())
-
 
         Intents.intended(
             allOf(
@@ -218,13 +224,15 @@ class AddItemTest {
         itemTypeSpinner.perform(click())
         onData(anything()).atPosition(ItemType.Wallet.ordinal).perform(click())
         onView(withId(R.id.add_item_button)).perform(click())
-
-        // NEED TO TEST ON THE DISPLAYED LIST SINCE WE HAVE NO WAY
-        // TO ACCESS THE USER'S ITEMS OUTSIDE THE NEW ACTIVITY
-//        onView(withId(R.id.items_listview)).check(matches(
-//            hasItemAtPosition(0, hasDescendant(
-//                withDrawable(R.drawable.ic_baseline_account_balance_wallet_24)
-//            ))))
+        Intents.intended(
+            allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                hasComponent(ItemsMenuActivity::class.java.name)
+            )
+        )
+        onView(withId(R.id.items_listview)).check(matches(
+            hasItemAtPosition(0, hasDescendant(withDrawable(R.drawable.ic_baseline_account_balance_wallet_24)))
+        ))
     }
 
     @Test
@@ -237,8 +245,15 @@ class AddItemTest {
         itemTypeSpinner.perform(click())
         onData(anything()).atPosition(ItemType.Keys.ordinal).perform(click())
         onView(withId(R.id.add_item_button)).perform(click())
-
-//        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_vpn_key_24))
+        Intents.intended(
+            allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                hasComponent(ItemsMenuActivity::class.java.name)
+            )
+        )
+        onView(withId(R.id.items_listview)).check(matches(
+            hasItemAtPosition(0, hasDescendant(withDrawable(R.drawable.ic_baseline_vpn_key_24)))
+        ))
     }
 
     @Test
@@ -251,7 +266,15 @@ class AddItemTest {
         itemTypeSpinner.perform(click())
         onData(anything()).atPosition(ItemType.CarKeys.ordinal).perform(click())
         onView(withId(R.id.add_item_button)).perform(click())
-//        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_car_rental_24))
+        Intents.intended(
+            allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                hasComponent(ItemsMenuActivity::class.java.name)
+            )
+        )
+        onView(withId(R.id.items_listview)).check(matches(
+            hasItemAtPosition(0, hasDescendant(withDrawable(R.drawable.ic_baseline_car_rental_24)))
+        ))
     }
 
     @Test
@@ -264,7 +287,15 @@ class AddItemTest {
         itemTypeSpinner.perform(click())
         onData(anything()).atPosition(ItemType.Phone.ordinal).perform(click())
         onView(withId(R.id.add_item_button)).perform(click())
-//        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_smartphone_24))
+        Intents.intended(
+            allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                hasComponent(ItemsMenuActivity::class.java.name)
+            )
+        )
+        onView(withId(R.id.items_listview)).check(matches(
+            hasItemAtPosition(0, hasDescendant(withDrawable(R.drawable.ic_baseline_smartphone_24)))
+        ))
     }
 
     @Test
@@ -277,7 +308,15 @@ class AddItemTest {
         itemTypeSpinner.perform(click())
         onData(anything()).atPosition(ItemType.Other.ordinal).perform(click())
         onView(withId(R.id.add_item_button)).perform(click())
-//        assertThat(DUMMY_USER.getItemList().last().getRelatedIcon(), Is(R.drawable.ic_baseline_add_24))
+        Intents.intended(
+            allOf(
+                IntentMatchers.toPackage("com.github.brugapp.brug"),
+                hasComponent(ItemsMenuActivity::class.java.name)
+            )
+        )
+        onView(withId(R.id.items_listview)).check(matches(
+            hasItemAtPosition(0, hasDescendant(withDrawable(R.drawable.ic_baseline_add_24)))
+        ))
     }
 
 

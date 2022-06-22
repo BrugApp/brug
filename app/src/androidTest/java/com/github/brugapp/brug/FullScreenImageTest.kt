@@ -10,7 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-public class FullScreenImageTest {
+class FullScreenImageTest {
     @get:Rule
     var fullScreenImageTestRule = ActivityScenarioRule(FullScreenImage::class.java)
 

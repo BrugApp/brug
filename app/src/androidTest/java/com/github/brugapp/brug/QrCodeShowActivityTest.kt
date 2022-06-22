@@ -33,7 +33,7 @@ class QrCodeShowActivityTest{
     @Test
     fun correctQrIsShown(){
         ActivityScenario.launch<QrCodeShowActivity>(infoListIntent).use {
-            onView(ViewMatchers.withId(R.id.itemNameShow)).check(matches(withText(code)))
+            onView(withId(R.id.itemNameShow)).check(matches(withText(code)))
         }
     }
 }

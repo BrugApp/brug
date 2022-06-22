@@ -90,7 +90,6 @@ class ChatMenuActivityTest {
         }
     }
 
-    //TODO: USE CACHE FOR ITEMS HERE !
     @Test
     fun changingBottomNavBarMenuToItemsListGoesToActivity() {
         val intent =
@@ -218,7 +217,7 @@ class ChatMenuActivityTest {
     }
 
     @Test
-    fun swipeOnConversationWithFirebaseEnabledDeletesConversationAndReAddsIt() {
+    fun swipeOnConversationWithFirebaseEnabledDeletesConversation() {
         runBlocking {
             firebaseAuth.signInAnonymously().await()
 
@@ -273,11 +272,8 @@ class ChatMenuActivityTest {
 
         entryToSwipe.swipeRight(50)
         Thread.sleep(1000)
-//        onView(withText("Undo")).perform(click())
-//        Thread.sleep(1000)
     }
 
-    //TODO: Test clicking on item goes to chat
     @Test
     fun clickOnItemGoesToChatActivity() {
         val intent =
@@ -337,9 +333,6 @@ class ChatMenuActivityTest {
         )
 
         onView(withId(R.id.items_list_menu_button)).perform(click())
-
-//        Espresso.pressBack()
-//        Thread.sleep(1000)
         val selectedItem = BottomNavBar().getSelectedItem(getActivityInstance()!!)
         assertThat(selectedItem, Matchers.`is`(R.id.chat_menu_button))
 
